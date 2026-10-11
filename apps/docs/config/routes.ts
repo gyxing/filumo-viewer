@@ -10,7 +10,15 @@ export function getDocsRoutes({
 }) {
   const docs = resolve(__dirname, '../docs');
   const routes = [
-    { path: '/', component: resolve(docs, 'index.md'), layout: false },
+    // 烟测服务沿用文档开发链路，但默认入口直接进入工作台。
+    !production && smoke
+      ? {
+          path: '/',
+          component: resolve(docs, 'index.md'),
+          redirect: '/dev/smoke-test',
+          layout: false,
+        }
+      : { path: '/', component: resolve(docs, 'index.md'), layout: false },
     {
       path: '/index/zh-CN',
       component: resolve(docs, 'index.zh-CN.md'),

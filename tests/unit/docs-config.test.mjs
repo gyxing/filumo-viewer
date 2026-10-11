@@ -35,3 +35,14 @@ test('生产配置永远没有本机烟测路由', () => {
       .some((r) => r.path === '/dev/smoke-test'),
   );
 });
+
+test('只有烟测开发模式将根入口转到烟测工作台', () => {
+  const root = (production, smoke) =>
+    module.exports
+      .getDocsRoutes({ production, smoke })
+      .find((r) => r.path === '/');
+  assert.equal(root(false, true).redirect, '/dev/smoke-test');
+  assert.equal(root(false, false).redirect, undefined);
+  assert.equal(root(true, true).redirect, undefined);
+  assert.ok(root(false, false).component.endsWith('index.md'));
+});

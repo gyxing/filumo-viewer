@@ -8,7 +8,7 @@ const out = await build({
   format: 'esm',
   platform: 'node',
 });
-const { initialConfig, changeView, redact } = await import(
+const { initialConfig, changeView, redact, resetSmokeConfig } = await import(
   'data:text/javascript;base64,' +
     Buffer.from(out.outputFiles[0].text).toString('base64')
 );
@@ -17,4 +17,14 @@ test('修改主题保留 Office 插件身份且日志去敏', () => {
   assert.equal(next.office, initialConfig.office);
   assert.equal(next.viewer.theme, 'dark');
   assert.equal(redact('token=secret').includes('secret'), false);
+});
+
+test('恢复默认参数使用独立配置副本', () => {
+  const a = resetSmokeConfig();
+  const b = resetSmokeConfig();
+  a.viewer.zoom = 200;
+  a.office.worker = 'never';
+  assert.equal(b.viewer.zoom, 100);
+  assert.equal(b.office.worker, 'auto');
+  assert.equal(initialConfig.viewer.zoom, 100);
 });

@@ -14,6 +14,21 @@ export function CapabilityPanel({
   };
   return (
     <section className="smoke-controls">
+      {value.zoom && (
+        <label>
+          当前缩放
+          <InputNumber
+            aria-label="当前缩放"
+            min={value.zoom.min}
+            max={value.zoom.max}
+            step={value.zoom.step}
+            value={value.zoom.value}
+            onChange={(zoom) => {
+              if (zoom !== null) perform(() => value.zoom?.set(zoom));
+            }}
+          />
+        </label>
+      )}
       {value.navigation && (
         <label>
           导航

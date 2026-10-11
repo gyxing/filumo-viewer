@@ -1,44 +1,354 @@
 .fivo-smoke {
-  max-width: 1500px;
-  margin: auto;
+  --smoke-border: #dbe3ec;
+  --smoke-muted: #64748b;
+  --smoke-accent: #1677ff;
+  --smoke-preview-height: 640px;
+
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1760px;
+  margin: 0 auto;
   padding: 24px;
   color: #203046;
+  background: #f5f7fa;
   font-family: system-ui, sans-serif;
 }
 
-.smoke-controls {
+.fivo-smoke h1,
+.fivo-smoke h2,
+.fivo-smoke h3,
+.fivo-smoke p {
+  margin: 0;
+}
+
+.smoke-heading,
+.smoke-section-heading,
+.smoke-preview-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.smoke-heading {
+  margin-bottom: 16px;
+}
+
+.smoke-heading h1 {
+  margin: 4px 0;
+  font-size: 26px;
+}
+
+.smoke-heading p,
+.smoke-section-heading span {
+  color: var(--smoke-muted);
+  font-size: 12px;
+}
+
+.smoke-eyebrow {
+  color: var(--smoke-accent);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}
+
+.smoke-local-note {
+  margin-bottom: 16px;
+}
+
+.smoke-configuration,
+.smoke-samples,
+.smoke-preview,
+.smoke-logs {
+  min-width: 0;
+  box-sizing: border-box;
+  background: #fff;
+  border: 1px solid var(--smoke-border);
+  border-radius: 10px;
+}
+
+.smoke-configuration,
+.smoke-logs {
+  padding: 16px;
+}
+
+.smoke-section-heading {
+  margin-bottom: 12px;
+}
+
+.smoke-section-heading h2 {
+  font-size: 15px;
+}
+
+.smoke-target,
+.smoke-actions,
+.smoke-log-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.smoke-actions span {
+  color: var(--smoke-muted);
+  font-size: 12px;
+}
+
+.fivo-smoke .smoke-controls {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  align-items: center;
+  align-items: flex-end;
   margin: 16px 0;
 }
 
-.smoke-controls label {
+.fivo-smoke .smoke-controls label {
+  display: grid;
+  flex: 0 1 140px;
+  min-width: 0;
+  gap: 6px;
+  color: #475569;
+  font-size: 12px;
+}
+
+.fivo-smoke .smoke-controls .ant-select,
+.fivo-smoke .smoke-controls .ant-input-number {
+  width: 100%;
+}
+
+.fivo-smoke .smoke-controls .ant-switch {
+  justify-self: start;
+}
+
+.smoke-workspace {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  align-items: start;
+  gap: 16px;
+  margin: 16px 0;
+}
+
+.smoke-samples {
+  position: sticky;
+  top: 16px;
   display: flex;
-  gap: 8px;
-  align-items: center;
+  flex-direction: column;
+  height: calc(var(--smoke-preview-height) + 65px);
+  min-height: 300px;
+  padding: 14px;
+  gap: 12px;
 }
 
-.smoke-controls .ant-select {
-  min-width: 120px;
+.smoke-samples .smoke-section-heading {
+  margin-bottom: 0;
 }
 
-.smoke-controls > .ant-select {
-  min-width: 360px;
+.smoke-file-picker {
+  display: grid;
+  gap: 6px;
+  color: var(--smoke-muted);
+  font-size: 12px;
+}
+
+.smoke-file-picker input {
   max-width: 100%;
+  min-width: 0;
 }
 
-.smoke-controls .ant-input-search {
-  max-width: 260px;
+.smoke-samples .ant-alert-message {
+  font-size: 12px;
 }
 
-.fivo-smoke pre {
-  white-space: pre-wrap;
-  max-height: 300px;
+.smoke-sample-groups {
+  min-height: 0;
+  flex: 1;
   overflow: auto;
-  background: #f3f6fa;
-  border: 1px solid #dfe6ed;
-  padding: 16px;
+}
+
+.smoke-sample-loading {
+  min-height: 90px;
+}
+
+.smoke-sample-group + .smoke-sample-group {
+  margin-top: 14px;
+}
+
+.smoke-sample-group h3 {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  color: var(--smoke-muted);
+  font-size: 12px;
+}
+
+.smoke-sample {
+  display: grid;
+  gap: 5px;
+  width: 100%;
+  margin-bottom: 6px;
+  padding: 9px 10px;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  background: #fff;
+  border: 1px solid var(--smoke-border);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.smoke-sample:hover {
+  border-color: #91caff;
+}
+
+.smoke-sample[aria-pressed='true'] {
+  background: #eaf4ff;
+  border-color: var(--smoke-accent);
+}
+
+.smoke-sample:focus-visible {
+  outline: 2px solid var(--smoke-accent);
+  outline-offset: 1px;
+}
+
+.smoke-sample strong {
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+
+.smoke-sample span {
+  color: var(--smoke-muted);
+  font-size: 11px;
+}
+
+.smoke-preview {
+  overflow: hidden;
+}
+
+.smoke-preview-heading {
+  min-height: 64px;
+  padding: 12px 16px;
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--smoke-border);
+}
+
+.smoke-preview-heading > div {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.smoke-preview-heading strong {
+  overflow: hidden;
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.smoke-preview-heading span[role='status'] {
+  color: var(--smoke-muted);
+  font-size: 12px;
+}
+
+.smoke-preview > .smoke-controls,
+.smoke-progress {
+  padding: 0 16px;
+}
+
+.smoke-progress {
+  margin: 10px 0;
+  color: var(--smoke-muted);
+  font-size: 12px;
+}
+
+.smoke-probe-content {
+  margin: 24px;
+  padding: 32px;
+  border: 1px solid var(--smoke-border);
   border-radius: 8px;
+}
+
+.smoke-probe-content p {
+  margin-top: 12px;
+}
+
+.smoke-log-list {
+  max-height: 220px;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  list-style: none;
+}
+
+.smoke-log-list li {
+  display: grid;
+  grid-template-columns: 70px 50px minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+  padding: 8px 0;
+  border-top: 1px solid #eef2f7;
+  font-size: 12px;
+}
+
+.smoke-log-list time {
+  color: var(--smoke-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.smoke-log-list li > span:last-child {
+  overflow-wrap: anywhere;
+}
+
+.smoke-log-kind {
+  padding: 1px 5px;
+  text-align: center;
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.smoke-log-kind-error {
+  color: #b91c1c;
+  background: #fee2e2;
+}
+
+.smoke-log-kind-ready {
+  color: #166534;
+  background: #dcfce7;
+}
+
+.smoke-log-kind-progress {
+  color: #075985;
+  background: #e0f2fe;
+}
+
+.smoke-log-kind-warning {
+  color: #92400e;
+  background: #fef3c7;
+}
+
+@media (max-width: 800px) {
+  .fivo-smoke {
+    padding: 12px;
+  }
+
+  .smoke-workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .smoke-samples {
+    position: static;
+    height: auto;
+    min-height: 0;
+  }
+
+  .smoke-sample-groups {
+    max-height: 280px;
+  }
+
+  .smoke-section-heading {
+    flex-wrap: wrap;
+  }
+
+  .fivo-smoke .smoke-controls label {
+    flex: 1 1 120px;
+  }
 }

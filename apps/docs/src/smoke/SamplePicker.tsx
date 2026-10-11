@@ -1,27 +1,42 @@
-import { Alert, Select } from 'antd';
+import { Alert, Button, Empty, Input, Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { docsPath } from '../site-path';
 import type { Sample } from './types';
-/** 样本清单由开发服务器提供，不把私有名称打包进应用。 */
+
+// 按实际解析族展示本机和公开样本，WPS 随 Word 分组。
+const groups = [
+  { name: 'Word', formats: ['doc', 'docx', 'wps'] },
+  { name: 'Excel', formats: ['xls', 'xlsx'] },
+  { name: 'PowerPoint', formats: ['ppt', 'pptx'] },
+];
+
+/** 样本只从开发接口读取，工作台源码不包含真实文件名或本机路径。 */
 export function SamplePicker({
+  selectedId,
   onSample,
   onFile,
 }: {
-  onSample: (s: Sample) => void;
-  onFile: (f?: File) => void;
+  selectedId?: string;
+  onSample: (sample: Sample) => void;
+  onFile: (file?: File) => void;
 }) {
-  const [samples, setSamples] = useState<Sample[]>([]),
-    [message, setMessage] = useState('读取样本列表');
+  const [samples, setSamples] = useState<Sample[]>([]);
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState('');
+  const [revision, setRevision] = useState(0);
   useEffect(() => {
     const controller = new AbortController();
-    fetch(docsPath('__fivo_smoke/samples'), {
-      signal: controller.signal,
-    })
-      .then((r) => {
-        if (!r.ok) throw Error('烟测接口未启用');
-        return r.json();
+    setLoading(true);
+    setError(false);
+    fetch(docsPath('__fivo_smoke/samples'), { signal: controller.signal })
+      .then((response) => {
+        if (!response.ok) throw Error('样本接口不可用，请通过 pnpm smoke 启动');
+        return response.json();
       })
       .then((data) => {
+        if (controller.signal.aborted) return;
         setSamples(data.samples);
         setMessage(
           data.configured
@@ -29,38 +44,105 @@ export function SamplePicker({
             : data.diagnostics.join('；'),
         );
       })
-      .catch((e) => {
-        if (!controller.signal.aborted) setMessage(e.message);
+      .catch((cause) => {
+        if (!controller.signal.aborted) {
+          setError(true);
+          setMessage(cause instanceof Error ? cause.message : String(cause));
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
       });
     return () => controller.abort();
-  }, []);
+  }, [revision]);
+  const match = query.trim().toLowerCase();
+  const visible = samples.filter((sample) =>
+    (sample.label + ' ' + sample.extension).toLowerCase().includes(match),
+  );
   return (
-    <section>
-      <Alert message={message} type="info" />
-      <div className="smoke-controls">
-        <Select
-          aria-label="选择烟测样本"
-          placeholder="选择样本"
-          showSearch
-          optionFilterProp="label"
-          options={samples.map((s) => ({
-            value: s.id,
-            label: s.label + ' (' + s.extension.toUpperCase() + ')',
-          }))}
-          onChange={(id) => {
-            const sample = samples.find((s) => s.id === id);
-            if (sample) onSample(sample);
+    <aside className="smoke-samples" aria-label="烟测样本列表">
+      <header className="smoke-section-heading">
+        <h2>示例文件</h2>
+        <span>
+          {visible.length} / {samples.length}
+        </span>
+      </header>
+      <Input
+        aria-label="搜索烟测样本"
+        placeholder="搜索名称或格式"
+        allowClear
+        value={query}
+        onChange={(event) => setQuery(event.target.value)}
+      />
+      <label className="smoke-file-picker">
+        选择本机文件
+        <input
+          aria-label="选择本机文件"
+          type="file"
+          accept=".doc,.docx,.wps,.docm,.dotx,.xls,.xlsx,.xlsm,.xltx,.ppt,.pptx,.pptm,.potx"
+          onChange={(event) => {
+            onFile(event.target.files?.[0]);
+            event.target.value = '';
           }}
         />
-        <label>
-          本机文件{' '}
-          <input
-            aria-label="选择本机文件"
-            type="file"
-            onChange={(e) => onFile(e.target.files?.[0])}
+      </label>
+      {message && <Alert message={message} type={error ? 'error' : 'info'} />}
+      {error && (
+        <Button onClick={() => setRevision((value) => value + 1)}>
+          重试读取样本
+        </Button>
+      )}
+      <div className="smoke-sample-groups">
+        {loading && (
+          <Spin tip="读取样本列表">
+            <div className="smoke-sample-loading" />
+          </Spin>
+        )}
+        {!loading && !visible.length && (
+          <Empty
+            description="没有匹配的样本"
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
           />
-        </label>
+        )}
+        {groups.map((group) => {
+          const items = visible.filter((sample) =>
+            group.formats.includes(sample.format),
+          );
+          if (!items.length) return null;
+          return (
+            <section
+              key={group.name}
+              className="smoke-sample-group"
+              aria-label={group.name + ' 样本'}
+            >
+              <h3 aria-label={group.name}>
+                {group.name} <span>{items.length}</span>
+              </h3>
+              {items.map((sample) => (
+                <button
+                  key={sample.id}
+                  type="button"
+                  className="smoke-sample"
+                  aria-label={
+                    sample.label + ' (' + sample.extension.toUpperCase() + ')'
+                  }
+                  aria-pressed={selectedId === sample.id}
+                  onClick={() => onSample(sample)}
+                >
+                  <strong title={sample.label}>{sample.label}</strong>
+                  <span>
+                    {sample.extension.toUpperCase()} ·{' '}
+                    {sample.bytes >= 1048576
+                      ? (sample.bytes / 1048576).toFixed(1) + ' MB'
+                      : Math.max(1, Math.ceil(sample.bytes / 1024)) + ' KB'}
+                    {selectedId === sample.id ? ' · 已选择' : ''}
+                  </span>
+                </button>
+              ))}
+            </section>
+          );
+        })}
       </div>
-    </section>
+    </aside>
   );
 }

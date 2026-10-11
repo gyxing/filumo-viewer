@@ -28,10 +28,19 @@ test('新烟测选择公开文件、配置更新、销毁重开和 DOM 探针', 
   expect(data.samples.length).toBe(4);
   expect(data.samples.some((s) => s.id === 'basic-docx')).toBe(true);
   expect(JSON.stringify(data).includes('absolute')).toBe(false);
-  await page.goto(server.url + base + 'dev/smoke-test');
+  await page.goto(server.url + base);
   await expect(
     page.getByRole('heading', { name: 'Fivo 本地烟测' }),
   ).toBeVisible({ timeout: 60000 });
+  await expect(page).toHaveURL(server.url + base + 'dev/smoke-test');
+  await expect(
+    page.getByRole('heading', { name: 'Word', exact: true }),
+  ).toBeVisible();
+  const sidebar = page.getByRole('complementary', { name: '烟测样本列表' });
+  const preview = page.getByRole('region', { name: '文档预览' });
+  const sideBounds = await sidebar.boundingBox();
+  const previewBounds = await preview.boundingBox();
+  expect(previewBounds.x).toBeGreaterThan(sideBounds.x + sideBounds.width);
   const workerUrls = [];
   page.on('worker', (worker) => workerUrls.push(worker.url()));
   await page
@@ -46,10 +55,8 @@ test('新烟测选择公开文件、配置更新、销毁重开和 DOM 探针', 
   const sampleRequest = page.waitForResponse((response) =>
     response.url().endsWith(base + '__fivo_smoke/files/basic-docx'),
   );
-  await page.getByRole('combobox', { name: '选择烟测样本' }).click();
   await page
-    .locator('.ant-select-item-option-content')
-    .filter({ hasText: /^basic-docx \(DOCX\)$/ })
+    .getByRole('button', { name: 'basic-docx (DOCX)', exact: true })
     .click();
   expect((await sampleRequest).status()).toBe(200);
   await expect(page.locator('.office-file-docx-viewer')).toBeVisible({
@@ -60,6 +67,24 @@ test('新烟测选择公开文件、配置更新、销毁重开和 DOM 探针', 
       workerUrls.some((url) => new URL(url).pathname.startsWith(base)),
     )
     .toBe(true);
+  await expect(
+    page.getByRole('button', { name: 'basic-docx (DOCX)', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('textbox', { name: '搜索烟测样本' }).fill('pptx');
+  await expect(
+    page.getByRole('button', { name: 'basic-pptx (PPTX)', exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'basic-docx (DOCX)', exact: true }),
+  ).toHaveCount(0);
+  await page.getByRole('textbox', { name: '搜索烟测样本' }).fill('');
+  await page.getByRole('button', { name: '恢复默认值', exact: true }).click();
+  await expect(page.locator('.office-file-docx-viewer')).toBeVisible();
+  await page.getByRole('button', { name: 'DOM 外壳', exact: true }).click();
+  await expect(page.getByText('就绪：无分页能力')).toBeVisible();
+  await expect(page.locator('.office-file-docx-viewer')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Office 文件', exact: true }).click();
+  await expect(page.locator('.office-file-docx-viewer')).toBeVisible();
   await page
     .getByLabel('选择本机文件')
     .setInputFiles('tests/fixtures/public/generated/sample.docx');
@@ -70,6 +95,15 @@ test('新烟测选择公开文件、配置更新、销毁重开和 DOM 探针', 
   await expect(page.getByText('已销毁，可重新打开')).toBeVisible();
   await page.getByRole('button', { name: '重新打开', exact: true }).click();
   await expect(page.locator('.office-file-docx-viewer')).toBeVisible();
+  await page.getByRole('button', { name: '收起事件日志' }).click();
+  await expect(page.getByLabel('事件日志', { exact: true })).toHaveCount(0);
+  await page.getByRole('button', { name: '展开事件日志' }).click();
   await page.getByRole('button', { name: '清空日志' }).click();
   await expect(page.getByLabel('事件日志')).toHaveText('');
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    ),
+  ).toBe(true);
 });

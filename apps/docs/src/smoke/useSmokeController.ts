@@ -3,39 +3,45 @@ import type { ViewerCapabilities, ViewerHandle } from '@fivo/dom';
 import { office } from '@fivo/office';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { docsPath } from '../site-path';
-import { initialConfig, redact } from './config';
-import type { LogEntry, Sample } from './types';
-/** 只以 source 驱动解析；手动重开通过组件实例重建，不重复调用 ref.open。 */
+import { redact, resetSmokeConfig } from './config';
+import type { LogEntry, Sample, SmokeConfig, SmokeTarget } from './types';
+
+/** 只以 source 驱动解析，切换测试对象时释放旧视图并保留 Office 文件。 */
 export function useSmokeController() {
-  const [config, setConfig] = useState(initialConfig),
-    [source, setSource] = useState<File>(),
-    [generation, setGeneration] = useState(0),
-    [mounted, setMounted] = useState(true),
-    [active, setActiveState] = useState(true),
-    [state, setState] = useState<ControllerSnapshot>({ status: 'idle' }),
-    [capabilities, setCapabilities] = useState<ViewerCapabilities>({}),
-    [logs, setLogs] = useState<LogEntry[]>([]);
-  const handle = useRef<ViewerHandle>(null),
-    serial = useRef(0),
-    sequence = useRef(0),
-    abort = useRef<AbortController>();
-  const log = useCallback(
-    (kind: string, value: unknown) =>
-      setLogs((items) =>
-        [
-          ...items,
-          { id: ++sequence.current, kind, message: redact(value) },
-        ].slice(-200),
-      ),
-    [],
-  );
+  const [config, setConfigState] = useState(resetSmokeConfig);
+  const [target, setTargetState] = useState<SmokeTarget>('office');
+  const [source, setSource] = useState<File>();
+  const [selectedId, setSelectedId] = useState<string>();
+  const [sampleLoading, setSampleLoading] = useState(false);
+  const [sourceError, setSourceError] = useState('');
+  const [generation, setGeneration] = useState(0);
+  const [mounted, setMounted] = useState(true);
+  const [active, setActiveState] = useState(true);
+  const [state, setState] = useState<ControllerSnapshot>({ status: 'idle' });
+  const [capabilities, setCapabilities] = useState<ViewerCapabilities>({});
+  const [logs, setLogs] = useState<LogEntry[]>([]);
+  const handle = useRef<ViewerHandle>(null);
+  const serial = useRef(0);
+  const sequence = useRef(0);
+  const abort = useRef<AbortController>();
+  const snapshotKey = useRef('');
+  const log = useCallback((kind: string, value: unknown) => {
+    const entry = {
+      id: ++sequence.current,
+      time: new Date().toISOString(),
+      kind,
+      message: redact(value),
+    };
+    setLogs((items) => [...items, entry].slice(-200));
+  }, []);
   const plugins = useMemo(
     () => [
       office({
         ...config.office,
         onWarning: (warning) =>
           log('warning', warning.code + ': ' + warning.message),
-        onHyperlinkActivate: (event) => log('hyperlink', event.sourceType),
+        onHyperlinkActivate: (event) =>
+          log('hyperlink', event.sourceType + ' / ' + event.sourceId),
       }),
     ],
     [config.office, log],
@@ -47,72 +53,151 @@ export function useSmokeController() {
     },
     [],
   );
-  const selectFile = (file?: File) => {
+  const cancelSample = () => {
     abort.current?.abort();
     serial.current++;
+    setSampleLoading(false);
+  };
+  const selectFile = (file?: File) => {
     if (!file) return;
+    cancelSample();
+    setSelectedId(undefined);
+    setSourceError('');
     setSource(file);
+    setTargetState('office');
     setMounted(true);
     setActiveState(true);
-    log('source', file.name);
+    snapshotKey.current = '';
+    log('source', '打开本机文件：' + file.name);
   };
   const selectSample = async (sample: Sample) => {
-    abort.current?.abort();
-    const id = ++serial.current;
+    cancelSample();
+    const id = serial.current;
     const controller = new AbortController();
     abort.current = controller;
+    setSampleLoading(true);
+    setSourceError('');
+    log('source', '读取样本：' + sample.label);
     try {
       const response = await fetch(
         docsPath('__fivo_smoke/files/' + encodeURIComponent(sample.id)),
         { signal: controller.signal },
       );
-      if (!response.ok) throw Error('样本读取失败');
+      if (!response.ok)
+        throw Error(
+          '样本读取失败，请检查本机文件是否存在（HTTP ' +
+            response.status +
+            '）',
+        );
       const bytes = await response.blob();
-      if (id !== serial.current) return;
+      if (id !== serial.current || controller.signal.aborted) return;
       setSource(
         new File(
           [bytes],
-          sample.label.endsWith('.' + sample.extension)
+          sample.label.toLowerCase().endsWith('.' + sample.extension)
             ? sample.label
             : sample.label + '.' + sample.extension,
         ),
       );
+      setSelectedId(sample.id);
+      setTargetState('office');
       setMounted(true);
       setActiveState(true);
+      snapshotKey.current = '';
     } catch (error) {
-      if (!controller.signal.aborted) log('error', error);
+      if (!controller.signal.aborted && id === serial.current) {
+        setSourceError(redact(error));
+        log('error', error);
+      }
+    } finally {
+      if (id === serial.current) setSampleLoading(false);
+    }
+  };
+  const setConfig = (next: SmokeConfig) => {
+    setConfigState(next);
+    log('config', '已更新预览参数');
+  };
+  const resetConfig = () => {
+    setConfigState(resetSmokeConfig());
+    log('config', '已恢复默认参数，保留当前文件');
+  };
+  const setTarget = (next: SmokeTarget) => {
+    if (next === target) return;
+    cancelSample();
+    setTargetState(next);
+    setGeneration((n) => n + 1);
+    setMounted(true);
+    setActiveState(true);
+    setCapabilities({});
+    setState({ status: 'idle' });
+    snapshotKey.current = '';
+    log(
+      'target',
+      next === 'office' ? '切换到 Office 文件预览' : '切换到独立 DOM 外壳',
+    );
+  };
+  const updateState = (next: ControllerSnapshot) => {
+    setState(next);
+    const progress = next.progress;
+    const percent =
+      progress?.total && progress.loaded !== undefined
+        ? Math.round((progress.loaded / progress.total) * 100)
+        : undefined;
+    // 相同阶段和百分比合并日志，避免渐进解析淹没错误与用户操作。
+    const key = [next.status, progress?.phase, percent].join(':');
+    if (key !== snapshotKey.current) {
+      snapshotKey.current = key;
+      log(
+        progress ? 'progress' : 'state',
+        progress
+          ? progress.phase + (percent === undefined ? '' : ' ' + percent + '%')
+          : '会话状态：' + next.status,
+      );
     }
   };
   const destroy = async () => {
-    abort.current?.abort();
-    serial.current++;
-    await handle.current?.destroy();
-    setMounted(false);
-    setState({ status: 'disposed' } as ControllerSnapshot);
-    setCapabilities({});
-    log('dispose', '已销毁');
+    cancelSample();
+    try {
+      await handle.current?.destroy();
+    } catch (error) {
+      log('error', error);
+    } finally {
+      setMounted(false);
+      setState({ status: 'disposed' });
+      setCapabilities({});
+      log('dispose', '已销毁');
+    }
   };
   const reopen = () => {
     setGeneration((n) => n + 1);
     setMounted(true);
     setActiveState(true);
+    snapshotKey.current = '';
+    log('action', '重新打开当前测试对象');
   };
   const setActive = (value: boolean) => {
     handle.current?.setActive(value);
     setActiveState(value);
+    log('action', value ? '恢复预览' : '停用预览');
   };
   return {
     config,
     setConfig,
+    resetConfig,
+    target,
+    setTarget,
     source,
+    selectedId,
     selectFile,
     selectSample,
+    sampleLoading,
+    sourceError,
     generation,
     mounted,
     active,
     setActive,
     state,
-    setState,
+    updateState,
     capabilities,
     setCapabilities,
     logs,

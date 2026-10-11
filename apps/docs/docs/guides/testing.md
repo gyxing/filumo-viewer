@@ -22,7 +22,7 @@ pnpm build
 | Command         | Use                            | Notes                                           |
 | --------------- | ------------------------------ | ----------------------------------------------- |
 | pnpm docs:dev   | Documentation development      | Home, Playground, docs and Chinese counterparts |
-| pnpm smoke      | Private local-file smoke tests | React adapter at /dev/smoke-test                |
+| pnpm smoke      | Private local-file smoke tests | Opens the /dev/smoke-test workbench by default  |
 | pnpm demo:js    | JavaScript example             | Real build output, no React                     |
 | pnpm demo:react | React example                  | @fivo/react integration                         |
 | pnpm demo:vue3  | Vue 3 example                  | Native Office and KeepAlive                     |
@@ -36,6 +36,8 @@ pnpm demo defaults to JavaScript. Port 4173 is the default. For simultaneous dem
 docs:dev and smoke build packages once before starting. dumi page code can hot-reload; packages do not yet have a watch pipeline. Rebuild after package-source changes and restart demos. A stale page does not require duplicating CSS or introducing another bundler.
 
 Playground tabs select integration code, not the framework running the page. Use the separate demos to verify actual framework integration.
+
+The smoke workbench groups samples by Word, Excel and PowerPoint, with name/format search and local file selection. Resetting parameters keeps the selected Office file. Switching between Office and the DOM shell disposes the previous viewer. Timestamped event logs can be collapsed or cleared and keep at most 200 entries. The DOM shell checks generic interfaces; Office-only settings are disabled in that mode.
 
 ## Automated checks
 

@@ -15,6 +15,8 @@ export interface Sample {
 }
 export interface LogEntry {
   id: number;
+  time: string;
   kind: string;
   message: string;
 }
+export type SmokeTarget = 'office' | 'probe';

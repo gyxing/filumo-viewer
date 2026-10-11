@@ -22,7 +22,7 @@ pnpm build
 | 命令            | 场景         | 说明                               |
 | --------------- | ------------ | ---------------------------------- |
 | pnpm docs:dev   | 文档站开发   | /、/playground、/docs 及对应中文页 |
-| pnpm smoke      | 本机文档烟测 | React 适配；增加 /dev/smoke-test   |
+| pnpm smoke      | 本机文档烟测 | 默认进入 /dev/smoke-test 工作台    |
 | pnpm demo:js    | 原生 JS 示例 | 构建产物，无 React                 |
 | pnpm demo:react | React 示例   | 真实 @fivo/react 接入              |
 | pnpm demo:vue3  | Vue 3 示例   | 原生 Office 与 KeepAlive           |
@@ -36,6 +36,8 @@ pnpm demo 默认等同原生 JS 示例。默认端口 4173；并行启动时设�
 docs:dev 和 smoke 启动前构建一次组件包，dumi 页面修改可热更新。packages 源码目前没有 watch 联动；修改后重新 pnpm build，demo 必须重启。不要因页面未更新就重复覆盖样式或开启第二套打包器。
 
 Playground 用于公开体验和接入代码展示；其中框架标签切换代码示例，不切换已经挂载的页面框架。分别验证框架行为应使用独立 demo。
+
+烟测工作台按 Word、Excel、PowerPoint 分组展示样本，可搜索名称或格式并选择本机文件。参数区支持恢复默认值，保留已选择文件；Office 文件与 DOM 外壳切换时释放旧预览。事件日志带时间和类型，可收起或清空，最多保留 200 条。DOM 外壳只验证当前通用接口，Office 专属参数在该模式下禁用。
 
 ## 自动检查
 

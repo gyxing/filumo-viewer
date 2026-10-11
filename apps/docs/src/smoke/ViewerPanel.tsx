@@ -8,7 +8,7 @@ export function ViewerPanel({
   controller: ReturnType<typeof useSmokeController>;
 }) {
   return (
-    <section aria-label="文档预览">
+    <section aria-label="Office 预览内容">
       {c.mounted ? (
         <DocumentViewer
           key={c.generation}
@@ -16,9 +16,12 @@ export function ViewerPanel({
           source={c.source}
           plugins={c.plugins}
           options={c.config.viewer}
-          onReady={() => c.log('ready', '预览就绪')}
+          onReady={() => {
+            c.handle.current?.setActive(c.active);
+            c.log('ready', '预览就绪：' + (c.source?.name ?? ''));
+          }}
           onError={(error) => c.log('error', error)}
-          onStateChange={c.setState}
+          onStateChange={c.updateState}
           onCapabilitiesChange={c.setCapabilities}
         />
       ) : (

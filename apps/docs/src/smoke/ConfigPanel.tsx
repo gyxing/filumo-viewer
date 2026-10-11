@@ -1,14 +1,16 @@
 import { Input, InputNumber, Select, Switch } from 'antd';
 import React from 'react';
 import { changeView } from './config';
-import type { SmokeConfig } from './types';
+import type { SmokeConfig, SmokeTarget } from './types';
 /** 视图设置保留插件身份，Office 创建选项变化才重建。 */
 export function ConfigPanel({
   value,
   onChange,
+  target,
 }: {
   value: SmokeConfig;
   onChange: (v: SmokeConfig) => void;
+  target: SmokeTarget;
 }) {
   const update = (patch: Partial<SmokeConfig['viewer']>) =>
     onChange(changeView(value, patch));
@@ -32,10 +34,18 @@ export function ConfigPanel({
       </label>
       <label>
         高度
-        <InputNumber
-          min={240}
-          value={Number(value.viewer.height)}
-          onChange={(height) => update({ height: height ?? 640 })}
+        <Input
+          aria-label="预览高度"
+          placeholder="640、80vh 或 100%"
+          value={String(value.viewer.height ?? '')}
+          onChange={(event) => {
+            const height = event.target.value.trim();
+            update({
+              height: /^\d+$/.test(height)
+                ? Number(height)
+                : height || undefined,
+            });
+          }}
         />
       </label>
       <label>
@@ -43,6 +53,7 @@ export function ConfigPanel({
         <InputNumber
           min={10}
           max={500}
+          disabled={target === 'probe'}
           value={value.viewer.zoom}
           onChange={(zoom) => update({ zoom: zoom ?? 100 })}
         />
@@ -68,6 +79,7 @@ export function ConfigPanel({
         水印
         <Input
           value={value.viewer.watermark}
+          disabled={target === 'probe'}
           onChange={(e) => update({ watermark: e.target.value })}
         />
       </label>
@@ -75,6 +87,7 @@ export function ConfigPanel({
         Worker
         <Select
           value={value.office.worker}
+          disabled={target === 'probe'}
           options={['auto', 'always', 'never'].map((value) => ({
             value,
             label: value,
@@ -88,6 +101,7 @@ export function ConfigPanel({
         媒体
         <Switch
           checked={value.office.media !== false}
+          disabled={target === 'probe'}
           onChange={(enabled) =>
             onChange({
               ...value,
@@ -103,6 +117,7 @@ export function ConfigPanel({
         字体回退
         <Input
           value={value.office.fonts?.fallbackFamilies?.join(',')}
+          disabled={target === 'probe'}
           placeholder="Arial"
           onChange={(e) =>
             onChange({

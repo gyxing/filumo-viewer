@@ -38,4 +38,6 @@ apps/docs 为私有文档与烟测应用；packages 为七个公开组件包。e
 
 当前仅 Office 预览，不含 PDF、文本、Markdown、JSON 或编辑保存。
 
+`pnpm smoke` 的根入口直接进入 `/dev/smoke-test` 工作台；`pnpm docs:dev` 仍进入文档首页。烟测工作台提供按格式分组的样本侧栏、参数重置、Office/DOM 外壳切换与事件日志，真实样本只从本机开发接口读取。
+
 本地文档默认从 `/` 访问，烟测入口为 `/dev/smoke-test`。部署子目录只需设置 `FIVO_DOCS_BASE` 后重新构建，配置方式见回归与本地样本指南。

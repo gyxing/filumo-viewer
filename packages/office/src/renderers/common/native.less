@@ -1,0 +1,350 @@
+.fivo-native-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 260px;
+  box-sizing: border-box;
+  min-height: 0;
+  min-width: 0;
+  padding: 0;
+  background: var(--office-file-surface-color);
+  color: var(--office-file-text-color);
+  border-right: 1px solid var(--office-file-border-color);
+  font: 13px/1.5 system-ui, sans-serif;
+  container-type: inline-size;
+}
+
+.fivo-native-panel[hidden],
+.fivo-native-panel [hidden],
+.fivo-native-word-outline [hidden],
+.fivo-office-notices[hidden],
+.office-file-overflow-notice[hidden] {
+  display: none;
+}
+
+.fivo-native-panel > header,
+.fivo-native-word-outline > header {
+  display: flex;
+  flex: 0 0 48px;
+  align-items: center;
+  gap: 4px;
+  box-sizing: border-box;
+  min-height: 48px;
+  padding: 0 8px;
+  border-bottom: 1px solid var(--office-file-border-color);
+}
+
+.fivo-native-panel header > strong {
+  flex: 1;
+  min-width: 0;
+  padding-left: 4px;
+  font-weight: 600;
+}
+
+.fivo-native-tab {
+  padding: 6px 10px;
+  font: inherit;
+  border: 0;
+  border-radius: 5px;
+  color: var(--office-file-muted-text-color);
+  background: transparent;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.fivo-native-tab--active {
+  color: var(--office-file-primary-color);
+  background: var(--office-file-selected-surface-color);
+  font-weight: 600;
+}
+
+.fivo-native-count {
+  margin-left: auto;
+  color: var(--office-file-muted-text-color);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.fivo-office-icon-button {
+  display: inline-flex;
+  flex: 0 0 24px;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 28px;
+  box-sizing: border-box;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  color: var(--office-file-muted-text-color);
+  background: transparent;
+  cursor: pointer;
+}
+
+.fivo-office-icon-button:hover:not(:disabled),
+.fivo-native-tab:hover {
+  color: var(--office-file-primary-color);
+  background: var(--office-file-selected-surface-color);
+}
+
+.fivo-office-icon-button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.fivo-office-icon-button:focus-visible,
+.fivo-native-tab:focus-visible,
+.fivo-native-result:focus-visible {
+  outline: 2px solid var(--office-file-primary-color);
+  outline-offset: -2px;
+}
+
+.fivo-native-query {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 24px 24px;
+  align-items: center;
+  gap: 4px;
+  margin: 12px 10px 8px;
+}
+
+.fivo-native-query-field {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  height: 34px;
+  box-sizing: border-box;
+  padding: 0 6px;
+  gap: 4px;
+  color: var(--office-file-muted-text-color);
+  background: var(--office-file-surface-color);
+  border: 1px solid var(--office-file-border-color);
+  border-radius: 5px;
+}
+
+.fivo-native-query-field:focus-within {
+  border-color: var(--office-file-primary-color);
+  box-shadow: 0 0 0 2px var(--office-file-focus-ring-color);
+}
+
+.fivo-native-query-field > svg {
+  flex: 0 0 14px;
+  width: 14px;
+}
+
+.fivo-native-query-field input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  font: inherit;
+  background: transparent;
+  color: var(--office-file-text-color);
+}
+
+.fivo-native-query-field input::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+.fivo-native-query-field > button {
+  flex-basis: 18px;
+  width: 18px;
+  height: 24px;
+}
+
+.fivo-native-query-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  margin: 0 10px 8px;
+  font-size: 12px;
+}
+
+.fivo-native-query-options label {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.fivo-native-query-options input {
+  margin: 0;
+  accent-color: var(--office-file-primary-color);
+}
+
+.fivo-native-result-status {
+  margin: 0 12px 8px;
+  color: var(--office-file-muted-text-color);
+  font-size: 12px;
+}
+
+.fivo-native-result-status:empty {
+  display: none;
+}
+
+.fivo-native-list {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  margin: 0 8px 8px;
+}
+
+.fivo-native-list-canvas {
+  position: relative;
+}
+
+.fivo-native-result {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+  position: absolute;
+  box-sizing: border-box;
+  width: 100%;
+  left: 0;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 8px;
+  text-align: left;
+  overflow: hidden;
+  font: inherit;
+  color: var(--office-file-text-color);
+  background: var(--office-file-surface-color);
+  cursor: pointer;
+}
+
+.fivo-native-result:hover {
+  background: var(--office-file-subtle-surface-color);
+}
+
+.fivo-native-result[aria-pressed='true'] {
+  border-color: var(--office-file-primary-color);
+  background: var(--office-file-selected-surface-color);
+}
+
+.fivo-native-result-meta {
+  display: block;
+  flex: 0 0 auto;
+  color: var(--office-file-muted-text-color);
+  font-size: 11px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.fivo-native-result-author {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.fivo-native-result-text {
+  display: box;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow-wrap: anywhere;
+}
+
+.fivo-native-review-list {
+  padding-top: 8px;
+}
+
+.fivo-native-review-list .fivo-native-result {
+  border-color: var(--office-file-border-color);
+}
+
+.fivo-native-review-list .fivo-native-result[aria-pressed='true'] {
+  border-color: var(--office-file-primary-color);
+}
+
+.fivo-native-review-detail {
+  max-height: 35%;
+  overflow: auto;
+  margin: 0 12px 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--office-file-border-color);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+@container (max-width: 230px) {
+  .fivo-native-query {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .fivo-native-query-field {
+    grid-column: 1 / -1;
+  }
+}
+
+.fivo-office-notices {
+  padding: 6px 12px;
+  color: var(--office-file-text-color);
+  background: var(--office-file-surface-color);
+}
+
+.fivo-office-notices ul {
+  max-height: 140px;
+  overflow: auto;
+}
+
+.fivo-presentation-context-menu {
+  position: absolute;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  width: 190px;
+  background: var(--office-file-surface-color);
+  padding: 4px;
+  box-shadow: var(--office-file-overlay-shadow);
+}
+
+.fivo-presentation-context-menu button {
+  border: 0;
+  padding: 10px;
+  background: transparent;
+  color: var(--office-file-text-color);
+  text-align: left;
+}
+
+.fivo-native-panel,
+.fivo-native-word-outline {
+  position: relative;
+}
+
+.fivo-native-resize {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  cursor: col-resize;
+  touch-action: none;
+  z-index: 20;
+}
+
+.fivo-native-resize--right {
+  right: 0;
+}
+
+.fivo-native-resize--left {
+  left: 0;
+}
+
+.fivo-native-resize:focus-visible,
+.fivo-native-resize:hover {
+  background: var(--office-file-primary-color);
+}
+
+.office-file-viewer[data-office-theme='dark'] .fivo-native-panel,
+.office-file-viewer[data-office-theme='dark'] .fivo-native-word-outline {
+  color-scheme: dark;
+}
+
+.fivo-office-icon-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

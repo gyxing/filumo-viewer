@@ -1,0 +1,38 @@
+# 正式组件包与私有文档应用进入工作区，消费者独立安装。
+packages:
+  - packages/*
+  - apps/docs
+# 命令执行前发现依赖不一致时失败，禁止隐式重新安装。
+verifyDepsBeforeRun: error
+# 与 Yarn 基线一致，不自动引入未声明的 peer 依赖。
+autoInstallPeers: false
+strictDepBuilds: true
+# 未列出的第三方构建脚本必须另行审查。
+allowBuilds:
+  "@parcel/watcher": false
+  "@swc/core": false
+  "core-js": false
+  "core-js-pure": false
+  "esbuild": true
+
+# 迁移时保持 Yarn 基线的传递依赖版本，后续升级需独立审查。
+overrides:
+  "@jridgewell/sourcemap-codec": "1.5.5"
+  "@tsconfig/node10": "1.0.12"
+  "@types/semver": "7.7.1"
+  "ansi-regex@6": "6.2.2"
+  "array-includes": "3.1.9"
+  "colord": "2.9.3"
+  "compression": "1.8.1"
+  "glob@7": "7.2.3"
+  "is-plain-object@5": "5.0.0"
+  "natural-compare-lite": "1.4.0"
+  "object.hasown": "1.1.4"
+  "own-keys": "1.0.1"
+  "proxy-addr": "2.0.7"
+  "readdirp@5": "5.0.0"
+  "string.prototype.matchall": "4.0.12"
+  "svg-parser": "2.0.4"
+  "typed-array-byte-offset": "1.0.4"
+  # 统一旧环境已有的 Node 全局类型，避免隔离布局下两版声明冲突。
+  "@types/node": "26.1.1"

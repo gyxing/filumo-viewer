@@ -1,0 +1,1 @@
+export { createDocxDrawingParser } from './parseDocxDrawing';

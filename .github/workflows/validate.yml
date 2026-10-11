@@ -20,17 +20,49 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
           node-version: 22
-          cache: yarn
+          cache: pnpm
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
+        env:
+          HUSKY: '0'
 
-      - name: Validate source and builds
-        run: yarn run check
+      - name: Validate Fivo workspace and documentation
+        run: pnpm run check
 
-      - name: Validate React peer compatibility
-        run: yarn run check:react-compatibility
+      - name: Validate contracts
+        run: pnpm test
+
+      - name: Validate isolated consumers
+        run: pnpm run test:consumers
+        env:
+          HUSKY: '0'
+
+      - name: Validate npm and Yarn consumers
+        run: pnpm run test:consumers:hosts
+        env:
+          HUSKY: '0'
+
+      - name: Install browser for public Fivo regression
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Validate public Fivo browser fixtures
+        run: pnpm run test:browser
+
+      - name: Save public Fivo browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fivo-public-browser
+          path: tmp/testing/public/
+          if-no-files-found: ignore
+          retention-days: 7

@@ -1,0 +1,46 @@
+.office-file-pptx-speaker-notes[hidden] {
+  display: none;
+}
+
+.office-file-pptx-viewer .office-file-pptx-viewer__thumbnail-button {
+  box-sizing: border-box;
+  padding: 8px;
+  border: 1px solid var(--office-file-border-color);
+  border-radius: 6px;
+  background: var(--office-file-surface-color);
+  color: var(--office-file-text-color);
+}
+
+.office-file-pptx-viewer
+  .office-file-pptx-viewer__thumbnail-button[aria-selected='true'] {
+  border-color: var(--office-file-primary-color);
+  box-shadow: 0 0 0 2px var(--office-file-focus-ring-color);
+}
+
+.office-file-pptx-viewer
+  .office-file-pptx-viewer__thumbnail-button:focus-visible {
+  outline: 2px solid var(--office-file-primary-color);
+  outline-offset: 2px;
+}
+
+.office-file-pptx-viewer__sidebar-header {
+  font-size: 12px;
+  color: var(--office-file-muted-text-color);
+}
+
+.office-file-pptx-speaker-notes__resize-handle::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 2px;
+  transform: translateX(-50%);
+  width: 36px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--office-file-border-color);
+}
+
+.office-file-pptx-speaker-notes__resize-handle:hover::after,
+.office-file-pptx-speaker-notes__resize-handle:focus-visible::after {
+  background: var(--office-file-primary-color);
+}

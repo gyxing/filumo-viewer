@@ -1,0 +1,108 @@
+.fivo-playground-controls {
+  position: sticky;
+  top: 92px;
+  max-height: calc(100vh - 116px);
+  min-width: 0;
+  padding: 18px;
+  overflow: auto;
+  color: var(--site-text);
+  background: var(--site-surface);
+  border: 1px solid var(--site-border);
+  border-radius: 18px;
+  box-shadow: var(--site-shadow-soft);
+  scrollbar-width: thin;
+  scrollbar-color: var(--site-border-strong) transparent;
+}
+
+.fivo-playground-card-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.fivo-playground-card-heading button {
+  padding: 6px 9px;
+  flex: 0 0 auto;
+  border: 1px solid #d5d8f5;
+  border-radius: 7px;
+  color: var(--site-primary);
+  background: #f5f5ff;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.fivo-playground-card-heading button:hover {
+  background: var(--site-primary-soft);
+}
+
+.fivo-playground-controls fieldset {
+  min-width: 0;
+  margin: 22px 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.fivo-playground-controls legend {
+  display: block;
+  float: none;
+  width: 100%;
+  margin: 0 0 12px;
+  padding: 0 0 8px;
+  color: var(--site-text-muted);
+  border-bottom: 1px solid var(--site-border);
+  font-size: 10px;
+  font-weight: 750;
+  line-height: 1.5;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.fivo-playground-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+  font-size: 12px;
+}
+
+.fivo-playground-controls .ant-select,
+.fivo-playground-controls .ant-input-number-group-wrapper,
+.fivo-playground-controls .ant-input-number {
+  width: 100%;
+}
+
+.fivo-playground-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 14px 0 10px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.fivo-playground-help {
+  margin: 12px 0 0;
+  color: var(--site-text-muted);
+  font-size: 11px;
+  line-height: 1.65;
+}
+@media (max-width: 900px) {
+  .fivo-playground-controls {
+    position: static;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 20px;
+    max-height: none;
+  }
+
+  .fivo-playground-controls > .fivo-playground-card-heading {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 600px) {
+  .fivo-playground-controls {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

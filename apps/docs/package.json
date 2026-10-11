@@ -1,0 +1,26 @@
+{
+  "name": "fivo-docs",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "setup": "dumi setup",
+    "dev": "dumi dev",
+    "build": "dumi build",
+    "check:types": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@fivo/core": "workspace:^",
+    "@fivo/dom": "workspace:^",
+    "@fivo/office": "workspace:^",
+    "@fivo/react": "workspace:^",
+    "@fivo/viewer": "workspace:^",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "antd": "^5.29.3"
+  },
+  "devDependencies": {
+    "dumi": "^2.4.38-beta.1",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0"
+  }
+}

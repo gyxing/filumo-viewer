@@ -1,19 +1,9 @@
 {
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "target": "ES2015",
-    "module": "ESNext",
-    "moduleResolution": "Node",
-    "strict": true,
-    "declaration": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "jsx": "react",
-    "baseUrl": "./",
-    "paths": {
-      "@@/*": [".dumi/tmp/*"],
-      "office-file-viewer": ["src"],
-      "office-file-viewer/*": ["src/*", "*"]
-    }
+    "noEmit": true,
+    "emitDeclarationOnly": false,
+    "declaration": false
   },
-  "include": [".dumirc.ts", ".fatherrc.ts", "src/**/*"]
+  "files": []
 }

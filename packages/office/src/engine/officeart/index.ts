@@ -1,0 +1,15 @@
+// OfficeArt 公共入口，集中导出记录解析器、错误类型和标准化图形资源模型。
+export { OfficeArtParseError } from './OfficeArtParseError';
+export { OFFICE_ART_RECORD } from './constants';
+export { parseOfficeArtRecords } from './parseOfficeArt';
+export {
+  parseOfficeArtHyperlink,
+  type OfficeArtHyperlinkTarget,
+} from './parseOfficeArtHyperlink';
+export type {
+  DecodedBitmap,
+  OfficeArtImageFormat,
+  OfficeArtRecord,
+  OfficeArtWarning,
+  ParsedOfficeArtBlip,
+} from './types';

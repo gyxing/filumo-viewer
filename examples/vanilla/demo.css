@@ -1,0 +1,45 @@
+body {
+  margin: 0;
+  background: #f4f6f9;
+  color: #243247;
+  font: 14px/1.5 system-ui, sans-serif;
+}
+.demo-page {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 24px;
+}
+.demo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.demo-header h1 {
+  margin: 0;
+  font-size: 24px;
+}
+.demo-header p,
+.demo-status {
+  color: #58677b;
+}
+.demo-picker {
+  display: grid;
+  gap: 6px;
+}
+.demo-picker input {
+  max-width: 100%;
+  font: inherit;
+}
+.demo-status {
+  min-height: 21px;
+}
+@media (max-width: 640px) {
+  .demo-page {
+    padding: 12px;
+  }
+  .demo-header h1 {
+    font-size: 20px;
+  }
+}

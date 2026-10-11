@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "id": "basic-pptx",
+  "fixtureSha256": "7744cfcbcb9fe3a532b99d39f9a6606056845b58419019fb7e033566af843909",
+  "format": "pptx",
+  "environment": {
+    "browser": "154.0.8037.98",
+    "os": "win32",
+    "viewport": [
+      1440,
+      1000
+    ],
+    "locale": "zh-CN"
+  },
+  "first": {
+    "id": "basic-pptx",
+    "format": "pptx",
+    "engine": "native",
+    "readyMs": 108.70000000298023,
+    "navigationCount": 2,
+    "navigationIndex": 0,
+    "scrollTop": 0,
+    "text": "Fivo presentation ready",
+    "width": 960,
+    "height": 720,
+    "cells": [],
+    "images": 0,
+    "tables": 0,
+    "nodes": 112,
+    "pageCount": 0,
+    "longTaskCount": 0,
+    "longTaskMs": 0,
+    "heapBytes": 8111471
+  },
+  "next": {
+    "id": "basic-pptx",
+    "format": "pptx",
+    "engine": "native",
+    "readyMs": 108.70000000298023,
+    "navigationCount": 2,
+    "navigationIndex": 1,
+    "scrollTop": 0,
+    "text": "Fivo second slide",
+    "width": 960,
+    "height": 720,
+    "cells": [],
+    "images": 0,
+    "tables": 0,
+    "nodes": 112,
+    "pageCount": 0,
+    "longTaskCount": 0,
+    "longTaskMs": 0,
+    "heapBytes": 9620842
+  }
+}

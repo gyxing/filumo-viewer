@@ -1,0 +1,278 @@
+import {
+  convertOfficeImageBlob,
+  officeImageMimeType,
+  officeMetafileFormat,
+} from '../media/officeMetafile';
+import type {
+  OfficeArchiveEntry,
+  OfficeArchiveReader,
+} from '../ooxml/OfficeArchiveReader';
+import { openOfficeArchive } from '../ooxml/archive';
+import {
+  attr,
+  childrenByLocalName,
+  descendantByLocalName,
+  parseXml,
+} from '../ooxml/xml';
+import { getPresentationMediaMimeType } from '../presentation/mediaTypes';
+import {
+  createPresentationPerformanceProfile,
+  type PresentationPerformanceProfile,
+} from '../presentation/presentationPerformance';
+import type { OfficeArchiveResourcePolicy } from '../resource-policy/OfficeResourcePolicy';
+import type { OfficeResourceSource } from '../resource-store';
+import type {
+  PptxPackageContext,
+  PptxSlideDescriptor,
+} from './PptxPackageContext';
+import { throwIfPptxParseAborted } from './PptxPackageContext';
+import { parsePptxComments } from './parsePptxComments';
+import { readPptxDefaultTextStyle } from './parsePptxText';
+import {
+  buildPptxPackageState,
+  readPresentationLayouts,
+  readPresentationSize,
+  readTableStyles,
+  readTheme,
+} from './readPptxPresentationParts';
+
+/** PPTX 压缩包的大文件判定指标。 */
+export type PptxArchiveProfile = {
+  /** 当前文档的性能统计信息。 */
+  performance: PresentationPerformanceProfile;
+  /** 压缩包中相关内容的压缩大小，单位为字节。 */
+  compressedSize: number;
+  /** 相关内容解压后的大小，单位为字节。 */
+  uncompressedSize: number;
+  /** 演示文稿包含的幻灯片数量。 */
+  slideCount: number;
+  /** 所有幻灯片 XML 解压后的累计大小，单位为字节。 */
+  slideXmlBytes: number;
+  /** 媒体资源累计大小，单位为字节。 */
+  mediaBytes: number;
+  /** 压缩包内最大媒体文件的大小，单位为字节。 */
+  largestMediaSize: number;
+};
+
+/** 附带性能档案的 PPTX 压缩包读取器。 */
+export type ProfiledPptxArchive = {
+  /** 用于按需读取源数据的读取器。 */
+  reader: OfficeArchiveReader;
+  /** 控制解析或渲染策略的性能档案。 */
+  profile: PptxArchiveProfile;
+};
+
+/** 仅根据 ZIP 中央目录计算 PPTX 的提前性能画像。 */
+export function createPptxArchiveProfile(
+  compressedSize: number,
+  entries: readonly OfficeArchiveEntry[],
+): PptxArchiveProfile {
+  const slideEntries = entries.filter((entry) =>
+    /^ppt\/slides\/slide\d+\.xml$/i.test(entry.path),
+  );
+  const mediaEntries = entries.filter((entry) =>
+    entry.path.startsWith('ppt/media/'),
+  );
+  const uncompressedSize = entries.reduce(
+    (total, entry) => total + entry.uncompressedSize,
+    0,
+  );
+  const slideXmlBytes = slideEntries.reduce(
+    (total, entry) => total + entry.uncompressedSize,
+    0,
+  );
+  const mediaBytes = mediaEntries.reduce(
+    (total, entry) => total + entry.uncompressedSize,
+    0,
+  );
+  const largestMediaSize = mediaEntries.reduce(
+    (largest, entry) => Math.max(largest, entry.uncompressedSize),
+    0,
+  );
+  return {
+    performance: createPresentationPerformanceProfile({
+      slideCount: slideEntries.length,
+      compressedBytes: compressedSize,
+      uncompressedBytes: uncompressedSize,
+      mainXmlBytes: slideXmlBytes,
+      mediaBytes,
+      singleMediaBytes: largestMediaSize,
+    }),
+    compressedSize,
+    uncompressedSize,
+    slideCount: slideEntries.length,
+    slideXmlBytes,
+    mediaBytes,
+    largestMediaSize,
+  };
+}
+
+/** 打开 PPTX 并只读取 ZIP 中央目录，调用方负责转移或关闭 Reader。 */
+export async function profilePptxArchive(
+  file: File,
+  signal?: AbortSignal,
+  resourcePolicy?: OfficeArchiveResourcePolicy,
+): Promise<ProfiledPptxArchive> {
+  const reader = await openOfficeArchive(file, { signal, resourcePolicy });
+  try {
+    return {
+      reader,
+      profile: createPptxArchiveProfile(file.size, reader.list()),
+    };
+  } catch (error) {
+    await reader.close();
+    throw error;
+  }
+}
+
+async function readTextEntries(
+  reader: OfficeArchiveReader,
+  paths: readonly string[],
+  signal?: AbortSignal,
+) {
+  const entries = new Map<string, string | Uint8Array>();
+  const queue = [...new Set(paths)].filter((path) => reader.has(path));
+  const workers = Array.from(
+    { length: Math.min(4, Math.max(1, queue.length)) },
+    async () => {
+      while (queue.length) {
+        throwIfPptxParseAborted(signal);
+        const path = queue.shift();
+        if (!path) return;
+        entries.set(path, await reader.readText(path, signal));
+      }
+    },
+  );
+  await Promise.all(workers);
+  return entries;
+}
+
+/** 读取主题、母版、版式、关系和 Slide 描述符，但不进入任何 Slide 正文。 */
+export async function readPptxStructure(
+  reader: OfficeArchiveReader,
+  sessionId: string,
+  profile: PptxArchiveProfile,
+  signal?: AbortSignal,
+): Promise<PptxPackageContext> {
+  throwIfPptxParseAborted(signal);
+  const archiveEntries = reader.list();
+  const structuralPaths = archiveEntries
+    .map((entry) => entry.path)
+    .filter(
+      (path) =>
+        path === 'ppt/presentation.xml' ||
+        path === 'ppt/theme/theme1.xml' ||
+        path === 'ppt/tableStyles.xml' ||
+        path.endsWith('.rels') ||
+        /ppt\/(comments|authors)\//i.test(path) ||
+        /ppt\/commentAuthors\.xml$/i.test(path) ||
+        /^ppt\/slideMasters\/slideMaster\d+\.xml$/i.test(path) ||
+        /^ppt\/slideLayouts\/slideLayout\d+\.xml$/i.test(path),
+    );
+  const entries = await readTextEntries(reader, structuralPaths, signal);
+  const mediaByPath: Record<string, OfficeResourceSource> = {};
+  const mediaByName: Record<string, OfficeResourceSource> = {};
+  archiveEntries
+    .filter((entry) => entry.path.startsWith('ppt/media/'))
+    .forEach((entry) => {
+      const source: OfficeResourceSource = {
+        kind: 'lazy',
+        id: `${sessionId}:pptx:${entry.path}`,
+        mimeType: officeMetafileFormat(entry.path)
+          ? officeImageMimeType(entry.path)
+          : getPresentationMediaMimeType(entry.path),
+        size: entry.uncompressedSize,
+        async load(resourceSignal) {
+          const blob = await reader.readBlob(
+            entry.path,
+            getPresentationMediaMimeType(entry.path),
+            resourceSignal,
+          );
+          return officeMetafileFormat(entry.path)
+            ? convertOfficeImageBlob(entry.path, blob)
+            : blob;
+        },
+      };
+      mediaByPath[entry.path] = source;
+      mediaByName[entry.path.split('/').pop() ?? entry.path] = source;
+    });
+  const packageState = buildPptxPackageState(entries, {
+    mediaByName,
+    mediaByPath,
+  });
+  const presentationXml =
+    (entries.get('ppt/presentation.xml') as string | undefined) ?? '';
+  const presentationDocument = parseXml(presentationXml);
+  const themeXml =
+    (entries.get('ppt/theme/theme1.xml') as string | undefined) ?? '';
+  const theme = themeXml
+    ? readTheme(themeXml)
+    : { colorScheme: {}, fontScheme: {}, colorMap: {} };
+  const defaultTextStyle = readPptxDefaultTextStyle(presentationXml, theme);
+  const tableStyles = readTableStyles(
+    (entries.get('ppt/tableStyles.xml') as string | undefined) ?? '',
+    theme,
+  );
+  const size = presentationXml
+    ? readPresentationSize(presentationXml)
+    : { width: 960, height: 540 };
+  const presentationRels =
+    packageState.relationships['ppt/_rels/presentation.xml.rels'] ?? {};
+  const slideIds = childrenByLocalName(
+    descendantByLocalName(presentationDocument.documentElement, 'sldIdLst'),
+    'sldId',
+  );
+  const descriptors: PptxSlideDescriptor[] = slideIds.map((node, index) => {
+    const relId = attr(node, 'r:id');
+    const target = relId ? presentationRels[relId]?.target : undefined;
+    const slidePath = target ?? `ppt/slides/slide${index + 1}.xml`;
+    const relsPath = slidePath
+      .replace(/^ppt\/slides\//, 'ppt/slides/_rels/')
+      .concat('.rels');
+    const notesPath = Object.values(
+      packageState.relationships[relsPath] ?? {},
+    ).find((relationship) =>
+      relationship.target.includes('notesSlides/'),
+    )?.target;
+    const slideSize =
+      archiveEntries.find((entry) => entry.path === slidePath)
+        ?.uncompressedSize ?? 0;
+    const annotationCount = parsePptxComments(
+      packageState,
+      relsPath,
+      `slide-${index + 1}`,
+      index,
+      size.width,
+      size.height,
+    ).annotations.length;
+    return {
+      id: `slide-${index + 1}`,
+      index: index + 1,
+      hidden: attr(node, 'show') === '0',
+      hasSpeakerNotes: Boolean(notesPath),
+      annotationCount,
+      estimatedElementCount: Math.max(1, Math.ceil(slideSize / 1024)),
+      revision: 1,
+      status: 'estimated',
+      slidePath,
+      relsPath,
+      notesPath,
+    };
+  });
+  const { masterDefinitions, masterLayoutDefinitions } =
+    readPresentationLayouts(entries, packageState, theme, tableStyles);
+
+  return {
+    sessionId,
+    reader,
+    packageState,
+    width: size.width,
+    height: size.height,
+    theme,
+    defaultTextStyle,
+    tableStyles,
+    masterDefinitions,
+    layoutDefinitions: Object.values(masterLayoutDefinitions).flat(),
+    descriptors,
+  };
+}

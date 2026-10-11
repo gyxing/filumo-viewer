@@ -1,0 +1,1 @@
+export { readDocStorySegments } from './readDocBinaryContent';

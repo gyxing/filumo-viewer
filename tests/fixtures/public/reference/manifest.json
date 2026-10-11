@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "updatePolicy": "显式采集后人工复核，普通测试不更新",
+  "environment": {
+    "browser": "Chrome 154.0.8037.97",
+    "viewport": [
+      1440,
+      1000
+    ],
+    "locale": "zh-CN"
+  },
+  "files": [
+    {
+      "file": "basic-docx.json"
+    },
+    {
+      "file": "basic-docx.png"
+    },
+    {
+      "file": "basic-pptx.json"
+    },
+    {
+      "file": "basic-pptx.png"
+    },
+    {
+      "file": "basic-xlsx.json"
+    },
+    {
+      "file": "basic-xlsx.png"
+    },
+    {
+      "file": "word-long-table.json"
+    },
+    {
+      "file": "word-long-table.png"
+    }
+  ]
+}

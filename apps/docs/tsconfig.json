@@ -1,0 +1,23 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "react",
+    "noEmit": true,
+    "emitDeclarationOnly": false,
+    "declaration": false,
+    "allowJs": true,
+    "types": [
+      "node",
+      "react",
+      "react-dom",
+      "dumi/theme-modules"
+    ]
+  },
+  "include": [
+    "src/**/*",
+    ".dumi/theme/**/*",
+    "config/**/*",
+    "server/**/*",
+    ".dumirc.ts"
+  ]
+}

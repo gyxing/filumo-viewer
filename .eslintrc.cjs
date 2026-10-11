@@ -1,4 +1,5 @@
 module.exports = {
+  settings: { react: { version: require('./apps/docs/node_modules/react/package.json').version } },
   extends: require.resolve('@umijs/lint/dist/config/eslint'),
   rules: {
     '@typescript-eslint/no-use-before-define': [

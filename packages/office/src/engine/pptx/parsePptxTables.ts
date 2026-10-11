@@ -1,0 +1,1 @@
+export { readPptxTableCellStyle } from './parsePptxSlide';

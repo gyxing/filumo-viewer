@@ -1,18 +1,19 @@
-node_modules
-/dist
-/tmp
-.dumi/tmp
-.dumi/tmp-test
-.dumi/tmp-production
+node_modules/
 .DS_Store
-/docs-dist/
-/docs/files/
-/docs/dev/smoke-test.md
-/docs/dev/smoke-test.less
-/docs/dev/smoke-test.samples.ts
-/tests/visual/
-
-# 本地 IDE、Codex 与测试运行产物不进入项目提交。
-/.idea/
-/.codex-artifacts/
+.idea/
+# 各包与文档应用的可再生产物
+/packages/*/dist/
+/apps/docs/dist/
+/apps/docs/.dumi/tmp*/
+# 本机文件和运行记录不进入公开构建或提交
+/tests/fixtures/local/
+/tests/fixtures/public/generated/
+/tmp/
 /test-results/
+/.codex-artifacts/
+# 与本次清理无关的原用户材料保留忽略
+/docs/files/
+
+# 包版本常量在 build/check/test 前由本包 manifest 自动生成。
+/packages/dom/src/generated/
+/packages/office/src/generated/

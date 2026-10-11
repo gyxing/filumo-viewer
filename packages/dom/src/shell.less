@@ -1,0 +1,439 @@
+.fivo-viewer {
+  --fivo-bg: #f5f7fa;
+  --fivo-surface: #fff;
+  --fivo-text: #243247;
+  --fivo-muted: #697586;
+  --fivo-border: #dfe5ec;
+  --fivo-hover: #f3f6fb;
+  --fivo-primary: #1677ff;
+
+  position: relative;
+  color: var(--fivo-text);
+  background: var(--fivo-bg);
+  border: 1px solid var(--fivo-border);
+  border-radius: 8px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  min-height: 240px;
+  height: 560px;
+  overflow: hidden;
+}
+
+.fivo-viewer[data-theme='dark'] {
+  --fivo-bg: #141a23;
+  --fivo-surface: #202938;
+  --fivo-text: #e3eaf3;
+  --fivo-muted: #a0aec0;
+  --fivo-border: #384459;
+  --fivo-hover: #2d3a4e;
+  --fivo-primary: #69a7ff;
+}
+
+// 字体和表单重置仅覆盖外壳，不能改变正文与隐藏分页测量的字体。
+.fivo-toolbar,
+.fivo-status,
+.fivo-progress {
+  font: 13px/1.5 system-ui, sans-serif;
+}
+
+.fivo-toolbar {
+  position: relative;
+  z-index: 20;
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+  min-height: 55px;
+  padding: 8px 12px;
+  box-sizing: border-box;
+  background: var(--fivo-surface);
+  border-bottom: 1px solid var(--fivo-border);
+}
+
+.fivo-file-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 100px;
+  min-width: 72px;
+  overflow: hidden;
+}
+
+.fivo-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.fivo-icon {
+  display: inline-block;
+  flex: 0 0 auto;
+  vertical-align: middle;
+}
+
+.fivo-file-icon {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 24px;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 28px;
+  color: var(--fivo-primary);
+}
+
+.fivo-file-icon > svg {
+  width: 24px;
+  height: 26px;
+}
+
+.fivo-file-icon > span {
+  position: absolute;
+  left: -2px;
+  top: 8px;
+  font: 700 9px/14px system-ui, sans-serif;
+  color: #fff;
+  background: currentcolor;
+  border-radius: 1px;
+  min-width: 12px;
+  text-align: center;
+  background-color: #2464b3;
+}
+
+.fivo-file-icon[data-extension^='xls'] {
+  color: #24824d;
+}
+
+.fivo-file-icon[data-extension^='xls'] > span {
+  background-color: #24824d;
+}
+
+.fivo-file-icon[data-extension^='ppt'] {
+  color: #c65d34;
+}
+
+.fivo-file-icon[data-extension^='ppt'] > span {
+  background-color: #c65d34;
+}
+
+.fivo-file-icon[data-extension='pdf'] {
+  color: #c64343;
+}
+
+.fivo-file-icon[data-extension='pdf'] > span {
+  background-color: #c64343;
+  font-size: 7px;
+}
+
+:is(.fivo-toolbar, .fivo-status) button,
+.fivo-toolbar-more > summary {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-sizing: border-box;
+  height: 32px;
+  padding: 4px 8px;
+  font: inherit;
+  color: inherit;
+  background: var(--fivo-surface);
+  border: 1px solid var(--fivo-border);
+  border-radius: 5px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+:is(.fivo-toolbar, .fivo-status) button:hover:not(:disabled),
+.fivo-toolbar-more > summary:hover {
+  background: var(--fivo-hover);
+  color: var(--fivo-primary);
+}
+
+:is(.fivo-toolbar, .fivo-status) button:focus-visible,
+.fivo-toolbar-more > summary:focus-visible,
+.fivo-toolbar select:focus-visible,
+.fivo-toolbar input:focus-visible {
+  outline: 2px solid var(--fivo-primary);
+  outline-offset: 2px;
+}
+
+:is(.fivo-toolbar, .fivo-status) button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.fivo-toolbar .fivo-icon-button {
+  width: 32px;
+  padding: 4px;
+}
+
+.fivo-icon-button > .fivo-button-label,
+.fivo-controls-main > label > span:first-child {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.fivo-controls,
+.fivo-controls-main,
+.fivo-capability-group {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.fivo-capability-group {
+  font-size: 13px;
+}
+
+.fivo-toolbar select,
+.fivo-page-input,
+.fivo-zoom-field {
+  box-sizing: border-box;
+  height: 32px;
+  border: 1px solid var(--fivo-border);
+  border-radius: 5px;
+  background: var(--fivo-surface);
+  color: inherit;
+  font: inherit;
+}
+
+.fivo-toolbar select {
+  max-width: 170px;
+  padding: 4px 6px;
+}
+
+.fivo-page-input {
+  width: 42px;
+  padding: 4px;
+  text-align: center;
+}
+
+.fivo-zoom-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 6px;
+}
+
+.fivo-zoom-input {
+  appearance: textfield;
+  box-sizing: border-box;
+  width: 38px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: right;
+}
+
+.fivo-toolbar input::-webkit-inner-spin-button,
+.fivo-toolbar input::-webkit-outer-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+.fivo-zoom-field > span {
+  color: var(--fivo-muted);
+}
+
+:is(.fivo-toolbar, .fivo-status) button[aria-pressed='true'] {
+  color: var(--fivo-primary);
+  border-color: var(--fivo-primary);
+  background: var(--fivo-hover);
+}
+
+.fivo-toolbar-more {
+  position: static;
+}
+
+.fivo-toolbar-more > summary {
+  list-style: none;
+  width: 32px;
+  padding: 4px;
+}
+
+.fivo-toolbar-more > summary::-webkit-details-marker {
+  display: none;
+}
+
+.fivo-toolbar-menu {
+  position: absolute;
+  top: calc(100% - 1px);
+  right: 12px;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: min(232px, calc(100% - 24px));
+  max-width: min(320px, calc(100% - 24px));
+  box-sizing: border-box;
+  max-height: 360px;
+  overflow: auto;
+  padding: 10px;
+  border: 1px solid var(--fivo-border);
+  border-radius: 8px;
+  background: var(--fivo-surface);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 14%);
+}
+
+.fivo-toolbar-more:not([open]) > .fivo-toolbar-menu {
+  display: none;
+}
+
+.fivo-toolbar-menu > .fivo-capability-group {
+  display: flex;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.fivo-toolbar-menu label > span {
+  white-space: normal;
+}
+
+.fivo-toolbar[data-compact='true'] .fivo-open-file {
+  padding-inline: 6px;
+}
+
+.fivo-status {
+  padding: 16px;
+  color: var(--fivo-text);
+  overflow-wrap: anywhere;
+}
+
+.fivo-status--centered {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+  padding: 32px 20px;
+}
+
+.fivo-status-icon {
+  color: var(--fivo-muted);
+  opacity: 0.65;
+}
+
+.fivo-status-icon > svg {
+  width: 56px;
+  height: 56px;
+  stroke-width: 1.1;
+}
+
+.fivo-status-heading {
+  display: block;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.fivo-status-description {
+  max-width: 440px;
+  color: var(--fivo-muted);
+}
+
+.fivo-status-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.fivo-status[data-kind='error'] .fivo-status-icon {
+  color: #d46b08;
+}
+
+.fivo-status[data-kind='loading'] .fivo-status-icon {
+  animation: fivo-loading-spin 1s linear infinite;
+}
+@keyframes fivo-loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.fivo-viewport {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.fivo-document-mount {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.fivo-viewer:not([data-state='ready']) > .fivo-viewport {
+  display: none;
+}
+
+.fivo-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 12px;
+}
+
+.fivo-progress progress {
+  flex: 1;
+}
+
+.fivo-status[hidden],
+.fivo-status [hidden],
+.fivo-toolbar[hidden],
+.fivo-toolbar [hidden],
+.fivo-progress[hidden] {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  :is(.fivo-toolbar, .fivo-status) button,
+  .fivo-toolbar-more > summary,
+  .fivo-toolbar select,
+  .fivo-zoom-field {
+    min-height: 44px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fivo-status-icon {
+    animation: none !important;
+  }
+}
+
+// 浏览器表单主题只作用于控件，不改变源文档内的表单或图片。
+.fivo-viewer[data-theme='dark'] > .fivo-toolbar,
+.fivo-viewer[data-theme='dark'] > .fivo-status {
+  color-scheme: dark;
+}
+
+.fivo-status-details {
+  max-width: 440px;
+  color: var(--fivo-muted);
+  font-size: 12px;
+  text-align: left;
+}
+
+.fivo-status-details > summary {
+  cursor: pointer;
+}
+
+.fivo-status-details > pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

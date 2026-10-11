@@ -1,0 +1,18 @@
+{
+  "name": "fivo-example-vue3",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@fivo/dom": "0.1.0-next.0",
+    "@fivo/office": "0.1.0-next.0",
+    "@fivo/vue": "0.1.0-next.0",
+    "vue": "3.5.43"
+  },
+  "devDependencies": {
+    "vite": "5.4.21"
+  }
+}

@@ -1,35 +1,7 @@
 {
-  "name": "office-file-viewer",
-  "version": "1.4.0",
-  "description": "A browser-based React component for offline preview of Word, Excel, and PowerPoint files.",
-  "keywords": [
-    "office",
-    "office-viewer",
-    "office-parser",
-    "file-viewer",
-    "document-viewer",
-    "document-preview",
-    "react",
-    "react-component",
-    "typescript",
-    "browser",
-    "client-side",
-    "offline",
-    "web-worker",
-    "doc",
-    "docx",
-    "docm",
-    "dotx",
-    "wps",
-    "xls",
-    "xlsx",
-    "xlsm",
-    "xltx",
-    "ppt",
-    "pptx",
-    "pptm",
-    "potx"
-  ],
+  "name": "fivo-workspace",
+  "private": true,
+  "description": "Fivo 跨框架文档预览工作区",
   "homepage": "https://gyxing.github.io/office-file-viewer/",
   "bugs": {
     "url": "https://github.com/gyxing/office-file-viewer/issues"
@@ -43,63 +15,27 @@
     "name": "gyxing",
     "url": "https://github.com/gyxing"
   },
-  "sideEffects": [
-    "**/*.css"
-  ],
   "type": "module",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "default": "./dist/index.js"
-    },
-    "./layout": {
-      "types": "./dist/layout.d.ts",
-      "import": "./dist/layout.js",
-      "default": "./dist/layout.js"
-    },
-    "./core": {
-      "types": "./dist/core.d.ts",
-      "import": "./dist/core.js",
-      "default": "./dist/core.js"
-    },
-    "./plugins": {
-      "types": "./dist/plugins.d.ts",
-      "import": "./dist/plugins.js",
-      "default": "./dist/plugins.js"
-    },
-    "./export": {
-      "types": "./dist/export.d.ts",
-      "import": "./dist/export.js",
-      "default": "./dist/export.js"
-    },
-    "./styles.css": {
-      "import": "./dist/styles.css",
-      "default": "./dist/styles.css"
-    },
-    "./package.json": "./package.json"
-  },
-  "module": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
   "scripts": {
-    "build": "yarn run build:modules && yarn run build:worker && yarn run build:styles && yarn run check:package-budget",
-    "build:modules": "father build",
-    "build:styles": "node scripts/build-package-styles.mjs",
-    "build:worker": "node scripts/build-package-worker.mjs",
-    "check": "yarn run check:types && yarn run check:lint && yarn run check:styles && yarn run check:build",
-    "check:build": "yarn run build && yarn run docs:build",
-    "check:lint": "eslint src/office-file-viewer --ext .ts,.tsx",
-    "check:package-budget": "node scripts/check-package-budget.mjs",
-    "check:react-compatibility": "node scripts/check-react-compatibility.mjs",
-    "check:styles": "stylelint \"src/office-file-viewer/**/*.less\"",
-    "check:types": "tsc --noEmit --types dumi/theme-modules && tsc --noEmit -p .dumi/tsconfig.json",
-    "docs:build": "dumi build",
-    "prepare": "husky install && dumi setup",
-    "prepublishOnly": "father doctor && yarn build",
-    "start": "dumi dev"
+    "build": "node scripts/build/packages.mjs",
+    "check": "pnpm run build && pnpm run check:types && pnpm run check:lint && pnpm run check:styles && pnpm --filter fivo-docs build",
+    "check:lint": "eslint packages apps/docs/src --ext .ts,.tsx --ignore-pattern \"**/dist/**\"",
+    "check:styles": "stylelint \"packages/*/src/**/*.less\" \"apps/docs/src/**/*.less\"",
+    "check:types": "node scripts/checks/types.mjs",
+    "demo": "node scripts/testing/serve-demo.mjs",
+    "demo:js": "pnpm run demo --framework vanilla",
+    "demo:react": "pnpm run demo --framework react",
+    "demo:vue2": "pnpm run demo --framework vue2",
+    "demo:vue3": "pnpm run demo --framework vue3",
+    "docs:build": "node scripts/docs/run.mjs build",
+    "docs:dev": "node scripts/docs/run.mjs dev",
+    "smoke": "node scripts/docs/run.mjs smoke",
+    "test": "node scripts/testing/run-unit.mjs",
+    "test:acceptance": "node scripts/checks/acceptance.mjs",
+    "test:browser": "node scripts/testing/run-browser.mjs",
+    "test:browser:local": "node scripts/testing/run-browser.mjs --local",
+    "test:consumers": "node scripts/testing/check-consumers.mjs",
+    "test:consumers:hosts": "node scripts/testing/check-host-managers.mjs"
   },
   "commitlint": {
     "extends": [
@@ -123,39 +59,21 @@
       "prettier --parser=typescript --write"
     ]
   },
-  "dependencies": {
-    "@babel/runtime": "^7.29.7",
-    "@zip.js/zip.js": "^2.8.34",
-    "echarts": "^5.6.0",
-    "emf-converter": "^2.0.2",
-    "saxes": "^6.0.0"
-  },
   "devDependencies": {
     "@commitlint/cli": "^17.1.2",
     "@commitlint/config-conventional": "^17.1.0",
-    "@types/react": "^18.0.0",
-    "@types/react-dom": "^18.0.0",
+    "@playwright/test": "1.63.0",
+    "@types/node": "26.1.1",
     "@umijs/lint": "^4.0.0",
-    "antd": "^5.29.3",
-    "dumi": "^2.4.38-beta.1",
     "esbuild": "~0.18.20",
     "eslint": "^8.23.0",
-    "father": "^4.1.0",
     "husky": "^8.0.1",
     "less": "^4.1.3",
     "lint-staged": "^13.0.3",
     "prettier": "^2.7.1",
     "prettier-plugin-organize-imports": "^3.0.0",
     "prettier-plugin-packagejson": "^2.2.18",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "stylelint": "^14.9.1"
-  },
-  "peerDependencies": {
-    "react": ">=16.9.0",
-    "react-dom": ">=16.9.0"
-  },
-  "publishConfig": {
-    "access": "public"
+    "stylelint": "^14.9.1",
+    "typescript": "5.4.2"
   }
 }

@@ -1,0 +1,1 @@
+export { readDocFib } from './readDocBinaryContent';

@@ -1,2 +1,8 @@
-/dist
+node_modules
+packages/*/dist
+apps/docs/dist
+apps/docs/.dumi/tmp*
+tests/fixtures
+tmp
+docs/archive
 *.yaml

@@ -1,0 +1,28 @@
+{
+  "name": "@fivo/viewer",
+  "version": "0.1.0-next.0",
+  "description": "Fivo viewer",
+  "license": "MIT",
+  "sideEffects": [
+    "**/styles/**",
+    "**/*.css"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@fivo/office": "workspace:^"
+  },
+  "peerDependencies": {}
+}

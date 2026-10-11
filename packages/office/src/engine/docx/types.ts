@@ -1,0 +1,684 @@
+import type { OfficeHyperlink } from '../../shared/hyperlink';
+import type { OfficeResourceSource } from '../resource-store/types';
+import type {
+  WordInlineReview,
+  WordReviewDocument,
+} from '../word/review/types';
+import type { WordBookmarkTarget, WordOutlineItem } from '../word/types';
+
+/** DOCX 东亚标点字符间距压缩方式。 */
+export type DocxCharacterSpacingControl =
+  | 'doNotCompress'
+  | 'compressPunctuation'
+  | 'compressPunctuationAndJapaneseKana';
+
+/** DOCX 标准化文档模型。 */
+export type DocxDocument = {
+  /** 面向用户展示的标题。 */
+  title: string;
+  /** 当前关联的页面模型。 */
+  page: DocxPage;
+  /** 按文档顺序排列的页面。 */
+  pages?: DocxPageContent[];
+  /** 按源文档顺序排列的内容块。 */
+  blocks: DocxBlock[];
+  /** 当前文档或页面包含的图片资源。 */
+  images: DocxImage[];
+  /** 源 DOCX 明确声明的大纲条目；为空时不显示目录侧栏。 */
+  outline?: WordOutlineItem[];
+  /** 按源名称索引的文档内部书签。 */
+  bookmarks?: Record<string, WordBookmarkTarget>;
+  /** 是否保留源文档由节属性定义的物理分页。 */
+  preserveSectionPagination?: boolean;
+  /** 源文档声明的东亚标点字符间距压缩方式。 */
+  characterSpacingControl?: DocxCharacterSpacingControl;
+  /** 源文档中可恢复的批注、修订、脚注和尾注。 */
+  review?: WordReviewDocument;
+  /** 可按正文引用呈现的脚注和尾注正文。 */
+  notes?: DocxNotes;
+};
+
+/** DOCX 单页内容及页眉页脚变体。 */
+export type DocxPageContent = {
+  /** 在所属集合中的唯一标识。 */
+  id: string;
+  /** 当前关联的页面模型。 */
+  page: DocxPage;
+  /** 是否保留源文档已定义的整页画布，避免测量分页再次拆开。 */
+  preservePhysicalPage?: boolean;
+  /** 当前源页不是文档首页时，分页测量需抑制首块普通段前距。 */
+  suppressFirstBlockSpacing?: boolean;
+  /** 按源文档顺序排列的内容块。 */
+  blocks: DocxBlock[];
+  /** 当前页面正文实际引用的去重脚注。 */
+  footnotes?: DocxNote[];
+  /** 页眉在首页、偶数页和默认页上的内容变体。 */
+  headers?: DocxPageRegionVariants<DocxBlock[]>;
+  /** 页脚是否包含动态页码的首页、偶数页和默认页变体。 */
+  footerPageNumbers?: DocxPageRegionVariants<boolean>;
+  /** 是否启用首页独立页眉页脚。 */
+  differentFirstPage?: boolean;
+};
+
+/** DOCX 首页、偶数页和默认页的页眉页脚变体。 */
+export type DocxPageRegionVariants<T> = {
+  /** 默认页使用的内容。 */
+  default?: T;
+  /** 首页使用的内容。 */
+  first?: T;
+  /** 偶数页使用的内容。 */
+  even?: T;
+};
+
+/** DOCX 页面的布局与内容。 */
+export type DocxPage = {
+  /** 宽度，单位为标准化渲染像素。 */
+  width: number;
+  /** 最小高度，单位为标准化渲染像素。 */
+  minHeight: number;
+  /** 上外边距，单位为标准化渲染像素。 */
+  marginTop: number;
+  /** 右外边距，单位为标准化渲染像素。 */
+  marginRight: number;
+  /** 下外边距，单位为标准化渲染像素。 */
+  marginBottom: number;
+  /** 左外边距，单位为标准化渲染像素。 */
+  marginLeft: number;
+  /** 页眉到页面顶部的距离，单位为标准化渲染像素。 */
+  headerDistance?: number;
+  /** 页脚到页面底部的距离，单位为标准化渲染像素。 */
+  footerDistance?: number;
+  /** 页面明确启用的行网格高度，分页容量需按完整网格行向下对齐。 */
+  gridLineHeight?: number;
+  /** 上边框的 CSS 样式。 */
+  borderTop?: string;
+  /** 右边框的 CSS 样式。 */
+  borderRight?: string;
+  /** 下边框的 CSS 样式。 */
+  borderBottom?: string;
+  /** 左边框的 CSS 样式。 */
+  borderLeft?: string;
+};
+
+/** DOCX 对象的位置和定位基准。 */
+export type DocxPosition = {
+  /** 左侧位置或间距，单位由所属模型定义。 */
+  left: number;
+  /** 顶部位置或间距，单位由所属模型定义。 */
+  top: number;
+  /** 水平坐标采用的参考区域。 */
+  relativeFromH?:
+    | 'page'
+    | 'margin'
+    | 'column'
+    | 'character'
+    | 'leftMargin'
+    | 'rightMargin'
+    | 'insideMargin'
+    | 'outsideMargin';
+  /** 垂直坐标采用的参考区域。 */
+  relativeFromV?:
+    | 'page'
+    | 'margin'
+    | 'paragraph'
+    | 'line'
+    | 'text'
+    | 'topMargin'
+    | 'bottomMargin'
+    | 'insideMargin'
+    | 'outsideMargin';
+  /** 层叠顺序，数值越大越靠近前景。 */
+  zIndex?: number;
+  /** 是否将对象放在正文内容之后。 */
+  behindDoc?: boolean;
+  /** 顺时针旋转角度，单位为度。 */
+  rotation?: number;
+  /** 是否沿水平方向翻转对象。 */
+  flipH?: boolean;
+  /** 是否沿垂直方向翻转对象。 */
+  flipV?: boolean;
+};
+
+/** DOCX 内容块的内容与排版信息。 */
+export type DocxBlock = DocxParagraphBlock | DocxTableBlock | DocxChartBlock;
+
+/** DOCX 段落 内容块的内容与排版信息。 */
+export type DocxParagraphBlock = {
+  /** 在所属集合中的唯一标识。 */
+  id: string;
+  /** 分页拆分后仍指向原始正文块的稳定 ID。 */
+  sourceBlockId?: string;
+  /** 用于区分联合类型分支的类型标识。 */
+  type: 'paragraph';
+  /** 按源文档顺序排列的行内内容。 */
+  inlines: DocxInline[];
+  /** 段落标记关联的格式修订。 */
+  review?: DocxInlineReview;
+  /** 当前修订投影是否隐藏整段，但仍保留零高 DOM 供分页测量对齐。 */
+  revisionHidden?: boolean;
+  /** 文本内容。 */
+  text: string;
+  /** 源 DOCX 明确声明的大纲级别，使用从 0 开始的内部表示。 */
+  outlineLevel?: number;
+  /** 是否属于自动目录段落，用于还原目录制表位与打印样式。 */
+  isTableOfContents?: boolean;
+  /** 是否要求当前段落与下一段保持在同一页。 */
+  keepNext?: boolean;
+  /** 是否禁止把当前段落的多行文字拆到不同页面。 */
+  keepLines?: boolean;
+  /** 跨页时是否避免在页首或页尾只留下单行文字。 */
+  widowControl?: boolean;
+  /** 源文档使用的段落样式标识，供相邻段落间距规则判断。 */
+  paragraphStyleId?: string;
+  /** 相邻同样式段落之间是否忽略段前和段后间距。 */
+  contextualSpacing?: boolean;
+  /** 是否启用东亚文字与西文之间的自动间距。 */
+  autoSpaceLatin?: boolean;
+  /** 是否启用东亚文字与数字之间的自动间距。 */
+  autoSpaceNumber?: boolean;
+  /** 段落声明的制表位，位置单位为标准化渲染像素。 */
+  tabStops?: DocxTabStop[];
+  /** 水平对齐方式。 */
+  align?: 'left' | 'center' | 'right' | 'justify';
+  /** 行高，单位为标准化渲染像素。 */
+  lineHeight?: number;
+  /** 行高是否由未声明行距的标题兼容规则推导，供连续标题恢复自然行盒。 */
+  inferredHeadingLineHeight?: boolean;
+  /** 纯行内对象段落按文档网格向上吸附后的最小高度。 */
+  minimumHeight?: number;
+  /** 当前内容使用的渲染样式。 */
+  style?: DocxTextStyle;
+  /** 段后间距，单位为标准化渲染像素。 */
+  spacingAfter?: number;
+  /** 段前间距，单位为标准化渲染像素。 */
+  spacingBefore?: number;
+  /** 左缩进，单位为标准化渲染像素。 */
+  indentLeft?: number;
+  /** 右缩进，单位为标准化渲染像素。 */
+  indentRight?: number;
+  /** 首行缩进，单位为标准化渲染像素。 */
+  firstLineIndent?: number;
+  /** 背景颜色，使用 CSS 颜色值。 */
+  backgroundColor?: string;
+  /** 上边框的 CSS 样式。 */
+  borderTop?: string;
+  /** 右边框的 CSS 样式。 */
+  borderRight?: string;
+  /** 下边框的 CSS 样式。 */
+  borderBottom?: string;
+  /** 左边框的 CSS 样式。 */
+  borderLeft?: string;
+  /** 是否显式定义上边框。 */
+  hasBorderTop?: boolean;
+  /** 是否显式定义右边框。 */
+  hasBorderRight?: boolean;
+  /** 是否显式定义下边框。 */
+  hasBorderBottom?: boolean;
+  /** 是否显式定义左边框。 */
+  hasBorderLeft?: boolean;
+  /** 上内边距，单位为标准化渲染像素。 */
+  paddingTop?: number;
+  /** 右内边距，单位为标准化渲染像素。 */
+  paddingRight?: number;
+  /** 下内边距，单位为标准化渲染像素。 */
+  paddingBottom?: number;
+  /** 左内边距，单位为标准化渲染像素。 */
+  paddingLeft?: number;
+  /** 对象的定位信息及其参考坐标系。 */
+  position?: DocxPosition;
+};
+
+/** DOCX 表格 内容块的内容与排版信息。 */
+export type DocxTableBlock = {
+  /** 在所属集合中的唯一标识。 */
+  id: string;
+  /** 分页拆分后仍指向原始正文块的稳定 ID。 */
+  sourceBlockId?: string;
+  /** 用于区分联合类型分支的类型标识。 */
+  type: 'table';
+  /** 按显示顺序排列的表格行。 */
+  rows: DocxTableRow[];
+  /** 宽度，单位为标准化渲染像素。 */
+  width?: number;
+  /** 水平对齐方式。 */
+  align?: 'left' | 'center' | 'right';
+  /** 按显示顺序排列的列定义。 */
+  columns?: number[];
+  /** 对象的定位信息及其参考坐标系。 */
+  position?: DocxPosition;
+  /** 上外边距，单位为标准化渲染像素。 */
+  marginTop?: number;
+  /** 是否位于形状内部；用于选择局部坐标和排版规则。 */
+  insideShape?: boolean;
+  /** 为匹配源文档视觉位置追加的顶部偏移，单位为标准化渲染像素。 */
+  visualOffsetTop?: number;
+};
+
+/** DOCX 图表 内容块的内容与排版信息。 */
+export type DocxChartBlock = {
+  /** 在所属集合中的唯一标识。 */
+  id: string;
+  /** 分页拆分后仍指向原始正文块的稳定 ID。 */
+  sourceBlockId?: string;
+  /** 用于区分联合类型分支的类型标识。 */
+  type: 'chart';
+  /** 图表渲染相关文案。 */
+  chart: import('../ooxml/charts').OfficeChartModel;
+  /** WPS 静态图表快照可在页面挂载后按需读取。 */
+  snapshotSource?: OfficeResourceSource;
+  /** 宽度，单位为标准化渲染像素。 */
+  width: number;
+  /** 高度，单位为标准化渲染像素。 */
+  height: number;
+  /** 源图片在显示区域内使用的裁剪范围。 */
+  crop?: DocxImageCrop;
+  /** 对象的定位信息及其参考坐标系。 */
+  position?: DocxPosition;
+};
+
+/** DOCX 表格行及其高度规则。 */
+export type DocxTableRow = {
+  /** 在所属集合中的唯一标识。 */
+  id: string;
+  /** 按显示顺序排列的单元格。 */
+  cells: DocxTableCell[];
+  /** 高度，单位为标准化渲染像素。 */
+  height?: number;
+  /** 表格行高采用自动、最小值或固定值的规则。 */
+  heightRule?: 'auto' | 'atLeast' | 'exact';
+  /** 是否禁止当前行跨页拆分。 */
+  cantSplit?: boolean;
+  /** 跨页后仅渲染源表格行指定纵向区间的参数。 */
+  fragment?: {
+    /** 当前片段在源表格行中的纵向起点。 */
+    offset: number;
+    /** 当前片段显示的高度。 */
+    height: number;
+    /** 拆分前源表格行的完整高度。 */
+    sourceHeight: number;
+  };
+};
+
+/** DOCX 表格单元格的内容与样式。 */
+export type DocxTableCell = {
+  /** 在所属集合中的唯一标识。 */
+  id: string;
+  /** 按源文档顺序排列的内容块。 */
+  blocks: DocxBlock[];
+  /** 表格单元格横向跨越的列数。 */
+  colSpan?: number;
+  /** 单元格在源表格网格中的零基起始列。 */
+  columnIndex?: number;
+  /** 表格单元格纵向跨越的行数。 */
+  rowSpan?: number;
+  /** 宽度，单位为标准化渲染像素。 */
+  width?: number;
+  /** 垂直对齐方式。 */
+  verticalAlign?: 'top' | 'middle' | 'bottom';
+  /** 背景颜色，使用 CSS 颜色值。 */
+  backgroundColor?: string;
+  /** 上边框的 CSS 样式。 */
+  borderTop?: string;
+  /** 右边框的 CSS 样式。 */
+  borderRight?: string;
+  /** 下边框的 CSS 样式。 */
+  borderBottom?: string;
+  /** 左边框的 CSS 样式。 */
+  borderLeft?: string;
+  /** 是否显式定义上边框。 */
+  hasBorderTop?: boolean;
+  /** 是否显式定义右边框。 */
+  hasBorderRight?: boolean;
+  /** 是否显式定义下边框。 */
+  hasBorderBottom?: boolean;
+  /** 是否显式定义左边框。 */
+  hasBorderLeft?: boolean;
+  /** 上内边距，单位为标准化渲染像素。 */
+  paddingTop?: number;
+  /** 右内边距，单位为标准化渲染像素。 */
+  paddingRight?: number;
+  /** 下内边距，单位为标准化渲染像素。 */
+  paddingBottom?: number;
+  /** 左内边距，单位为标准化渲染像素。 */
+  paddingLeft?: number;
+  /** 是否禁止单元格内容自动换行。 */
+  noWrap?: boolean;
+};
+
+/** DOCX 行内内容关联的批注、修订和格式修订原始样式。 */
+export type DocxInlineReview = WordInlineReview &
+  Readonly<{
+    /** 格式修订发生前的文字样式，仅 original 模式使用。 */
+    originalStyle?: DocxTextStyle;
+  }>;
+
+/** DOCX 行内内容模型。 */
+export type DocxInline = (
+  | DocxTextInline
+  | DocxTabInline
+  | DocxBreakInline
+  | DocxBookmarkInline
+  | DocxNoteReferenceInline
+  | DocxImageInline
+  | DocxChartInline
+  | DocxShapeInline
+) & {
+  /** 当前内容关联的批注范围和修订语义。 */
+  review?: DocxInlineReview;
+};
+
+/** DOCX 文本 行内内容模型。 */
+export type DocxTextInline = {
+  /** 用于区分联合类型分支的类型标识。 */
+  type: 'text';
+  /** 文本内容。 */
+  text: string;
+  /** 是否保留 OOXML 中有布局意义的连续或首尾空格。 */
+  preserveSpace?: boolean;
+  /** 当前内容使用的渲染样式。 */
+  style?: DocxTextStyle;
+  /** 源文档为该段文字声明的超链接。 */
+  hyperlink?: OfficeHyperlink;
+  /** 当前文字需占用的固定行内宽度，主要用于自动编号的悬挂缩进。 */
+  advanceWidth?: number;
+};
+
+/** DOCX 书签起点使用的零宽行内标记。 */
+export type DocxBookmarkInline = {
+  /** 用于区分联合类型分支的类型标识。 */
+  type: 'bookmark';
+  /** 源文档声明的书签名称。 */
+  name: string;
+  /** 当前书签标记的稳定标识。 */
+  markerId: string;
+};
+
+/** DOCX 脚注或尾注的行内引用标记。 */
+export type DocxNoteReferenceInline = {
+  /** 用于区分脚注、尾注引用和普通文本。 */
+  type: 'note-reference';
+  /** 源部件中的注释标识。 */
+  noteId: string;
+  /** 脚注显示在引用页，尾注显示在文档末尾。 */
+  noteKind: 'footnote' | 'endnote';
+  /** 页面中显示的连续引用编号。 */
+  label: string;
+  /** 引用标记沿用的文字样式。 */
+  style?: DocxTextStyle;
+};
+
+/** DOCX 制表符 行内内容模型。 */
+export type DocxTabInline = {
+  /** 用于区分制表符与普通文本。 */
+  type: 'tab';
+  /** 制表符沿用的文字样式。 */
+  style?: DocxTextStyle;
+};
+
+/** DOCX 制表符 停止点。 */
+export type DocxTabStop = {
+  /** 制表位相对段落起点的位置，单位为标准化渲染像素。 */
+  position: number;
+  /** 制表位的对齐方式。 */
+  align: 'left' | 'center' | 'right' | 'decimal' | 'bar' | 'number';
+  /** 制表位引导符。 */
+  leader?: 'dot' | 'hyphen' | 'underscore' | 'middleDot' | 'none';
+};
+
+/** DOCX 换行 行内内容模型。 */
+export type DocxBreakInline = {
+  /** 用于区分联合类型分支的类型标识。 */
+  type: 'break';
+};
+
+/** DOCX 图片 行内内容模型。 */
+export type DocxImageInline = {
+  /** 用于区分联合类型分支的类型标识。 */
+  type: 'image';
+  /** 当前关联的图片资源或图片模型。 */
+  image: DocxImage;
+};
+
+/** DOCX 图表 行内内容模型。 */
+export type DocxChartInline = {
+  /** 用于区分联合类型分支的类型标识。 */
+  type: 'chart';
+  /** 图表渲染相关文案。 */
+  chart: DocxChartBlock;
+};
+
+/** DOCX 形状 行内内容模型。 */
+export type DocxShapeInline = {
+  /** 用于区分联合类型分支的类型标识。 */
+  type: 'shape';
+  /** 当前关联的形状模型。 */
+  shape: DocxShape;
+};
+
+/** DOCX 形状的尺寸、位置和子项。 */
+export type DocxShape = {
+  /** 在所属集合中的唯一标识。 */
+  id: string;
+  /** 宽度，单位为标准化渲染像素。 */
+  width: number;
+  /** 高度，单位为标准化渲染像素。 */
+  height: number;
+  /** 源图片在显示区域内使用的裁剪范围。 */
+  crop?: DocxImageCrop;
+  /** 对象的定位信息及其参考坐标系。 */
+  position?: DocxPosition;
+  /** 按显示顺序排列的项目。 */
+  items: DocxShapeItem[];
+  /** 源文档为整个形状声明的超链接。 */
+  hyperlink?: OfficeHyperlink;
+};
+
+/** DOCX 复合形状中的单层矢量路径。 */
+export type DocxShapePathLayer = {
+  /** 当前图层使用的 SVG 路径数据。 */
+  path: string;
+  /** 当前图层的填充颜色。 */
+  fillColor?: string;
+  /** 当前图层的轮廓颜色。 */
+  strokeColor?: string;
+  /** 当前图层的轮廓宽度，单位为标准化渲染像素。 */
+  strokeWidth?: number;
+  /** 当前图层的轮廓虚线配置。 */
+  strokeDasharray?: string;
+};
+
+/** DOCX 形状子项的几何、样式和内容。 */
+export type DocxShapeItem = {
+  /** 在所属集合中的唯一标识。 */
+  id: string;
+  /** 当前模型对应的 Office 内容类型。 */
+  kind: 'rect' | 'ellipse' | 'line' | 'path';
+  /** 左侧位置或间距，单位由所属模型定义。 */
+  left: number;
+  /** 顶部位置或间距，单位由所属模型定义。 */
+  top: number;
+  /** 宽度，单位为标准化渲染像素。 */
+  width: number;
+  /** 高度，单位为标准化渲染像素。 */
+  height: number;
+  /** 子图形围绕自身中心旋转的角度。 */
+  rotation?: number;
+  /** 是否沿水平方向翻转子图形。 */
+  flipH?: boolean;
+  /** 是否沿垂直方向翻转子图形。 */
+  flipV?: boolean;
+  /** 上内边距，单位为标准化渲染像素。 */
+  paddingTop?: number;
+  /** 右内边距，单位为标准化渲染像素。 */
+  paddingRight?: number;
+  /** 下内边距，单位为标准化渲染像素。 */
+  paddingBottom?: number;
+  /** 左内边距，单位为标准化渲染像素。 */
+  paddingLeft?: number;
+  /** 在压缩包、复合文档或资源表中的路径。 */
+  path?: string;
+  /** 矢量路径使用的坐标范围。 */
+  viewBox?: string;
+  /** 按绘制顺序排列的复合矢量图层。 */
+  pathLayers?: DocxShapePathLayer[];
+  /** 填充颜色，使用 CSS 颜色值。 */
+  fillColor?: string;
+  /** 形状背景图可直接使用 URL，也可在页面挂载后按需读取。 */
+  imageSrc?: OfficeResourceSource;
+  /** 边框。 */
+  border?: string;
+  /** 轮廓颜色，使用 CSS 颜色值。 */
+  strokeColor?: string;
+  /** 轮廓宽度，单位为标准化渲染像素。 */
+  strokeWidth?: number;
+  /** 轮廓虚线各段长度的 CSS 配置。 */
+  strokeDasharray?: string;
+  /** 圆角半径；数值单位为标准化渲染像素。 */
+  borderRadius?: number | string;
+  /** 形状内部文字的垂直对齐方式。 */
+  textVerticalAlign?: 'top' | 'middle' | 'bottom';
+  /** 是否根据文本内容自动调整形状尺寸。 */
+  fitShapeToText?: boolean;
+  /** 是否按源 DrawingML 设置裁切超出文本框底部的内容。 */
+  clipVerticalOverflow?: boolean;
+  /** 是否禁止单元格内容自动换行。 */
+  noWrap?: boolean;
+  /** 按源文档顺序排列的内容块。 */
+  blocks?: DocxBlock[];
+  /** 按源文档顺序排列的段落。 */
+  paragraphs?: DocxParagraphBlock[];
+  /** 源文档为当前子形状声明的超链接。 */
+  hyperlink?: OfficeHyperlink;
+};
+
+/** DOCX 图片在原始资源四边裁掉的比例。 */
+export type DocxImageCrop = {
+  /** 左侧裁剪比例。 */
+  left: number;
+  /** 顶部裁剪比例。 */
+  top: number;
+  /** 右侧裁剪比例。 */
+  right: number;
+  /** 底部裁剪比例。 */
+  bottom: number;
+};
+
+/** DrawingML 图片声明的单次颜色替换效果。 */
+export type DocxImageColorChange = {
+  /** 需要被替换的源 RGB 颜色，使用 CSS 十六进制格式。 */
+  from: string;
+  /** 替换后的目标 RGB 颜色，使用 CSS 十六进制格式。 */
+  to: string;
+  /** 目标颜色的不透明度，取值范围为 0 到 1。 */
+  alpha: number;
+  /** 是否把源像素的透明度也纳入颜色匹配。 */
+  useAlpha?: boolean;
+};
+
+/** DOCX 图片资源及其显示信息。 */
+export type DocxImage = {
+  /** 在所属集合中的唯一标识。 */
+  id: string;
+  /** 面向用户展示的名称。 */
+  name?: string;
+  /** 图片无法显示时使用的替代文本。 */
+  alt?: string;
+  /** 图片可直接使用 URL，也可在页面挂载后按需读取。 */
+  src: OfficeResourceSource;
+  /** 宽度，单位为标准化渲染像素。 */
+  width: number;
+  /** 高度，单位为标准化渲染像素。 */
+  height: number;
+  /** 源图片在显示区域内使用的裁剪范围。 */
+  crop?: DocxImageCrop;
+  /** 源文档要求在绘制图片前执行的颜色替换。 */
+  colorChange?: DocxImageColorChange;
+  /** 对象的定位信息及其参考坐标系。 */
+  position?: DocxPosition;
+  /** 源文档为图片声明的超链接。 */
+  hyperlink?: OfficeHyperlink;
+};
+
+/** 单条 DOCX 脚注或尾注正文。 */
+export type DocxNote = {
+  /** 源部件中的注释标识。 */
+  id: string;
+  /** 脚注显示在引用页，尾注显示在文档末尾。 */
+  kind: 'footnote' | 'endnote';
+  /** 页面中显示的连续引用编号。 */
+  label: string;
+  /** 注释正文复用标准 DOCX 块模型。 */
+  blocks: DocxBlock[];
+};
+
+/** DOCX 文档包含的脚注和尾注集合。 */
+export type DocxNotes = {
+  /** 按源文档顺序排列的脚注。 */
+  footnotes: DocxNote[];
+  /** 按源文档顺序排列的尾注。 */
+  endnotes: DocxNote[];
+};
+
+/** DOCX 文本渲染样式。 */
+export type DocxTextStyle = {
+  /** 是否使用粗体。 */
+  bold?: boolean;
+  /** 是否使用斜体。 */
+  italic?: boolean;
+  /** 是否绘制下划线。 */
+  underline?: boolean;
+  /** 使用的删除线类型。 */
+  strike?: boolean;
+  /** 是否使用小型大写字母样式。 */
+  smallCaps?: boolean;
+  /** 是否将文字显示为全大写。 */
+  allCaps?: boolean;
+  /** 前景或文字颜色，使用 CSS 颜色值。 */
+  color?: string;
+  /** 字号，单位为标准化渲染像素。 */
+  fontSize?: number;
+  /** 字符间距，单位为标准化渲染像素。 */
+  letterSpacing?: number;
+  /** 计算 Word 行盒时需保留的最大脚本字号，单位为标准化渲染像素。 */
+  lineBoxFontSize?: number;
+  /** 字体族名称。 */
+  fontFamily?: string;
+  /** OOXML 字体脚本提示，用于选择空格和字符度量。 */
+  fontHint?: 'default' | 'eastAsia' | 'cs';
+  /** 水平对齐方式。 */
+  align?: 'left' | 'center' | 'right' | 'justify';
+  /** 行高，单位为标准化渲染像素。 */
+  lineHeight?: number;
+  /** OOXML 行距规则，用于区分精确行高、最小行高和自动倍数。 */
+  lineHeightRule?: 'auto' | 'exact' | 'atLeast';
+  /** 段前间距，单位为标准化渲染像素。 */
+  spacingBefore?: number;
+
+  /** 段后间距，单位为标准化渲染像素。 */
+  spacingAfter?: number;
+
+  /** 左缩进，单位为标准化渲染像素。 */
+  indentLeft?: number;
+  /** 右缩进，单位为标准化渲染像素。 */
+  indentRight?: number;
+  /** 首行缩进，单位为标准化渲染像素。 */
+  firstLineIndent?: number;
+  /** 背景颜色，使用 CSS 颜色值。 */
+  backgroundColor?: string;
+  /** 上边框的 CSS 样式。 */
+  borderTop?: string;
+  /** 右边框的 CSS 样式。 */
+  borderRight?: string;
+  /** 下边框的 CSS 样式。 */
+  borderBottom?: string;
+  /** 左边框的 CSS 样式。 */
+  borderLeft?: string;
+  /** 上内边距，单位为标准化渲染像素。 */
+  paddingTop?: number;
+  /** 右内边距，单位为标准化渲染像素。 */
+  paddingRight?: number;
+  /** 下内边距，单位为标准化渲染像素。 */
+  paddingBottom?: number;
+  /** 左内边距，单位为标准化渲染像素。 */
+  paddingLeft?: number;
+};

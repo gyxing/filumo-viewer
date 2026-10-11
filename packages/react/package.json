@@ -1,0 +1,35 @@
+{
+  "name": "@fivo/react",
+  "version": "0.1.0-next.0",
+  "description": "Fivo react",
+  "license": "MIT",
+  "sideEffects": [
+    "**/styles/**",
+    "**/*.css"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@fivo/core": "workspace:^",
+    "@fivo/dom": "workspace:^"
+  },
+  "devDependencies": {
+    "react": "^18.0.0",
+    "@types/react": "^18.0.0"
+  },
+  "peerDependencies": {
+    "react": ">=18 <20"
+  }
+}

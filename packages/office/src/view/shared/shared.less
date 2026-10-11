@@ -1,0 +1,131 @@
+.fivo-image-preview {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow: hidden;
+  color: #e2e8f0;
+  font: 13px/1.5 system-ui, sans-serif;
+  background: rgba(15, 23, 42, 94%);
+}
+
+.fivo-image-preview-toolbar {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  min-height: 56px;
+  box-sizing: border-box;
+  padding: 10px 16px;
+  background: rgba(15, 23, 42, 65%);
+  border-bottom: 1px solid rgba(255, 255, 255, 14%);
+}
+
+.fivo-image-preview-title {
+  flex: 1;
+  min-width: 60px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.fivo-image-preview-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.fivo-image-preview-controls output {
+  min-width: 48px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.fivo-image-preview-controls button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 4px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  color: #e2e8f0;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.fivo-image-preview-controls button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 12%);
+}
+
+.fivo-image-preview-controls button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.fivo-image-preview-controls button:focus-visible {
+  outline: 2px solid #91caff;
+  outline-offset: 2px;
+}
+
+.fivo-image-preview-controls button:not(.fivo-office-icon-button) {
+  width: auto;
+}
+
+.fivo-image-preview-controls button[hidden] {
+  display: none;
+}
+
+.fivo-image-preview > [role='status'] {
+  text-align: center;
+  padding: 8px 16px;
+}
+
+.fivo-image-preview > [role='status']:empty {
+  display: none;
+}
+
+.fivo-image-preview-viewport {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.fivo-image-preview .fivo-image-preview-viewport img {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  max-width: none;
+  max-height: none;
+  user-select: none;
+  cursor: grab;
+}
+
+.fivo-image-preview .fivo-image-preview-viewport img:active {
+  cursor: grabbing;
+}
+
+.fivo-chart-host {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.fivo-office-icon-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

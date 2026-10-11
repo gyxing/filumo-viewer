@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "id": "basic-xlsx",
+  "fixtureSha256": "13273a13cd1824e54b0e5276dc91f90248221bd3ded0d82082a34169a095d4fd",
+  "format": "xlsx",
+  "environment": {
+    "browser": "154.0.8037.98",
+    "os": "win32",
+    "viewport": [
+      1440,
+      1000
+    ],
+    "locale": "zh-CN"
+  },
+  "first": {
+    "id": "basic-xlsx",
+    "format": "xlsx",
+    "engine": "native",
+    "readyMs": 141.80000001192093,
+    "navigationCount": 1,
+    "scrollTop": 0,
+    "text": "Fivo spreadsheet42Automatic stylesAB12",
+    "width": 1098,
+    "height": 731,
+    "cells": [
+      {
+        "ref": "A1",
+        "text": "Fivo spreadsheet"
+      },
+      {
+        "ref": "A2",
+        "text": "Automatic styles"
+      },
+      {
+        "ref": "B1",
+        "text": "42"
+      }
+    ],
+    "images": 0,
+    "tables": 0,
+    "nodes": 104,
+    "pageCount": 0,
+    "longTaskCount": 0,
+    "longTaskMs": 0,
+    "heapBytes": 8661347
+  }
+}

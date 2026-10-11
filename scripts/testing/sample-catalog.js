@@ -1,0 +1,60 @@
+import { createHash } from 'node:crypto';
+import { readFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+import { loadLocalCatalog, resolveSampleFile } from './local-samples.js';
+/** 公共夹具与真实本机文件严格分开，消费页面共享同一 ID。 */
+export async function sampleCatalog(root, local = false) {
+  const result = [];
+  for (const format of ['docx', 'xlsx', 'pptx'])
+    result.push({
+      id: 'basic-' + format,
+      format,
+      absolute: resolve(
+        root,
+        'tests/fixtures/public/generated/sample.' + format,
+      ),
+      local: false,
+    });
+  result.push({
+    id: 'word-long-table',
+    format: 'docx',
+    absolute: resolve(
+      root,
+      'tests/fixtures/public/generated/sample-complex.docx',
+    ),
+    local: false,
+  });
+  if (local) {
+    const catalog = await loadLocalCatalog(root);
+    for (const id of [
+      'links-doc',
+      'links-docx',
+      'links-xls',
+      'links-xlsx',
+      'links-ppt',
+      'links-pptx',
+      'binary-word',
+      'binary-sheet',
+      'binary-slides',
+    ]) {
+      const file = await resolveSampleFile(root, id, catalog);
+      if (!file) throw Error('缺少样本：' + id);
+      result.push({
+        id,
+        format: file.format,
+        absolute: file.absolute,
+        local: true,
+      });
+    }
+  }
+  return Promise.all(
+    result.map(async (item) => {
+      const bytes = await readFile(item.absolute);
+      return {
+        ...item,
+        bytes: bytes.length,
+        sha256: createHash('sha256').update(bytes).digest('hex'),
+      };
+    }),
+  );
+}

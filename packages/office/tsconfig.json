@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist"
+  },
+  "include": [
+    "src/services/**/*.ts",
+    "src/layout/**/*.ts",
+    "src/view/**/*.ts",
+    "src/renderers/**/*.ts",
+    "src/**/*.d.ts"
+  ],
+  "files": [
+    "src/index.ts",
+    "src/engine/parsing/runtime/worker/runOfficeParserWorker.ts"
+  ]
+}

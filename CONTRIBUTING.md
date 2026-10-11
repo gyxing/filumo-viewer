@@ -1,32 +1,15 @@
-# Contributing to Office File Viewer
+# 参与 Fivo 开发
 
-Thank you for helping improve `office-file-viewer`. Contributions are welcome in the form of bug reports, documentation improvements, compatibility reports, and pull requests.
+使用 Node 22 和 pnpm 11.10.0，固定版本见 packageManager。
 
-## Before opening an issue
+~~~sh
+pnpm install --frozen-lockfile
+pnpm run check
+pnpm test
+pnpm run test:consumers
+pnpm run test:browser
+~~~
 
-- Check the existing issues and the documented [limitations](https://gyxing.github.io/office-file-viewer/docs#limitations).
-- For document rendering problems, include the file format, browser, React version, operating system, and a minimal reproducible example when possible.
-- Do not upload confidential documents or sensitive personal data to a public issue.
+组件在 packages，私有文档与烟测在 apps/docs，独立示例在 examples。pnpm smoke 启动本地烟测；真实文件和私有映射只放 tests/fixtures/local。
 
-## Local development
-
-```bash
-yarn
-yarn start
-```
-
-Run the complete validation before opening a pull request:
-
-```bash
-yarn run check
-```
-
-## Pull requests
-
-- Keep each pull request focused on one problem or feature.
-- Update the English and Chinese documentation when public behavior changes.
-- Add or update a reproducible sample when a change affects a supported Office format.
-- Explain compatibility, performance, security, and rendering trade-offs in the pull request description.
-- Ensure the existing type, lint, style, build, and compatibility checks pass.
-
-By participating, you agree to follow the [Code of Conduct](./CODE_OF_CONDUCT.md).
+默认安装不执行 Husky 初始化；需要 Git 钩子时开发者可自行运行 pnpm exec husky install。不要提交本机文件、截图或认证信息。

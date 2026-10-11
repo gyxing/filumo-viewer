@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "basic-docx",
+  "fixtureSha256": "3046e8d3a51af44ee1bfd5f83bc7c7a023fad1efac85397cd6564f84fff73c56",
+  "format": "docx",
+  "environment": {
+    "browser": "154.0.8037.98",
+    "os": "win32",
+    "viewport": [
+      1440,
+      1000
+    ],
+    "locale": "zh-CN"
+  },
+  "first": {
+    "id": "basic-docx",
+    "format": "docx",
+    "engine": "native",
+    "readyMs": 154.29999999701977,
+    "navigationCount": 1,
+    "navigationIndex": 0,
+    "scrollTop": 0,
+    "text": "Fivo headingFivo Office preview ready. Inserted text Commented sentence",
+    "width": 794,
+    "height": 1123,
+    "cells": [],
+    "images": 0,
+    "tables": 0,
+    "nodes": 108,
+    "pageCount": 1,
+    "longTaskCount": 0,
+    "longTaskMs": 0,
+    "heapBytes": 8731924
+  }
+}

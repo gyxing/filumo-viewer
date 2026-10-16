@@ -2,13 +2,16 @@ import { spawn } from 'node:child_process';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { withDocsBase } from '../../apps/docs/config/base-path.js';
+import { preparePackageMetadata } from '../build/metadata.mjs';
 import '../testing/generate-samples.mjs';
 import { runPnpm } from '../testing/package-manager.mjs';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const mode = process.argv[2];
 if (!['dev', 'build', 'smoke'].includes(mode))
   throw Error('只允许 dev/build/smoke');
-runPnpm(['run', 'build'], { cwd: root, stdio: 'inherit' });
+// 发布文档验证构建产物，日常开发直接编译源码，只准备必要的版本常量。
+if (mode === 'build') runPnpm(['run', 'build'], { cwd: root, stdio: 'inherit' });
+else await preparePackageMetadata(root);
 runPnpm(['--filter', 'fivo-docs', 'run', 'setup'], {
   cwd: root,
   stdio: 'inherit',

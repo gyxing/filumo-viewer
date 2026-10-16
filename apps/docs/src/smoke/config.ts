@@ -1,10 +1,10 @@
 import type { SmokeConfig } from './types';
 export const initialConfig: SmokeConfig = {
+  // 不指定固定比例，以检查各格式的默认缩放，PowerPoint 默认按容器适应页面。
   viewer: {
     height: 640,
     theme: 'light',
     locale: 'zh-CN',
-    zoom: 100,
     toolbar: true,
   },
   office: { worker: 'auto', media: false },

@@ -114,10 +114,14 @@ export function useSmokeController() {
     }
   };
   const setConfig = (next: SmokeConfig) => {
+    // 清空固定比例需要重新应用格式默认值，单次 update(undefined) 不会重置缩放模式。
+    if (config.viewer.zoom !== undefined && next.viewer.zoom === undefined)
+      setGeneration((n) => n + 1);
     setConfigState(next);
     log('config', '已更新预览参数');
   };
   const resetConfig = () => {
+    if (config.viewer.zoom !== undefined) setGeneration((n) => n + 1);
     setConfigState(resetSmokeConfig());
     log('config', '已恢复默认参数，保留当前文件');
   };

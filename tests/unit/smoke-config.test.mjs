@@ -24,7 +24,7 @@ test('恢复默认参数使用独立配置副本', () => {
   const b = resetSmokeConfig();
   a.viewer.zoom = 200;
   a.office.worker = 'never';
-  assert.equal(b.viewer.zoom, 100);
+  assert.equal(b.viewer.zoom, undefined);
   assert.equal(b.office.worker, 'auto');
-  assert.equal(initialConfig.viewer.zoom, 100);
+  assert.equal(initialConfig.viewer.zoom, undefined);
 });

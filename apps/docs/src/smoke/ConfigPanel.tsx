@@ -54,8 +54,9 @@ export function ConfigPanel({
           min={10}
           max={500}
           disabled={target === 'probe'}
-          value={value.viewer.zoom}
-          onChange={(zoom) => update({ zoom: zoom ?? 100 })}
+          placeholder="默认比例"
+          value={value.viewer.zoom ?? null}
+          onChange={(zoom) => update({ zoom: zoom ?? undefined })}
         />
       </label>
       <label>

@@ -14,7 +14,10 @@ export default defineConfig({
     { id: 'zh-CN', name: '简体中文', base: '/zh-CN' },
   ],
   routes: getDocsRoutes({ production, smoke }),
-  plugins: smoke ? ['./server/smoke-plugin.ts'] : [],
+  plugins: [
+    ...(!production ? ['./server/source-dev-plugin.ts'] : []),
+    ...(smoke ? ['./server/smoke-plugin.ts'] : []),
+  ],
   themeConfig: {
     name: 'Fivo',
     logo: false,

@@ -2,6 +2,7 @@ import type { CapabilityAction, ViewerCapabilities } from '@fivo/dom';
 import {
   OFFICE_MAX_ZOOM,
   OFFICE_MIN_ZOOM,
+  OFFICE_ZOOM_LEVELS,
   OFFICE_ZOOM_STEP,
 } from './constants';
 import type {
@@ -23,6 +24,7 @@ export function createOfficeCapabilities(
       id: 'office.zoomMode',
       label: en ? 'Zoom mode' : '缩放模式',
       kind: 'select',
+      toolbar: { visible: false },
       enabled,
       value: state.zoomMode,
       options: [
@@ -37,6 +39,7 @@ export function createOfficeCapabilities(
     },
     {
       id: 'office.search',
+      toolbar: { order: 30, placement: 'main' },
       label: en ? 'Find' : '查找',
       kind: 'toggle',
       enabled,
@@ -48,6 +51,11 @@ export function createOfficeCapabilities(
   if (state.family === 'word') {
     actions.push({
       id: 'office.outline',
+      toolbar: {
+        visible: state.outlineCount > 0,
+        order: 10,
+        placement: 'main',
+      },
       label: en ? 'Outline' : '大纲',
       kind: 'toggle',
       enabled,
@@ -57,6 +65,13 @@ export function createOfficeCapabilities(
     });
     actions.push({
       id: 'office.revision',
+      // 与旧版相同，存在批注时也允许切换文档修订投影。
+      toolbar: {
+        visible: state.supportsRevisionModes || state.annotationCount > 0,
+        order: 20,
+        placement: 'main',
+        showLabel: false,
+      },
       label: en ? 'Revisions' : '修订显示',
       kind: 'select',
       enabled,
@@ -72,7 +87,12 @@ export function createOfficeCapabilities(
   } else {
     actions.push({
       id: 'office.review',
-      label: (en ? 'Comments' : '批注') + ' (' + state.annotationCount + ')',
+      toolbar: {
+        visible: state.annotationCount + state.noteCount > 0,
+        order: 40,
+        placement: 'main',
+      },
+      label: en ? 'Comments' : '批注',
       kind: 'toggle',
       enabled,
       pressed: state.showReview,
@@ -83,6 +103,7 @@ export function createOfficeCapabilities(
   if (state.family === 'spreadsheet') {
     actions.push({
       id: 'office.sheetMode',
+      toolbar: { order: 10, placement: 'main', showLabel: false },
       label: en ? 'Table view' : '表格视图',
       kind: 'select',
       enabled,
@@ -99,6 +120,7 @@ export function createOfficeCapabilities(
     });
     actions.push({
       id: 'office.sheet',
+      toolbar: { visible: false },
       label: en ? 'Worksheet' : '工作表',
       kind: 'select',
       enabled: enabled && state.sheets.length > 0,
@@ -117,6 +139,7 @@ export function createOfficeCapabilities(
   if (state.family === 'presentation') {
     actions.push({
       id: 'office.notes',
+      toolbar: { order: 20, placement: 'main' },
       label: en ? 'Notes' : '备注',
       kind: 'toggle',
       enabled,
@@ -126,6 +149,8 @@ export function createOfficeCapabilities(
     });
     actions.push({
       id: 'office.transitions',
+      // 保留宿主调用能力，默认工具栏及更多菜单均不展示转场开关。
+      toolbar: { visible: false },
       label: en ? 'Transitions' : '切换效果',
       kind: 'toggle',
       enabled,
@@ -152,11 +177,32 @@ export function createOfficeCapabilities(
       min: OFFICE_MIN_ZOOM,
       max: OFFICE_MAX_ZOOM,
       step: OFFICE_ZOOM_STEP,
+      presets: OFFICE_ZOOM_LEVELS,
+      mode: {
+        value: state.zoomMode,
+        options: [
+          { value: 'fit-width', label: en ? 'Fit width' : '适应宽度' },
+          ...(state.family === 'spreadsheet'
+            ? []
+            : [{ value: 'fit-page', label: en ? 'Fit page' : '适应页面' }]),
+        ],
+        set: (mode) =>
+          port.execute({ type: 'zoomMode', mode: mode as OfficeZoomMode }),
+      },
+      toolbar: { order: 50, placement: 'main', priority: 100 },
       set: (value) => port.execute({ type: 'zoom', value }),
     },
     navigation:
       enabled && count > 0
         ? {
+            toolbar: {
+              visible: state.family === 'presentation',
+              order: 10,
+              placement: 'main',
+              layout: 'buttons',
+              previousLabel: en ? 'Previous slide' : '上一张幻灯片',
+              nextLabel: en ? 'Next slide' : '下一张幻灯片',
+            },
             index,
             count,
             goTo: (target) =>

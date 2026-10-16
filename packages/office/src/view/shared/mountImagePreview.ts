@@ -1,6 +1,9 @@
 import { STYLE_SCOPE } from '../../generated/package';
 import { setOfficeIconButton, type OfficeUiIcon } from '../ui';
-import { downloadOfficeImage } from '../../shared/image-preview/downloadOfficeImage';
+import {
+  downloadOfficeImage,
+  getOfficeImageDownloadName,
+} from '../../shared/image-preview/downloadOfficeImage';
 import {
   OFFICE_IMAGE_PREVIEW_MAX_ZOOM,
   OFFICE_IMAGE_PREVIEW_MIN_ZOOM,
@@ -39,9 +42,23 @@ export async function mountImagePreview(
   toolbar.setAttribute('aria-label', en ? 'Image controls' : '图片工具栏');
   const title = document.createElement('strong');
   title.className = 'fivo-image-preview-title';
-  title.textContent =
-    model.name || model.alt || (en ? 'Image preview' : '图片预览');
-  title.title = title.textContent;
+  // 标题复用下载命名规则，已有后缀不重复添加，缺失时按资源格式补齐。
+  const fileName = getOfficeImageDownloadName({
+    ...model,
+    id: model.id ?? 'image',
+  });
+  // 后缀识别与下载规则一致，只对文件名主体做视觉省略。
+  const extension = fileName.match(/\.[a-z0-9]{2,6}$/i)?.[0] ?? '';
+  const name = document.createElement('span');
+  name.className = 'fivo-image-preview-title-name';
+  name.textContent = extension
+    ? fileName.slice(0, -extension.length)
+    : fileName;
+  const suffix = document.createElement('span');
+  suffix.className = 'fivo-image-preview-title-extension';
+  suffix.textContent = extension;
+  title.append(name, suffix);
+  title.title = fileName;
   const controls = document.createElement('div');
   controls.className = 'fivo-image-preview-controls';
   toolbar.append(title, controls);

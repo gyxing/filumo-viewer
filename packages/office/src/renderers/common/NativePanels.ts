@@ -1,12 +1,12 @@
 import { enUS } from '../../locale/en-US';
 import { zhCN } from '../../locale/zh-CN';
 import type { OfficeViewServices } from '../../view/contracts';
-import { mountSidebarResize } from './SidebarResize';
-import { fillPanelEntry, panelLocation } from './panelContent';
 import { createOfficeIcon, setOfficeIconButton } from '../../view/ui';
+import { mountSidebarResize } from './SidebarResize';
+import { fillPanelEntry, fillReviewEntry, panelLocation } from './panelContent';
 // 行高包括卡片间距，滚动窗口与选中项定位使用同一尺寸。
-const SEARCH_ROW_HEIGHT = 84;
-const REVIEW_ROW_HEIGHT = 100;
+const SEARCH_ROW_HEIGHT = 72;
+const REVIEW_ROW_HEIGHT = 116;
 /** 原生侧栏只消费服务快照，结果列表使用窗口化 DOM，完整文本保留在详情和标题中。 */
 export function mountNativePanels(
   searchHost: HTMLElement,
@@ -19,6 +19,8 @@ export function mountNativePanels(
   let closed = false;
   let searchVisible = false;
   let reviewIndex = -1;
+  searchHost.classList.add('fivo-native-search');
+  reviewHost.classList.add('fivo-native-review');
   const searchTitle = doc.createElement('button'),
     query = doc.createElement('input'),
     position = doc.createElement('span'),
@@ -51,15 +53,19 @@ export function mountNativePanels(
     return button;
   };
   const header = doc.createElement('header');
-  const outlineTab = makeButton(header, () => {
+  const tabs = doc.createElement('div');
+  tabs.className = 'fivo-native-navigation-tabs';
+  const outlineTab = makeButton(tabs, () => {
     void services.state.execute({ type: 'outline', open: true });
   });
   outlineTab.className = 'fivo-native-tab';
   searchTitle.type = 'button';
   searchTitle.className = 'fivo-native-tab fivo-native-tab--active';
   searchTitle.setAttribute('aria-pressed', 'true');
-  position.className = 'fivo-native-count';
-  header.append(searchTitle, position);
+  position.className = 'fivo-native-search-position';
+  position.setAttribute('role', 'status');
+  tabs.append(searchTitle);
+  header.append(tabs);
   const closeSearch = makeButton(header, () => {
     void services.state.execute({ type: 'search', open: false });
   });
@@ -73,10 +79,13 @@ export function mountNativePanels(
     query.focus();
   });
   row.append(field);
-  const previous = makeButton(row, () => {
+  const searchNavigation = doc.createElement('div');
+  searchNavigation.className = 'fivo-native-search-navigation';
+  searchNavigation.append(position);
+  const previous = makeButton(searchNavigation, () => {
     void services.search.actions.previousResult().catch(onError);
   });
-  const next = makeButton(row, () => {
+  const next = makeButton(searchNavigation, () => {
     void services.search.actions.nextResult().catch(onError);
   });
   const toggles = doc.createElement('div');
@@ -95,7 +104,17 @@ export function mountNativePanels(
   wholeLabel.append(whole, wholeText);
   toggles.append(matchLabel, wholeLabel);
   resultStatus.setAttribute('role', 'status');
-  searchHost.append(header, row, toggles, resultStatus, searchList);
+  const empty = doc.createElement('div');
+  empty.className = 'fivo-native-search-empty';
+  searchHost.append(
+    header,
+    row,
+    toggles,
+    searchNavigation,
+    resultStatus,
+    empty,
+    searchList,
+  );
   const reviewHeader = doc.createElement('header'),
     reviewTitle = doc.createElement('strong');
   reviewHeader.append(reviewTitle);
@@ -110,12 +129,17 @@ export function mountNativePanels(
   });
   const reviewList = doc.createElement('div'),
     reviewCanvas = doc.createElement('div'),
+    reviewSummary = doc.createElement('div'),
+    reviewEmpty = doc.createElement('div'),
     detail = doc.createElement('div');
   reviewList.className = 'fivo-native-list fivo-native-review-list';
   reviewCanvas.className = 'fivo-native-list-canvas';
   detail.className = 'fivo-native-review-detail';
+  reviewSummary.className = 'fivo-native-review-summary';
+  reviewEmpty.className = 'fivo-native-review-empty';
+  reviewEmpty.setAttribute('role', 'status');
   reviewList.append(reviewCanvas);
-  reviewHost.append(reviewHeader, reviewList, detail);
+  reviewHost.append(reviewHeader, reviewSummary, reviewEmpty, reviewList, detail);
   const renderSearch = () => {
     if (closed) return;
     const state = services.search.getSnapshot();
@@ -126,7 +150,7 @@ export function mountNativePanels(
     setOfficeIconButton(
       closeSearch,
       locale === 'en-US' ? 'Close' : '关闭',
-      'close',
+      services.state.getState().family === 'word' ? 'panelLeftClose' : 'close',
     );
     setOfficeIconButton(
       closeReview,
@@ -149,10 +173,15 @@ export function mountNativePanels(
     previous.disabled = next.disabled = !state.results.length;
     setOfficeIconButton(previous, messages.search.previous, 'up');
     setOfficeIconButton(next, messages.search.next, 'down');
+    // 未选择结果时显示总数，避免 0 / N 被误解为未找到内容。
     position.textContent =
-      (state.currentIndex < 0 ? 0 : state.currentIndex + 1) +
-      ' / ' +
-      state.results.length;
+      state.currentIndex < 0
+        ? messages.search.resultCount(state.results.length)
+        : messages.search.currentResult(
+            state.currentIndex + 1,
+            state.results.length,
+          );
+    searchNavigation.hidden = !state.results.length;
     resultStatus.textContent =
       state.error ??
       (state.searching
@@ -161,12 +190,15 @@ export function mountNativePanels(
           '/' +
           state.total
         : '');
-    if (!state.searching && !state.error)
-      resultStatus.textContent = state.query
-        ? locale === 'en-US'
-          ? state.results.length + ' results'
-          : state.results.length + ' 个结果'
-        : '';
+    resultStatus.hidden = !resultStatus.textContent;
+    resultStatus.dataset.state = state.error ? 'error' : 'loading';
+    resultStatus.setAttribute('role', state.error ? 'alert' : 'status');
+    empty.hidden = !!state.results.length || state.searching || !!state.error;
+    empty.textContent = state.query.trim()
+      ? messages.search.noResults
+      : messages.search.emptyQuery;
+    searchList.hidden = !state.results.length;
+    searchList.setAttribute('aria-busy', String(state.searching));
     const height = SEARCH_ROW_HEIGHT,
       start = Math.max(0, Math.floor(searchList.scrollTop / height) - 2),
       end = Math.min(
@@ -184,7 +216,7 @@ export function mountNativePanels(
       button.type = 'button';
       button.className = 'fivo-native-result';
       button.style.top = index * height + 'px';
-      button.style.height = height - 6 + 'px';
+      button.style.height = height - 4 + 'px';
       const target = result.target;
       const sheet =
         target.kind === 'spreadsheet'
@@ -196,6 +228,12 @@ export function mountNativePanels(
         button,
         panelLocation(target, locale === 'en-US', sheet),
         result.previewText,
+        undefined,
+        {
+          text: state.query,
+          matchCase: state.matchCase,
+          wholeWord: state.wholeWord,
+        },
       );
       button.title = result.previewText;
       button.dataset.resultId = result.id;
@@ -213,6 +251,7 @@ export function mountNativePanels(
     const messages = locale === 'en-US' ? enUS : zhCN;
     setOfficeIconButton(previousReview, messages.review.previous, 'up');
     setOfficeIconButton(nextReview, messages.review.next, 'down');
+    setOfficeIconButton(closeReview, messages.review.close, 'close');
     previousReview.disabled = nextReview.disabled = !state.snapshot.count;
     if (state.activeIndex !== reviewIndex) {
       reviewIndex = state.activeIndex;
@@ -227,6 +266,15 @@ export function mountNativePanels(
       ' (' +
       state.snapshot.count +
       ')';
+    reviewSummary.textContent = messages.review.noteCount(
+      state.snapshot.noteCount,
+    );
+    reviewSummary.hidden = !state.snapshot.noteCount;
+    reviewEmpty.textContent = messages.review.empty;
+    reviewEmpty.hidden = !!state.snapshot.count || !!state.error;
+    reviewList.hidden = !state.snapshot.count;
+    reviewList.setAttribute('aria-label', messages.review.comments);
+    reviewList.setAttribute('aria-busy', String(state.loading));
     const height = REVIEW_ROW_HEIGHT,
       start = Math.max(0, Math.floor(reviewList.scrollTop / height) - 2),
       end = Math.min(
@@ -234,6 +282,9 @@ export function mountNativePanels(
         start + Math.ceil((reviewList.clientHeight || 400) / height) + 4,
       );
     reviewCanvas.style.height = state.snapshot.count * height + 'px';
+    const focused = reviewList.contains(doc.activeElement)
+      ? (doc.activeElement as HTMLElement).dataset.annotationIndex
+      : undefined;
     reviewCanvas.replaceChildren();
     for (let index = start; index < end; index++) {
       const item = services.annotations.actions.getCached(index);
@@ -249,20 +300,26 @@ export function mountNativePanels(
               .getState()
               .sheets.find((sheet) => sheet.id === target.sheetId)?.name
           : undefined;
-      fillPanelEntry(
+      fillReviewEntry(
         button,
         target ? panelLocation(target, locale === 'en-US', sheet) : '',
-        item?.text ?? (locale === 'en-US' ? 'Loading' : '正在读取'),
-        item?.author,
+        item,
+        locale,
+        messages.review,
       );
       button.title = item?.text ?? '';
+      button.dataset.annotationIndex = String(index);
       button.setAttribute('aria-pressed', String(state.activeIndex === index));
       button.onclick = () => {
         void services.annotations.actions.selectIndex(index).catch(onError);
       };
       reviewCanvas.append(button);
+      if (focused === String(index)) button.focus({ preventScroll: true });
     }
     detail.textContent = state.error ?? state.activeAnnotation?.text ?? '';
+    detail.setAttribute('role', state.error ? 'alert' : 'region');
+    detail.setAttribute('aria-label', messages.review.region);
+    detail.dataset.state = state.error ? 'error' : 'content';
     detail.hidden = !detail.textContent;
     if (end > start && !state.loading && !state.error)
       void services.annotations.actions.loadRange(start, end).catch(onError);

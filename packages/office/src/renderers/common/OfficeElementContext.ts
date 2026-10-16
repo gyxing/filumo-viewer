@@ -11,6 +11,12 @@ import { downloadOfficeImage } from '../../shared/image-preview/downloadOfficeIm
 import { createDom, type DomChild } from '../../view/dom/createDom';
 import { mountImagePreview } from '../../view/shared/mountImagePreview';
 import type { OfficeRenderContext } from '../../view/types';
+import { createOfficeIcon, type OfficeUiIcon } from '../../view/ui';
+interface ContextMenuAction {
+  label: string;
+  icon: OfficeUiIcon;
+  run: () => void | Promise<void>;
+}
 interface ResourceState {
   url?: string;
   loading: boolean;
@@ -189,35 +195,69 @@ export class OfficeElementContext {
     trigger: HTMLElement,
     x: number,
     y: number,
-    actions: Array<{ label: string; run: () => void }>,
+    actions: ContextMenuAction[],
   ) {
     this.dismissMenu();
     const menu = this.document.createElement('div');
     menu.className = 'fivo-presentation-context-menu';
     menu.setAttribute('role', 'menu');
+    menu.setAttribute(
+      'aria-label',
+      this.renderContext.locale === 'en-US' ? 'Actions' : '操作菜单',
+    );
     const bounds = this.renderContext.container.getBoundingClientRect();
     menu.style.left =
       Math.max(0, Math.min(x - bounds.left, bounds.width - 190)) + 'px';
     menu.style.top =
       Math.max(
         0,
-        Math.min(y - bounds.top, bounds.height - actions.length * 40),
+        Math.min(y - bounds.top, bounds.height - actions.length * 32 - 10),
       ) + 'px';
     for (const action of actions) {
       const button = this.document.createElement('button');
       button.type = 'button';
-      button.textContent = action.label;
+      const label = this.document.createElement('span');
+      label.textContent = action.label;
+      button.append(createOfficeIcon(this.document, action.icon), label);
       button.setAttribute('role', 'menuitem');
+      button.tabIndex = -1;
       button.onclick = () => {
         this.dismissMenu();
-        action.run();
+        trigger.focus({ preventScroll: true });
+        try {
+          void Promise.resolve(action.run()).catch(this.renderContext.onError);
+        } catch (error) {
+          this.renderContext.onError(error);
+        }
       };
       menu.append(button);
     }
     menu.onkeydown = (event) => {
       if (event.key === 'Escape') {
+        event.preventDefault();
+        event.stopPropagation();
         this.dismissMenu();
         trigger.focus();
+      } else if (event.key === 'Tab') {
+        this.dismissMenu();
+        trigger.focus({ preventScroll: true });
+      } else if (
+        ['ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)
+      ) {
+        event.preventDefault();
+        event.stopPropagation();
+        const buttons = Array.from(menu.querySelectorAll('button'));
+        const current = buttons.indexOf(
+          this.document.activeElement as HTMLButtonElement,
+        );
+        const next =
+          event.key === 'Home'
+            ? 0
+            : event.key === 'End'
+            ? buttons.length - 1
+            : (current + (event.key === 'ArrowDown' ? 1 : -1) + buttons.length) %
+              buttons.length;
+        buttons[next]?.focus();
       }
     };
     this.renderContext.container.append(menu);
@@ -246,19 +286,22 @@ export class OfficeElementContext {
         source.type === 'image'
       )
         return false;
-      const actions = [
+      const actions: ContextMenuAction[] = [
         {
           label: en ? 'Open link' : '打开链接',
+          icon: 'openLink',
           run: () => open('context-menu'),
         },
       ];
       if (target.kind === 'new-tab' || target.kind === 'system')
         actions.push({
           label: en ? 'Copy link' : '复制链接',
-          run: () => {
-            void this.document.defaultView?.navigator.clipboard?.writeText(
-              target.target,
-            );
+          icon: 'copy',
+          run: async () => {
+            const clipboard = this.document.defaultView?.navigator.clipboard;
+            if (!clipboard)
+              throw new Error(en ? 'Copy link failed' : '复制链接地址失败');
+            await clipboard.writeText(target.target);
           },
         });
       this.showMenu(element, x, y, actions);
@@ -406,6 +449,9 @@ export class OfficeElementContext {
       attributes,
     ) as HTMLImageElement;
     if (!previewable || !props.src) return image;
+    // 浮动图片所在图层默认穿透事件，只有可预览图片恢复鼠标交互。
+    image.classList.add('office-file-previewable-image');
+    image.dataset.officeImagePreviewable = 'true';
     const model = {
       source,
       id: String(previewId),
@@ -446,6 +492,7 @@ export class OfficeElementContext {
             this.renderContext.locale === 'en-US'
               ? 'Preview image'
               : '预览图片',
+          icon: 'preview',
           run: open,
         },
         {
@@ -453,6 +500,7 @@ export class OfficeElementContext {
             this.renderContext.locale === 'en-US'
               ? 'Download image'
               : '下载图片',
+          icon: 'download',
           run: () => {
             void downloadOfficeImage(
               image.src,

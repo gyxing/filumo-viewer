@@ -1,5 +1,12 @@
-import type { OfficeAnnotationTarget } from '../../engine/annotations/types';
-import type { OfficeSearchTarget } from '../../engine/search/types';
+import type {
+  OfficeAnnotation,
+  OfficeAnnotationTarget,
+} from '../../engine/annotations/types';
+import { findSearchMatches } from '../../engine/search/normalizeSearchText';
+import type {
+  OfficeSearchQuery,
+  OfficeSearchTarget,
+} from '../../engine/search/types';
 
 /** 只显示已知的文档位置；渐进分页尚未定位时不猜测页码。 */
 export function panelLocation(
@@ -35,12 +42,13 @@ export function panelLocation(
   return [sheetName, address].filter(Boolean).join(' · ');
 }
 
-/** 列表项保留位置、作者和正文层级，所有外部文本均通过 textContent 写入。 */
+/** 列表项按既有搜索规则高亮片段，外部文本只作为文本节点写入。 */
 export function fillPanelEntry(
   button: HTMLButtonElement,
   meta: string,
   text: string,
   author?: string,
+  highlight?: OfficeSearchQuery,
 ) {
   const document = button.ownerDocument;
   const metadata = document.createElement('span');
@@ -54,6 +62,65 @@ export function fillPanelEntry(
   }
   const content = document.createElement('span');
   content.className = 'fivo-native-result-text';
-  content.textContent = text;
+  let offset = 0;
+  for (const hit of highlight ? findSearchMatches(text, highlight) : []) {
+    content.append(
+      document.createTextNode(text.slice(offset, hit.startOffset)),
+    );
+    const mark = document.createElement('mark');
+    mark.className = 'fivo-native-search-hit';
+    mark.textContent = text.slice(hit.startOffset, hit.endOffset);
+    content.append(mark);
+    offset = hit.endOffset;
+  }
+  content.append(document.createTextNode(text.slice(offset)));
   button.append(metadata, content);
+}
+
+/** 批注卡片保留作者、定位和源文件状态；缺失或无法解析的日期不伪造时间。 */
+export function fillReviewEntry(
+  button: HTMLButtonElement,
+  meta: string,
+  annotation: OfficeAnnotation | undefined,
+  locale: 'zh-CN' | 'en-US',
+  labels: { unknownAuthor: string; emptyComment: string; resolved: string },
+) {
+  const document = button.ownerDocument;
+  const heading = document.createElement('span');
+  heading.className = 'fivo-native-review-heading';
+  const author = document.createElement('strong');
+  author.className = 'fivo-native-result-author';
+  author.textContent = annotation?.author?.trim() || labels.unknownAuthor;
+  const location = document.createElement('span');
+  location.className = 'fivo-native-result-meta';
+  location.textContent = meta;
+  heading.append(author, location);
+  const content = document.createElement('span');
+  content.className = 'fivo-native-result-text';
+  content.textContent = annotation
+    ? annotation.text || labels.emptyComment
+    : locale === 'en-US'
+    ? 'Loading'
+    : '正在读取';
+  const footer = document.createElement('span');
+  footer.className = 'fivo-native-review-footer';
+  if (annotation?.createdAt) {
+    const time = document.createElement('time');
+    const date = new Date(annotation.createdAt);
+    if (Number.isNaN(date.getTime())) {
+      time.textContent = annotation.createdAt;
+    } else {
+      time.dateTime = date.toISOString();
+      time.textContent = date.toLocaleDateString(locale);
+      time.title = date.toLocaleString(locale);
+    }
+    footer.append(time);
+  }
+  if (annotation?.resolved) {
+    const resolved = document.createElement('span');
+    resolved.className = 'fivo-native-review-resolved';
+    resolved.textContent = labels.resolved;
+    footer.append(resolved);
+  }
+  button.append(heading, content, footer);
 }

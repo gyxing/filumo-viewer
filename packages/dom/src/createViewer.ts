@@ -72,17 +72,27 @@ export function createViewer(
   const progressBox = document.createElement('div');
   progressBox.className = 'fivo-progress';
   progressBox.setAttribute('role', 'status');
+  const progressHeading = document.createElement('div');
+  progressHeading.className = 'fivo-progress-heading';
   const progressLabel = document.createElement('span');
+  progressLabel.className = 'fivo-progress-label';
+  const progressValue = document.createElement('span');
+  progressValue.className = 'fivo-progress-value';
   const progressBar = document.createElement('progress');
   progressBar.max = 100;
-  progressBox.append(progressLabel, progressBar);
+  progressHeading.append(progressLabel, progressValue);
+  progressBox.append(progressHeading, progressBar);
   const retry = document.createElement('button');
   retry.type = 'button';
   const renderStatus = createViewerStatus(status, retry, pickFile);
   const viewport = document.createElement('div');
   viewport.className = 'fivo-viewport';
+  // 内容区始终占据剩余空间，进度浮层显隐不参与文档视口的高度计算。
+  const body = document.createElement('div');
+  body.className = 'fivo-viewer-body';
+  body.append(status, viewport, progressBox);
   toolbar.append(fileTitle, openButton, controls, download, fullscreen);
-  root.append(toolbar, status, progressBox, viewport, fileInput);
+  root.append(toolbar, body, fileInput);
   container.append(root);
   let viewOptions: ViewOptions = { ...options };
   let view: ViewHandle | undefined;
@@ -179,16 +189,18 @@ export function createViewer(
       progress?.total && progress.loaded !== undefined
         ? Math.max(0, Math.min(100, (progress.loaded / progress.total) * 100))
         : undefined;
-    progressLabel.textContent = progress
-      ? progress.phase +
-        (percentage !== undefined ? ' ' + Math.round(percentage) + '%' : '')
-      : '';
+    progressLabel.textContent = progress?.phase ?? '';
+    progressLabel.title = progressLabel.textContent;
+    // 无可靠总量时保留不定进度，避免阶段文字旁出现虚假的百分比。
+    const hasPercentage =
+      percentage !== undefined && Number.isFinite(percentage);
+    progressValue.textContent = hasPercentage ? Math.round(percentage) + '%' : '';
+    progressValue.hidden = !hasPercentage;
     progressBar.setAttribute(
       'aria-label',
       en ? 'Document loading progress' : '文档加载进度',
     );
-    if (percentage === undefined || !Number.isFinite(percentage))
-      progressBar.removeAttribute('value');
+    if (!hasPercentage) progressBar.removeAttribute('value');
     else progressBar.value = percentage;
     status.hidden =
       snapshot.status === 'ready' ||

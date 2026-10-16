@@ -17,7 +17,10 @@ const samples = await sampleCatalog(
 const css = new Map();
 const result = await build({
   absWorkingDir: root,
-  entryPoints: [join(root, 'tests/browser/harness/format-preview.ts')],
+  entryPoints: [
+    join(root, 'tests/browser/harness/format-preview.ts'),
+    join(root, 'tests/browser/harness/toolbar.ts'),
+  ],
   outdir: output,
   bundle: true,
   splitting: true,
@@ -52,10 +55,14 @@ const server = createServer(async (req, res) => {
   if (!['GET', 'HEAD'].includes(req.method)) return res.writeHead(405).end();
   const pathname = new URL(req.url, 'http://localhost').pathname;
   try {
-    if (pathname === '/')
+    if (pathname === '/' || pathname === '/toolbar.html')
       return res
         .writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' })
-        .end(html);
+        .end(
+          pathname === '/toolbar.html'
+            ? html.replace('/format-preview.js', '/toolbar.js')
+            : html,
+        );
     if (pathname === '/styles.css')
       return res
         .writeHead(200, { 'Content-Type': 'text/css; charset=utf-8' })

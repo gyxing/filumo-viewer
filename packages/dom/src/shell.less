@@ -6,6 +6,14 @@
   --fivo-border: #dfe5ec;
   --fivo-hover: #f3f6fb;
   --fivo-primary: #1677ff;
+  // Office 侧栏和弹层继承同一组语义色，避免与外壳形成两套主题。
+  --fivo-primary-hover: #4096ff;
+  --fivo-primary-active: #0958d9;
+  --fivo-selected: #eaf4ff;
+  --fivo-disabled-text: #b8bec8;
+  --fivo-disabled-surface: #f5f5f5;
+  --fivo-focus-ring: rgb(22 119 255 / 24%);
+  --fivo-overlay-shadow: 0 8px 24px rgb(15 23 42 / 22%);
 
   position: relative;
   color: var(--fivo-text);
@@ -28,6 +36,13 @@
   --fivo-border: #384459;
   --fivo-hover: #2d3a4e;
   --fivo-primary: #69a7ff;
+  --fivo-primary-hover: #91caff;
+  --fivo-primary-active: #69a7ff;
+  --fivo-selected: #253e60;
+  --fivo-disabled-text: #64748b;
+  --fivo-disabled-surface: #283244;
+  --fivo-focus-ring: rgb(105 167 255 / 36%);
+  --fivo-overlay-shadow: 0 10px 28px rgb(0 0 0 / 48%);
 }
 
 // 字体和表单重置仅覆盖外壳，不能改变正文与隐藏分页测量的字体。
@@ -154,9 +169,7 @@
 }
 
 :is(.fivo-toolbar, .fivo-status) button:focus-visible,
-.fivo-toolbar-more > summary:focus-visible,
-.fivo-toolbar select:focus-visible,
-.fivo-toolbar input:focus-visible {
+.fivo-toolbar-more > summary:focus-visible {
   outline: 2px solid var(--fivo-primary);
   outline-offset: 2px;
 }
@@ -172,7 +185,9 @@
 }
 
 .fivo-icon-button > .fivo-button-label,
-.fivo-controls-main > label > span:first-child {
+.fivo-controls-main
+  > label
+  > span:first-child:not(.fivo-capability-label--visible) {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -198,6 +213,7 @@
 .fivo-toolbar select,
 .fivo-page-input,
 .fivo-zoom-field {
+  position: relative;
   box-sizing: border-box;
   height: 32px;
   border: 1px solid var(--fivo-border);
@@ -238,6 +254,18 @@
   text-align: right;
 }
 
+// 表单聚焦只改变已有边框，组合输入由整个容器呈现，避免内外双框。
+.fivo-toolbar select:focus,
+.fivo-toolbar input:focus {
+  outline: 0;
+}
+
+.fivo-toolbar select:focus,
+.fivo-page-input:focus,
+.fivo-zoom-field:focus-within {
+  border-color: var(--fivo-primary);
+}
+
 .fivo-toolbar input::-webkit-inner-spin-button,
 .fivo-toolbar input::-webkit-outer-spin-button {
   appearance: none;
@@ -246,6 +274,85 @@
 
 .fivo-zoom-field > span {
   color: var(--fivo-muted);
+}
+
+.fivo-option-popup {
+  position: fixed;
+  inset: auto;
+  z-index: 40;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 4px;
+  overflow: auto;
+  color: var(--fivo-text);
+  background: var(--fivo-surface);
+  border: 1px solid var(--fivo-border);
+  border-radius: 5px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 14%);
+  font: 13px/1.5 system-ui, sans-serif;
+}
+
+.fivo-option-popup > button {
+  display: block;
+  width: 100%;
+  height: 28px;
+  padding: 0 6px;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: 3px;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.fivo-option-popup > button:hover,
+.fivo-option-popup > button[aria-selected='true'],
+.fivo-option-popup > button[data-active='true'] {
+  color: var(--fivo-primary);
+  background: var(--fivo-hover);
+}
+
+.fivo-option-popup > button:focus-visible {
+  outline: 2px solid var(--fivo-primary);
+  outline-offset: -2px;
+}
+
+.fivo-select {
+  display: inline-flex;
+  position: relative;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.fivo-toolbar .fivo-select-trigger {
+  min-width: 72px;
+  max-width: 170px;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.fivo-select-value {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.fivo-select-trigger > svg {
+  flex: 0 0 14px;
+  width: 14px;
+  height: 14px;
+  color: var(--fivo-muted);
+}
+
+// 自绘选择框仍使用单层边框，不继承普通按钮的外扩键盘焦点圈。
+.fivo-toolbar .fivo-select-trigger:focus {
+  outline: 0;
+  border-color: var(--fivo-primary);
 }
 
 :is(.fivo-toolbar, .fivo-status) button[aria-pressed='true'] {
@@ -365,6 +472,17 @@
   }
 }
 
+.fivo-viewer-body {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  isolation: isolate;
+}
+
 .fivo-viewport {
   flex: 1;
   min-width: 0;
@@ -379,26 +497,105 @@
   min-height: 0;
 }
 
-.fivo-viewer:not([data-state='ready']) > .fivo-viewport {
+.fivo-viewer:not([data-state='ready']) > .fivo-viewer-body > .fivo-viewport {
   display: none;
 }
 
 .fivo-progress {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-sizing: border-box;
+  width: 280px;
+  max-width: calc(100% - 24px);
+  padding: 10px 12px;
+  color: var(--fivo-text);
+  background: var(--fivo-surface);
+  border: 1px solid var(--fivo-border);
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 12%);
+  pointer-events: none;
+}
+
+.fivo-progress-heading {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 6px 12px;
+  min-width: 0;
+}
+
+.fivo-progress-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fivo-progress-value {
+  flex: 0 0 auto;
+  color: var(--fivo-muted);
+  font-variant-numeric: tabular-nums;
 }
 
 .fivo-progress progress {
-  flex: 1;
+  display: block;
+  width: 100%;
+  height: 3px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 3px;
+  appearance: none;
+  background: var(--fivo-border);
+  color: var(--fivo-primary);
+}
+
+.fivo-progress progress::-webkit-progress-bar {
+  background: transparent;
+}
+
+.fivo-progress progress::-webkit-progress-value {
+  background: var(--fivo-primary);
+  border-radius: 3px;
+}
+
+.fivo-progress progress::-moz-progress-bar {
+  background: var(--fivo-primary);
+  border-radius: 3px;
+}
+
+// 没有总量时以流动渐变表达处理状态，不占用额外布局空间。
+.fivo-progress progress:indeterminate {
+  background: linear-gradient(
+    90deg,
+    var(--fivo-border),
+    var(--fivo-primary),
+    var(--fivo-border)
+  );
+  background-size: 200% 100%;
+  animation: fivo-progress-indeterminate 1.2s linear infinite;
+}
+
+.fivo-progress progress:indeterminate::-moz-progress-bar {
+  background: transparent;
+}
+
+@keyframes fivo-progress-indeterminate {
+  to {
+    background-position: -200% 0;
+  }
 }
 
 .fivo-status[hidden],
 .fivo-status [hidden],
 .fivo-toolbar[hidden],
 .fivo-toolbar [hidden],
-.fivo-progress[hidden] {
+.fivo-progress[hidden],
+.fivo-progress [hidden] {
   display: none;
 }
 
@@ -414,11 +611,16 @@
   .fivo-status-icon {
     animation: none !important;
   }
+
+  .fivo-progress progress:indeterminate {
+    animation: none;
+  }
 }
 
 // 浏览器表单主题只作用于控件，不改变源文档内的表单或图片。
 .fivo-viewer[data-theme='dark'] > .fivo-toolbar,
-.fivo-viewer[data-theme='dark'] > .fivo-status {
+.fivo-viewer[data-theme='dark'] > .fivo-viewer-body > .fivo-status,
+.fivo-viewer[data-theme='dark'] > .fivo-viewer-body > .fivo-progress {
   color-scheme: dark;
 }
 

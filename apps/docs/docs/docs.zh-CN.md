@@ -200,12 +200,12 @@ React/Vue 卸载自动清理。Vue KeepAlive 停用时暂停呈现，恢复时�
 
 ## 通用能力与自定义工具栏
 
-| 能力       | 状态                                              | 操作                     |
-| ---------- | ------------------------------------------------- | ------------------------ |
-| zoom       | value、min、max、step                             | set(percentage)          |
-| navigation | index、count；index 从 0 开始                     | goTo(index)              |
-| search     | query、resultCount、currentIndex、searching       | setQuery、next、previous |
-| actions    | id、label、kind、enabled、pressed、value、options | run(value?)              |
+| 能力       | 状态                                                            | 操作                             |
+| ---------- | --------------------------------------------------------------- | -------------------------------- |
+| zoom       | value、min、max、step；可选 presets、mode、toolbar              | set(percentage)、mode.set(value) |
+| navigation | index、count；index 从 0 开始；可选 toolbar                     | goTo(index)                      |
+| search     | query、resultCount、currentIndex、searching                     | setQuery、next、previous         |
+| actions    | id、label、kind、enabled、pressed、value、options；可选 toolbar | run(value?)                      |
 
 能力取决于当前插件与就绪状态。未就绪或不适用时禁用操作，不假定每个格式始终存在页码和查找。
 
@@ -225,19 +225,23 @@ stop();
 
 设置 toolbar: false 只隐藏默认工具栏，不删除能力。完整自定义按钮示例见接入指南。默认工具栏支持打开文件、缩放输入、原件下载和全屏；窄空间把次要操作收纳到更多面板。
 
+Office 工具栏按文档内容显示专属操作：Word 显示实际存在的大纲和可用修订视图；Excel 显示原始布局 / 阅读模式；PPT 在多页时显示前后翻页及备注。Excel 和 PPT 有批注或审阅笔记时才显示批注入口。Word 页码导航和 Excel 工作表选择继续通过能力调用，默认工具栏不重复展示。
+
+缩放组合框提供常用比例和适应模式；Excel 仅支持适应宽度，Word 与 PPT 还支持适应页面。确认手动比例后退出自适应模式。插件没有声明 presets 或 mode 时继续使用基本数值输入。
+
 ### Office 动作标识
 
-| id                 | run 参数/行为                   | 范围                |
-| ------------------ | ------------------------------- | ------------------- |
-| office.zoomMode    | percentage、fit-width、fit-page | fit-page 不用于表格 |
-| office.search      | 打开/关闭查找                   | Office              |
-| office.outline     | 打开/关闭大纲                   | Word                |
-| office.revision    | final、markup、original         | Word，只读修订投影  |
-| office.review      | 打开/关闭批注面板               | Excel、PPT          |
-| office.sheet       | options 中的工作表 ID           | Excel               |
-| office.sheetMode   | source、reading                 | Excel               |
-| office.notes       | 打开/关闭备注                   | PPT                 |
-| office.transitions | 切换源文件页级转场              | PPT                 |
+| id                 | run 参数/行为                      | 范围                |
+| ------------------ | ---------------------------------- | ------------------- |
+| office.zoomMode    | percentage、fit-width、fit-page    | fit-page 不用于表格 |
+| office.search      | 打开/关闭查找                      | Office              |
+| office.outline     | 打开/关闭大纲                      | Word                |
+| office.revision    | final、markup、original            | Word，只读修订投影  |
+| office.review      | 打开/关闭批注面板                  | Excel、PPT          |
+| office.sheet       | options 中的工作表 ID              | Excel               |
+| office.sheetMode   | source、reading                    | Excel               |
+| office.notes       | 打开/关闭备注                      | PPT                 |
+| office.transitions | 切换源文件页级转场，默认工具栏隐藏 | PPT                 |
 
 用 actions.find 查找动作并检查 enabled。参数从 options 读取，不把显示名称当作工作表 ID。切换缩放模式、修订显示或工作表不会修改原始文件。
 

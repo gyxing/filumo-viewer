@@ -49,8 +49,13 @@ export interface OfficeInteractionState {
   readonly resultIndex: number;
   readonly searching: boolean;
   readonly annotationCount: number;
+  readonly outlineCount: number;
+  readonly noteCount: number;
+  readonly revisionCount: number;
+  readonly supportsRevisionModes: boolean;
 }
 export interface OfficeDocumentInfo {
+  outlineCount?: number;
   slideCount?: number;
   pageCount?: number;
   pageIndex?: number;
@@ -75,7 +80,14 @@ export interface OfficeInteractionPort {
     resultIndex: number;
     searching: boolean;
   }): void;
-  updateAnnotations(count: number): void;
+  updateAnnotations(
+    count: number,
+    info?: {
+      noteCount?: number;
+      revisionCount?: number;
+      supportsRevisionModes?: boolean;
+    },
+  ): void;
   bind(handlers: OfficeInteractionHandlers): () => void;
   setActive(active: boolean): void;
   dispose(): void;

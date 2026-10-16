@@ -1,209 +1,131 @@
-.office-file-word-outline {
-  color: var(--office-file-text-color);
-}
+.fivo-native-word-outline {
+  --fivo-outline-line-color: var(--office-file-border-color);
 
-.office-file-word-outline__viewport {
+  display: flex;
+  flex: 0 0 260px;
+  flex-direction: column;
   box-sizing: border-box;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  color: var(--office-file-text-color);
   background: var(--office-file-surface-color);
   border-right: 1px solid var(--office-file-border-color);
+  font: 13px/1.5 system-ui, sans-serif;
 }
 
-.office-file-word-outline__surface {
-  display: flex;
-  flex-direction: column;
-  width: var(--office-file-navigation-panel-width);
-  min-width: var(--office-file-navigation-panel-width);
-  height: 100%;
-  opacity: 1;
-  transform: translate3d(0, 0, 0);
-  transition: opacity 240ms ease-out, transform 280ms cubic-bezier(0.2, 0, 0, 1);
+.fivo-native-word-outline[hidden] {
+  display: none;
 }
 
-.office-file-word-outline[data-visible='false']
-  .office-file-word-outline__surface {
-  opacity: 0;
-  transform: translate3d(-20px, 0, 0);
-  transition: opacity 180ms ease-in, transform 220ms ease-in;
-}
-
-.office-file-word-outline__header {
-  display: flex;
-  flex: 0 0 48px;
-  align-items: center;
-  gap: 8px;
-  height: 48px;
-  padding: 0 8px 0 14px;
-  border-bottom: 1px solid var(--office-file-border-color);
-}
-
-.office-file-word-outline__title {
-  display: inline-flex;
-  min-width: 0;
-  align-items: center;
-  gap: 7px;
-  font-weight: 600;
-  font-size: 14px;
-}
-
-.office-file-word-outline__count {
-  min-width: 24px;
-  margin-left: auto;
-  color: var(--office-file-muted-text-color);
-  font-size: 12px;
-  text-align: center;
-}
-
-.office-file-word-outline__toggle {
-  display: inline-flex;
-  width: 30px;
-  height: 30px;
-  padding: 0;
-  align-items: center;
-  justify-content: center;
-  color: var(--office-file-muted-text-color);
-  background: transparent;
-  border: 0;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.office-file-word-outline__toggle:hover {
-  color: var(--office-file-primary-color);
-  background: var(--office-file-selected-surface-color);
-}
-
-.office-file-word-outline__toggle:focus-visible {
-  outline: 2px solid var(--office-file-primary-color);
-  outline-offset: 1px;
-}
-
-.office-file-word-outline__tree-host {
-  flex: 1 1 auto;
-  min-height: 0;
-  padding: 8px 6px 10px;
-  overflow: auto;
+.fivo-native-word-outline > .fivo-native-list {
+  margin: 8px 6px 10px;
   scrollbar-gutter: stable;
 }
 
-.office-file-outline-tree {
-  position: relative;
-  box-sizing: border-box;
-  width: 100%;
-  min-width: 0;
-  color: inherit;
-  background: transparent;
-}
-
-.office-file-outline-tree--virtual {
-  contain: layout paint style;
-}
-
-.office-file-outline-tree__window {
+.fivo-native-outline-row {
   position: absolute;
-  top: 0;
-  right: 0;
   left: 0;
-}
-
-.office-file-outline-tree__row {
-  position: relative;
   display: flex;
+  align-items: center;
   box-sizing: border-box;
   width: 100%;
   height: 28px;
   min-width: 0;
   padding-right: 4px;
-  align-items: center;
   color: var(--office-file-text-color);
-  cursor: pointer;
-  outline: none;
   border-radius: 4px;
+  outline: none;
+  cursor: pointer;
 }
 
-.office-file-outline-tree__row:hover {
+.fivo-native-outline-row:hover {
   background: var(--office-file-subtle-surface-color);
 }
 
-.office-file-outline-tree__row[aria-selected='true'] {
+.fivo-native-outline-row[aria-selected='true'] {
   color: var(--office-file-primary-active-color);
   background: var(--office-file-selected-surface-color);
 }
 
-.office-file-outline-tree__row[data-focused='true']:focus-visible {
+.fivo-native-outline-row:focus-visible {
   box-shadow: inset 0 0 0 2px var(--office-file-focus-ring-color);
 }
 
-.office-file-outline-tree__guides {
+.fivo-outline-guides {
   position: absolute;
   inset: 0;
   pointer-events: none;
 }
 
-.office-file-outline-tree__guide {
+.fivo-outline-guide {
   position: absolute;
   top: 0;
   bottom: 0;
   width: 1px;
-  background: var(--office-file-border-color);
+  background: var(--fivo-outline-line-color);
 }
 
-.office-file-outline-tree__branch {
+.fivo-outline-branch {
+  --fivo-outline-branch-length: 10px;
+
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 15px;
+  width: var(--fivo-outline-branch-length);
 }
 
-.office-file-outline-tree__branch::before,
-.office-file-outline-tree__branch::after {
+// 横线接到方框边缘；叶子没有方框，延伸至标题前 4px。
+.fivo-outline-branch[data-leaf='true'] {
+  --fivo-outline-branch-length: 28px;
+}
+
+.fivo-outline-branch::before,
+.fivo-outline-branch::after {
   position: absolute;
-  background: var(--office-file-border-color);
+  background: var(--fivo-outline-line-color);
   content: '';
 }
 
-.office-file-outline-tree__branch::before {
+.fivo-outline-branch::before {
   top: 0;
   left: 0;
   width: 1px;
   height: 50%;
 }
 
-.office-file-outline-tree__branch[data-continues='true']::before {
+.fivo-outline-branch[data-continues='true']::before {
   height: 100%;
 }
 
-.office-file-outline-tree__branch::after {
+.fivo-outline-branch::after {
   top: 50%;
   left: 0;
-  width: 15px;
+  width: var(--fivo-outline-branch-length);
   height: 1px;
 }
 
-.office-file-outline-tree__switcher,
-.office-file-outline-tree__leaf-space {
+.fivo-outline-switcher,
+.fivo-outline-leaf-space {
   position: relative;
   z-index: 1;
   display: inline-flex;
   flex: 0 0 20px;
-  width: 20px;
-  height: 28px;
   align-items: center;
   justify-content: center;
+  width: 20px;
+  height: 28px;
 }
 
-.office-file-outline-tree__switcher {
+.fivo-outline-switcher {
   padding: 0;
   color: var(--office-file-muted-text-color);
   background: transparent;
   border: 0;
   cursor: pointer;
-  outline: none;
 }
 
-.office-file-outline-tree__switcher > span {
+.fivo-outline-switcher > span {
   position: relative;
   box-sizing: border-box;
   width: 12px;
@@ -212,8 +134,8 @@
   border: 1px solid currentcolor;
 }
 
-.office-file-outline-tree__switcher > span::before,
-.office-file-outline-tree__switcher > span::after {
+.fivo-outline-switcher > span::before,
+.fivo-outline-switcher > span::after {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -224,61 +146,61 @@
   transform: translate(-50%, -50%);
 }
 
-.office-file-outline-tree__switcher > span::after {
+.fivo-outline-switcher > span::after {
   transform: translate(-50%, -50%) rotate(90deg);
 }
 
-.office-file-outline-tree__switcher[data-expanded='true'] > span::after {
+.fivo-outline-switcher[data-expanded='true'] > span::after {
   display: none;
 }
 
-.office-file-outline-tree__switcher:hover,
-.office-file-outline-tree__switcher:focus-visible {
+.fivo-outline-switcher:hover {
   color: var(--office-file-primary-color);
 }
 
-.office-file-outline-tree__switcher[data-loading='true'] > span {
-  border-radius: 50%;
-  border-right-color: transparent;
-  animation: office-file-outline-tree-loading 720ms linear infinite;
+// 方框下缘到下一行之间也属于父子连线，避免每层展开处出现断口。
+.fivo-outline-switcher[data-has-children='true']::after {
+  position: absolute;
+  top: 20px;
+  left: 10px;
+  width: 1px;
+  height: 8px;
+  background: var(--fivo-outline-line-color);
+  content: '';
+  pointer-events: none;
 }
 
-.office-file-outline-tree__switcher[data-loading='true'] > span::before,
-.office-file-outline-tree__switcher[data-loading='true'] > span::after {
+.fivo-outline-switcher[data-loading='true'] > span {
+  border-radius: 50%;
+  border-right-color: transparent;
+  animation: fivo-outline-loading 720ms linear infinite;
+}
+
+.fivo-outline-switcher[data-loading='true'] > span::before,
+.fivo-outline-switcher[data-loading='true'] > span::after {
   display: none;
 }
 
-.office-file-outline-tree__title {
+.fivo-native-outline-label {
   display: block;
   flex: 1 1 auto;
   min-width: 0;
   padding: 0 6px;
   overflow: hidden;
-  line-height: 28px;
-  white-space: nowrap;
-  text-overflow: ellipsis;
   font-size: 14px;
+  line-height: 28px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-@keyframes office-file-outline-tree-loading {
+@keyframes fivo-outline-loading {
   to {
     transform: rotate(360deg);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .office-file-word-outline__surface {
-    transform: none;
-    transition: opacity 180ms linear;
-  }
-
-  .office-file-word-outline[data-visible='false']
-    .office-file-word-outline__surface {
-    transform: none;
-    transition: opacity 140ms linear;
-  }
-
-  .office-file-outline-tree__switcher[data-loading='true'] > span {
+  .fivo-outline-switcher[data-loading='true'] > span {
     animation-duration: 1.4s;
   }
 }

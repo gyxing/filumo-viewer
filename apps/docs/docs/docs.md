@@ -200,12 +200,12 @@ Choose source-prop control or imperative open instead of calling both for the sa
 
 ## Capabilities and custom toolbars
 
-| Capability | State                                             | Operations               |
-| ---------- | ------------------------------------------------- | ------------------------ |
-| zoom       | value, min, max, step                             | set(percentage)          |
-| navigation | index, count; zero-based index                    | goTo(index)              |
-| search     | query, resultCount, currentIndex, searching       | setQuery, next, previous |
-| actions    | id, label, kind, enabled, pressed, value, options | run(value?)              |
+| Capability | State                                                               | Operations                       |
+| ---------- | ------------------------------------------------------------------- | -------------------------------- |
+| zoom       | value, min, max, step; optional presets, mode, toolbar              | set(percentage), mode.set(value) |
+| navigation | index, count; zero-based index; optional toolbar                    | goTo(index)                      |
+| search     | query, resultCount, currentIndex, searching                         | setQuery, next, previous         |
+| actions    | id, label, kind, enabled, pressed, value, options; optional toolbar | run(value?)                      |
 
 Capabilities depend on the plugin and readiness. Disable unsupported or unavailable actions instead of assuming every format always has pagination or search.
 
@@ -225,19 +225,23 @@ stop();
 
 toolbar: false hides controls without removing capabilities. See Framework integration for a complete custom-button example. The default toolbar provides file selection, editable zoom, original download and fullscreen; secondary controls move into More actions on narrow containers.
 
+Office controls follow document content: Word exposes available headings and revision views, Excel exposes source/reading modes, and presentations expose previous/next slide controls for multiple slides plus notes. Excel and presentation comment buttons appear when comments or review notes exist. Word page navigation and worksheet selection remain callable capabilities without duplicate default toolbar controls.
+
+The zoom combobox combines percentage presets and fit modes. Spreadsheets offer fit width; Word and presentations also offer fit page. Confirming a percentage leaves automatic fitting. Plugins without presets or mode keep the basic numeric input.
+
 ### Office actions
 
-| id                 | run argument / behavior         | Scope                                      |
-| ------------------ | ------------------------------- | ------------------------------------------ |
-| office.zoomMode    | percentage, fit-width, fit-page | fit-page is not available for spreadsheets |
-| office.search      | Toggle find panel               | Office                                     |
-| office.outline     | Toggle outline                  | Word                                       |
-| office.revision    | final, markup, original         | Word; read-only projection                 |
-| office.review      | Toggle comments                 | Excel, PowerPoint                          |
-| office.sheet       | Worksheet ID from options       | Excel                                      |
-| office.sheetMode   | source, reading                 | Excel                                      |
-| office.notes       | Toggle speaker notes            | PowerPoint                                 |
-| office.transitions | Toggle source slide transitions | PowerPoint                                 |
+| id                 | run argument / behavior                                    | Scope                                      |
+| ------------------ | ---------------------------------------------------------- | ------------------------------------------ |
+| office.zoomMode    | percentage, fit-width, fit-page                            | fit-page is not available for spreadsheets |
+| office.search      | Toggle find panel                                          | Office                                     |
+| office.outline     | Toggle outline                                             | Word                                       |
+| office.revision    | final, markup, original                                    | Word; read-only projection                 |
+| office.review      | Toggle comments                                            | Excel, PowerPoint                          |
+| office.sheet       | Worksheet ID from options                                  | Excel                                      |
+| office.sheetMode   | source, reading                                            | Excel                                      |
+| office.notes       | Toggle speaker notes                                       | PowerPoint                                 |
+| office.transitions | Toggle source slide transitions; hidden in default toolbar | PowerPoint                                 |
 
 Find an action by id and check enabled. Read choices from options; display names are not worksheet IDs. Navigation, zoom modes and revisions never modify the original bytes.
 

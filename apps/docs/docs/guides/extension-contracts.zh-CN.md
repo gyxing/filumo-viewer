@@ -102,6 +102,32 @@ DocumentSession 暴露 id、signal、source、data、getSnapshot、subscribe、c
 
 actions 提供 id、label、kind、enabled、pressed/value/options 和 run。分页 index 为零基；表格使用稳定 sheet ID，不用展示名称作为身份。
 
+actions、zoom 和 navigation 的可选 toolbar 字段只控制默认界面，不删除能力或动作。visible 为 false 时隐藏；order 按升序排列，同值保留声明顺序；placement 为 main 时优先主栏，为 more 时固定收纳。priority 越小越先在空间不足时收纳。未指定时沿用原默认行为。动作可通过 showLabel: false 隐藏选择框外部标签，可访问名称仍保留。
+
+navigation.toolbar.layout 默认为 paging，显示页码与前后按钮；buttons 只显示前后按钮，可通过 previousLabel / nextLabel 提供文案。zoom.presets 提供比例列表；zoom.mode 包含 value、options 和异步 set(value)，选项值由插件解释，DOM 外壳不识别格式。mode.value 命中 options 时表示选中该模式，否则使用手动比例。
+
+```ts | pure
+context.setCapabilities({
+  actions: [
+    {
+      id: 'custom.inspect',
+      label: '检查',
+      kind: 'action',
+      toolbar: { order: 10, placement: 'main' },
+      run: () => console.info('检查文档'),
+    },
+  ],
+  navigation: {
+    index: 0,
+    count: 3,
+    toolbar: { visible: false },
+    goTo: async (index) => console.info(index),
+  },
+});
+```
+
+原有未声明 toolbar、presets、mode 的插件不需要修改。宿主的自定义工具栏可以忽略默认展示信息并直接调用现有能力。
+
 ## 后续编辑与保存
 
 预览的输入来源、会话、能力和框架适配可以复用，但编辑应增加独立的命令、变更状态、历史、权限和格式写入能力。

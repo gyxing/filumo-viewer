@@ -43,11 +43,21 @@ export function createOfficeInteractions(kind: string): OfficeInteractionPort {
     resultIndex: -1,
     searching: false,
     annotationCount: 0,
+    outlineCount: 0,
+    noteCount: 0,
+    revisionCount: 0,
+    supportsRevisionModes: false,
   });
   let handlers: OfficeInteractionHandlers | undefined;
   let closed = false;
   let transitionToken = 0;
   const listeners = new Set<() => void>();
+  // 外部统计不能将无穷值或负数传播到工具栏内容条件。
+  const normalizeCount = (value: number) => {
+    if (!Number.isFinite(value))
+      throw new FivoError('INVALID_COUNT', '内容数量必须是有限数值');
+    return Math.max(0, Math.trunc(value));
+  };
   const update = (change: Partial<OfficeInteractionState>) => {
     if (
       closed ||
@@ -202,6 +212,10 @@ export function createOfficeInteractions(kind: string): OfficeInteractionPort {
     },
     updateDocument(info: OfficeDocumentInfo) {
       const change: Partial<OfficeInteractionState> = {};
+      if (info.outlineCount !== undefined)
+        Object.assign(change, {
+          outlineCount: normalizeCount(info.outlineCount),
+        });
       if (info.slideCount !== undefined)
         Object.assign(change, {
           slideCount: Math.max(0, info.slideCount),
@@ -239,8 +253,13 @@ export function createOfficeInteractions(kind: string): OfficeInteractionPort {
       update(change);
     },
     updateSearch: update,
-    updateAnnotations(count) {
-      update({ annotationCount: count });
+    updateAnnotations(count, info) {
+      update({
+        annotationCount: normalizeCount(count),
+        noteCount: normalizeCount(info?.noteCount ?? 0),
+        revisionCount: normalizeCount(info?.revisionCount ?? 0),
+        supportsRevisionModes: info?.supportsRevisionModes ?? false,
+      });
     },
     bind(next) {
       if (closed) throw new FivoError('OFFICE_DISPOSED', 'Office 文档已释放');

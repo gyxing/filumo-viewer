@@ -124,6 +124,86 @@ test('能力按格式和就绪状态生成，不虚构页数', () => {
   assert.ok(caps.actions.some((action) => action.id === 'office.sheetMode'));
 });
 
+for (const kind of ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx']) {
+  test(kind + ' 工具栏按真实内容展示，隐藏动作仍可调用', async () => {
+    const port = createOfficeInteractions(kind);
+    port.bind({ navigatePage() {} });
+    const caps = () => createOfficeCapabilities(port);
+    const action = (id) => caps().actions.find((item) => item.id === id);
+    assert.deepEqual(caps().zoom.presets, [50, 75, 100, 125, 150, 200]);
+    assert.equal(action('office.zoomMode').toolbar.visible, false);
+    if (kind.startsWith('doc')) {
+      assert.equal(action('office.outline').toolbar.visible, false);
+      assert.equal(action('office.revision').toolbar.visible, false);
+      port.updateDocument({ outlineCount: 2, pageCount: 3 });
+      assert.equal(action('office.outline').toolbar.visible, true);
+      assert.equal(caps().navigation.toolbar.visible, false);
+      await caps().navigation.goTo(1);
+      assert.equal(port.getState().pageIndex, 1);
+      port.updateAnnotations(0, {
+        supportsRevisionModes: true,
+        revisionCount: 2,
+      });
+      assert.equal(action('office.revision').toolbar.visible, true);
+      port.updateAnnotations(1);
+      assert.equal(action('office.revision').toolbar.visible, true);
+      port.updateAnnotations(0);
+      port.updateDocument({ outlineCount: 0 });
+      assert.equal(action('office.revision').toolbar.visible, false);
+      assert.equal(action('office.outline').toolbar.visible, false);
+    } else {
+      assert.equal(action('office.review').toolbar.visible, false);
+      port.updateAnnotations(0, { noteCount: 1 });
+      assert.equal(action('office.review').toolbar.visible, true);
+      port.updateAnnotations(0);
+      assert.equal(action('office.review').toolbar.visible, false);
+      if (kind.startsWith('xls')) {
+        port.updateDocument({ sheets: [{ id: 'one', name: 'One' }] });
+        assert.equal(action('office.sheet').toolbar.visible, false);
+        assert.equal(action('office.sheetMode').toolbar.showLabel, false);
+        await action('office.sheet').run('one');
+      } else {
+        port.updateDocument({ slideCount: 2 });
+        assert.equal(action('office.transitions').toolbar.visible, false);
+        await action('office.transitions').run();
+        assert.equal(port.getState().transitions, true);
+        assert.equal(caps().navigation.toolbar.layout, 'buttons');
+        assert.ok(
+          caps().navigation.toolbar.order <
+            action('office.notes').toolbar.order,
+        );
+      }
+    }
+    await caps().zoom.mode.set('fit-width');
+    await caps().zoom.set(caps().zoom.value);
+    assert.equal(port.getState().zoomMode, 'percentage');
+    port.dispose();
+  });
+}
+
+test('大纲和审阅统计只在变化时通知，旧单参数调用清空附加信息', () => {
+  const port = createOfficeInteractions('docx');
+  let count = 0;
+  port.subscribe(() => count++);
+  port.updateDocument({ outlineCount: 3 });
+  port.updateDocument({ outlineCount: 3 });
+  port.updateAnnotations(1, {
+    noteCount: 2,
+    revisionCount: 4,
+    supportsRevisionModes: true,
+  });
+  port.updateAnnotations(1, {
+    noteCount: 2,
+    revisionCount: 4,
+    supportsRevisionModes: true,
+  });
+  assert.equal(count, 2);
+  port.updateAnnotations(1);
+  assert.equal(port.getState().noteCount, 0);
+  assert.equal(port.getState().revisionCount, 0);
+  assert.equal(port.getState().supportsRevisionModes, false);
+});
+
 test('原始导出不修改缓存字节，忽略取消的自定义读取器也不会交付结果', async () => {
   const data = new Uint8Array([1, 2, 3]);
   const source = {

@@ -16,8 +16,7 @@
 .fivo-native-panel[hidden],
 .fivo-native-panel [hidden],
 .fivo-native-word-outline [hidden],
-.fivo-office-notices[hidden],
-.office-file-overflow-notice[hidden] {
+.fivo-office-notices[hidden] {
   display: none;
 }
 
@@ -55,6 +54,29 @@
   color: var(--office-file-primary-color);
   background: var(--office-file-selected-surface-color);
   font-weight: 600;
+}
+
+.fivo-native-navigation-tabs {
+  display: inline-flex;
+  align-items: stretch;
+  gap: 2px;
+  height: 32px;
+  box-sizing: border-box;
+  padding: 2px;
+  background: var(--office-file-subtle-surface-color);
+  border-radius: 6px;
+}
+
+.fivo-native-navigation-tabs .fivo-native-tab {
+  min-width: 48px;
+  padding: 0 10px;
+  font-size: 13px;
+}
+
+.fivo-native-navigation-tabs .fivo-native-tab--active {
+  color: var(--office-file-primary-active-color);
+  background: var(--office-file-surface-color);
+  box-shadow: 0 1px 2px rgb(15 23 42 / 12%);
 }
 
 .fivo-native-count {
@@ -250,6 +272,78 @@
   padding-top: 8px;
 }
 
+.fivo-native-review {
+  border-right: 0;
+  border-left: 1px solid var(--office-file-border-color);
+}
+
+.fivo-native-review-summary {
+  flex: 0 0 auto;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--office-file-border-color);
+  color: var(--office-file-muted-text-color);
+  font-size: 12px;
+}
+
+.fivo-native-review-empty {
+  flex: 1;
+  padding: 32px 20px;
+  color: var(--office-file-muted-text-color);
+  text-align: center;
+}
+
+.fivo-native-review-heading,
+.fivo-native-review-footer {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  min-width: 0;
+  gap: 8px;
+}
+
+.fivo-native-review-heading .fivo-native-result-author {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fivo-native-review-heading .fivo-native-result-meta {
+  flex: 0 1 auto;
+  max-width: 50%;
+}
+
+.fivo-native-review-list .fivo-native-result-text {
+  display: block;
+  max-height: 36px;
+  line-height: 18px;
+}
+
+.fivo-native-review-footer {
+  justify-content: space-between;
+  margin-top: auto;
+  min-height: 18px;
+  color: var(--office-file-muted-text-color);
+  font-size: 11px;
+}
+
+.fivo-native-review-footer time {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fivo-native-review-resolved {
+  flex: 0 0 auto;
+  margin-left: auto;
+  padding: 0 5px;
+  border-radius: 3px;
+  color: var(--office-file-primary-active-color);
+  background: var(--office-file-selected-surface-color);
+}
+
 .fivo-native-review-list .fivo-native-result {
   border-color: var(--office-file-border-color);
 }
@@ -267,14 +361,132 @@
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
-@container (max-width: 230px) {
-  .fivo-native-query {
-    grid-template-columns: 1fr 1fr;
-  }
 
-  .fivo-native-query-field {
-    grid-column: 1 / -1;
-  }
+.fivo-native-review-detail[data-state='error'] {
+  color: var(--office-file-notice-error-color);
+}
+
+// 查找面板独立排版，不改变复用结果卡片的批注面板。
+.fivo-native-search {
+  --fivo-search-hit-background: var(--office-file-search-hit-background);
+  --fivo-search-hit-color: var(--office-file-search-hit-color);
+}
+
+.fivo-native-search > header > .fivo-office-icon-button {
+  margin-left: auto;
+}
+
+.fivo-native-search .fivo-native-query {
+  display: block;
+  margin: 12px 12px 8px;
+}
+
+.fivo-native-search .fivo-native-query-field {
+  height: 36px;
+  padding: 0 8px;
+  gap: 6px;
+  border-color: var(--office-file-control-border-color);
+  border-radius: 6px;
+}
+
+.fivo-native-search .fivo-native-query-field:focus-within {
+  border-color: var(--office-file-primary-color);
+  box-shadow: 0 0 0 2px var(--office-file-focus-ring-color);
+}
+
+.fivo-native-search .fivo-native-query-options {
+  min-height: 28px;
+  align-items: center;
+  margin: 0 12px 6px;
+  gap: 4px 12px;
+  color: var(--office-file-muted-text-color);
+}
+
+.fivo-native-search .fivo-native-query-options label {
+  min-height: 24px;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.fivo-native-search-navigation {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 4px;
+  min-height: 28px;
+  margin: 0 10px 8px 12px;
+}
+
+.fivo-native-search-position {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--office-file-muted-text-color);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fivo-native-search-navigation > .fivo-office-icon-button {
+  flex-basis: 28px;
+  width: 28px;
+  height: 28px;
+}
+
+.fivo-native-search .fivo-native-result-status {
+  margin: 0 12px 8px;
+  overflow-wrap: anywhere;
+}
+
+.fivo-native-search .fivo-native-result-status[data-state='error'] {
+  color: var(--office-file-notice-error-color);
+}
+
+.fivo-native-search-empty {
+  display: flex;
+  flex: 1;
+  align-items: flex-start;
+  justify-content: center;
+  min-height: 0;
+  padding: 32px 20px;
+  color: var(--office-file-muted-text-color);
+  font-size: 13px;
+  line-height: 1.7;
+  text-align: center;
+}
+
+.fivo-native-search > .fivo-native-list {
+  margin: 0 6px 10px;
+  scrollbar-gutter: stable;
+}
+
+.fivo-native-search .fivo-native-result {
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: 4px;
+}
+
+.fivo-native-search .fivo-native-result[aria-pressed='true'] {
+  border-color: transparent;
+  box-shadow: inset 2px 0 0 var(--office-file-primary-color);
+}
+
+.fivo-native-search .fivo-native-result-meta {
+  line-height: 14px;
+}
+
+.fivo-native-search .fivo-native-result-text {
+  display: block;
+  max-height: 36px;
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.fivo-native-search-hit {
+  padding: 0 1px;
+  color: var(--fivo-search-hit-color);
+  background: var(--fivo-search-hit-background);
+  border-radius: 2px;
 }
 
 .fivo-office-notices {
@@ -294,17 +506,44 @@
   display: flex;
   flex-direction: column;
   width: 190px;
+  max-width: 100%;
+  box-sizing: border-box;
   background: var(--office-file-surface-color);
   padding: 4px;
+  border: 1px solid var(--office-file-border-color);
+  border-radius: 5px;
   box-shadow: var(--office-file-overlay-shadow);
 }
 
 .fivo-presentation-context-menu button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  min-width: 0;
   border: 0;
-  padding: 10px;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font: 13px/1.5 system-ui, sans-serif;
   background: transparent;
   color: var(--office-file-text-color);
   text-align: left;
+  cursor: pointer;
+}
+
+.fivo-presentation-context-menu button > svg {
+  flex: 0 0 16px;
+}
+
+.fivo-presentation-context-menu button:hover,
+.fivo-presentation-context-menu button:focus-visible {
+  color: var(--office-file-primary-active-color);
+  background: var(--office-file-selected-surface-color);
+}
+
+.fivo-presentation-context-menu button:focus-visible {
+  outline: 1px solid var(--office-file-primary-color);
+  outline-offset: -1px;
 }
 
 .fivo-native-panel,

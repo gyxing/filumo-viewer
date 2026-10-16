@@ -2,10 +2,10 @@ import type { ViewContext, ViewHandle, ViewOptions } from '@fivo/dom';
 import { useStyles as acquireStyles } from '@fivo/dom';
 import { STYLE_SCOPE } from '../../generated/package';
 import { createOfficeCapabilities } from '../../runtime/capabilities';
-import type { OfficeViewServices } from '../../view/contracts';
 import { createOfficeViewServices } from '../../services/createOfficeViewServices';
 import '../../styles/office.less';
 import '../../styles/search.less';
+import type { OfficeViewServices } from '../../view/contracts';
 import type { OfficeRenderContext } from '../../view/types';
 import { mountNativePanels } from './NativePanels';
 import './native.less';
@@ -38,7 +38,6 @@ export async function mountNativeOffice(
     notices = document.createElement('details'),
     summary = document.createElement('summary'),
     warningList = document.createElement('ul'),
-    overflow = document.createElement('div'),
     partial = document.createElement('div');
   layout.className = 'office-file-viewer__layout';
   content.className = 'office-file-viewer__content';
@@ -46,12 +45,11 @@ export async function mountNativeOffice(
   searchHost.className = reviewHost.className = 'fivo-native-panel';
   stage.className = 'office-file-viewer__stage';
   notices.className = 'fivo-office-notices';
-  overflow.className = 'office-file-overflow-notice';
-  overflow.setAttribute('role', 'status');
   partial.setAttribute('role', 'alert');
   notices.append(summary, warningList);
   workspace.append(searchHost, stage, reviewHost);
-  content.append(workspace, overflow, partial, notices);
+  // 正常溢出由滚动条表达，公共外壳只呈现实际解析告警。
+  content.append(workspace, partial, notices);
   layout.append(content);
   root.append(layout);
   let services: OfficeViewServices | undefined, view: ViewHandle | undefined;
@@ -99,13 +97,6 @@ export async function mountNativeOffice(
           return item;
         }),
       );
-      const axis = owned.viewport.getSnapshot().overflowAxis;
-      overflow.hidden = !axis;
-      overflow.textContent = axis
-        ? options.locale === 'en-US'
-          ? 'Scroll to see the remaining content'
-          : '当前内容超出视口，可滚动查看完整内容'
-        : '';
       const state = context.session.getSnapshot();
       partial.hidden = state.status !== 'error' || !state.partialReady;
       partial.textContent = partial.hidden
@@ -117,7 +108,6 @@ export async function mountNativeOffice(
     stops.push(
       owned.state.subscribe(refresh),
       owned.warnings.subscribe(refresh),
-      owned.viewport.subscribe(refresh),
       context.session.subscribe(refresh),
     );
     root.addEventListener('keydown', (event) => {
@@ -126,7 +116,15 @@ export async function mountNativeOffice(
         void owned.state.execute({ type: 'search', open: false });
       }
     });
-    await owned.state.execute({ type: 'zoom', value: options.zoom ?? 100 });
+    // 演示文稿默认完整适配容器，宿主显式传入比例时仍优先使用固定缩放。
+    if (
+      options.zoom === undefined &&
+      owned.state.getState().family === 'presentation'
+    ) {
+      await owned.state.execute({ type: 'zoomMode', mode: 'fit-page' });
+    } else {
+      await owned.state.execute({ type: 'zoom', value: options.zoom ?? 100 });
+    }
     panels.update(options.locale ?? 'zh-CN');
     view = await mount(native);
     refresh();

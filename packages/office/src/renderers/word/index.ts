@@ -93,6 +93,7 @@ async function mountWordView(
     outline = undefined;
     const old = binding;
     binding = undefined;
+    port.updateDocument({ outlineCount: 0 });
     review = undefined;
     await old?.dispose();
   };
@@ -140,8 +141,21 @@ async function mountWordView(
         return;
       }
       binding = next;
+      const updateOutline = () => {
+        if (!closed && binding === next)
+          port.updateDocument({
+            outlineCount: next.outline.getSnapshot().count,
+          });
+      };
+      sourceStops.push(next.outline.subscribe(updateOutline));
+      updateOutline();
       window = new WordPageWindow(next, scroller, context);
-      outline = new WordOutline(next.outline, context, (id) => locate(id));
+      outline = new WordOutline(
+        next.outline,
+        context,
+        (id) => locate(id),
+        scroller,
+      );
       body.prepend(outline.element);
       if (next.measurement)
         measurement = new DocxMeasurement(next.measurement, context, root);

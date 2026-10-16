@@ -22,6 +22,51 @@ async function preview(page, format = 'docx', extra = '') {
   );
 }
 
+for (const format of ['docx', 'xlsx', 'pptx']) {
+  test('取消滚动气泡后仍可自适应缩放：' + format, async ({ page }) => {
+    await preview(page, format, '&width=320');
+    const toolbar = page.locator('.fivo-toolbar');
+    const zoom = toolbar.getByRole('combobox', {
+      name: '缩放比例',
+      exact: true,
+    });
+    const more = toolbar.locator('.fivo-toolbar-more > summary');
+    if (!(await zoom.isVisible())) await more.click();
+    await zoom.fill('300');
+    await zoom.press('Enter');
+    await expect(zoom).toHaveValue('300');
+    const viewport = page
+      .locator('[data-office-overflow-viewport="true"]')
+      .first();
+    await expect
+      .poll(() =>
+        viewport.evaluate(
+          (el) =>
+            el.scrollWidth > el.clientWidth + 2 ||
+            el.scrollHeight > el.clientHeight + 2,
+        ),
+      )
+      .toBe(true);
+    expect(await page.locator('.office-file-overflow-notice').count()).toBe(0);
+    await zoom.click();
+    await page.getByRole('option', { name: '适应宽度', exact: true }).click();
+    // 极窄的 PPT 视口可能触及已有的 25% 下限，此时允许保留正常滚动。
+    await expect
+      .poll(
+        async () =>
+          Number(await zoom.inputValue()) === 25 ||
+          (await viewport.evaluate(
+            (el) => el.scrollWidth <= el.clientWidth + 2,
+          )),
+      )
+      .toBe(true);
+    await zoom.fill('125');
+    await zoom.press('Enter');
+    await expect(zoom).toHaveValue('125');
+    await expect(page.locator('.office-file-overflow-notice')).toHaveCount(0);
+  });
+}
+
 for (const width of [320, 760, 1100])
   test(
     'UI 对齐：工具栏 ' + width + 'px 保持紧凑且支持输入缩放',
@@ -37,7 +82,11 @@ for (const width of [320, 760, 1100])
         toolbar.getByRole('button', { name: '打开文件', exact: true }),
       ).toBeVisible();
       expect(await toolbar.locator('svg').count()).toBeGreaterThan(3);
-      const zoom = toolbar.getByRole('spinbutton', { name: '缩放比例' });
+      if (width === 1100)
+        await toolbar.screenshot({ path: 'tmp/toolbar-word-real.png' });
+      if (width === 320)
+        await toolbar.screenshot({ path: 'tmp/toolbar-narrow-real.png' });
+      const zoom = toolbar.getByRole('combobox', { name: '缩放比例' });
       if (!(await zoom.isVisible()))
         await toolbar.locator('.fivo-toolbar-more > summary').click();
       await zoom.fill('125');
@@ -57,16 +106,67 @@ for (const width of [320, 760, 1100])
     },
   );
 
-test('UI 对齐：查找输入、结果位置与大纲切换', async ({ page }, info) => {
+test('UI 对齐：查找面板排版、高亮、选项与大纲切换', async ({ page }, info) => {
   await preview(page);
   await page.locator('[data-fivo-action="office.search"]').click();
   const query = page.locator('.fivo-native-query input[type="search"]');
+  const panel = page.locator('.fivo-native-panel').filter({ has: query });
+  await expect(panel.locator('.fivo-native-search-empty')).toHaveText(
+    '输入文字以查找当前文档',
+  );
+  const field = panel.locator('.fivo-native-query-field');
+  expect((await field.boundingBox()).height).toBe(36);
+  expect((await field.boundingBox()).width).toBeGreaterThan(
+    (await panel.boundingBox()).width - 32,
+  );
   expect((await query.boundingBox()).width).toBeGreaterThanOrEqual(120);
   await query.fill('Fivo');
   await expect(page.locator('.fivo-native-result')).toHaveCount(2);
+  await expect(panel.locator('.fivo-native-search-position')).toHaveText(
+    '2 个结果',
+  );
+  await expect(panel.locator('header .fivo-native-count')).toHaveCount(0);
+  await expect(panel.locator('.fivo-native-result mark')).toHaveCount(2);
+  expect(
+    (await panel.locator('.fivo-native-result').first().boundingBox()).height,
+  ).toBe(68);
   await expect(page.locator('.fivo-native-result').first()).toContainText(
     '第 1 页',
   );
+  await query.press('Enter');
+  await expect(panel.locator('.fivo-native-search-position')).toHaveText(
+    '1 / 2',
+  );
+  await query.press('Shift+Enter');
+  await expect(panel.locator('.fivo-native-search-position')).toHaveText(
+    '2 / 2',
+  );
+  await panel.screenshot({ path: 'tmp/search-refined-light.png' });
+  await query.fill('fivo');
+  await panel.getByLabel('区分大小写', { exact: true }).check();
+  await expect(panel.locator('.fivo-native-search-empty')).toHaveText(
+    '未找到匹配内容',
+  );
+  await panel.getByLabel('区分大小写', { exact: true }).uncheck();
+  await expect(panel.locator('.fivo-native-result')).toHaveCount(2);
+  await query.fill('Fiv');
+  await panel.getByLabel('全字匹配', { exact: true }).check();
+  await expect(panel.locator('.fivo-native-search-empty')).toHaveText(
+    '未找到匹配内容',
+  );
+  await panel.getByLabel('全字匹配', { exact: true }).uncheck();
+  await query.fill('Fivo');
+  await expect(panel.locator('.fivo-native-result')).toHaveCount(2);
+  await panel.evaluate((el) => {
+    el.style.flexBasis = '190px';
+  });
+  expect(
+    await panel.evaluate((el) => el.scrollWidth - el.clientWidth),
+  ).toBeLessThanOrEqual(1);
+  await panel.screenshot({ path: 'tmp/search-refined-narrow.png' });
+  await panel.evaluate((el) => {
+    el.style.flexBasis = '';
+  });
   await info.attach('search', {
     body: await page.locator('#preview').screenshot(),
     contentType: 'image/png',
@@ -84,6 +184,9 @@ test('UI 对齐：查找输入、结果位置与大纲切换', async ({ page }, 
 
 test('UI 对齐：短表格补满网格且批注按钮不挤压', async ({ page }, info) => {
   await preview(page, 'xlsx');
+  await page
+    .locator('.fivo-toolbar')
+    .screenshot({ path: 'tmp/toolbar-excel-real.png' });
   expect(
     await page.locator('[data-office-spreadsheet-cell="H10"]').count(),
   ).toBe(1);
@@ -104,6 +207,9 @@ test('UI 对齐：短表格补满网格且批注按钮不挤压', async ({ page 
 
 test('UI 对齐：幻灯片缩略图卡片与备注把手', async ({ page }, info) => {
   await preview(page, 'pptx');
+  await page
+    .locator('.fivo-toolbar')
+    .screenshot({ path: 'tmp/toolbar-ppt-real.png' });
   const cards = page.locator('.office-file-pptx-viewer__thumbnail-button');
   await expect(cards).toHaveCount(2);
   const border = await cards
@@ -277,20 +383,19 @@ test('UI 对齐：深色英文查找、缩放边界及销毁', async ({ page }, 
   await preview(page, 'docx', '&theme=dark&locale=en-US&width=760');
   const toolbar = page.locator('.fivo-toolbar');
   const more = toolbar.locator('.fivo-toolbar-more > summary');
-  await more.click();
-  await toolbar
-    .getByRole('combobox', { name: 'Zoom mode', exact: true })
-    .selectOption('fit-width');
-  await page.keyboard.press('Escape');
-  const zoom = toolbar.getByRole('spinbutton', {
+  const zoom = toolbar.getByRole('combobox', {
     name: 'Zoom percentage',
     exact: true,
   });
   if (!(await zoom.isVisible())) await more.click();
-  const before = await zoom.inputValue();
+  await zoom.click();
+  await page
+    .locator('.fivo-viewer')
+    .screenshot({ path: 'tmp/toolbar-zoom-dark-real.png' });
+  await page.getByRole('option', { name: 'Fit width', exact: true }).click();
   await zoom.fill('0');
   await zoom.press('Enter');
-  await expect(zoom).toHaveValue(before);
+  await expect(zoom).toHaveValue('25');
   await page.keyboard.press('Escape');
   const search = toolbar.locator('[data-fivo-action="office.search"]');
   if (!(await search.isVisible())) await more.click();
@@ -302,6 +407,10 @@ test('UI 对齐：深色英文查找、缩放边界及销毁', async ({ page }, 
   const input = page.locator('.fivo-native-query input');
   await input.fill('Fivo');
   await expect(page.locator('.fivo-native-result')).toHaveCount(2);
+  await page
+    .locator('.fivo-native-panel')
+    .filter({ has: input })
+    .screenshot({ path: 'tmp/search-refined-dark.png' });
   await info.attach('search-dark', {
     body: await page.locator('#preview').screenshot(),
     contentType: 'image/png',

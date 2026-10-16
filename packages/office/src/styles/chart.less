@@ -27,11 +27,60 @@
   position: absolute;
   inset: 0;
   display: grid;
+  align-content: center;
   place-items: center;
+  gap: 8px;
+  color: #64748b;
+  font: 13px/1.5 system-ui, sans-serif;
   background: rgba(255, 255, 255, 75%);
 }
 
 .office-file-chart__empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   height: 100%;
+  padding: 12px;
+  color: var(--office-file-muted-text-color);
+  background: var(--office-file-subtle-surface-color);
+  font: 13px/1.5 system-ui, sans-serif;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.office-file-chart__loading[hidden],
+.office-file-chart__empty[hidden],
+.office-file-chart__host[hidden] {
+  display: none;
+}
+
+.office-file-chart--invalid-size {
+  min-width: 120px;
+  min-height: 64px;
+  max-width: 100%;
+}
+
+.office-file-chart__spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #dfe5ec;
+  border-top-color: var(--office-file-primary-color);
+  border-radius: 50%;
+  animation: office-file-chart-spin 0.8s linear infinite;
+}
+
+@keyframes office-file-chart-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .office-file-chart__spinner {
+    animation: none;
+  }
 }

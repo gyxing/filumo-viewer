@@ -129,7 +129,7 @@ export class OfficeViewportService {
       const style =
         viewport.ownerDocument.defaultView?.getComputedStyle(viewport);
       const padding = (value?: string) => Number.parseFloat(value ?? '0') || 0;
-      if (w && h) {
+      if (w && h && viewport.getClientRects().length) {
         const width =
           viewport.clientWidth -
           padding(style?.paddingLeft) -
@@ -140,11 +140,14 @@ export class OfficeViewportService {
           padding(style?.paddingTop) -
           padding(style?.paddingBottom) -
           number('officeFitFixedHeight');
-        const raw =
-          state.zoomMode === 'fit-page' && state.family !== 'spreadsheet'
-            ? Math.min(width / w, height / h) * 100
-            : (width / w) * 100;
-        if (Number.isFinite(raw)) zoom = normalizeOfficeZoom(Math.floor(raw));
+        // 隐藏或尚未分配有效空间时保留比例，等待观察器在布局就绪后重新测量。
+        if (width > 0 && height > 0) {
+          const raw =
+            state.zoomMode === 'fit-page' && state.family !== 'spreadsheet'
+              ? Math.min(width / w, height / h) * 100
+              : (width / w) * 100;
+          if (Number.isFinite(raw)) zoom = normalizeOfficeZoom(Math.floor(raw));
+        }
       }
     } else if (state.zoomMode === 'percentage')
       this.container

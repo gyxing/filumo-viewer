@@ -12,6 +12,7 @@ const paths = {
     'M17 10.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0ZM15.5 15.5 21 21M7.5 10.5h6M10.5 7.5v6',
   previous: 'm15 18-6-6 6-6',
   next: 'm9 6 6 6-6 6',
+  chevronDown: 'm6 9 6 6 6-6',
   download: 'M12 3v12m-5-5 5 5 5-5M4 15v5h16v-5',
   fullscreen: 'M3 9V3h6M15 3h6v6M21 15v6h-6M9 21H3v-6',
   exitFullscreen: 'M9 3v6H3M21 9h-6V3M15 21v-6h6M3 15h6v6',

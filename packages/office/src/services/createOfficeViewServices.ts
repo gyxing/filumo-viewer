@@ -2,6 +2,7 @@ import type { ViewContext } from '@fivo/dom';
 import type { OfficeFileViewerWarning } from '../engine/previewWarnings';
 import { LayoutScheduler } from '../layout/LayoutScheduler';
 import type { OfficeRuntimeData } from '../runtime/types';
+import type { OfficeViewServices } from '../view/contracts';
 import { ObservableState } from './ObservableState';
 import { createOfficeAnnotationService } from './OfficeAnnotationService';
 import { OfficeFontService } from './OfficeFontService';
@@ -12,7 +13,6 @@ import { createOfficeSearchService } from './OfficeSearchService';
 import { OfficeViewportService } from './OfficeViewportService';
 import { collectViewWarnings, mergeOfficeWarnings } from './OfficeWarnings';
 import { DisposalScope } from './lifetime/DisposalScope';
-import type { OfficeViewServices } from '../view/contracts';
 /** 为一个视图创建唯一服务集合；React 和原生视图都只消费这里的所有权。 */
 export function createOfficeViewServices(
   context: ViewContext,
@@ -107,9 +107,11 @@ export function createOfficeViewServices(
     }),
   );
   scope.add(
-    annotations.subscribe(() =>
-      port.updateAnnotations(annotations.getSnapshot().snapshot.count),
-    ),
+    annotations.subscribe(() => {
+      const snapshot = annotations.getSnapshot().snapshot;
+      // 批注、笔记与修订能力具有不同展示条件，不能只传批注条数。
+      port.updateAnnotations(snapshot.count, snapshot);
+    }),
   );
   scope.add(
     port.bind({

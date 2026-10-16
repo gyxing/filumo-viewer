@@ -20,6 +20,13 @@ export function mountChart(
 ) {
   const host = context.document.createElement('div');
   host.className = 'office-file-chart fivo-chart-host';
+  // 状态层独立于画布，避免 ECharts 初始化时清掉加载和错误提示。
+  const canvasHost = context.document.createElement('div');
+  canvasHost.className = 'office-file-chart__host';
+  const status = context.document.createElement('div');
+  status.setAttribute('role', 'status');
+  status.hidden = true;
+  host.append(canvasHost, status);
   container.append(host);
   const key = 'chart-' + ++sequence;
   let dirty = true;
@@ -33,35 +40,71 @@ export function mountChart(
   let resize: ResizeObserver | undefined;
   let intersection: IntersectionObserver | undefined;
   let cancelLayout: (() => void) | undefined;
-  const fallback = (text: string) => {
+  let stopCapture: (() => void) | undefined;
+  const setStatus = (text: string, busy = false) => {
+    status.replaceChildren();
+    status.className = busy
+      ? 'office-file-chart__loading'
+      : 'office-file-chart__empty';
+    if (busy) {
+      const spinner = context.document.createElement('span');
+      spinner.className = 'office-file-chart__spinner';
+      spinner.setAttribute('aria-hidden', 'true');
+      status.append(spinner);
+    }
+    status.append(context.document.createTextNode(text));
+    status.hidden = !text;
+    host.setAttribute('aria-busy', String(busy));
+  };
+  const fallback = (text: string, allowSnapshot = true) => {
+    stopCapture?.();
     instance?.dispose();
     instance = undefined;
-    host.replaceChildren();
-    if (model.chart.snapshotSrc) {
+    canvasHost.replaceChildren();
+    host.classList.add('office-file-chart--static');
+    if (allowSnapshot && model.chart.snapshotSrc) {
       const image = context.document.createElement('img');
       image.className = 'office-file-chart__snapshot';
       image.alt = model.chart.title ?? text;
       image.src = model.chart.snapshotSrc;
-      host.append(image);
-    } else host.textContent = text;
+      canvasHost.hidden = false;
+      canvasHost.append(image);
+      setStatus('');
+    } else {
+      canvasHost.hidden = true;
+      setStatus(text);
+    }
   };
+  const hasValidSize = () =>
+    Number.isFinite(model.width) &&
+    model.width > 0 &&
+    Number.isFinite(model.height) &&
+    model.height > 0;
   const dimensions = () => {
-    host.style.width =
-      (Math.max(0, model.width) * (model.zoom ?? 100)) / 100 + 'px';
-    host.style.height =
-      (Math.max(0, model.height) * (model.zoom ?? 100)) / 100 + 'px';
+    const valid = hasValidSize();
+    const scale = (model.zoom ?? 100) / 100;
+    // 无效尺寸也预留空态空间，否则错误文字会被零宽高容器裁掉。
+    const width =
+      Number.isFinite(model.width) && model.width > 0 ? model.width : 160;
+    const height =
+      Number.isFinite(model.height) && model.height > 0 ? model.height : 72;
+    host.classList.toggle('office-file-chart--invalid-size', !valid);
+    host.style.width = width * scale + 'px';
+    host.style.height = height * scale + 'px';
   };
   const render = async () => {
     if (closed || !active || !visible) return;
     const generation = ++version;
+    stopCapture?.();
     loading?.abort();
     const controller = new AbortController();
     loading = controller;
     const chart = model.chart;
     dimensions();
-    if (model.width <= 0 || model.height <= 0) {
+    if (!hasValidSize()) {
       fallback(
         context.locale === 'en-US' ? 'Invalid chart size' : '图表尺寸无效',
+        false,
       );
       return;
     }
@@ -69,6 +112,9 @@ export function mountChart(
       fallback('');
       return;
     }
+    canvasHost.hidden = false;
+    host.classList.remove('office-file-chart--static');
+    setStatus(context.locale === 'en-US' ? 'Loading chart' : '正在加载图表', true);
     try {
       const module = await import(
         '../../shared/chart/runtime/loadOfficeEChartsRuntime'
@@ -107,27 +153,41 @@ export function mountChart(
         rendered = { ...chart, mapName: name };
       }
       if (!instance) {
-        host.replaceChildren();
-        instance = runtime.init(host, undefined, { renderer: 'canvas' });
+        canvasHost.replaceChildren();
+        instance = runtime.init(canvasHost, undefined, { renderer: 'canvas' });
       }
       const chartInstance = instance;
       if (chart.renderMode === 'snapshot') {
         const capture = () => {
           if (closed || instance !== chartInstance || generation !== version)
             return;
+          stopCapture?.();
+          try {
+            const src = chartInstance.getDataURL({
+              type: 'png',
+              pixelRatio: 1,
+              backgroundColor: '#fff',
+            });
+            chartInstance.dispose();
+            instance = undefined;
+            const image = context.document.createElement('img');
+            image.src = src;
+            image.alt = chart.title ?? '';
+            image.className = 'office-file-chart__snapshot';
+            canvasHost.replaceChildren(image);
+            host.classList.add('office-file-chart--static');
+            setStatus('');
+          } catch {
+            fallback(
+              context.locale === 'en-US'
+                ? 'Chart rendering failed'
+                : '图表渲染失败',
+            );
+          }
+        };
+        stopCapture = () => {
           chartInstance.off('finished', capture);
-          const src = chartInstance.getDataURL({
-            type: 'png',
-            pixelRatio: 1,
-            backgroundColor: '#fff',
-          });
-          chartInstance.dispose();
-          instance = undefined;
-          const image = context.document.createElement('img');
-          image.src = src;
-          image.alt = chart.title ?? '';
-          image.className = 'office-file-chart__snapshot';
-          host.replaceChildren(image);
+          stopCapture = undefined;
         };
         chartInstance.on('finished', capture);
       }
@@ -136,6 +196,7 @@ export function mountChart(
         notMerge: true,
         lazyUpdate: chart.renderMode !== 'snapshot',
       });
+      if (chart.renderMode !== 'snapshot') setStatus('');
     } catch (error) {
       if (!closed && !controller.signal.aborted && generation === version) {
         fallback(
@@ -182,6 +243,7 @@ export function mountChart(
     cancelLayout?.();
     resize?.disconnect();
     intersection?.disconnect();
+    stopCapture?.();
     instance?.dispose();
     instance = undefined;
     host.remove();
@@ -206,6 +268,11 @@ export function mountChart(
       } else {
         version++;
         loading?.abort();
+        // 暂停时取消快照监听，重新激活后再完成渲染和加载状态。
+        if (stopCapture) {
+          dirty = true;
+          stopCapture();
+        }
       }
     },
     dispose,

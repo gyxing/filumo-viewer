@@ -4,6 +4,7 @@ export interface ToolbarItem {
   node: HTMLElement;
   secondary?: boolean;
   priority?: number;
+  order?: number;
 }
 
 /** 按实际可用宽度收纳控件；同一节点在主栏与更多面板之间移动，操作不会失效。 */
@@ -49,23 +50,29 @@ export function createToolbarOverflow(container: HTMLElement) {
       if (more.hidden) more.open = false;
     };
     const focused = document.activeElement as HTMLElement | null;
-    apply();
-    // 缩放比与当前页优先保留，次要能力退入更多面板而非堆叠成多行。
-    const candidates = items
-      .filter((item) => !item.secondary)
-      .sort((a, b) => (a.priority ?? 50) - (b.priority ?? 50));
-    for (const item of candidates) {
-      if (toolbar.scrollWidth <= toolbar.clientWidth + 1) break;
-      overflow.add(item);
+    // 主栏与菜单之间的布局移动不代表用户离开控件，避免触发失焦提交。
+    container.dataset.fivoMoving = 'true';
+    try {
       apply();
-    }
-    if (
-      focused &&
-      container.contains(focused) &&
-      document.activeElement !== focused
-    ) {
-      if (panel.contains(focused)) more.open = true;
-      focused.focus({ preventScroll: true });
+      // 缩放比与当前页优先保留，次要能力退入更多面板而非堆叠成多行。
+      const candidates = items
+        .filter((item) => !item.secondary)
+        .sort((a, b) => (a.priority ?? 50) - (b.priority ?? 50));
+      for (const item of candidates) {
+        if (toolbar.scrollWidth <= toolbar.clientWidth + 1) break;
+        overflow.add(item);
+        apply();
+      }
+      if (
+        focused &&
+        container.contains(focused) &&
+        document.activeElement !== focused
+      ) {
+        if (panel.contains(focused)) more.open = true;
+        focused.focus({ preventScroll: true });
+      }
+    } finally {
+      delete container.dataset.fivoMoving;
     }
   };
   const schedule = () => {
@@ -78,7 +85,7 @@ export function createToolbarOverflow(container: HTMLElement) {
     if (!more.contains(event.target as Node)) more.open = false;
   };
   const escape = (event: KeyboardEvent) => {
-    if (event.key === 'Escape' && more.open) {
+    if (event.key === 'Escape' && !event.defaultPrevented && more.open) {
       event.preventDefault();
       more.open = false;
       trigger.focus();

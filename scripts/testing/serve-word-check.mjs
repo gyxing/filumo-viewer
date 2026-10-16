@@ -24,7 +24,10 @@ const styles = {
 };
 const built = await build({
   absWorkingDir: root,
-  entryPoints: [join(root, 'tests/browser/harness/word.ts')],
+  entryPoints: [
+    join(root, 'tests/browser/harness/word.ts'),
+    join(root, 'tests/browser/harness/outline.ts'),
+  ],
   outdir: output,
   bundle: true,
   splitting: true,
@@ -57,10 +60,14 @@ createServer(async (req, res) => {
   }
   const path = new URL(req.url, 'http://localhost').pathname;
   try {
-    if (path === '/') {
+    if (path === '/' || path === '/outline.html') {
       res
         .writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' })
-        .end(html);
+        .end(
+          path === '/outline.html'
+            ? html.replace('/word.js', '/outline.js')
+            : html,
+        );
       return;
     }
     if (path === '/styles.css') {

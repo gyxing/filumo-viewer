@@ -101,6 +101,32 @@ Views publish zoom, navigation, search and actions with context.setCapabilities.
 
 Actions carry id, label, kind, enabled, pressed/value/options and run. Page indices are zero-based; worksheets use stable IDs instead of names as identity.
 
+Actions, zoom and navigation accept optional toolbar presentation metadata without removing callable capabilities. visible: false hides a default control. order sorts ascending with stable ties. placement: main prefers the main row; more always uses the overflow menu. Lower priority values move into overflow first. Missing fields retain existing defaults. Action showLabel: false hides the external select label while retaining its accessible name.
+
+navigation.toolbar.layout defaults to paging; buttons shows only previous/next controls, with optional previousLabel and nextLabel. zoom.presets supplies percentages; zoom.mode carries value, options and asynchronous set(value). The plugin interprets option values. A mode is active when value matches an option; otherwise the percentage is manual.
+
+```ts | pure
+context.setCapabilities({
+  actions: [
+    {
+      id: 'custom.inspect',
+      label: 'Inspect',
+      kind: 'action',
+      toolbar: { order: 10, placement: 'main' },
+      run: () => console.info('Inspect document'),
+    },
+  ],
+  navigation: {
+    index: 0,
+    count: 3,
+    toolbar: { visible: false },
+    goTo: async (index) => console.info(index),
+  },
+});
+```
+
+Existing plugins need no changes when omitting toolbar, presets and mode. Custom host UI can ignore default presentation metadata and call the capabilities directly.
+
 ## Future editing and saving
 
 Sources, sessions, capabilities and adapters are reusable foundations. Editing still needs a command model, dirty state, history, permissions and format-writing capabilities.

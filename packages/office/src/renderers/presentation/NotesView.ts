@@ -76,8 +76,11 @@ export class NotesView {
     this.setHeight(this.height);
     this.content.replaceChildren();
     if (!notes?.paragraphs.length) {
-      this.content.textContent =
+      const empty = this.context.document.createElement('div');
+      empty.className = 'office-file-pptx-speaker-notes__empty';
+      empty.textContent =
         this.context.locale === 'en-US' ? 'No notes' : '暂无备注';
+      this.content.append(empty);
       return;
     }
     for (const paragraph of notes.paragraphs) {

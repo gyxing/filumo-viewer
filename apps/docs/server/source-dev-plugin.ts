@@ -1,6 +1,7 @@
 import type { IApi } from 'dumi';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { resolve, sep } from 'node:path';
+import { WORKSPACE_PACKAGES } from '../../../scripts/workspace-packages.js';
 import { withDocsBase } from '../config/base-path.js';
 
 interface DevCompileResult {
@@ -15,9 +16,13 @@ interface DevCompileResult {
 export default (api: IApi) => {
   const root = resolve(api.cwd, '../..');
   // 精确入口别名不接管 styles.css 等发布子路径，也不改变第三方包解析。
-  const packages = ['core', 'dom', 'office', 'react', 'vue', 'vue2', 'viewer'];
-  const sources = packages.map((name) => resolve(root, 'packages', name, 'src'));
-  const officeSource = resolve(root, 'packages/office/src');
+  const packages = WORKSPACE_PACKAGES.map((item) => item.name);
+  const sources = packages.map((name) =>
+    resolve(root, 'packages', name, 'src'),
+  );
+  const styleSources = WORKSPACE_PACKAGES.filter(
+    (item) => item.name === 'dom' || item.scopedStyles,
+  ).map((item) => resolve(root, 'packages', item.name, 'src'));
   const clients = new Set<ServerResponse>();
   let pendingReload = false;
 
@@ -27,35 +32,53 @@ export default (api: IApi) => {
     alias: {
       ...config.alias,
       ...Object.fromEntries(
-        packages.map((name, index) => [
-          '@fivo/' + name + '$',
-          resolve(sources[index], 'index.ts'),
-        ]),
+        WORKSPACE_PACKAGES.flatMap((item) =>
+          Object.entries(item.entries).map(([entry, file]) => [
+            '@fivo/' + item.name + (entry === 'index' ? '' : '/' + entry) + '$',
+            resolve(root, 'packages', item.name, file),
+          ]),
+        ),
       ),
     },
     extraBabelIncludes: [...(config.extraBabelIncludes ?? []), ...sources],
   }));
 
   api.chainWebpack((config, { webpack }) => {
-    // 先补上与发布构建一致的作用域，再复用 dumi 的 Less 编译和样式热替换。
+    // 包样式使用同一租约机制，热更新不能留下旧声明或绕过 CSP nonce。
     const styleRule = config.module.rule('fivo-source-less');
-    styleRule.test(/\.less$/).enforce('pre');
-    styleRule.include.add(resolve(root, 'packages/dom/src')).add(officeSource);
+    styleRule
+      .test(/\.less$/)
+      .type('javascript/auto')
+      .sideEffects(true);
+    for (const source of styleSources) {
+      styleRule.include.add(source);
+      config.module.rule('less').exclude.add(source);
+    }
     styleRule
       .use('fivo-source-less')
       .loader(resolve(api.cwd, 'server/source-less-loader.cjs'))
       .options({ root });
-    config.plugin('fivo-source-worker').use(webpack.NormalModuleReplacementPlugin, [
-      /^\.\/worker\.js$/,
-      (resource: { context: string; request: string }) => {
-        // 只替换 Office 描述符的内置入口，保留调用方自定义 Worker 的能力。
-        if (resolve(resource.context) === officeSource)
-          resource.request = resolve(
-            officeSource,
-            'engine/parsing/runtime/worker/entry.js',
+    config
+      .plugin('fivo-source-worker')
+      .use(webpack.NormalModuleReplacementPlugin, [
+        /^\.\/worker\.js$/,
+        (resource: { context: string; request: string }) => {
+          // 只替换各格式描述符的内置入口，保留调用方自定义 Worker 的能力。
+          const item = WORKSPACE_PACKAGES.find(
+            (entry) =>
+              entry.workerEntry &&
+              resolve(resource.context) ===
+                resolve(root, 'packages', entry.name, 'src'),
           );
-      },
-    ]);
+          if (item?.workerEntry)
+            resource.request = resolve(
+              root,
+              'packages',
+              item.name,
+              item.workerEntry,
+            );
+        },
+      ]);
     return config;
   });
 
@@ -82,16 +105,20 @@ export default (api: IApi) => {
       });
     },
   ]);
-  api.addEntryCode(() => `
+  api.addEntryCode(
+    () => `
     if (typeof EventSource !== 'undefined') {
-      const events = new EventSource(${JSON.stringify(withDocsBase(api.config.base, '__fivo_dev/source-events'))});
+      const events = new EventSource(${JSON.stringify(
+        withDocsBase(api.config.base, '__fivo_dev/source-events'),
+      )});
       events.addEventListener('fivo-source-update', () => {
         events.close();
         window.location.reload();
       });
       if (module.hot) module.hot.dispose(() => events.close());
     }
-  `);
+  `,
+  );
   api.onDevCompileDone(({ stats, isFirstCompile }: DevCompileResult) => {
     // 原生视图和解析器不属于 React 状态，成功编译后统一重建，失败时保留错误现场。
     for (const file of stats.compilation.compiler.modifiedFiles ?? []) {

@@ -1,5 +1,6 @@
 import { lstat, mkdir, readFile, realpath, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
+import { WORKSPACE_PACKAGES } from '../workspace-packages.js';
 
 /** 包版本与样式身份以 manifest 为唯一来源，不读取根工作区版本。 */
 export async function readPackageMetadata(directory) {
@@ -18,15 +19,20 @@ export async function readPackageMetadata(directory) {
     name: manifest.name,
     version: manifest.version,
     group,
-    styleScope:
-      group === 'office'
-        ? 'fivo-office-v' + manifest.version.replace(/[^a-z0-9]/gi, '-')
-        : undefined,
+    styleScope: WORKSPACE_PACKAGES.find((item) => item.name === group)
+      ?.scopedStyles
+      ? 'fivo-' + group + '-v' + manifest.version.replace(/[^a-z0-9]/gi, '-')
+      : undefined,
   };
 }
 
 /** 供 build、类型检查和源码测试共用；内容未变不重写，输出不包含运行时 JSON 请求。 */
-export async function preparePackageMetadata(root, names = ['dom', 'office']) {
+export async function preparePackageMetadata(
+  root,
+  names = WORKSPACE_PACKAGES.filter(
+    (item) => item.name === 'dom' || item.scopedStyles,
+  ).map((item) => item.name),
+) {
   const packagesRoot = await realpath(join(root, 'packages'));
   for (const name of names) {
     if (!/^[a-z0-9-]+$/.test(name)) throw Error('非法包目录');

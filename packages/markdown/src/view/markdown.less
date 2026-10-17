@@ -1,0 +1,467 @@
+.fivo-markdown-reading {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.fivo-markdown-reading [hidden] {
+  display: none;
+}
+
+.fivo-markdown-workspace {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.fivo-markdown-scroll {
+  flex: 1;
+  min-width: 0;
+  overflow: auto;
+}
+
+.fivo-markdown-article {
+  --fivo-md-text: #222;
+  --fivo-md-code-bg: #f4f4f4;
+  --fivo-md-code-border: #e4e4e4;
+
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px clamp(12px, 3%, 32px) 48px;
+  color: var(--fivo-md-text);
+  font-family: 'Times New Roman', 'Songti SC', SimSun, serif;
+  line-height: 1.75;
+  overflow-wrap: anywhere;
+
+  .fivo-viewer[data-theme='dark'] & {
+    --fivo-md-text: var(--fivo-text);
+    --fivo-md-code-bg: #2a3442;
+    --fivo-md-code-border: var(--fivo-border);
+  }
+}
+
+.fivo-markdown-article > :first-child {
+  margin-top: 0;
+}
+
+.fivo-markdown-article > :last-child {
+  margin-bottom: 0;
+}
+
+.fivo-markdown-article h1,
+.fivo-markdown-article h2 {
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid var(--fivo-border);
+}
+
+.fivo-markdown-article :is(h1, h2, h3, h4, h5, h6) {
+  margin: 1.3em 0 0.6em;
+  font-weight: 600;
+  line-height: 1.4;
+  scroll-margin-top: 16px;
+}
+
+.fivo-markdown-article h1 {
+  font-size: 2em;
+}
+
+.fivo-markdown-article h2 {
+  font-size: 1.5em;
+}
+
+.fivo-markdown-article h3 {
+  font-size: 1.25em;
+}
+
+.fivo-markdown-article h4 {
+  font-size: 1.125em;
+}
+
+.fivo-markdown-article :is(h5, h6) {
+  font-size: 1em;
+}
+
+.fivo-markdown-article h6 {
+  color: var(--fivo-muted);
+}
+
+.fivo-markdown-article :is(p, ul, ol, blockquote),
+.fivo-markdown-table {
+  margin: 0.8em 0;
+}
+
+.fivo-markdown-article :is(ul, ol) {
+  padding-left: 1.8em;
+}
+
+.fivo-markdown-article ul {
+  list-style-type: disc;
+}
+
+.fivo-markdown-article ol {
+  list-style-type: decimal;
+}
+
+.fivo-markdown-article ul ul {
+  list-style-type: circle;
+}
+
+.fivo-markdown-article ul ul ul {
+  list-style-type: square;
+}
+
+.fivo-markdown-article li + li {
+  margin-top: 0.35em;
+}
+
+.fivo-markdown-article li > :is(p, ul, ol) {
+  margin: 0.35em 0;
+}
+
+.fivo-markdown-article :is(li, blockquote) > :first-child {
+  margin-top: 0;
+}
+
+.fivo-markdown-article :is(li, blockquote) > :last-child {
+  margin-bottom: 0;
+}
+
+// 任务框占用普通列表标记的位置，续行始终与正文起点对齐。
+.fivo-markdown-article .fivo-markdown-task-item {
+  position: relative;
+  list-style: none;
+}
+
+.fivo-markdown-task-checkbox,
+.fivo-markdown-html-checkbox {
+  box-sizing: border-box;
+  width: 0.8125em;
+  height: 0.8125em;
+  margin: 0;
+  appearance: none;
+  color: var(--fivo-primary);
+  background: var(--fivo-surface);
+  border: 1px solid var(--fivo-muted);
+  border-radius: 2px;
+  font: inherit;
+  opacity: 1;
+}
+
+.fivo-markdown-task-checkbox {
+  position: absolute;
+  top: 0.45em;
+  left: -1.4em;
+}
+
+.fivo-markdown-html-checkbox {
+  position: relative;
+  vertical-align: -0.1em;
+}
+
+.fivo-markdown-task-checkbox:checked,
+.fivo-markdown-html-checkbox:checked {
+  border-color: currentcolor;
+}
+
+.fivo-markdown-task-checkbox:checked::after,
+.fivo-markdown-html-checkbox:checked::after {
+  position: absolute;
+  top: 0;
+  left: 0.1875em;
+  width: 0.25em;
+  height: 0.5em;
+  border: solid currentcolor;
+  border-width: 0 0.125em 0.125em 0;
+  content: '';
+  transform: rotate(45deg);
+}
+
+.fivo-markdown-article blockquote {
+  padding: 0 16px;
+  color: var(--fivo-muted);
+  border-left: 3px solid var(--fivo-border);
+}
+
+.fivo-markdown-article blockquote blockquote {
+  margin-top: 0.6em;
+}
+
+.fivo-markdown-article hr {
+  height: 0;
+  margin: 1.5em 0;
+  border: 0;
+  border-top: 1px solid var(--fivo-border);
+}
+
+.fivo-markdown-article a {
+  color: var(--fivo-primary);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.fivo-markdown-article a[href]:hover {
+  color: var(--fivo-primary-hover);
+}
+
+.fivo-markdown-article a[aria-disabled='true'] {
+  color: var(--fivo-muted);
+  text-decoration-style: dotted;
+  cursor: default;
+}
+
+.fivo-markdown-link-status {
+  font: 0.85em/1.6 system-ui, sans-serif;
+}
+
+.fivo-markdown-article code {
+  font-family: Consolas, 'Courier New', monospace;
+  font-size: 0.9em;
+}
+
+.fivo-markdown-article :not(pre) > code {
+  padding: 0 3px;
+  color: inherit;
+  background: var(--fivo-md-code-bg);
+  border: 1px solid var(--fivo-md-code-border);
+  border-radius: 3px;
+  white-space: break-spaces;
+}
+
+.fivo-markdown-table {
+  max-width: 100%;
+  overflow: auto;
+}
+
+.fivo-markdown-table table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+  margin: 0;
+  font-size: 1em;
+}
+
+.fivo-markdown-table :is(th, td) {
+  padding: 6px 12px;
+  border: 1px solid var(--fivo-border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.fivo-markdown-table th {
+  background: var(--fivo-hover);
+  font-weight: 600;
+}
+
+.fivo-markdown-table caption {
+  padding: 0.4em 0;
+  font-weight: 600;
+  text-align: left;
+  caption-side: top;
+}
+
+.fivo-markdown-article :is(strong, b, dt) {
+  font-weight: 700;
+}
+
+.fivo-markdown-article :is(em, i) {
+  font-style: italic;
+}
+
+.fivo-markdown-article :is(del, s) {
+  text-decoration: line-through;
+}
+
+.fivo-markdown-article :is(u, ins) {
+  text-decoration: underline;
+}
+
+.fivo-markdown-article mark {
+  padding: 0 2px;
+  color: inherit;
+  background: rgb(250 204 21 / 30%);
+}
+
+.fivo-markdown-article :is(sup, sub) {
+  position: relative;
+  font-size: 0.75em;
+  line-height: 0;
+  vertical-align: baseline;
+}
+
+.fivo-markdown-article sup {
+  top: -0.5em;
+}
+
+.fivo-markdown-article sub {
+  bottom: -0.2em;
+}
+
+.fivo-markdown-article small {
+  font-size: 0.875em;
+}
+
+.fivo-markdown-article :is(kbd, samp) {
+  font: 0.875em/1.5 Consolas, 'Courier New', monospace;
+}
+
+.fivo-markdown-article kbd {
+  padding: 1px 4px;
+  background: var(--fivo-md-code-bg);
+  border: 1px solid var(--fivo-md-code-border);
+  border-radius: 3px;
+}
+
+.fivo-markdown-article :is(figure, details, dl) {
+  margin: 0.8em 0;
+}
+
+.fivo-markdown-article figure {
+  text-align: center;
+}
+
+.fivo-markdown-article figcaption {
+  margin-top: 0.4em;
+  color: var(--fivo-muted);
+  font-size: 0.875em;
+}
+
+.fivo-markdown-article dd {
+  margin-left: 1.8em;
+}
+
+.fivo-markdown-article details {
+  padding: 8px 12px;
+  border: 1px solid var(--fivo-border);
+  border-radius: 4px;
+}
+
+.fivo-markdown-article summary {
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.fivo-markdown-article details[open] > summary {
+  margin-bottom: 0.6em;
+}
+
+.fivo-markdown-article details > :last-child {
+  margin-bottom: 0;
+}
+
+.fivo-markdown-image-holder {
+  display: inline-block;
+  max-width: 100%;
+  line-height: 0;
+  vertical-align: middle;
+}
+
+.fivo-markdown-image {
+  max-width: 100%;
+  height: auto;
+  vertical-align: middle;
+}
+
+.fivo-markdown-image-paragraph {
+  text-align: center;
+}
+
+.fivo-markdown-image-status {
+  display: inline-flex;
+  box-sizing: border-box;
+  max-width: 100%;
+  padding: 4px 8px;
+  color: var(--fivo-muted);
+  background: var(--fivo-hover);
+  border: 1px dashed var(--fivo-border);
+  border-radius: 4px;
+  font: 13px/1.6 system-ui, sans-serif;
+  vertical-align: middle;
+}
+
+.fivo-markdown-code {
+  min-width: 0;
+  margin: 16px 0;
+  border: 1px solid var(--fivo-border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.fivo-markdown-code-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  color: var(--fivo-muted);
+  background: var(--fivo-hover);
+  font: 12px/1.5 system-ui, sans-serif;
+}
+
+.fivo-markdown-code-tools > span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fivo-markdown-code-tools button {
+  flex: 0 0 auto;
+  padding: 2px 6px;
+  border: 0;
+  border-radius: 3px;
+  color: var(--fivo-primary);
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.fivo-markdown-code pre {
+  margin: 0;
+  padding: 12px 16px;
+  overflow: auto;
+  line-height: 1.6;
+  background: var(--fivo-hover);
+  white-space: pre;
+  overflow-wrap: normal;
+  tab-size: 4;
+}
+
+.fivo-markdown-find {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px;
+  border-bottom: 1px solid var(--fivo-border);
+  font: 12px/1.5 system-ui, sans-serif;
+}
+
+.fivo-markdown-find input,
+.fivo-markdown-find button {
+  box-sizing: border-box;
+  height: 30px;
+  padding: 2px 8px;
+  border: 1px solid var(--fivo-border);
+  border-radius: 5px;
+  color: inherit;
+  background: var(--fivo-surface);
+  font: inherit;
+}
+
+.fivo-markdown-find input {
+  flex: 1;
+  min-width: 100px;
+}
+
+.fivo-markdown-find button {
+  cursor: pointer;
+}
+
+.fivo-markdown-reading :focus-visible {
+  outline: 1px solid var(--fivo-primary);
+  outline-offset: -1px;
+}

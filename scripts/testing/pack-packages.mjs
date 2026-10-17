@@ -3,6 +3,7 @@ import { lstat, mkdir, readFile, readdir, realpath } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { isAbsolute, join, relative, resolve } from 'node:path';
 import { readPackageMetadata } from '../build/metadata.mjs';
+import { WORKSPACE_PACKAGES } from '../workspace-packages.js';
 import { runPnpm } from './package-manager.mjs';
 
 /** 固定 pnpm 11 的 --json 输出字段为 name/version/filename，不推测 tgz 名称。 */
@@ -60,7 +61,7 @@ export async function verifyPackedFile(record) {
 export async function packPackages(
   root,
   outputRoot,
-  names = ['core', 'dom', 'office', 'react', 'vue', 'vue2', 'viewer'],
+  names = WORKSPACE_PACKAGES.map((item) => item.name),
 ) {
   const records = {};
   for (const name of names) {

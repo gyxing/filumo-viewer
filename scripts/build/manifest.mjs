@@ -53,7 +53,30 @@ export function createBuildManifest(
     outputs,
     roles,
     worker: worker
-      ? { publicPath: 'worker.js', outputs: workerOutputs }
+      ? {
+          publicPath: 'worker.js',
+          outputs: workerOutputs,
+          graph: Object.fromEntries(
+            Object.entries(worker.outputs).map(([file, info]) => [
+              from(outRoot, file),
+              {
+                entryPoint: info.entryPoint
+                  ? from(directory, info.entryPoint)
+                  : undefined,
+                inputs: Object.fromEntries(
+                  Object.entries(info.inputs).map(([input, contribution]) => [
+                    from(directory, input),
+                    contribution,
+                  ]),
+                ),
+                imports: info.imports.map((edge) => ({
+                  ...edge,
+                  path: edge.external ? edge.path : from(outRoot, edge.path),
+                })),
+              },
+            ]),
+          ),
+        }
       : undefined,
   };
 }

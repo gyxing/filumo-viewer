@@ -47,11 +47,11 @@ export function SmokePage() {
           <h2>预览参数</h2>
           <div className="smoke-target" role="group" aria-label="测试对象">
             <Button
-              type={c.target === 'office' ? 'primary' : 'default'}
-              aria-pressed={c.target === 'office'}
-              onClick={() => c.setTarget('office')}
+              type={c.target === 'document' ? 'primary' : 'default'}
+              aria-pressed={c.target === 'document'}
+              onClick={() => c.setTarget('document')}
             >
-              Office 文件
+              文档文件
             </Button>
             <Button
               type={c.target === 'probe' ? 'primary' : 'default'}
@@ -66,12 +66,13 @@ export function SmokePage() {
           value={c.config}
           onChange={c.setConfig}
           target={c.target}
+          format={c.state.pluginId}
         />
         <div className="smoke-actions">
           <Button onClick={c.resetConfig}>恢复默认值</Button>
           <Button
             onClick={c.reopen}
-            disabled={c.target === 'office' && !c.source}
+            disabled={c.target === 'document' && !c.source}
           >
             重新打开
           </Button>
@@ -81,9 +82,7 @@ export function SmokePage() {
           <Button disabled={!c.mounted} onClick={() => c.setActive(!c.active)}>
             {c.active ? '停用' : '恢复'}
           </Button>
-          <span>
-            视图参数即时生效；Worker 和字体设置变化会重建 Office 预览。
-          </span>
+          <span>视图参数即时生效；格式创建参数变化会重新打开当前文档。</span>
         </div>
       </section>
       <div className="smoke-workspace">
@@ -91,6 +90,9 @@ export function SmokePage() {
           selectedId={c.selectedId}
           onSample={c.selectSample}
           onFile={c.selectFile}
+          accept={c.plugins
+            .flatMap((plugin) => [...plugin.document.extensions])
+            .join(',')}
         />
         <section className="smoke-preview" aria-label="文档预览">
           <header className="smoke-preview-heading">
@@ -107,7 +109,9 @@ export function SmokePage() {
                 {!c.active ? ' · 已停用' : ''}
               </span>
             </div>
-            <Tag>{c.target === 'probe' ? '非分页宿主' : 'Office'}</Tag>
+            <Tag>
+              {c.target === 'probe' ? '非分页宿主' : c.state.pluginId ?? '文档'}
+            </Tag>
           </header>
           {c.sourceError && <Alert message={c.sourceError} type="error" />}
           {progress && (

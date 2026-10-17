@@ -21,3 +21,6 @@ node_modules/
 # 包版本常量在 build/check/test 前由本包 manifest 自动生成。
 /packages/dom/src/generated/
 /packages/office/src/generated/
+/packages/text/src/generated/
+/packages/json/src/generated/
+/packages/markdown/src/generated/

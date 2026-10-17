@@ -1,0 +1,50 @@
+{
+  "name": "@fivo/text",
+  "version": "0.1.0-next.0",
+  "description": "Fivo text 只读预览插件",
+  "license": "MIT",
+  "sideEffects": [
+    "./dist/chunks/*.js",
+    "**/*.css"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./reader": {
+      "types": "./dist/reader/index.d.ts",
+      "import": "./dist/reader.js",
+      "default": "./dist/reader.js"
+    },
+    "./view": {
+      "types": "./dist/view/index.d.ts",
+      "import": "./dist/view.js",
+      "default": "./dist/view.js"
+    },
+    "./styles.css": "./dist/styles.css",
+    "./worker.js": "./dist/worker.js",
+    "./package.json": "./package.json"
+  },
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "reader": [
+        "dist/reader/index.d.ts"
+      ],
+      "view": [
+        "dist/view/index.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@fivo/core": "workspace:^",
+    "@fivo/dom": "workspace:^"
+  }
+}

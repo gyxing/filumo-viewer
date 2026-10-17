@@ -3,24 +3,27 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "setup": "dumi setup",
-    "dev": "dumi dev",
     "build": "dumi build",
-    "check:types": "tsc --noEmit -p tsconfig.json"
+    "check:types": "tsc --noEmit -p tsconfig.json",
+    "dev": "dumi dev",
+    "setup": "dumi setup"
   },
   "dependencies": {
     "@fivo/core": "workspace:^",
     "@fivo/dom": "workspace:^",
+    "@fivo/json": "workspace:^",
+    "@fivo/markdown": "workspace:^",
     "@fivo/office": "workspace:^",
     "@fivo/react": "workspace:^",
+    "@fivo/text": "workspace:^",
     "@fivo/viewer": "workspace:^",
+    "antd": "^5.29.3",
     "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "antd": "^5.29.3"
+    "react-dom": "^18.0.0"
   },
   "devDependencies": {
-    "dumi": "^2.4.38-beta.1",
     "@types/react": "^18.0.0",
-    "@types/react-dom": "^18.0.0"
+    "@types/react-dom": "^18.0.0",
+    "dumi": "^2.4.38-beta.1"
   }
 }

@@ -8,6 +8,9 @@ export const initialConfig: SmokeConfig = {
     toolbar: true,
   },
   office: { worker: 'auto', media: false },
+  text: { worker: 'auto' },
+  json: { worker: 'auto', initialMode: 'tree' },
+  markdown: { worker: 'auto', initialMode: 'reading', highlight: true },
   toolbarMode: 'default',
 };
 /** 恢复参数时创建独立副本，不清除用户当前的文件来源。 */
@@ -16,6 +19,9 @@ export function resetSmokeConfig(): SmokeConfig {
     ...initialConfig,
     viewer: { ...initialConfig.viewer },
     office: { ...initialConfig.office },
+    text: { ...initialConfig.text },
+    json: { ...initialConfig.json },
+    markdown: { ...initialConfig.markdown },
   };
 }
 /** 无法在公开 API 中成立的旧配置不伪造兼容字段。 */

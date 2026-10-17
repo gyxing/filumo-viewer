@@ -82,6 +82,7 @@ export function createToolbarOverflow(container: HTMLElement) {
   const resize = Resize ? new Resize(schedule) : undefined;
   resize?.observe(toolbar);
   const outside = (event: Event) => {
+    if (container.dataset.fivoMoving) return;
     if (!more.contains(event.target as Node)) more.open = false;
   };
   const escape = (event: KeyboardEvent) => {
@@ -91,9 +92,16 @@ export function createToolbarOverflow(container: HTMLElement) {
       trigger.focus();
     }
   };
+  const close = () => {
+    const restoreFocus = panel.contains(document.activeElement);
+    more.open = false;
+    if (restoreFocus) trigger.focus({ preventScroll: true });
+  };
   document.addEventListener('pointerdown', outside);
+  document.addEventListener('focusin', outside);
   container.addEventListener('keydown', escape);
   return {
+    close,
     update(next: ToolbarItem[], en: boolean) {
       const wanted = new Set(next.map((item) => item.node));
       for (const item of items) if (!wanted.has(item.node)) item.node.remove();
@@ -108,6 +116,7 @@ export function createToolbarOverflow(container: HTMLElement) {
       resize?.disconnect();
       if (frame) window?.cancelAnimationFrame(frame);
       document.removeEventListener('pointerdown', outside);
+      document.removeEventListener('focusin', outside);
       container.removeEventListener('keydown', escape);
       main.remove();
       more.remove();

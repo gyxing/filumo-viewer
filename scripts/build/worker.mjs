@@ -20,3 +20,21 @@ export async function buildOfficeWorker(directory, root) {
   });
   return result.metafile;
 }
+
+/** 新格式 Worker 保留内部动态任务边界，原文解码不能顺带加载格式解析器。 */
+export async function buildFormatWorker(directory, root, entry) {
+  const result = await build({
+    absWorkingDir: root,
+    entryPoints: { worker: join(directory, entry) },
+    outdir: join(directory, 'dist'),
+    bundle: true,
+    splitting: true,
+    format: 'esm',
+    platform: 'browser',
+    target: 'es2020',
+    chunkNames: 'worker-chunks/[name]-[hash]',
+    metafile: true,
+    logLevel: 'warning',
+  });
+  return result.metafile;
+}

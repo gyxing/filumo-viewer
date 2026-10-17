@@ -1,17 +1,52 @@
 const { readFileSync } = require('node:fs');
+const { createHash } = require('node:crypto');
 const { join, relative, sep } = require('node:path');
+const less = require('less');
 
-/** 开发样式沿用包的版本作用域，更新由 dumi 的标准样式管线负责替换。 */
+/** 开发样式编译成同一租约声明，稳定 ID 支持热替换而不累积旧规则。 */
 module.exports = function sourceLessLoader(source) {
-  const { root } = this.getOptions();
-  const parts = relative(join(root, 'packages'), this.resourcePath).split(sep);
-  const group = parts[0];
-  const manifestPath = join(root, 'packages', group, 'package.json');
-  this.addDependency(manifestPath);
-  const { version } = JSON.parse(readFileSync(manifestPath, 'utf8'));
-  const marker = ':root { --fivo-style-' + group + ': ' + version + '; }\n';
-  // Office 样式需要版本隔离；DOM 外壳与生产构建相同，保留自身的类选择器边界。
-  if (group !== 'office') return marker + source;
-  const scope = '.fivo-office-v' + version.replace(/[^a-z0-9]/gi, '-');
-  return marker + scope + ' {\n' + source + '\n}';
+  const callback = this.async(),
+    { root } = this.getOptions();
+  const group = relative(join(root, 'packages'), this.resourcePath).split(
+    sep,
+  )[0];
+  const manifest = join(root, 'packages', group, 'package.json');
+  this.addDependency(manifest);
+  const { version } = JSON.parse(readFileSync(manifest, 'utf8'));
+  const scope =
+    group === 'dom'
+      ? undefined
+      : 'fivo-' + group + '-v' + version.replace(/[^a-z0-9]/gi, '-');
+  const id =
+    group +
+    ':' +
+    version +
+    ':' +
+    createHash('sha256').update(this.resourcePath).digest('hex').slice(0, 16);
+  less
+    .render(scope ? '.' + scope + ' {\n' + source + '\n}' : source, {
+      filename: this.resourcePath,
+    })
+    .then(
+      (result) => {
+        for (const file of result.imports) this.addDependency(file);
+        const runtime =
+          group === 'dom'
+            ? join(root, 'packages/dom/src/styles.ts')
+            : '@fivo/dom';
+        callback(
+          null,
+          'import {replaceStyle} from ' +
+            JSON.stringify(runtime) +
+            ';replaceStyle(' +
+            JSON.stringify(group) +
+            ',' +
+            JSON.stringify(id) +
+            ',' +
+            JSON.stringify(result.css) +
+            ');if(module.hot){module.hot.accept();}',
+        );
+      },
+      (error) => callback(error),
+    );
 };

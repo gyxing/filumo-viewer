@@ -17,6 +17,7 @@ const paths = {
   fullscreen: 'M3 9V3h6M15 3h6v6M21 15v6h-6M9 21H3v-6',
   exitFullscreen: 'M9 3v6H3M21 9h-6V3M15 21v-6h6M3 15h6v6',
   more: 'M5 11v2M12 11v2M19 11v2',
+  check: 'm5 12 4 4L19 6',
   document:
     'M14 2H5a1 1 0 0 0-1 1v18a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V8ZM14 2v6h6M8 12h8M8 16h8',
   error: 'M12 3 2 21h20ZM12 9v5M12 17h.01',

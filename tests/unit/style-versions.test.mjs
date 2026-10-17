@@ -10,7 +10,7 @@ const result = await build({
   format: 'esm',
   platform: 'node',
 });
-const { registerStyle, useStyles } = await import(
+const { registerStyle, replaceStyle, useStyles } = await import(
   'data:text/javascript;base64,' +
     Buffer.from(result.outputFiles[0].text).toString('base64')
 );
@@ -49,4 +49,37 @@ test('external 校验样式所属包而非 DOM 版本，未知/过期/冲突均�
 test('旧自定义 ID 的自动注册仍可用，重复 ID 的不同内容拒绝', () => {
   assert.doesNotThrow(() => registerStyle('custom', 'my-style', 'p{}'));
   assert.throws(() => registerStyle('custom', 'my-style', 'a{}'), /冲突/);
+});
+
+test('开发样式原位替换且多个租约独立释放，不积累旧标签', () => {
+  const elements = [];
+  const document = {
+    head: {
+      append(element) {
+        elements.push(element);
+      },
+    },
+    createElement() {
+      return {
+        dataset: {},
+        sheet: {},
+        textContent: '',
+        remove() {
+          elements.splice(elements.indexOf(this), 1);
+        },
+      };
+    },
+  };
+  replaceStyle('dev', 'dev-style', 'a{color:red}');
+  const first = useStyles('dev', document),
+    second = useStyles('dev', document);
+  assert.equal(elements.length, 1);
+  replaceStyle('dev', 'dev-style', 'a{color:blue}');
+  assert.equal(elements.length, 1);
+  assert.equal(elements[0].textContent, 'a{color:blue}');
+  first();
+  assert.equal(elements.length, 1);
+  second();
+  assert.equal(elements.length, 0);
+  assert.throws(() => replaceStyle('other', 'dev-style', 'b{}'), /冲突/);
 });

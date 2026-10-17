@@ -4,7 +4,7 @@ import test from 'node:test';
 const result = await build({
   stdin: {
     contents:
-      'export * from "./packages/office/src/renderers/word/support/outlineTree.ts"',
+      'export * from "./packages/office/src/renderers/word/support/outlineTree.ts"; export * from "./packages/markdown/src/view/outlineTree.ts";',
     resolveDir: process.cwd(),
   },
   bundle: true,
@@ -12,7 +12,11 @@ const result = await build({
   platform: 'node',
   format: 'esm',
 });
-const { flattenOutlineRows } = await import(
+const {
+  flattenOutlineRows,
+  buildMarkdownOutlineTree,
+  markdownOutlineRows,
+} = await import(
   'data:text/javascript;base64,' +
     Buffer.from(result.outputFiles[0].text).toString('base64')
 );
@@ -56,5 +60,34 @@ test('收起隐藏子树，懒取子级优先于旧节点缓存', () => {
   assert.deepEqual(
     flattenOutlineRows([a], new Set(['a']), children).map((r) => r.node.id),
     ['a', 'new'],
+  );
+});
+
+test('Markdown 跳级标题按实际父子关系缩进，相同级别回到同一层', () => {
+  const headings = [
+    { id: 'a', title: '二级起始', depth: 2 },
+    { id: 'b', title: '跳至四级', depth: 4 },
+    { id: 'c', title: '五级子项', depth: 5 },
+    { id: 'd', title: '另一个四级', depth: 4 },
+    { id: 'e', title: '另一个根节点', depth: 2 },
+  ];
+  const { roots } = buildMarkdownOutlineTree(headings);
+  const rows = markdownOutlineRows(roots, new Set(['a', 'b']));
+  assert.deepEqual(
+    rows.map((row) => [row.node.heading.id, row.depth]),
+    [
+      ['a', 0],
+      ['b', 1],
+      ['c', 2],
+      ['d', 1],
+      ['e', 0],
+    ],
+  );
+  assert.deepEqual(rows[2].ancestorHasNextSibling, [true, true]);
+  assert.equal(rows[3].hasNextSibling, false);
+  assert.equal(rows[2].node.parentId, 'b');
+  assert.deepEqual(
+    markdownOutlineRows(roots, new Set(['b'])).map((row) => row.node.heading.id),
+    ['a', 'e'],
   );
 });

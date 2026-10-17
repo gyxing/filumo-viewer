@@ -1,0 +1,210 @@
+.fivo-json-tree {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  font-family: Consolas, 'Courier New', monospace;
+}
+
+.fivo-json-tree [hidden] {
+  display: none;
+}
+
+.fivo-json-scroll {
+  flex: 1;
+  position: relative;
+  min-height: 0;
+  overflow: auto;
+  outline-offset: -2px;
+  padding-block: 6px;
+}
+
+.fivo-json-canvas {
+  position: relative;
+}
+
+.fivo-json-row {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  left: 0;
+  right: 0;
+  gap: 4px;
+  box-sizing: border-box;
+  cursor: default;
+  white-space: nowrap;
+}
+
+.fivo-json-row:hover {
+  .fivo-json-title {
+    background: var(--fivo-hover);
+  }
+}
+
+.fivo-json-row[aria-selected='true'] {
+  .fivo-json-title {
+    background: var(--fivo-selected);
+  }
+}
+
+.fivo-json-row:focus-visible {
+  outline: 1px solid var(--fivo-primary);
+  outline-offset: -1px;
+}
+
+.fivo-json-toggle {
+  flex: 0 0 16px;
+  width: 16px;
+  height: 16px;
+  position: relative;
+  cursor: pointer;
+}
+
+.fivo-json-title {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  padding: 0 4px;
+  border-radius: 3px;
+  user-select: text;
+}
+
+.fivo-json-separator {
+  margin: 0 6px 0 3px;
+  color: var(--fivo-json-muted, #888);
+}
+
+.fivo-json-guide {
+  position: relative;
+  align-self: stretch;
+  flex: 0 0 16px;
+}
+
+.fivo-json-guide[data-continued='true']::before,
+.fivo-json-guide[data-branch='true'][data-continued='false']::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 7px;
+  bottom: 0;
+  border-left: 1px dashed var(--fivo-border);
+}
+
+.fivo-json-guide[data-branch='true'][data-continued='false']::before {
+  bottom: 50%;
+}
+
+.fivo-json-guide[data-branch='true']::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 7px;
+  right: 0;
+  border-top: 1px dashed var(--fivo-border);
+}
+
+.fivo-json-toggle[data-branch='true']::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 10px;
+  height: 10px;
+  border: 1px solid var(--fivo-muted);
+  border-radius: 1px;
+  background: var(--fivo-surface);
+}
+
+.fivo-json-toggle[data-branch='true']::after {
+  content: '';
+  position: absolute;
+  top: 7px;
+  left: 5px;
+  width: 5px;
+  border-top: 1px solid var(--fivo-muted);
+}
+
+.fivo-json-toggle[data-branch='true'][data-open='false']::before {
+  background: linear-gradient(var(--fivo-muted), var(--fivo-muted)) center / 1px
+    5px no-repeat var(--fivo-surface);
+}
+
+.fivo-json-key {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--fivo-json-key, #691010);
+}
+
+.fivo-json-value {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fivo-json-value--string {
+  color: var(--fivo-json-string, #1569b1);
+}
+
+.fivo-json-value--number {
+  color: var(--fivo-json-value, #09933a);
+}
+
+.fivo-json-value--boolean {
+  color: var(--fivo-json-value, #09933a);
+}
+
+.fivo-json-value--null,
+.fivo-json-value--array,
+.fivo-json-value--object {
+  color: var(--fivo-json-muted, #888);
+}
+
+.fivo-json-path {
+  display: block;
+  flex: 0 0 auto;
+  padding: 6px 12px;
+  border-top: 1px solid var(--fivo-border);
+  font: 12px/1.5 system-ui, sans-serif;
+  color: var(--fivo-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fivo-json-find {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 8px;
+  border-bottom: 1px solid var(--fivo-border);
+  font: 12px/1.5 system-ui, sans-serif;
+}
+
+.fivo-json-find input,
+.fivo-json-find button {
+  height: 30px;
+  border: 1px solid var(--fivo-border);
+  border-radius: 5px;
+  background: var(--fivo-surface);
+  color: inherit;
+  font: inherit;
+  padding: 2px 8px;
+  box-sizing: border-box;
+}
+
+.fivo-json-find input {
+  min-width: 100px;
+  flex: 1;
+}
+
+.fivo-json-find button {
+  cursor: pointer;
+}
+
+.fivo-json-find :focus-visible {
+  outline: 1px solid var(--fivo-primary);
+  outline-offset: -1px;
+}

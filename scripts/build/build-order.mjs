@@ -1,12 +1,5 @@
-const PACKAGE_NAMES = new Set([
-  'core',
-  'dom',
-  'office',
-  'react',
-  'vue',
-  'vue2',
-  'viewer',
-]);
+import { WORKSPACE_PACKAGES } from '../workspace-packages.js';
+const PACKAGE_NAMES = new Set(WORKSPACE_PACKAGES.map((item) => item.name));
 
 /**
  * 根据 workspace 运行时依赖计算包构建闭包，保证单包构建不会读取过期前置产物。

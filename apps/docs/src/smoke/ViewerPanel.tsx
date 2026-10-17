@@ -8,7 +8,7 @@ export function ViewerPanel({
   controller: ReturnType<typeof useSmokeController>;
 }) {
   return (
-    <section aria-label="Office 预览内容">
+    <section aria-label="文档预览内容">
       {c.mounted ? (
         <DocumentViewer
           key={c.generation}

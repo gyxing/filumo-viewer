@@ -8,6 +8,12 @@ const groups = [
   { name: 'Word', formats: ['doc', 'docx', 'wps'] },
   { name: 'Excel', formats: ['xls', 'xlsx'] },
   { name: 'PowerPoint', formats: ['ppt', 'pptx'] },
+  {
+    name: '纯文本',
+    formats: ['txt', 'log', 'ini', 'conf', 'cfg', 'properties', 'out'],
+  },
+  { name: 'JSON', formats: ['json'] },
+  { name: 'Markdown', formats: ['md', 'markdown'] },
 ];
 
 /** 样本只从开发接口读取，工作台源码不包含真实文件名或本机路径。 */
@@ -15,10 +21,12 @@ export function SamplePicker({
   selectedId,
   onSample,
   onFile,
+  accept,
 }: {
   selectedId?: string;
   onSample: (sample: Sample) => void;
   onFile: (file?: File) => void;
+  accept: string;
 }) {
   const [samples, setSamples] = useState<Sample[]>([]);
   const [message, setMessage] = useState('');
@@ -79,7 +87,7 @@ export function SamplePicker({
         <input
           aria-label="选择本机文件"
           type="file"
-          accept=".doc,.docx,.wps,.docm,.dotx,.xls,.xlsx,.xlsm,.xltx,.ppt,.pptx,.pptm,.potx"
+          accept={accept}
           onChange={(event) => {
             onFile(event.target.files?.[0]);
             event.target.value = '';

@@ -1,6 +1,14 @@
 // 文档路由与侧栏共用白名单，避免漏掉指南，也不暴露本机烟测或业务样本。
 export const DOC_GUIDES = [
   {
+    slug: 'text-formats',
+    file: 'text-formats',
+    title: {
+      'en-US': 'Text, JSON & Markdown',
+      'zh-CN': '纯文本、JSON 与 Markdown',
+    },
+  },
+  {
     slug: 'preview-integration',
     file: 'preview-integration',
     title: { 'en-US': 'Framework integration', 'zh-CN': '框架接入指南' },

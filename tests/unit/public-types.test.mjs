@@ -4,6 +4,58 @@ import test from 'node:test';
 import ts from 'typescript';
 import { preparePackageMetadata } from '../../scripts/build/metadata.mjs';
 await preparePackageMetadata(process.cwd());
+
+test('新格式公开声明不跟随解析器或第三方实现，reader 无 DOM 依赖', () => {
+  for (const entry of [
+    'text/index',
+    'text/reader',
+    'text/view',
+    'json/index',
+    'markdown/index',
+  ]) {
+    const [name, file] = entry.split('/');
+    const declaration =
+      name === 'text' && file !== 'index' ? file + '/index' : file;
+    const program = ts.createProgram(
+      [resolve(`packages/${name}/dist/${declaration}.d.ts`)],
+      {
+        target: ts.ScriptTarget.ES2020,
+        module: ts.ModuleKind.ESNext,
+        moduleResolution: ts.ModuleResolutionKind.Node10,
+        strict: true,
+        noEmit: true,
+        skipLibCheck: false,
+        lib:
+          entry === 'text/reader'
+            ? ['lib.es2022.d.ts', 'lib.webworker.d.ts']
+            : ['lib.es2022.d.ts', 'lib.dom.d.ts', 'lib.dom.iterable.d.ts'],
+        types: [],
+      },
+    );
+    assert.deepEqual(
+      ts
+        .getPreEmitDiagnostics(program)
+        .map((d) => ts.flattenDiagnosticMessageText(d.messageText, ' ')),
+      [],
+      entry,
+    );
+    const files = program.getSourceFiles().map((source) => source.fileName);
+    assert.equal(
+      files.some((path) =>
+        /(?:json|markdown)[\\/]dist[\\/](?:parser|runtime|view)[\\/]|node_modules.*(?:marked|highlight\.js)/.test(
+          path,
+        ),
+      ),
+      false,
+      entry,
+    );
+    if (entry === 'text/reader')
+      assert.equal(
+        files.some((path) => /lib\.dom|packages[\\/]dom[\\/]/.test(path)),
+        false,
+      );
+  }
+});
 test('Office 公开声明配置不跟随引擎实现，并允许扩展公开 DTO', () => {
   const file = 'packages/office/tsconfig.types.json';
   const config = ts.readConfigFile(file, ts.sys.readFile);

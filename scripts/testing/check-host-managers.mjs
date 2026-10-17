@@ -28,7 +28,15 @@ for (const manager of ['npm', 'yarn']) {
     recursive: true,
   });
   const dependencies = {};
-  for (const name of ['core', 'dom', 'office', 'viewer'])
+  for (const name of [
+    'core',
+    'dom',
+    'office',
+    'text',
+    'json',
+    'markdown',
+    'viewer',
+  ])
     dependencies['@fivo/' + name] =
       'file:' +
       (await verifyPackedFile(current.tarballs['@fivo/' + name])).replaceAll(

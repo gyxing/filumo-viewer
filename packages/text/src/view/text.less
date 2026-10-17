@@ -1,0 +1,145 @@
+// 作用域类和布局类在同一个根节点，编译后必须使用复合选择器。
+&.fivo-text-scope {
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+}
+
+.fivo-text-surface {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: var(--fivo-surface, #fff);
+  color: var(--fivo-text, #243247);
+  font: 14px/1.6 system-ui, sans-serif;
+}
+
+.fivo-text-surface [hidden] {
+  display: none;
+}
+
+.fivo-text-viewport {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  outline-offset: -2px;
+  font-family: Consolas, 'Courier New', monospace;
+  overflow-anchor: none;
+  scrollbar-gutter: stable;
+}
+
+.fivo-text-canvas {
+  position: relative;
+  min-width: 100%;
+}
+
+.fivo-text-row {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: flex-start;
+  min-height: 1em;
+  padding-right: 12px;
+  box-sizing: border-box;
+}
+
+.fivo-text-line-number {
+  flex: 0 0 56px;
+  box-sizing: border-box;
+  padding: 0 10px;
+  color: var(--fivo-muted, #697586);
+  text-align: right;
+  user-select: none;
+  background: var(--fivo-hover, #f3f6fb);
+  border-right: 1px solid var(--fivo-border, #dfe5ec);
+}
+
+.fivo-text-line-content {
+  flex: 1;
+  min-width: 0;
+  padding-left: 12px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  tab-size: 4;
+}
+
+.fivo-text-viewport[data-wrap='false'] .fivo-text-line-content {
+  white-space: pre;
+  overflow-wrap: normal;
+}
+
+.fivo-text-row mark {
+  padding: 0;
+  background: #fff1b8;
+  color: #5f4900;
+}
+
+.fivo-text-row .fivo-text-hit-current {
+  background: #ffd666;
+}
+
+.fivo-text-reveal {
+  background: var(--fivo-selected, #e8f2ff);
+  border-radius: 2px;
+}
+
+.fivo-text-find {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--fivo-border, #dfe5ec);
+  font: 12px/1.5 system-ui, sans-serif;
+}
+
+.fivo-text-find input[type='search'] {
+  min-width: 100px;
+  flex: 1;
+}
+
+.fivo-text-find input[type='search'],
+.fivo-text-find button {
+  box-sizing: border-box;
+  height: 30px;
+  padding: 2px 8px;
+  border: 1px solid var(--fivo-border, #dfe5ec);
+  border-radius: 5px;
+  font: inherit;
+  color: inherit;
+  background: var(--fivo-surface, #fff);
+}
+
+.fivo-text-find button {
+  cursor: pointer;
+}
+
+.fivo-text-find label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.fivo-text-find input:focus-visible,
+.fivo-text-find button:focus-visible {
+  outline: 1px solid var(--fivo-primary, #1677ff);
+  outline-offset: -1px;
+}
+
+.fivo-text-watermark {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0.12;
+  font-size: 40px;
+  transform: rotate(-20deg);
+  overflow: hidden;
+}

@@ -13,6 +13,9 @@ test('DOM 和 Office 元数据分别来自所属包，重复准备不改文件',
   for (const [name, version] of [
     ['dom', '1.2.0'],
     ['office', '2.3.0-next.1'],
+    ['text', '1.0.0'],
+    ['json', '1.0.0'],
+    ['markdown', '1.0.0'],
   ]) {
     await mkdir(join(root, 'packages', name, 'src'), { recursive: true });
     await writeFile(

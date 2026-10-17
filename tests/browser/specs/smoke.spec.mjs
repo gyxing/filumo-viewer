@@ -25,7 +25,7 @@ test('新烟测选择公开文件、配置更新、销毁重开和 DOM 探针', 
     'application/json',
   );
 
-  expect(data.samples.length).toBe(4);
+  expect(data.samples.length).toBe(11);
   expect(data.samples.some((s) => s.id === 'basic-docx')).toBe(true);
   expect(JSON.stringify(data).includes('absolute')).toBe(false);
   await page.goto(server.url + base);
@@ -83,7 +83,7 @@ test('新烟测选择公开文件、配置更新、销毁重开和 DOM 探针', 
   await page.getByRole('button', { name: 'DOM 外壳', exact: true }).click();
   await expect(page.getByText('就绪：无分页能力')).toBeVisible();
   await expect(page.locator('.office-file-docx-viewer')).toHaveCount(0);
-  await page.getByRole('button', { name: 'Office 文件', exact: true }).click();
+  await page.getByRole('button', { name: '文档文件', exact: true }).click();
   await expect(page.locator('.office-file-docx-viewer')).toBeVisible();
   await page
     .getByLabel('选择本机文件')

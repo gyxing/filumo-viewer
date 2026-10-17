@@ -1,4 +1,33 @@
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
+
+/** 只遍历实际执行的静态输出边，不把动态引擎或 Worker 计入初始闭包。 */
+export function collectStaticInputs(metafile, entryOutput) {
+  const keys = new Map(
+    Object.keys(metafile.outputs).map((key) => [resolve(key), key]),
+  );
+  const visited = new Set(),
+    inputs = new Set();
+  const visit = (file) => {
+    const key = keys.get(resolve(file));
+    if (!key || visited.has(key)) return;
+    visited.add(key);
+    const info = metafile.outputs[key];
+    for (const [input, contribution] of Object.entries(info.inputs ?? {}))
+      if (contribution.bytesInOutput > 0) inputs.add(input);
+    for (const edge of info.imports ?? [])
+      if (
+        !edge.external &&
+        ['import-statement', 'require-call'].includes(edge.kind)
+      )
+        visit(
+          keys.has(resolve(edge.path))
+            ? edge.path
+            : resolve(dirname(key), edge.path),
+        );
+  };
+  visit(entryOutput);
+  return inputs;
+}
 const identity = (file) =>
   file.replaceAll('\\', '/').replace(/^\0/, '').split('?')[0];
 const roleNames = ['driver', 'selector', 'word', 'spreadsheet', 'presentation'];

@@ -41,6 +41,18 @@ export function registerStyle(group: string, id: string, css: string): void {
   definitions.set(id, definition);
   for (const listener of listeners) listener(definition);
 }
+/** 开发加载器以稳定 ID 原位更新声明；发布构建仍使用不可变 registerStyle。 */
+export function replaceStyle(group: string, id: string, css: string): void {
+  if (!definitions.has(id)) {
+    registerStyle(group, id, css);
+    return;
+  }
+  if (definitions.get(id)!.group !== group)
+    throw new Error('样式 ID 分组冲突：' + id);
+  const definition = { group, id, css };
+  definitions.set(id, definition);
+  for (const listener of listeners) listener(definition);
+}
 /** 获取一个样式的引用，并返回幂等释放函数。 */
 function acquire(
   document: StyleDocument,
@@ -101,6 +113,13 @@ export function useStyles(
   const leases = new Map<string, () => void>();
   let closed = false;
   const attach = (definition: Definition) => {
+    if (!closed && definition.group === group && leases.has(definition.id)) {
+      const entry = (document as StyleDocument)[STORE]?.get(definition.id);
+      if (entry && entry.css !== definition.css) {
+        entry.css = definition.css;
+        entry.element.textContent = definition.css;
+      }
+    }
     if (!closed && definition.group === group && !leases.has(definition.id))
       leases.set(definition.id, acquire(document, definition, policy));
   };

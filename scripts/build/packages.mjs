@@ -11,27 +11,36 @@ import {
 } from 'node:fs/promises';
 import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createBuildManifest } from './manifest.mjs';
+import {
+  WORKSPACE_PACKAGES,
+  getWorkspacePackage,
+} from '../workspace-packages.js';
 import { resolveBuildOrder } from './build-order.mjs';
+import { createBuildManifest } from './manifest.mjs';
 import { preparePackageMetadata, readPackageMetadata } from './metadata.mjs';
 import { serializeStyles } from './style-order.mjs';
 import { stylePlugin } from './styles.mjs';
-import { buildOfficeWorker } from './worker.mjs';
+import { buildFormatWorker, buildOfficeWorker } from './worker.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 await preparePackageMetadata(ROOT);
 // 构建顺序保证后继包生成声明时已经能读取前置包的公开声明。
-const PACKAGES = ['core', 'dom', 'office', 'react', 'vue', 'vue2', 'viewer'];
+const PACKAGES = WORKSPACE_PACKAGES.map((item) => item.name);
 const requested = process.argv.slice(2);
 const manifests = Object.fromEntries(
   await Promise.all(
     PACKAGES.map(async (name) => [
       name,
-      JSON.parse(await readFile(join(ROOT, 'packages', name, 'package.json'), 'utf8')),
+      JSON.parse(
+        await readFile(join(ROOT, 'packages', name, 'package.json'), 'utf8'),
+      ),
     ]),
   ),
 );
-const names = resolveBuildOrder(requested.length ? requested : PACKAGES, manifests);
+const names = resolveBuildOrder(
+  requested.length ? requested : PACKAGES,
+  manifests,
+);
 
 /** 清除声明中不属于公开运行时接口的 Less 副作用引用。 */
 async function normalizeDeclarations(directory) {
@@ -73,11 +82,17 @@ async function prepareOutput(directory, name) {
 for (const name of names) {
   const directory = join(ROOT, 'packages', name);
   const metadata = await readPackageMetadata(directory);
+  const definition = getWorkspacePackage(name);
   const output = await prepareOutput(directory, name);
   const styles = new Map();
   const result = await build({
     absWorkingDir: ROOT,
-    entryPoints: [join(directory, 'src/index.ts')],
+    entryPoints: Object.fromEntries(
+      Object.entries(definition.entries).map(([entry, file]) => [
+        entry,
+        join(directory, file),
+      ]),
+    ),
     outdir: output,
     bundle: true,
     splitting: true,
@@ -109,16 +124,17 @@ for (const name of names) {
     [
       join(ROOT, 'node_modules/typescript/bin/tsc'),
       '-p',
-      join(
-        directory,
-        name === 'office' ? 'tsconfig.types.json' : 'tsconfig.json',
-      ),
+      join(directory, definition.declarationConfig),
     ],
     { cwd: ROOT, stdio: 'inherit' },
   );
   await normalizeDeclarations(output);
   const workerMetafile =
-    name === 'office' ? await buildOfficeWorker(directory, ROOT) : undefined;
+    name === 'office'
+      ? await buildOfficeWorker(directory, ROOT)
+      : definition.workerEntry
+      ? await buildFormatWorker(directory, ROOT, definition.workerEntry)
+      : undefined;
   await writeFile(
     join(output, 'styles.css'),
     ':root { --fivo-style-' +

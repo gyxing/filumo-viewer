@@ -2,7 +2,7 @@
 
 跨框架、按需加载的 Office 文档预览组件。当前工作区预览版本尚未发布，不兼容旧包入口。
 
-公开包：@fivo/core、@fivo/dom、@fivo/office、@fivo/react、@fivo/vue、@fivo/vue2、@fivo/viewer。Office 使用原生 DOM，Vue/原生宿主不安装 React。普通接入自动加载样式。
+公开包：@fivo/core、@fivo/dom、@fivo/office、@fivo/text、@fivo/json、@fivo/markdown、@fivo/react、@fivo/vue、@fivo/vue2、@fivo/viewer。格式视图使用原生 DOM，Vue/原生宿主不安装 React。普通接入按需加载样式。
 
 ## 开发
 
@@ -34,7 +34,7 @@ pnpm demo:vue2   # Vue 2
 - [回归与本地样本](apps/docs/docs/guides/testing.md)
 - [迁移说明](apps/docs/docs/guides/migration-from-office-file-viewer.md)
 
-apps/docs 为私有文档与烟测应用；packages 为七个公开组件包。examples 为独立宿主示例。真实样本存放在被忽略的 tests/fixtures/local，不进入公开站点。
+apps/docs 为私有文档与烟测应用；packages 为十个公开组件包。examples 为独立宿主示例。真实样本存放在被忽略的 tests/fixtures/local，不进入公开站点。
 
 当前仅 Office 预览，不含 PDF、文本、Markdown、JSON 或编辑保存。
 

@@ -1,19 +1,30 @@
+import type { TextEncoding } from '@fivo/text/reader';
 import { Input, InputNumber, Select, Switch } from 'antd';
 import React from 'react';
 import { changeView } from './config';
 import type { SmokeConfig, SmokeTarget } from './types';
-/** 视图设置保留插件身份，Office 创建选项变化才重建。 */
+/** 通用视图设置保留插件身份，各格式创建选项变化时才重建。 */
 export function ConfigPanel({
   value,
   onChange,
   target,
+  format,
 }: {
   value: SmokeConfig;
   onChange: (v: SmokeConfig) => void;
   target: SmokeTarget;
+  format?: string;
 }) {
   const update = (patch: Partial<SmokeConfig['viewer']>) =>
     onChange(changeView(value, patch));
+  const textual =
+    format === 'text' || format === 'json' || format === 'markdown'
+      ? format
+      : undefined;
+  const updateFormat = <K extends 'text' | 'json' | 'markdown'>(
+    key: K,
+    patch: Partial<SmokeConfig[K]>,
+  ) => onChange({ ...value, [key]: { ...value[key], ...patch } });
   return (
     <section className="smoke-controls">
       <label>
@@ -86,53 +97,124 @@ export function ConfigPanel({
       </label>
       <label>
         Worker
-        <Select
-          value={value.office.worker}
+        <Select<'auto' | 'always' | 'never'>
+          value={textual ? value[textual].worker : value.office.worker}
           disabled={target === 'probe'}
           options={['auto', 'always', 'never'].map((value) => ({
             value,
             label: value,
           }))}
           onChange={(worker) =>
-            onChange({ ...value, office: { ...value.office, worker } })
+            textual
+              ? updateFormat(textual, { worker })
+              : onChange({ ...value, office: { ...value.office, worker } })
           }
         />
       </label>
-      <label>
-        媒体
-        <Switch
-          checked={value.office.media !== false}
-          disabled={target === 'probe'}
-          onChange={(enabled) =>
-            onChange({
-              ...value,
-              office: {
-                ...value.office,
-                media: enabled ? { allowExternal: false } : false,
-              },
-            })
-          }
-        />
-      </label>
-      <label>
-        字体回退
-        <Input
-          value={value.office.fonts?.fallbackFamilies?.join(',')}
-          disabled={target === 'probe'}
-          placeholder="Arial"
-          onChange={(e) =>
-            onChange({
-              ...value,
-              office: {
-                ...value.office,
-                fonts: {
-                  fallbackFamilies: e.target.value.split(',').filter(Boolean),
-                },
-              },
-            })
-          }
-        />
-      </label>
+      {textual && (
+        <label>
+          编码
+          <Select<TextEncoding>
+            value={value[textual].encoding ?? 'auto'}
+            options={[
+              'auto',
+              'utf-8',
+              'utf-16le',
+              'utf-16be',
+              'gbk',
+              'gb18030',
+            ].map((value) => ({ value, label: value.toUpperCase() }))}
+            onChange={(encoding) => updateFormat(textual, { encoding })}
+          />
+        </label>
+      )}
+      {format === 'text' && (
+        <label>
+          自动换行
+          <Switch
+            checked={value.text.wrap !== false}
+            onChange={(wrap) => updateFormat('text', { wrap })}
+          />
+        </label>
+      )}
+      {format === 'json' && (
+        <label>
+          初始视图
+          <Select<'tree' | 'source'>
+            value={value.json.initialMode ?? 'tree'}
+            options={[
+              { value: 'tree', label: '双栏（窄屏为结构）' },
+              { value: 'source', label: '原文' },
+            ]}
+            onChange={(initialMode) => updateFormat('json', { initialMode })}
+          />
+        </label>
+      )}
+      {format === 'markdown' && (
+        <>
+          <label>
+            初始视图
+            <Select<'reading' | 'source'>
+              value={value.markdown.initialMode ?? 'reading'}
+              options={[
+                { value: 'reading', label: '阅读' },
+                { value: 'source', label: '原文' },
+              ]}
+              onChange={(initialMode) =>
+                updateFormat('markdown', { initialMode })
+              }
+            />
+          </label>
+          <label>
+            代码高亮
+            <Switch
+              checked={value.markdown.highlight !== false}
+              onChange={(highlight) => updateFormat('markdown', { highlight })}
+            />
+          </label>
+        </>
+      )}
+      {!textual && (
+        <>
+          <label>
+            媒体
+            <Switch
+              checked={value.office.media !== false}
+              disabled={target === 'probe'}
+              onChange={(enabled) =>
+                onChange({
+                  ...value,
+                  office: {
+                    ...value.office,
+                    media: enabled ? { allowExternal: false } : false,
+                  },
+                })
+              }
+            />
+          </label>
+          <label>
+            字体回退
+            <Input
+              value={value.office.fonts?.fallbackFamilies?.join(',')}
+              disabled={target === 'probe'}
+              placeholder="Arial"
+              onChange={(e) =>
+                onChange({
+                  ...value,
+                  office: {
+                    ...value.office,
+                    fonts: {
+                      fallbackFamilies: e.target.value
+                        .split(',')
+                        .filter(Boolean),
+                    },
+                  },
+                })
+              }
+            />
+          </label>
+        </>
+      )}
       <label>
         文件上限（MB）
         <InputNumber

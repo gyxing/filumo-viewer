@@ -24,6 +24,12 @@ export async function sampleCatalog(root, local = false) {
     ),
     local: false,
   });
+  for (const [id, format, file] of [
+    ['text-utf8', 'txt', 'sample.txt'], ['text-log', 'log', 'sample.log'],
+    ['text-utf16', 'txt', 'sample-utf16.txt'], ['text-gbk', 'txt', 'sample-gbk.txt'],
+    ['json-basic', 'json', 'sample.json'], ['json-invalid', 'json', 'sample-invalid.json'],
+    ['markdown-basic', 'md', 'sample.md'],
+  ]) result.push({ id, format, absolute: resolve(root, 'tests/fixtures/public/generated', file), local: false });
   if (local) {
     const catalog = await loadLocalCatalog(root);
     for (const id of [

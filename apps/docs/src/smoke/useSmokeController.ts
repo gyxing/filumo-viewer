@@ -1,15 +1,18 @@
 import type { ControllerSnapshot } from '@fivo/core';
 import type { ViewerCapabilities, ViewerHandle } from '@fivo/dom';
+import { json } from '@fivo/json';
+import { markdown } from '@fivo/markdown';
 import { office } from '@fivo/office';
+import { text } from '@fivo/text';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { docsPath } from '../site-path';
 import { redact, resetSmokeConfig } from './config';
 import type { LogEntry, Sample, SmokeConfig, SmokeTarget } from './types';
 
-/** 只以 source 驱动解析，切换测试对象时释放旧视图并保留 Office 文件。 */
+/** 只以 source 驱动解析，切换测试对象时释放旧视图并保留当前文件。 */
 export function useSmokeController() {
   const [config, setConfigState] = useState(resetSmokeConfig);
-  const [target, setTargetState] = useState<SmokeTarget>('office');
+  const [target, setTargetState] = useState<SmokeTarget>('document');
   const [source, setSource] = useState<File>();
   const [selectedId, setSelectedId] = useState<string>();
   const [sampleLoading, setSampleLoading] = useState(false);
@@ -43,8 +46,11 @@ export function useSmokeController() {
         onHyperlinkActivate: (event) =>
           log('hyperlink', event.sourceType + ' / ' + event.sourceId),
       }),
+      text(config.text),
+      json(config.json),
+      markdown(config.markdown),
     ],
-    [config.office, log],
+    [config.office, config.text, config.json, config.markdown, log],
   );
   useEffect(
     () => () => {
@@ -64,7 +70,7 @@ export function useSmokeController() {
     setSelectedId(undefined);
     setSourceError('');
     setSource(file);
-    setTargetState('office');
+    setTargetState('document');
     setMounted(true);
     setActiveState(true);
     snapshotKey.current = '';
@@ -100,7 +106,7 @@ export function useSmokeController() {
         ),
       );
       setSelectedId(sample.id);
-      setTargetState('office');
+      setTargetState('document');
       setMounted(true);
       setActiveState(true);
       snapshotKey.current = '';
@@ -137,7 +143,7 @@ export function useSmokeController() {
     snapshotKey.current = '';
     log(
       'target',
-      next === 'office' ? '切换到 Office 文件预览' : '切换到独立 DOM 外壳',
+      next === 'document' ? '切换到多格式文档预览' : '切换到独立 DOM 外壳',
     );
   };
   const updateState = (next: ControllerSnapshot) => {

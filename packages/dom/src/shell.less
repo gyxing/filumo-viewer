@@ -6,6 +6,9 @@
   --fivo-border: #dfe5ec;
   --fivo-hover: #f3f6fb;
   --fivo-primary: #1677ff;
+  --fivo-code-string: #167a50;
+  --fivo-code-keyword: #a33275;
+  --fivo-code-number: #9a570a;
   // Office 侧栏和弹层继承同一组语义色，避免与外壳形成两套主题。
   --fivo-primary-hover: #4096ff;
   --fivo-primary-active: #0958d9;
@@ -36,6 +39,9 @@
   --fivo-border: #384459;
   --fivo-hover: #2d3a4e;
   --fivo-primary: #69a7ff;
+  --fivo-code-string: #75d6a4;
+  --fivo-code-keyword: #ed91c5;
+  --fivo-code-number: #efc27a;
   --fivo-primary-hover: #91caff;
   --fivo-primary-active: #69a7ff;
   --fivo-selected: #253e60;
@@ -382,15 +388,15 @@
   z-index: 30;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  min-width: min(232px, calc(100% - 24px));
+  gap: 4px;
+  min-width: min(264px, calc(100% - 24px));
   max-width: min(320px, calc(100% - 24px));
   box-sizing: border-box;
   max-height: 360px;
   overflow: auto;
-  padding: 10px;
+  padding: 6px;
   border: 1px solid var(--fivo-border);
-  border-radius: 8px;
+  border-radius: 6px;
   background: var(--fivo-surface);
   box-shadow: 0 8px 24px rgb(0 0 0 / 14%);
 }
@@ -403,10 +409,63 @@
   display: flex;
   justify-content: space-between;
   min-width: 0;
+  min-height: 34px;
+  box-sizing: border-box;
+  padding: 2px 8px;
 }
 
-.fivo-toolbar-menu label > span {
-  white-space: normal;
+.fivo-toolbar-menu > label > .fivo-capability-label {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.fivo-toolbar-menu > label > .fivo-select {
+  flex: 0 1 170px;
+}
+
+.fivo-toolbar-menu .fivo-select-trigger {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+// 菜单采用整行操作和右侧勾选状态，避免堆叠成一组描边工具栏按钮。
+.fivo-toolbar-menu > button.fivo-capability-group {
+  justify-content: flex-start;
+  width: 100%;
+  border-color: transparent;
+  background: transparent;
+  text-align: left;
+}
+
+.fivo-toolbar-menu > button.fivo-capability-group[aria-pressed='true'] {
+  border-color: transparent;
+  background: var(--fivo-hover);
+}
+
+.fivo-toolbar-menu > button.fivo-capability-group:focus-visible {
+  outline: 1px solid var(--fivo-primary);
+  outline-offset: -1px;
+}
+
+.fivo-toolbar-menu > button.fivo-capability-group > .fivo-icon {
+  display: none;
+}
+
+.fivo-action-state {
+  display: none;
+}
+
+.fivo-toolbar-menu .fivo-action-state {
+  display: inline-flex;
+  flex: 0 0 16px;
+  margin-left: auto;
+  color: var(--fivo-primary);
+  visibility: hidden;
+}
+
+.fivo-toolbar-menu .fivo-action-state[data-checked='true'] {
+  visibility: visible;
 }
 
 .fivo-toolbar[data-compact='true'] .fivo-open-file {
@@ -495,6 +554,53 @@
   width: 100%;
   height: 100%;
   min-height: 0;
+}
+
+// 通用状态布局只消费当前插件，不包含格式样式和解析逻辑。
+.fivo-reading-scope,
+.fivo-reading-frame,
+.fivo-reading-body {
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+}
+
+.fivo-reading-frame {
+  position: relative;
+  overflow: hidden;
+  background: var(--fivo-surface);
+  color: var(--fivo-text);
+  font: 14px/1.6 system-ui, sans-serif;
+}
+
+.fivo-reading-status {
+  display: flex;
+  height: 100%;
+  box-sizing: border-box;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  gap: 12px;
+  text-align: center;
+  color: var(--fivo-muted);
+}
+
+.fivo-reading-status[hidden],
+.fivo-reading-body[hidden] {
+  display: none;
+}
+
+.fivo-reading-watermark {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0.12;
+  font-size: 40px;
+  transform: rotate(-20deg);
 }
 
 .fivo-viewer:not([data-state='ready']) > .fivo-viewer-body > .fivo-viewport {

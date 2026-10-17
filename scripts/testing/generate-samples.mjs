@@ -218,3 +218,37 @@ for (const [name, content] of Object.entries(complex))
     extendedTimestamp: false,
   });
 await writeFile(out + '/sample-complex.docx', await complexWriter.close());
+
+// 文本夹具使用已知编码字节，不为样本生成引入额外编码依赖。
+await writeFile(
+  out + '/sample.txt',
+  '纯文本示例\r\n第二行：保留空白与制表符\t内容\n\n结束。\n',
+  'utf8',
+);
+await writeFile(
+  out + '/sample.log',
+  Array.from(
+    { length: 2000 },
+    (_, index) => '2026-01-01 INFO 示例日志 ' + index,
+  ).join('\n'),
+  'utf8',
+);
+await writeFile(
+  out + '/sample-utf16.txt',
+  Buffer.concat([
+    Buffer.from([0xff, 0xfe]),
+    Buffer.from('UTF-16 中文示例\r\n第二行', 'utf16le'),
+  ]),
+);
+await writeFile(out + '/sample-gbk.txt', Uint8Array.of(0xd6, 0xd0, 0xce, 0xc4));
+await writeFile(
+  out + '/sample.json',
+  '{\n  "name": "示例",\n  "large": 900719925474099312345,\n  "active": true,\n  "items": [1, null, {"value": "内容"}],\n  "duplicate": 1,\n  "duplicate": 2\n}\n',
+  'utf8',
+);
+await writeFile(out + '/sample-invalid.json', '{"missing": [1, 2,]}', 'utf8');
+await writeFile(
+  out + '/sample.md',
+  '# Markdown 示例\n\n正文包含 **粗体**、*强调*、~~删除线~~ 和 `代码`。\n\n## 任务\n\n- [x] 已完成\n- [ ] 待处理\n\n| 名称 | 值 |\n| --- | --- |\n| 示例 | 内容 |\n\n## 代码\n\n```js\nconst message = "中文";\nconsole.log(message);\n```\n\n> 引用内容\n\n[跳转任务](#任务)\n',
+  'utf8',
+);

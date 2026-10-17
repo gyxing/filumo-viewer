@@ -4,7 +4,7 @@ import type {
 } from '../capabilities/types';
 import { createSelectControl } from './SelectControl';
 import { createZoomControl } from './ZoomControl';
-import { labelShellButton, type ShellIcon } from './icons';
+import { createShellIcon, labelShellButton, type ShellIcon } from './icons';
 import { createToolbarOverflow, type ToolbarItem } from './overflow';
 
 interface ActionElement {
@@ -13,6 +13,7 @@ interface ActionElement {
   control: HTMLButtonElement;
   selection?: ReturnType<typeof createSelectControl>;
   label?: HTMLElement;
+  state?: HTMLElement;
   current: CapabilityAction;
 }
 /** 按能力更新控件，复用节点以保留键盘焦点，不识别具体文档格式。 */
@@ -120,7 +121,11 @@ export function bindCapabilities(
           actions.set(action.id, entry);
           const owned = entry;
           if (!selection)
-            control.onclick = () => invoke(() => owned.current.run());
+            control.onclick = () => {
+              // 查找等动作先收起菜单，随后由实际动作把焦点交给内容区。
+              if (owned.current.kind === 'action') overflow.close();
+              invoke(() => owned.current.run());
+            };
         }
         entry.current = action;
         entry.control.disabled = !available || action.enabled === false;
@@ -145,12 +150,20 @@ export function bindCapabilities(
             action.label,
             icons[action.id.split('.').at(-1) ?? ''],
           );
-          if (action.kind === 'toggle')
+          if (action.kind === 'toggle') {
             entry.control.setAttribute(
               'aria-pressed',
               String(Boolean(action.pressed)),
             );
-          else entry.control.removeAttribute('aria-pressed');
+            if (!entry.state) {
+              entry.state = document.createElement('span');
+              entry.state.className = 'fivo-action-state';
+              entry.state.setAttribute('aria-hidden', 'true');
+              entry.state.append(createShellIcon(document, 'check'));
+              entry.control.append(entry.state);
+            }
+            entry.state.dataset.checked = String(Boolean(action.pressed));
+          } else entry.control.removeAttribute('aria-pressed');
         }
         const semantic = action.id.split('.').at(-1);
         ordered.push({

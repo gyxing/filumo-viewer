@@ -82,12 +82,21 @@ importers:
       '@fivo/dom':
         specifier: workspace:^
         version: link:../../packages/dom
+      '@fivo/json':
+        specifier: workspace:^
+        version: link:../../packages/json
+      '@fivo/markdown':
+        specifier: workspace:^
+        version: link:../../packages/markdown
       '@fivo/office':
         specifier: workspace:^
         version: link:../../packages/office
       '@fivo/react':
         specifier: workspace:^
         version: link:../../packages/react
+      '@fivo/text':
+        specifier: workspace:^
+        version: link:../../packages/text
       '@fivo/viewer':
         specifier: workspace:^
         version: link:../../packages/viewer
@@ -118,6 +127,36 @@ importers:
       '@fivo/core':
         specifier: workspace:^
         version: link:../core
+
+  packages/json:
+    dependencies:
+      '@fivo/core':
+        specifier: workspace:^
+        version: link:../core
+      '@fivo/dom':
+        specifier: workspace:^
+        version: link:../dom
+      '@fivo/text':
+        specifier: workspace:^
+        version: link:../text
+
+  packages/markdown:
+    dependencies:
+      '@fivo/core':
+        specifier: workspace:^
+        version: link:../core
+      '@fivo/dom':
+        specifier: workspace:^
+        version: link:../dom
+      '@fivo/text':
+        specifier: workspace:^
+        version: link:../text
+      highlight.js:
+        specifier: 11.12.0
+        version: 11.12.0
+      marked:
+        specifier: 18.1.1
+        version: 18.1.1
 
   packages/office:
     dependencies:
@@ -156,11 +195,29 @@ importers:
         specifier: ^18.0.0
         version: 18.3.1
 
+  packages/text:
+    dependencies:
+      '@fivo/core':
+        specifier: workspace:^
+        version: link:../core
+      '@fivo/dom':
+        specifier: workspace:^
+        version: link:../dom
+
   packages/viewer:
     dependencies:
+      '@fivo/json':
+        specifier: workspace:^
+        version: link:../json
+      '@fivo/markdown':
+        specifier: workspace:^
+        version: link:../markdown
       '@fivo/office':
         specifier: workspace:^
         version: link:../office
+      '@fivo/text':
+        specifier: workspace:^
+        version: link:../text
 
   packages/vue:
     dependencies:
@@ -3639,6 +3696,10 @@ packages:
   heti@0.9.6:
     resolution: {integrity: sha512-HdfW9QENMp0j54mgrRqEMJ4oa9CmhvrbRk9ijr1IGqxCmVa8Z8ENftHowCSSC2unAL+Qbglu8k8OLneuNV0jeQ==}
 
+  highlight.js@11.12.0:
+    resolution: {integrity: sha512-nbfWpyRMcMrPMmDwJB+dhX/eiaPKtc2RB+0QZskqJ3WjRA/FDS0e9hZrx8EC/lbEv8gXy98FcDbNa/dspAaJMg==}
+    engines: {node: '>=12.0.0'}
+
   history@5.3.0:
     resolution: {integrity: sha512-ZqaKwjjrAYUYfLG+htGaIIZ4nioX2L70ZUMIFysS3xvBsSG4x/n1V6TXV3N8ZYNuFGlDirFg32T7B6WOUPDYcQ==}
 
@@ -4424,6 +4485,11 @@ packages:
 
   markdown-table@3.0.4:
     resolution: {integrity: sha512-wiYz4+JrLyb/DqW2hkFJxP7Vd7JuTDm77fvbM8VfEQdmSMqcImWeeRbHwZjBjIFki/VaMK2BhFi7oUUZeM5bqw==}
+
+  marked@18.1.1:
+    resolution: {integrity: sha512-zEGgrtUG8crk+TrMacJSVABU4DYDDkS8uqgU3ohrn/2fW9C2AEfUrO3m6IhpIpQpl7YcVpiXXC9cSMWDANT3dg==}
+    engines: {node: '>= 20'}
+    hasBin: true
 
   math-intrinsics@1.1.0:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
@@ -11230,6 +11296,8 @@ snapshots:
     dependencies:
       heti-findandreplacedomtext: 0.5.0
 
+  highlight.js@11.12.0: {}
+
   history@5.3.0:
     dependencies:
       '@babel/runtime': 7.29.7
@@ -12015,6 +12083,8 @@ snapshots:
   map-obj@4.3.0: {}
 
   markdown-table@3.0.4: {}
+
+  marked@18.1.1: {}
 
   math-intrinsics@1.1.0: {}
 

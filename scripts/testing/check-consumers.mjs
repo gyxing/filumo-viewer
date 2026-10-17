@@ -12,6 +12,7 @@ import {
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { checkFormatConsumers } from './check-format-consumers.mjs';
 import { auditConsumerGraph, trackWorkerOutput } from './consumer-graph.mjs';
 import './generate-samples.mjs';
 import { installFrozenConsumer } from './install-consumer.mjs';
@@ -68,6 +69,8 @@ for (const [id, example, version] of cases) {
   );
   metadata.dependencies['@fivo/core'] = overrides['@fivo/core'];
   metadata.dependencies['@fivo/viewer'] = overrides['@fivo/viewer'];
+  for (const name of ['text', 'json', 'markdown'])
+    metadata.dependencies['@fivo/' + name] = overrides['@fivo/' + name];
   for (const name of Object.keys(metadata.dependencies))
     if (overrides[name]) metadata.dependencies[name] = overrides[name];
   if (example === 'react') {
@@ -96,7 +99,7 @@ for (const [id, example, version] of cases) {
     throw new Error(id + ' 意外安装框架兼容运行时：' + installed.join(','));
   await writeFile(
     join(directory, 'type-smoke.ts'),
-    "import {office,type OfficeOptions} from '@fivo/office'; import {standardPlugins} from '@fivo/viewer'; import {createSession} from '@fivo/core'; import type {ViewerHandle} from '@fivo/dom'; const options:OfficeOptions={worker:'never',onWarning:warning=>console.log(warning.code)}; const plugin=office(options); let viewer:ViewerHandle|undefined; void viewer; void plugin; void standardPlugins; void createSession;\n",
+    "import {office,type OfficeOptions} from '@fivo/office'; import {standardPlugins} from '@fivo/viewer'; import {createSession} from '@fivo/core'; import type {ViewerHandle} from '@fivo/dom'; import {text} from '@fivo/text'; import {readText} from '@fivo/text/reader'; import {mountTextSurface} from '@fivo/text/view'; import {json} from '@fivo/json'; import {markdown} from '@fivo/markdown'; const options:OfficeOptions={worker:'never',onWarning:warning=>console.log(warning.code)}; const plugin=office(options); let viewer:ViewerHandle|undefined; void viewer; void plugin; void standardPlugins; void createSession; void text; void readText; void mountTextSurface; void json; void markdown;\n",
   );
   await writeFile(
     join(directory, 'tsconfig-smoke.json'),
@@ -167,6 +170,7 @@ for (const [id, example, version] of cases) {
         : undefined,
     plugins: [audit],
     worker: {
+      format: 'es',
       plugins: () => [
         trackWorkerOutput(
           join(officeRoot, 'dist', officeManifest.worker.publicPath),
@@ -221,4 +225,9 @@ for (const [id, example, version] of cases) {
     JSON.stringify(report, null, 2) + '\n',
   );
 }
+report.formats = await checkFormatConsumers(root, work, packed, overrides);
+await writeFile(
+  join(root, 'tmp/testing/consumers.json'),
+  JSON.stringify(report, null, 2) + '\n',
+);
 console.log('真实 tarball 消费构建完成：' + work);

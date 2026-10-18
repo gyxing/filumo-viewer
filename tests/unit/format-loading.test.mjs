@@ -31,6 +31,9 @@ test('格式检测尊重后缀身份，描述符不读取全文或创建 Worker'
   });
   const signal = new AbortController().signal;
   assert.equal(await plain.document.detect(source('a.txt'), signal), true);
+  assert.equal(await plain.document.detect(source('a.custom'), signal), false);
+  assert.equal(await plain.document.detect(source(''), signal), false);
+  assert.equal(text({ fallback: false }).document.detectFallback, undefined);
   assert.equal(
     await structured.document.detect(source('a.txt'), signal),
     false,

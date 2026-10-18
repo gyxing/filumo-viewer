@@ -74,9 +74,9 @@ test('HTML 标题接入大纲，自定义锚点展开 details 并仅定位正文
   await details.locator('summary').click();
   await expect(details).not.toHaveAttribute('open');
   const more = page.locator('.fivo-toolbar-more');
-  await more.locator('summary').click();
-  await page.getByRole('group', { name: '更多操作', exact: true })
-    .getByRole('button', { name: '查找', exact: true }).click();
+  await more.locator('.fivo-toolbar-more-trigger').click();
+  await page.getByRole('menu', { name: '更多操作', exact: true })
+    .getByRole('menuitem', { name: '查找', exact: true }).click();
   await page.locator('.fivo-markdown-find input').fill('折叠区域正文');
   await expect(details).toHaveAttribute('open', '');
 });

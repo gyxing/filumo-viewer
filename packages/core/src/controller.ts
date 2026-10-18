@@ -88,38 +88,61 @@ export function createDocumentController(options: ControllerOptions) {
           .catch(() => undefined);
         source = await waitForSource(preparing, abort.signal);
         throwIfAborted(abort.signal);
-        const extension = source.name?.toLowerCase().match(/\.[^.]+$/)?.[0];
-        const candidates = plugins.filter(
-          (plugin) =>
-            (extension && plugin.extensions.includes(extension)) ||
-            (source?.mimeType &&
-              plugin.mimeTypes.includes(source.mimeType.split(';')[0])),
-        );
+        const currentSource = source;
+        const metadata = () => JSON.stringify([currentSource.name, currentSource.mimeType]);
+        let detectedMetadata = '';
+        const detectRegular = async () => {
+          detectedMetadata = metadata();
+          const extension = currentSource.name?.toLowerCase().match(/\.[^.]+$/)?.[0];
+          const candidates = plugins.filter(
+            (plugin) =>
+              (extension && plugin.extensions.includes(extension)) ||
+              (currentSource.mimeType &&
+                plugin.mimeTypes.includes(currentSource.mimeType.split(';')[0])),
+          );
+          // 元数据仅用于排序，未知名称仍允许已注册描述符探测，不提前加载驱动。
+          for (const candidate of [
+            ...candidates,
+            ...plugins.filter((plugin) => !candidates.includes(plugin)),
+          ]) {
+            const matched = await waitForSource(
+              candidate.detect(currentSource, abort.signal), abort.signal,
+            );
+            throwIfAborted(abort.signal);
+            if (generation !== task || disposed) throw abortError();
+            if (matched) return candidate;
+          }
+          return undefined;
+        };
         const pluginId = selection.pluginId ?? options.pluginId;
         let selected = pluginId
           ? plugins.find((plugin) => plugin.id === pluginId)
           : undefined;
         if (pluginId && !selected)
           throw new FivoError('UNKNOWN_PLUGIN', '未注册的插件：' + pluginId);
-        // 元数据仅用于排序，未知名称仍允许已注册描述符探测；此时不加载任何驱动。
-        for (const candidate of selected
-          ? []
-          : [
-              ...candidates,
-              ...plugins.filter((plugin) => !candidates.includes(plugin)),
-            ]) {
-          const matched = await waitForSource(
-            candidate.detect(source, abort.signal),
-            abort.signal,
-          );
-          throwIfAborted(abort.signal);
-          if (generation !== task || disposed) throw abortError();
-          if (matched) {
-            selected = candidate;
-            break;
+        if (!selected) selected = await detectRegular();
+        // 读取后才可能获得远程 MIME；元数据变化时先给专用插件重新判断的机会。
+        if (!selected && !pluginId && metadata() !== detectedMetadata)
+          selected = await detectRegular();
+        // 兜底必须晚于所有常规探测；显式选择插件和已匹配驱动的错误均不进入此阶段。
+        if (!selected && !pluginId)
+          for (const candidate of plugins) {
+            if (!candidate.detectFallback) continue;
+            const matched = await waitForSource(
+              candidate.detectFallback(source, abort.signal, options.resourcePolicy),
+              abort.signal,
+            );
+            throwIfAborted(abort.signal);
+            if (generation !== task || disposed) throw abortError();
+            if (metadata() !== detectedMetadata) {
+              selected = await detectRegular();
+              if (selected) break;
+            }
+            if (matched) {
+              selected = candidate;
+              break;
+            }
           }
-          throwIfAborted(abort.signal);
-        }
         if (!selected)
           throw new FivoError(
             'UNSUPPORTED_FORMAT',
@@ -171,7 +194,15 @@ export function createDocumentController(options: ControllerOptions) {
         const error = cause instanceof Error ? cause : new Error(String(cause));
         if (generation === task && !disposed)
           update({
-            status: abort.signal.aborted ? 'cancelled' : 'error',
+            // 超时属于加载失败，只有主动取消才展示取消状态。
+            status:
+              abort.signal.aborted &&
+              !(
+                abort.signal.reason instanceof FivoError &&
+                abort.signal.reason.code === 'LOAD_TIMEOUT'
+              )
+                ? 'cancelled'
+                : 'error',
             error,
           });
         throw error;

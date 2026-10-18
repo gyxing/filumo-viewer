@@ -4,8 +4,9 @@ import type {
 } from '../capabilities/types';
 import { createSelectControl } from './SelectControl';
 import { createZoomControl } from './ZoomControl';
-import { createShellIcon, labelShellButton, type ShellIcon } from './icons';
+import { labelShellButton, type ShellIcon } from './icons';
 import { createToolbarOverflow, type ToolbarItem } from './overflow';
+import { actionMenuItem, navigationMenuItem, zoomMenuItem } from './toolbarMenuItems';
 
 interface ActionElement {
   kind: CapabilityAction['kind'];
@@ -13,7 +14,6 @@ interface ActionElement {
   control: HTMLButtonElement;
   selection?: ReturnType<typeof createSelectControl>;
   label?: HTMLElement;
-  state?: HTMLElement;
   current: CapabilityAction;
 }
 /** 按能力更新控件，复用节点以保留键盘焦点，不识别具体文档格式。 */
@@ -23,7 +23,7 @@ export function bindCapabilities(
 ) {
   const document = container.ownerDocument;
   const actions = new Map<string, ActionElement>();
-  const overflow = createToolbarOverflow(container);
+  const overflow = createToolbarOverflow(container, onError);
   let current: ViewerCapabilities = {};
   const invoke = (action: () => unknown) => {
     void Promise.resolve().then(action).catch(onError);
@@ -155,19 +155,13 @@ export function bindCapabilities(
               'aria-pressed',
               String(Boolean(action.pressed)),
             );
-            if (!entry.state) {
-              entry.state = document.createElement('span');
-              entry.state.className = 'fivo-action-state';
-              entry.state.setAttribute('aria-hidden', 'true');
-              entry.state.append(createShellIcon(document, 'check'));
-              entry.control.append(entry.state);
-            }
-            entry.state.dataset.checked = String(Boolean(action.pressed));
           } else entry.control.removeAttribute('aria-pressed');
         }
         const semantic = action.id.split('.').at(-1);
         ordered.push({
           node: entry.node,
+          menu: actionMenuItem(action, available),
+          closeControl: entry.selection?.close,
           secondary: action.toolbar?.placement
             ? action.toolbar.placement === 'more'
             : ['zoomMode', 'sheet', 'transitions'].includes(semantic ?? ''),
@@ -204,6 +198,7 @@ export function bindCapabilities(
         page.disabled = !available;
         ordered.push({
           node: navGroup,
+          menu: navigationMenuItem(nav, en, available),
           order: nav.toolbar?.order ?? 1,
           priority: nav.toolbar?.priority ?? 80,
           secondary: nav.toolbar?.placement === 'more',
@@ -214,6 +209,8 @@ export function bindCapabilities(
         zoomControl.update(zoom, locale, available);
         ordered.push({
           node: zoomControl.element,
+          menu: zoomMenuItem(zoom, en, available),
+          closeControl: zoomControl.close,
           order: zoom.toolbar?.order ?? 2,
           priority: zoom.toolbar?.priority ?? 100,
           secondary: zoom.toolbar?.placement === 'more',

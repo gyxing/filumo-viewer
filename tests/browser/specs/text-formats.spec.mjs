@@ -14,10 +14,158 @@ test.afterAll(async () => server?.close());
 /** 更多菜单保留开关项编辑状态，避免重复点击把已打开的菜单反向关闭。 */
 async function openMore(page) {
   const more = page.locator('.fivo-toolbar-more');
-  if ((await more.getAttribute('open')) === null)
-    await more.locator('summary').click();
-  return page.getByRole('group', { name: '更多操作', exact: true });
+  const trigger = more.locator('.fivo-toolbar-more-trigger');
+  if ((await trigger.getAttribute('aria-expanded')) !== 'true') await trigger.click();
+  return page.getByRole('menu', { name: '更多操作', exact: true });
 }
+
+test('Markdown 菜单按内容收窄，编码与视图使用图标，子菜单独立定宽', async ({ page }) => {
+  await page.goto(server.url + '/text-formats.html');
+  await page.getByRole('button', { name: 'Markdown', exact: true }).click();
+  const menu = await openMore(page);
+  expect(await page.locator('.fivo-toolbar').evaluate((element) =>
+    element.lastElementChild.classList.contains('fivo-toolbar-more'))).toBe(true);
+  const root = await menu.boundingBox();
+  expect(root.width).toBeGreaterThanOrEqual(160);
+  expect(root.width).toBeLessThan(224);
+  for (const name of ['编码', '视图']) {
+    const parent = menu.getByRole('menuitem', { name, exact: true });
+    await expect(parent.locator(':scope > svg')).toHaveCount(1);
+    await parent.click();
+    const child = page.getByRole('menu', { name, exact: true });
+    const bounds = await child.boundingBox();
+    expect(bounds.width).toBeGreaterThanOrEqual(112);
+    expect(bounds.width).toBeLessThanOrEqual(160);
+    expect(bounds.width).toBeLessThan(root.width);
+    await page.keyboard.press('Escape');
+    await expect(menu).toBeVisible();
+  }
+});
+
+for (const format of ['文本', 'JSON', 'Markdown']) {
+  test(`${format} 更多菜单的每个第一级操作都显示图标`, async ({ page }) => {
+    await page.goto(server.url + '/text-formats.html');
+    await page.getByRole('button', { name: format, exact: true }).click();
+    const menu = await openMore(page);
+    const rows = menu.locator(':scope > button');
+    expect(await rows.count()).toBeGreaterThan(0);
+    for (const row of await rows.all())
+      await expect(row.locator(':scope > svg.fivo-icon')).toHaveCount(1);
+    if (format === '文本') {
+      const wrap = menu.getByRole('menuitemcheckbox', { name: '自动换行', exact: true });
+      const checked = await wrap.getAttribute('aria-checked');
+      await wrap.click();
+      await expect(wrap).toHaveAttribute('aria-checked', String(checked !== 'true'));
+      await expect(wrap.locator(':scope > svg.fivo-icon')).toHaveCount(1);
+      await expect(menu.getByRole('menuitemcheckbox', { name: '行号', exact: true })
+        .locator(':scope > svg.fivo-icon')).toHaveCount(1);
+    }
+  });
+
+  test(`${format} 编码勾选实际结果，重新识别是独立命令`, async ({ page }) => {
+    await page.goto(server.url + '/text-formats.html');
+    await page.getByRole('button', { name: format, exact: true }).click();
+    const menu = await openMore(page);
+    const encoding = menu.getByRole('menuitem', { name: '编码', exact: true });
+    await expect(encoding.locator('.fivo-menu-value')).toHaveText('UTF-8');
+    await encoding.click();
+    const child = page.getByRole('menu', { name: '编码', exact: true });
+    await expect(child.getByRole('menuitemradio')).toHaveCount(5);
+    await expect(child.getByRole('menuitemradio', { name: 'UTF-8', exact: true }))
+      .toHaveAttribute('aria-checked', 'true');
+    await expect(child.getByRole('menuitemradio', { name: /自动/ })).toHaveCount(0);
+    const retry = child.getByRole('menuitem', { name: '重新自动识别', exact: true });
+    await expect(retry).not.toHaveAttribute('aria-checked');
+    expect(await retry.evaluate((element) => element.previousElementSibling.getAttribute('role')))
+      .toBe('separator');
+    // 已处于自动模式时也允许再次执行，不把命令误当成已选选项而跳过。
+    for (let attempt = 0; attempt < 2; attempt++) {
+      await retry.click();
+      await expect(page.locator('.fivo-toolbar-more-trigger')).toHaveAttribute('aria-expanded', 'false');
+      await openMore(page);
+      await expect(encoding.locator('.fivo-menu-value')).toHaveText('UTF-8');
+      await encoding.click();
+      await expect(child.getByRole('menuitemradio', { name: 'UTF-8', exact: true }))
+        .toHaveAttribute('aria-checked', 'true');
+    }
+  });
+}
+
+for (const [kind, selector] of [
+  ['encodingText', '.fivo-text-surface'],
+  ['encodingJson', '.fivo-json-workspace'],
+  ['encodingMarkdown', '.fivo-markdown-reading'],
+]) {
+  test(`${kind} 切换编码失败保留正文 DOM 与位置，浮窗提示后可恢复`, async ({ page }) => {
+    await page.goto(server.url + '/text-formats.html');
+    await page.evaluate((kind) => window.fivoTextFormats.open(kind), kind);
+    await expect(page.locator(selector)).toBeVisible();
+    if (kind === 'encodingJson') await expect(page.locator('.fivo-json-tree')).toBeVisible();
+    const retained = await page.evaluate(async (selector) => {
+      const content = document.querySelector(selector);
+      const outline = document.querySelector('.fivo-markdown-outline');
+      const scroll = content.querySelector('.fivo-text-viewport, .fivo-markdown-scroll');
+      if (scroll) scroll.scrollTop = 120;
+      const top = scroll?.scrollTop;
+      const action = window.fivoTextFormats.getCapabilities().actions.find((item) => item.id.endsWith('.encoding'));
+      const pending = action.run('utf-16le');
+      const during = document.querySelector(selector) === content;
+      await pending;
+      return {
+        during,
+        after: document.querySelector(selector) === content,
+        position: !scroll || scroll.scrollTop === top,
+        outline: !outline || document.querySelector('.fivo-markdown-outline') === outline,
+      };
+    }, selector);
+    expect(retained).toEqual({ during: true, after: true, position: true, outline: true });
+    const notice = page.locator('.fivo-reading-notice');
+    await expect(notice).toBeVisible();
+    await expect(notice).toContainText('无法使用 UTF-16LE 解码此文件');
+    await expect(notice).toContainText('当前编码为 UTF-8');
+    const menu = await openMore(page);
+    const encoding = menu.getByRole('menuitem', { name: '编码', exact: true });
+    await expect(encoding.locator('.fivo-menu-value')).toHaveText('UTF-8');
+    await encoding.click();
+    await page.getByRole('menu', { name: '编码', exact: true })
+      .getByRole('menuitem', { name: '重新自动识别', exact: true }).click();
+    await expect(notice).toBeHidden();
+    await expect(page.locator(selector)).toBeVisible();
+  });
+}
+
+test('编码提示可关闭，刷新不重弹，新一次失败只显示一条，切换文件清理提示', async ({ page }) => {
+  await page.goto(server.url + '/text-formats.html');
+  await page.evaluate(() => window.fivoTextFormats.open('encodingMarkdown'));
+  await expect(page.locator('.fivo-markdown-reading')).toBeVisible();
+  const fail = () => page.evaluate(() => window.fivoTextFormats.getCapabilities().actions
+    .find((item) => item.id === 'markdown.encoding').run('utf-16le'));
+  await fail();
+  const notice = page.locator('.fivo-reading-notice');
+  await notice.getByRole('button', { name: '关闭提示', exact: true }).click();
+  await page.evaluate(() => window.fivoTextFormats.update({ zoom: 110 }));
+  await expect(notice).toBeHidden();
+  await fail();
+  await expect(notice).toBeVisible();
+  await expect(notice).toHaveCount(1);
+  await page.evaluate(() => window.fivoTextFormats.open('encodingText'));
+  await expect(page.locator('.fivo-text-surface')).toBeVisible();
+  await expect(page.locator('.fivo-reading-notice')).toBeHidden();
+});
+
+test('首次解码失败保留正常尺寸的编码恢复入口和当前尝试值', async ({ page }) => {
+  await page.goto(server.url + '/text-formats.html');
+  await page.evaluate(() => window.fivoTextFormats.open('unreadableText'));
+  const recovery = page.locator('.fivo-reading-status');
+  await expect(recovery).toBeVisible();
+  const choice = recovery.getByRole('combobox', { name: '编码', exact: true });
+  await expect(choice).toHaveText('编码');
+  expect((await choice.boundingBox()).width).toBeGreaterThanOrEqual(144);
+  await choice.click();
+  await page.getByRole('option', { name: 'UTF-16LE', exact: true }).click();
+  await expect(recovery.getByRole('combobox', { name: '编码', exact: true })).toHaveText('UTF-16LE');
+  await expect(page.locator('.fivo-reading-notice')).toBeHidden();
+});
 
 for (const [label, parser, surface] of [
   ['文本', undefined, 'text'],
@@ -83,12 +231,12 @@ test('同一 Markdown 会话切换模式后恢复原文滚动位置', async ({ p
     .poll(() => viewport.evaluate((element) => element.scrollTop))
     .toBeGreaterThan(0);
   await openMore(page);
-  await page.getByRole('combobox', { name: '视图', exact: true }).click();
-  await page.getByRole('option', { name: '阅读', exact: true }).click();
+  await page.getByRole('menuitem', { name: '视图', exact: true }).click();
+  await page.getByRole('menuitemradio', { name: '阅读', exact: true }).click();
   await expect(page.locator('.fivo-markdown-reading')).toBeVisible();
   await openMore(page);
-  await page.getByRole('combobox', { name: '视图', exact: true }).click();
-  await page.getByRole('option', { name: '原文', exact: true }).click();
+  await page.getByRole('menuitem', { name: '视图', exact: true }).click();
+  await page.getByRole('menuitemradio', { name: '原文', exact: true }).click();
   await expect(viewport).toBeVisible();
   await expect
     .poll(() => viewport.evaluate((element) => element.scrollTop))
@@ -107,13 +255,31 @@ test('文本、编码恢复和 JSON 原文切换使用真实会话', async ({ pa
   );
   await openMore(page);
   await expect(
-    page.getByRole('combobox', { name: '编码', exact: true }),
-  ).toHaveText('自动 · GB18030');
-  await page.getByRole('combobox', { name: '编码', exact: true }).click();
-  await page.getByRole('option', { name: 'UTF-8', exact: true }).click();
-  await expect(page.getByText('请选择文本编码继续预览。')).toBeVisible();
-  await page.locator('.fivo-reading-status [role="combobox"]').click();
-  await page.getByRole('option', { name: '自动', exact: true }).click();
+    page.getByRole('menuitem', { name: '编码', exact: true }),
+  ).toContainText('GB18030');
+  await page.getByRole('menuitem', { name: '编码', exact: true }).click();
+  await expect(page.getByRole('menuitemradio', { name: 'GB18030', exact: true }))
+    .toHaveAttribute('aria-checked', 'true');
+  await page.getByRole('menuitemradio', { name: 'GBK', exact: true }).click();
+  await openMore(page);
+  await expect(page.getByRole('menuitem', { name: '编码', exact: true }).locator('.fivo-menu-value'))
+    .toHaveText('GBK');
+  await page.getByRole('menuitem', { name: '编码', exact: true }).click();
+  await page.getByRole('menuitem', { name: '重新自动识别', exact: true }).click();
+  await openMore(page);
+  await expect(page.getByRole('menuitem', { name: '编码', exact: true }).locator('.fivo-menu-value'))
+    .toHaveText('GB18030');
+  await page.getByRole('menuitem', { name: '编码', exact: true }).click();
+  await page.getByRole('menuitemradio', { name: 'UTF-8', exact: true }).click();
+  await expect(page.locator('.fivo-reading-notice')).toContainText('无法使用 UTF-8 解码此文件');
+  await expect(page.locator('.fivo-text-line-content').first()).toHaveText('中文');
+  await openMore(page);
+  await page.getByRole('menuitem', { name: '编码', exact: true }).click();
+  await expect(page.getByRole('menu', { name: '编码', exact: true })
+    .getByRole('menuitemradio', { name: 'GB18030', exact: true })).toHaveAttribute('aria-checked', 'true');
+  await page.getByRole('menu', { name: '编码', exact: true })
+    .getByRole('menuitem', { name: '重新自动识别', exact: true }).click();
+  await expect(page.locator('.fivo-reading-notice')).toBeHidden();
   await expect(page.locator('.fivo-text-line-content').first()).toHaveText(
     '中文',
   );
@@ -142,18 +308,19 @@ test('文本菜单集中次要操作，行号默认关闭，查找打开后菜�
   await expect(page.locator('.fivo-text-line-number:visible')).toHaveCount(0);
   const menu = await openMore(page);
   await expect(
-    menu.getByRole('combobox', { name: '编码', exact: true }),
+    menu.getByRole('menuitem', { name: '编码', exact: true }),
   ).toBeVisible();
-  const lines = menu.getByRole('button', { name: '行号', exact: true });
-  await expect(lines).toHaveAttribute('aria-pressed', 'false');
+  await expect(menu.locator('input, select, [role="combobox"], [role="switch"]')).toHaveCount(0);
+  const labelPositions = await menu.locator('.fivo-menu-label').evaluateAll((labels) =>
+    labels.map((label) => label.getBoundingClientRect().left));
+  expect(Math.max(...labelPositions) - Math.min(...labelPositions)).toBeLessThanOrEqual(1);
+  const lines = menu.getByRole('menuitemcheckbox', { name: '行号', exact: true });
+  await expect(lines).toHaveAttribute('aria-checked', 'false');
   await lines.click();
-  await expect(lines).toHaveAttribute('aria-pressed', 'true');
+  await expect(lines).toHaveAttribute('aria-checked', 'true');
   await expect(page.locator('.fivo-text-line-number').first()).toBeVisible();
-  await menu.getByRole('button', { name: '查找', exact: true }).click();
-  await expect(page.locator('.fivo-toolbar-more')).not.toHaveAttribute(
-    'open',
-    '',
-  );
+  await menu.getByRole('menuitem', { name: '查找', exact: true }).click();
+  await expect(page.locator('.fivo-toolbar-more-trigger')).toHaveAttribute('aria-expanded', 'false');
   await expect(
     page.locator('.fivo-text-find input[type="search"]'),
   ).toBeFocused();
@@ -166,19 +333,21 @@ test('JSON 分支只有一个按钮，标签随树状态变化，叶节点禁用
   await page.getByRole('button', { name: 'JSON', exact: true }).click();
   await expect(page.locator('.fivo-json-tree')).toBeVisible();
   const menu = await openMore(page);
-  await menu.getByRole('button', { name: '收起分支', exact: true }).click();
+  await menu.getByRole('menuitem', { name: '收起分支', exact: true }).click();
+  await openMore(page);
   await expect(
-    menu.getByRole('button', { name: '展开分支', exact: true }),
+    menu.getByRole('menuitem', { name: '展开分支', exact: true }),
   ).toBeEnabled();
   await expect(page.getByRole('treeitem')).toHaveCount(1);
-  await menu.getByRole('button', { name: '展开分支', exact: true }).click();
+  await menu.getByRole('menuitem', { name: '展开分支', exact: true }).click();
+  await openMore(page);
   await expect(
-    menu.getByRole('button', { name: '收起分支', exact: true }),
+    menu.getByRole('menuitem', { name: '收起分支', exact: true }),
   ).toBeVisible();
   await page.locator('.fivo-json-value--null').click();
   await openMore(page);
   await expect(
-    menu.getByRole('button', { name: '展开分支', exact: true }),
+    menu.getByRole('menuitem', { name: '展开分支', exact: true }),
   ).toBeDisabled();
 });
 
@@ -195,9 +364,61 @@ test('Markdown 大纲保留在主工具栏，并反映侧栏开关状态', async
   await expect(outline).toHaveAttribute('aria-pressed', 'false');
   const menu = await openMore(page);
   await expect(
-    menu.getByRole('button', { name: '大纲', exact: true }),
+    menu.getByRole('menuitemcheckbox', { name: '大纲', exact: true }),
   ).toHaveCount(0);
 });
+
+for (const scrollable of [false, true]) {
+  test(`Markdown 短文档${scrollable ? '定位受底部限制' : '无需滚动'}时保留点击的章节`, async ({ page }) => {
+    await page.setViewportSize({ width: 1100, height: 1200 });
+    await page.goto(server.url + '/text-formats.html');
+    await page.getByRole('button', { name: 'Markdown 短文档', exact: true }).click();
+    const scroll = page.locator('.fivo-markdown-scroll');
+    const outline = page.locator('.fivo-markdown-outline');
+    await expect(outline).toBeVisible();
+    await page.locator('.fivo-viewer').evaluate((element) => { element.style.height = '1000px'; });
+    await scroll.evaluate((element, constrained) => {
+      if (!constrained) return;
+      const article = element.querySelector('article');
+      const task = [...article.querySelectorAll('h2')].find((heading) => heading.textContent === '任务');
+      const top = task.getBoundingClientRect().top - element.getBoundingClientRect().top + element.scrollTop;
+      // 让最大滚动距离小于任务标题的定位距离，稳定覆盖底部截断而非依赖截图尺寸。
+      element.style.maxHeight = (article.getBoundingClientRect().height - (top - 16) / 2) + 'px';
+    }, scrollable);
+    const settle = () => page.evaluate(() => new Promise((resolve) => {
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+    }));
+    await settle();
+    const code = outline.getByRole('treeitem', { name: '代码', exact: true });
+    const tasks = outline.getByRole('treeitem', { name: '任务', exact: true });
+    await code.click();
+    await settle();
+    await expect(code).toHaveAttribute('aria-selected', 'true');
+    await tasks.click();
+    await settle();
+    await expect(tasks).toHaveAttribute('aria-selected', 'true');
+    const position = await scroll.evaluate((element) => ({
+      top: element.scrollTop,
+      max: element.scrollHeight - element.clientHeight,
+    }));
+    if (scrollable) {
+      expect(position.max).toBeGreaterThan(0);
+      expect(Math.abs(position.top - position.max)).toBeLessThan(1);
+    } else expect(position.max).toBe(0);
+    await code.click();
+    await page.getByRole('link', { name: '跳转任务', exact: true }).click();
+    await page.evaluate(() => window.dispatchEvent(new Event('resize')));
+    await settle();
+    await expect(tasks).toHaveAttribute('aria-selected', 'true');
+    if (scrollable) {
+      await scroll.evaluate((element) => { element.scrollTop = 0; });
+      await expect(outline.getByRole('treeitem', { name: 'Markdown 示例', exact: true }))
+        .toHaveAttribute('aria-selected', 'true');
+      await scroll.evaluate((element) => { element.scrollTop = element.scrollHeight; });
+      await expect(code).toHaveAttribute('aria-selected', 'true');
+    }
+  });
+}
 
 for (const action of ['目录', '正文锚点', '查找']) {
   test(`Markdown ${action}定位仅滚动正文，目录和外层位置保持不变`, async ({
@@ -215,7 +436,7 @@ for (const action of ['目录', '正文锚点', '查找']) {
     await expect(outline).toBeVisible();
     if (action === '查找') {
       const menu = await openMore(page);
-      await menu.getByRole('button', { name: '查找', exact: true }).click();
+      await menu.getByRole('menuitem', { name: '查找', exact: true }).click();
       await expect(page.locator('.fivo-markdown-find input')).toBeFocused();
     } else if (action === '正文锚点') {
       await expect(
@@ -365,6 +586,77 @@ test('Markdown 排版隔离 HTML，非首屏代码可见后才着色', async ({ 
     .click();
   await expect(page.locator('.fivo-text-surface')).toBeVisible();
   await expect(page.locator('.fivo-markdown-reading')).toHaveCount(0);
+});
+
+test('Markdown 停用期间语言更新在恢复时生效，并保留正文位置', async ({ page }) => {
+  await page.goto(server.url + '/text-formats.html');
+  await page.getByRole('button', { name: 'Markdown', exact: true }).click();
+  const scroll = page.locator('.fivo-markdown-scroll');
+  await expect(scroll).toBeVisible();
+  await scroll.evaluate((element) => { element.scrollTop = 240; });
+  const top = await scroll.evaluate((element) => element.scrollTop);
+  await page.evaluate(() => {
+    window.fivoTextFormats.setActive(false);
+    window.fivoTextFormats.update({ locale: 'en-US' });
+    window.fivoTextFormats.setActive(true);
+  });
+  await expect(page.locator('.fivo-markdown-outline')).toHaveAttribute('aria-label', 'Outline');
+  await expect.poll(() => scroll.evaluate((element) => element.scrollTop)).toBe(top);
+  // 没有待处理更新时恢复现有 DOM，不因激活重复重建内容。
+  expect(await page.evaluate(() => {
+    const article = document.querySelector('.fivo-markdown-article');
+    window.fivoTextFormats.setActive(false);
+    window.fivoTextFormats.setActive(true);
+    return document.querySelector('.fivo-markdown-article') === article;
+  })).toBe(true);
+});
+
+test('Markdown 停用期间切换阅读模式，恢复后使用最新状态', async ({ page }) => {
+  await page.goto(server.url + '/text-formats.html');
+  await page.getByRole('button', { name: 'Markdown', exact: true }).click();
+  await expect(page.locator('.fivo-markdown-reading')).toBeVisible();
+  await page.evaluate(async () => {
+    window.fivoTextFormats.setActive(false);
+    await window.fivoTextFormats.getCapabilities().actions.find((action) => action.id === 'markdown.mode').run('source');
+    window.fivoTextFormats.setActive(true);
+  });
+  await expect(page.locator('.fivo-text-surface')).toBeVisible();
+  await expect(page.locator('.fivo-markdown-reading')).toHaveCount(0);
+});
+
+test('Markdown 停用期间重读内容，恢复后重建并清除旧位置', async ({ page }) => {
+  await page.goto(server.url + '/text-formats.html');
+  await page.getByRole('button', { name: 'Markdown', exact: true }).click();
+  const scroll = page.locator('.fivo-markdown-scroll');
+  await expect(scroll).toBeVisible();
+  await scroll.evaluate((element) => { element.scrollTop = 240; });
+  await page.evaluate(async () => {
+    window.fivoTextFormats.setActive(false);
+    await window.fivoTextFormats.getCapabilities().actions.find((action) => action.id === 'markdown.encoding').run('utf-8');
+    window.fivoTextFormats.setActive(true);
+  });
+  await expect(scroll).toBeVisible();
+  await expect.poll(() => scroll.evaluate((element) => element.scrollTop)).toBe(0);
+  await expect(page.locator('.fivo-markdown-article')).toContainText('这里是目录与锚点定位目标');
+});
+
+test('Text 查找栏切换语言时保持查询状态，无结果提示同步翻译', async ({ page }) => {
+  await page.goto(server.url + '/text-formats.html');
+  await page.getByRole('button', { name: '文本', exact: true }).click();
+  await expect(page.locator('.fivo-text-surface')).toBeVisible();
+  const menu = await openMore(page);
+  await menu.getByRole('menuitem', { name: '查找', exact: true }).click();
+  const query = page.getByRole('searchbox', { name: '查找文本' });
+  await query.fill('definitely-absent');
+  const status = page.locator('.fivo-text-find output');
+  await expect(status).toHaveText('未找到');
+  await page.evaluate(() => window.fivoTextFormats.update({ locale: 'en-US' }));
+  await expect(query).toHaveCount(0);
+  const translated = page.getByRole('searchbox', { name: 'Find text' });
+  await expect(translated).toHaveValue('definitely-absent');
+  await expect(translated).toBeFocused();
+  await expect(page.locator('.fivo-text-find').getByRole('button', { name: 'Previous', exact: true })).toBeVisible();
+  await expect(status).toHaveText('No matches');
 });
 
 test('JSON 双栏着色、节点联动、收起恢复与只读选择', async ({ page }) => {

@@ -39,6 +39,7 @@ export function createOfficeCapabilities(
     },
     {
       id: 'office.search',
+      menu: { kind: 'action' },
       toolbar: { order: 30, placement: 'main' },
       label: en ? 'Find' : '查找',
       kind: 'toggle',

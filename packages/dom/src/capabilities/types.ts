@@ -6,6 +6,13 @@ export interface ToolbarPresentation {
   priority?: number;
   showLabel?: boolean;
 }
+/** 选择值与独立命令共用选项列表，命令不参与选中态。 */
+export interface CapabilityOption {
+  value: string;
+  label: string;
+  kind?: 'choice' | 'action';
+  dividerBefore?: boolean;
+}
 /** 控件来自当前插件的能力声明，公共外壳不判断 Office 格式。 */
 export interface CapabilityAction {
   id: string;
@@ -14,7 +21,11 @@ export interface CapabilityAction {
   enabled?: boolean;
   pressed?: boolean;
   value?: string;
-  options?: readonly { value: string; label: string }[];
+  options?: readonly CapabilityOption[];
+  /** 显示值相同时仍允许执行，例如把自动识别结果固定为手动编码。 */
+  allowReselect?: boolean;
+  /** 菜单可把主栏开关呈现为命令；未声明时沿用 kind 的默认交互。 */
+  menu?: { kind?: 'action' | 'toggle'; closeOnRun?: boolean };
   toolbar?: ToolbarPresentation;
   run(value?: string): void | Promise<void>;
 }

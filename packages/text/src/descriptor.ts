@@ -1,3 +1,4 @@
+import type { DocumentSource } from '@fivo/core';
 import type { TextFactory } from './factoryTypes';
 // 专用格式不由通用 text/plain 提前接管，显式 pluginId 仍可选择原文打开。
 const RESERVED =
@@ -13,6 +14,8 @@ const DEFAULT_EXTENSIONS = [
 ];
 /** 工厂只发布描述符；正文、样式和 Worker 均在真正打开后加载。 */
 export const text: TextFactory = (options = {}) => {
+  // 来源仅作弱引用标记，取消发生在探测与打开之间时也不会长期保留文件。
+  const fallbackSources = new WeakSet<DocumentSource>();
   const resolved = {
     ...options,
     workerFactory:
@@ -37,38 +40,25 @@ export const text: TextFactory = (options = {}) => {
       priority: -10,
       extensions,
       mimeTypes: ['text/plain'],
-      async detect(source, signal) {
+      async detect(source) {
         if (source.name && RESERVED.test(source.name)) return false;
         const extension = source.name?.toLowerCase().match(/\.[^.]+$/)?.[0];
-        if (extension && extensions.includes(extension)) return true;
-        if (source.mimeType?.split(';')[0].toLowerCase() === 'text/plain')
-          return true;
-        if (!source.readRange || extension) return false;
-        const prefix = await source.readRange(0, 1024, signal);
-        if (
-          (prefix[0] === 0xff && prefix[1] === 0xfe) ||
-          (prefix[0] === 0xfe && prefix[1] === 0xff)
-        )
-          return true;
-        if (
-          prefix.some(
-            (byte) => byte === 0 || byte < 9 || (byte > 13 && byte < 32),
-          )
-        )
-          return false;
-        try {
-          new TextDecoder('utf-8', { fatal: true }).decode(prefix, {
-            stream: true,
-          });
-          return true;
-        } catch {
-          return false;
-        }
+        // MIME 可能来自错误的服务器声明，未知后缀和无名内容留到兜底阶段判断。
+        return Boolean(extension && extensions.includes(extension));
       },
+      detectFallback: options.fallback === false
+        ? undefined
+        : async (source, signal, policy) => {
+            const { probeTextSource } = await import('./reader/probeText');
+            const matched = await probeTextSource(source, signal, policy);
+            if (matched) fallbackSources.add(source);
+            return matched;
+          },
       async load() {
         const { openText } = await import('./runtime/openText');
         return {
-          open: (source, context) => openText(source, context, resolved),
+          open: (source, context) =>
+            openText(source, context, resolved, fallbackSources.delete(source)),
         };
       },
     },

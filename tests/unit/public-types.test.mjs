@@ -56,6 +56,47 @@ test('新格式公开声明不跟随解析器或第三方实现，reader 无 DOM
       );
   }
 });
+test('兜底探测为可选协议，旧插件与 Text 开关保持公开类型兼容', () => {
+  const filename = resolve('tests/__text_fallback_consumer__.ts');
+  const source = `
+    import {createSession} from '../packages/core/dist/index';
+    import type {DocumentPlugin, DocumentSource, ResourcePolicy} from '../packages/core/dist/index';
+    import {text} from '../packages/text/dist/index';
+    const legacy: DocumentPlugin = {
+      id:'legacy', protocolVersion:1, extensions:[], mimeTypes:[],
+      detect:async()=>false,
+      load:async()=>({open:async(source,context)=>createSession({
+        ...context, source, format:'legacy', data:undefined,
+      })}),
+    };
+    const extended: DocumentPlugin = {
+      ...legacy,
+      detectFallback:async(source,signal,policy)=>{
+        const resourcePolicy:ResourcePolicy|undefined=policy;
+        return !signal.aborted && (source.size??0)<=(resourcePolicy?.maxFileBytes??Infinity);
+      },
+    };
+    const plugin=text({fallback:false});
+    const source:DocumentSource={readAll:async()=>new Uint8Array(),dispose:async()=>{}};
+    void extended.detectFallback?.(source,new AbortController().signal,{maxFileBytes:4});
+    void plugin;
+  `;
+  const options = {
+    target: ts.ScriptTarget.ES2020,
+    module: ts.ModuleKind.ESNext,
+    moduleResolution: ts.ModuleResolutionKind.Node10,
+    strict: true, noEmit: true, skipLibCheck: false, types: [],
+    lib: ['lib.es2022.d.ts', 'lib.dom.d.ts', 'lib.dom.iterable.d.ts'],
+  };
+  const host = ts.createCompilerHost(options);
+  const original = host.getSourceFile.bind(host);
+  host.getSourceFile = (file, language, ...rest) => resolve(file) === filename
+    ? ts.createSourceFile(file, source, language, true)
+    : original(file, language, ...rest);
+  assert.deepEqual(ts.getPreEmitDiagnostics(ts.createProgram([filename], options, host))
+    .map((diagnostic) => ts.flattenDiagnosticMessageText(diagnostic.messageText, ' ')), []);
+});
+
 test('Office 公开声明配置不跟随引擎实现，并允许扩展公开 DTO', () => {
   const file = 'packages/office/tsconfig.types.json';
   const config = ts.readConfigFile(file, ts.sys.readFile);

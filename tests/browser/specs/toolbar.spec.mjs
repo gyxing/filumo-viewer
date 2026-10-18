@@ -12,6 +12,106 @@ async function fixture(page, query = '') {
 const state = (page) =>
   page.locator('#result').evaluate((el) => JSON.parse(el.textContent));
 
+test('更多位于所有工具栏操作之后，视觉位置与键盘顺序一致', async ({ page }) => {
+  await fixture(page, '?width=320');
+  await page.getByRole('button', { name: 'Excel', exact: true }).click();
+  const toolbar = page.getByRole('toolbar');
+  const more = toolbar.getByRole('button', { name: '更多操作', exact: true });
+  await expect(more).toBeVisible();
+  expect(await toolbar.evaluate((element) =>
+    element.lastElementChild.classList.contains('fivo-toolbar-more'))).toBe(true);
+  const bounds = await more.boundingBox();
+  const fullscreen = toolbar.getByRole('button', { name: '全屏', exact: true });
+  const previous = await fullscreen.boundingBox();
+  expect(bounds.x).toBeGreaterThanOrEqual(previous.x + previous.width);
+  await more.focus();
+  await more.press('Shift+Tab');
+  await expect(fullscreen).toBeFocused();
+  await fullscreen.press('Tab');
+  await expect(more).toBeFocused();
+  await more.press('ArrowDown');
+  await page.keyboard.press('Escape');
+  await expect(more).toBeFocused();
+  expect(await toolbar.evaluate((element) => element.scrollWidth - element.clientWidth))
+    .toBeLessThanOrEqual(1);
+});
+
+test('更多使用纯菜单和单选子菜单，刷新后保留展开状态', async ({ page }) => {
+  await fixture(page, '?width=320');
+  await page.getByRole('button', { name: 'Excel', exact: true }).click();
+  const more = page.getByRole('button', { name: '更多操作', exact: true });
+  await more.click();
+  const menu = page.getByRole('menu', { name: '更多操作', exact: true });
+  await expect(menu).toBeVisible();
+  await expect(menu.locator('input, select, [role="combobox"], [role="switch"]')).toHaveCount(0);
+  const view = menu.getByRole('menuitem', { name: '表格视图', exact: true });
+  await expect(view).toContainText('原始布局');
+  await view.click();
+  const submenu = page.getByRole('menu', { name: '表格视图', exact: true });
+  await expect(submenu.getByRole('menuitemradio', { name: '原始布局', exact: true }))
+    .toHaveAttribute('aria-checked', 'true');
+  await page.getByRole('button', { name: '异步刷新', exact: true }).dispatchEvent('click');
+  await expect(submenu).toBeVisible();
+  const bounds = await submenu.boundingBox();
+  const root = await page.locator('.fivo-viewer').boundingBox();
+  expect(bounds.x).toBeGreaterThanOrEqual(root.x);
+  expect(bounds.x + bounds.width).toBeLessThanOrEqual(root.x + root.width);
+  await submenu.getByRole('menuitemradio', { name: '阅读模式', exact: true }).click();
+  await expect(menu).toBeHidden();
+  await expect(more).toBeFocused();
+  expect((await state(page)).sheetMode).toBe('reading');
+  await more.click();
+  await expect(view).toContainText('阅读模式');
+});
+
+test('更多支持勾选、子菜单键盘返回及销毁清理', async ({ page }) => {
+  await fixture(page, '?width=320');
+  await page.getByRole('button', { name: '内容', exact: true }).click();
+  const more = page.getByRole('button', { name: '更多操作', exact: true });
+  await more.focus();
+  await more.press('ArrowDown');
+  const menu = page.getByRole('menu', { name: '更多操作', exact: true });
+  const outline = menu.getByRole('menuitemcheckbox', { name: '大纲', exact: true });
+  await outline.click();
+  await expect(menu).toBeVisible();
+  await expect(outline).toHaveAttribute('aria-checked', 'true');
+  await outline.click();
+  await expect(outline).toHaveAttribute('aria-checked', 'false');
+  const zoom = menu.getByRole('menuitem', { name: '缩放', exact: true });
+  await zoom.focus();
+  await zoom.press('ArrowRight');
+  const submenu = page.getByRole('menu', { name: '缩放', exact: true });
+  await expect(submenu.getByRole('menuitem').first()).toBeFocused();
+  await page.keyboard.press('ArrowLeft');
+  await expect(submenu).toHaveCount(0);
+  await expect(zoom).toBeFocused();
+  await zoom.press('ArrowRight');
+  await page.keyboard.press('Escape');
+  await expect(menu).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(menu).toBeHidden();
+  await expect(more).toBeFocused();
+  await more.click();
+  await page.getByRole('button', { name: '销毁工具栏', exact: true }).click();
+  await expect(page.getByRole('menu')).toHaveCount(0);
+});
+
+test('窄屏翻页转换为菜单并保留边界禁用状态', async ({ page }) => {
+  await fixture(page, '?width=320');
+  await page.getByRole('button', { name: 'PPT', exact: true }).click();
+  const more = page.getByRole('button', { name: '更多操作', exact: true });
+  await more.click();
+  await page.getByRole('menuitem', { name: '翻页', exact: true }).click();
+  await expect(page.getByRole('menuitem', { name: '上一张幻灯片', exact: true })).toBeDisabled();
+  await page.getByRole('menuitem', { name: '下一张幻灯片', exact: true }).click();
+  await expect(more).toHaveAttribute('aria-expanded', 'false');
+  expect((await state(page)).activeIndex).toBe(1);
+  await more.click();
+  await page.getByRole('menuitem', { name: '翻页', exact: true }).click();
+  await expect(page.getByRole('menuitem', { name: '下一张幻灯片', exact: true })).toBeDisabled();
+  await expect(page.getByRole('menuitem', { name: '上一张幻灯片', exact: true })).toBeEnabled();
+});
+
 for (const theme of ['light', 'dark']) {
   test('工具栏聚焦使用单层细边框：' + theme, async ({ page }) => {
     await fixture(page, '?theme=' + theme);
@@ -139,36 +239,25 @@ for (const theme of ['light', 'dark']) {
   });
 }
 
-test('更多菜单内的选择弹层不裁切，并在刷新和销毁时正确关闭', async ({
-  page,
-}) => {
-  await fixture(page, '?width=320');
+test('更多级联菜单支持悬停进入、外部关闭和主题继承', async ({ page }) => {
+  await fixture(page, '?width=540&theme=dark');
   await page.getByRole('button', { name: 'Excel', exact: true }).click();
-  const bar = page.getByRole('toolbar');
-  const trigger = bar.getByRole('combobox', { name: '表格视图', exact: true });
-  expect(await trigger.evaluate((el) => el.tagName)).toBe('BUTTON');
-  if (!(await trigger.isVisible()))
-    await bar.locator('.fivo-toolbar-more > summary').click();
-  await trigger.click();
-  const list = page.getByRole('listbox');
-  await expect(list).toBeVisible();
-  const popup = await list.boundingBox();
-  const root = await page.locator('.fivo-viewer').boundingBox();
-  expect(popup.x).toBeGreaterThanOrEqual(root.x);
-  expect(popup.x + popup.width).toBeLessThanOrEqual(root.x + root.width);
-  await page
-    .getByRole('button', { name: '异步刷新', exact: true })
-    .dispatchEvent('click');
-  await expect(list).toBeVisible();
-  await page.getByRole('option', { name: '阅读模式', exact: true }).click();
-  expect((await state(page)).sheetMode).toBe('reading');
-  await trigger.click();
-  await trigger.press('Escape');
-  await expect(list).toBeHidden();
-  await expect(trigger).toBeFocused();
-  await trigger.click();
-  await page.getByRole('button', { name: '销毁工具栏', exact: true }).click();
-  await expect(page.getByRole('listbox')).toHaveCount(0);
+  await page.getByRole('button', { name: '内容', exact: true }).click();
+  await page.getByRole('button', { name: '更多操作', exact: true }).click();
+  const menu = page.getByRole('menu', { name: '更多操作', exact: true });
+  const parent = menu.locator('[aria-haspopup="menu"]').first();
+  const label = await parent.getAttribute('aria-label');
+  await parent.hover();
+  const child = page.getByRole('menu', { name: label, exact: true });
+  await expect(child).toBeVisible();
+  await child.locator('button').last().hover();
+  await expect(child).toBeVisible();
+  await expect(menu).toHaveCSS('border-radius', '8px');
+  expect(await child.evaluate((el) => getComputedStyle(el).backgroundColor))
+    .toBe(await menu.evaluate((el) => getComputedStyle(el).backgroundColor));
+  await page.locator('#result').click();
+  await expect(menu).toBeHidden();
+  await expect(child).toHaveCount(0);
 });
 
 // 本机二进制样本仅在本地模式读取，截图与报告不会进入公开 CI 目录。
@@ -212,22 +301,21 @@ if (process.env.FIVO_LOCAL_SAMPLES === '1') {
   }
 }
 
-test('更多菜单中的缩放编辑不因能力刷新提前提交', async ({ page }) => {
+test('更多菜单中的缩放通过菜单执行，能力刷新不丢失键盘焦点', async ({ page }) => {
   await fixture(page, '?width=320');
   await page.getByRole('button', { name: '内容', exact: true }).click();
   const bar = page.getByRole('toolbar');
-  const zoom = bar.getByRole('combobox', { name: '缩放比例', exact: true });
-  if (!(await zoom.isVisible()))
-    await bar.locator('.fivo-toolbar-more > summary').click();
-  await zoom.fill('180');
+  await bar.getByRole('button', { name: '更多操作', exact: true }).click();
+  await page.getByRole('menuitem', { name: '缩放', exact: true }).press('ArrowRight');
+  const choice = page.getByRole('menuitemradio', { name: '125%', exact: true });
+  await choice.focus();
   await page
     .getByRole('button', { name: '异步刷新', exact: true })
     .dispatchEvent('click');
-  await expect(zoom).toBeFocused();
-  await expect(zoom).toHaveValue('180');
+  await expect(choice).toBeFocused();
   expect((await state(page)).zoom).toBe(100);
-  await zoom.press('Enter');
-  expect((await state(page)).zoom).toBe(180);
+  await choice.press('Enter');
+  expect((await state(page)).zoom).toBe(125);
 });
 
 test('格式工具栏按内容和顺序展示，切换后不残留旧操作', async ({
@@ -335,28 +423,22 @@ test('窄屏嵌套菜单、主题与旧插件保持可用', async ({ page }) => 
   await fixture(page, '?width=320&theme=dark&locale=en-US');
   await page.getByRole('button', { name: '内容', exact: true }).click();
   const bar = page.getByRole('toolbar');
-  const zoom = bar.getByRole('combobox', {
-    name: 'Zoom percentage',
-    exact: true,
-  });
-  const more = bar.locator('.fivo-toolbar-more > summary');
-  if (!(await zoom.isVisible())) await more.click();
-  await zoom.click();
-  await page.getByRole('option', { name: '125%', exact: true }).click();
-  await expect(zoom).toHaveValue('125');
-  await zoom.press('ArrowDown');
-  await zoom.press('Escape');
-  await expect(page.getByRole('listbox')).toBeHidden();
-  if (await bar.locator('.fivo-toolbar-menu').isVisible()) {
-    await zoom.press('Escape');
-    await expect(more).toBeFocused();
-  }
+  const more = bar.getByRole('button', { name: 'More actions', exact: true });
+  await more.click();
+  await page.getByRole('menuitem', { name: 'Zoom', exact: true }).click();
+  await page.getByRole('menuitemradio', { name: '125%', exact: true }).click();
+  expect((await state(page)).zoom).toBe(125);
+  await more.press('ArrowDown');
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('menu', { name: 'More actions', exact: true })).toBeHidden();
+  await expect(more).toBeFocused();
   expect(
     await bar.evaluate((el) => el.scrollWidth - el.clientWidth),
   ).toBeLessThanOrEqual(1);
   await page.locator('#preview').evaluate((el) => {
     el.style.width = '1100px';
   });
+  const zoom = bar.getByRole('combobox', { name: 'Zoom percentage', exact: true });
   await expect(zoom).toBeVisible();
   await bar.screenshot({ path: 'tmp/toolbar-dark.png' });
   await page.getByRole('button', { name: '通用', exact: true }).click();
@@ -374,4 +456,5 @@ test('窄屏嵌套菜单、主题与旧插件保持可用', async ({ page }) => 
   await page.getByRole('button', { name: '销毁工具栏', exact: true }).click();
   await expect(bar).toHaveCount(0);
   await expect(page.getByRole('listbox')).toHaveCount(0);
+  await expect(page.getByRole('menu')).toHaveCount(0);
 });

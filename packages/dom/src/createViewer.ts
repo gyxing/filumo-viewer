@@ -17,6 +17,7 @@ import { bindCapabilities } from './shell/bindCapabilities';
 import { labelShellButton, updateFileIcon } from './shell/icons';
 import { createViewerStatus } from './shell/status';
 import { useStyles as acquireStyles } from './styles';
+import { waitForView } from './waitForView';
 
 /** 创建独立预览器；格式能力由插件提供，外壳只负责通用展示和生命周期。 */
 export function createViewer(
@@ -46,10 +47,12 @@ export function createViewer(
   openButton.className = 'fivo-open-file';
   const fileInput = document.createElement('input');
   fileInput.type = 'file';
-  // 文件选择器仅提示已注册插件支持的扩展名，内容检测仍由控制器负责。
-  fileInput.accept = Array.from(
-    new Set(options.plugins.flatMap((plugin) => plugin.document.extensions)),
-  ).join(',');
+  // 存在内容兜底时允许选择未知后缀，实际格式与可读性仍由控制器和插件确认。
+  fileInput.accept = options.plugins.some((plugin) => plugin.document.detectFallback)
+    ? ''
+    : Array.from(
+        new Set(options.plugins.flatMap((plugin) => plugin.document.extensions)),
+      ).join(',');
   fileInput.hidden = true;
   fileInput.tabIndex = -1;
   const pickFile = () => {
@@ -91,11 +94,13 @@ export function createViewer(
   const body = document.createElement('div');
   body.className = 'fivo-viewer-body';
   body.append(status, viewport, progressBox);
+  // 更多入口稍后由能力绑定追加在全局操作之后，不能夹在缩放与下载之间。
   toolbar.append(fileTitle, openButton, controls, download, fullscreen);
   root.append(toolbar, body, fileInput);
   container.append(root);
   let viewOptions: ViewOptions = { ...options };
   let view: ViewHandle | undefined;
+  let viewAbort: AbortController | undefined;
   let generation = 0;
   let disposed = false;
   let active = true;
@@ -115,7 +120,7 @@ export function createViewer(
       viewOptions.locale === 'en-US',
       lastInput !== undefined,
       controller.getSnapshot().status === 'ready',
-      error.message,
+      error,
     );
     try {
       options.onError?.(error);
@@ -214,7 +219,7 @@ export function createViewer(
       en,
       lastInput !== undefined,
       false,
-      snapshot.error?.message,
+      snapshot.error,
     );
     bindings.update(
       capabilities,
@@ -242,37 +247,54 @@ export function createViewer(
       lastInput = input;
       lastSelection = selection;
       const task = ++generation;
+      viewAbort?.abort(abortError());
+      const abort = (viewAbort = new AbortController());
+      let stopSession: (() => void) | undefined;
       try {
-        await releaseView();
-        if (generation !== task || disposed) throw abortError();
-        await controller.open(input, selection);
-        if (generation !== task || disposed) throw abortError();
+        await waitForView(releaseView, abort.signal);
+        if (generation !== task || disposed || abort.signal.aborted)
+          throw abort.signal.reason ?? abortError();
+        await waitForView(() => controller.open(input, selection), abort.signal);
+        if (generation !== task || disposed || abort.signal.aborted)
+          throw abort.signal.reason ?? abortError();
         const snapshot = controller.getSnapshot();
         const plugin = options.plugins.find(
           (item) => item.document.id === snapshot.pluginId,
         );
         if (!plugin || !snapshot.session)
           throw new Error('文档插件没有交付会话');
-        const factory = await plugin.loadView();
-        if (generation !== task || disposed) throw abortError();
+        const sessionSignal = snapshot.session.signal;
+        const cancel = () => abort.abort(sessionSignal.reason ?? abortError());
+        sessionSignal.addEventListener('abort', cancel, { once: true });
+        stopSession = () => sessionSignal.removeEventListener('abort', cancel);
+        if (sessionSignal.aborted) cancel();
+        const factory = await waitForView(() => plugin.loadView(), abort.signal);
+        if (generation !== task || disposed || abort.signal.aborted)
+          throw abort.signal.reason ?? abortError();
         const mount = document.createElement('div');
         mount.className = 'fivo-document-mount';
         viewport.replaceChildren(mount);
-        const mounted = await factory.mount({
-          container: mount,
-          session: snapshot.session,
-          options: viewOptions,
-          stylePolicy: options.stylePolicy,
-          onError(cause) {
-            if (task === generation && !disposed) report(cause);
-          },
-          setCapabilities(next) {
-            if (task === generation && !disposed) publish(next);
-          },
-        });
-        if (generation !== task || disposed) {
-          await mounted.dispose();
-          throw abortError();
+        const mounted = await waitForView(
+          () => factory.mount({
+            container: mount,
+            session: snapshot.session!,
+            options: viewOptions,
+            stylePolicy: options.stylePolicy,
+            onError(cause) {
+              if (task === generation && !disposed && !abort.signal.aborted)
+                report(cause);
+            },
+            setCapabilities(next) {
+              if (task === generation && !disposed && !abort.signal.aborted)
+                publish(next);
+            },
+          }),
+          abort.signal,
+          (late) => late.dispose(),
+        );
+        if (generation !== task || disposed || abort.signal.aborted) {
+          await Promise.resolve().then(() => mounted.dispose()).catch(() => undefined);
+          throw abort.signal.reason ?? abortError();
         }
         view = mounted;
         view.setActive(active);
@@ -286,10 +308,13 @@ export function createViewer(
         if (
           task === generation &&
           !disposed &&
+          !abort.signal.aborted &&
           !(cause instanceof Error && cause.name === 'AbortError')
         )
           report(cause);
         throw cause;
+      } finally {
+        stopSession?.();
       }
     },
     update(next) {
@@ -316,6 +341,7 @@ export function createViewer(
       if (destroying) return destroying;
       disposed = true;
       generation++;
+      viewAbort?.abort(abortError());
       unsubscribe();
       destroying = (async () => {
         let error: unknown;

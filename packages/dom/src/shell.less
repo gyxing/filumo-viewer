@@ -1,8 +1,12 @@
+@import './shell/toolbar-menu.less';
+@import './shell/reading-notice.less';
+
 .fivo-viewer {
   --fivo-bg: #f5f7fa;
   --fivo-surface: #fff;
   --fivo-text: #243247;
   --fivo-muted: #697586;
+  --fivo-warning: #ad6800;
   --fivo-border: #dfe5ec;
   --fivo-hover: #f3f6fb;
   --fivo-primary: #1677ff;
@@ -36,6 +40,7 @@
   --fivo-surface: #202938;
   --fivo-text: #e3eaf3;
   --fivo-muted: #a0aec0;
+  --fivo-warning: #ffc53d;
   --fivo-border: #384459;
   --fivo-hover: #2d3a4e;
   --fivo-primary: #69a7ff;
@@ -149,8 +154,7 @@
   font-size: 7px;
 }
 
-:is(.fivo-toolbar, .fivo-status) button,
-.fivo-toolbar-more > summary {
+:is(.fivo-toolbar, .fivo-status) button {
   display: inline-flex;
   flex: 0 0 auto;
   align-items: center;
@@ -168,14 +172,12 @@
   cursor: pointer;
 }
 
-:is(.fivo-toolbar, .fivo-status) button:hover:not(:disabled),
-.fivo-toolbar-more > summary:hover {
+:is(.fivo-toolbar, .fivo-status) button:hover:not(:disabled) {
   background: var(--fivo-hover);
   color: var(--fivo-primary);
 }
 
-:is(.fivo-toolbar, .fivo-status) button:focus-visible,
-.fivo-toolbar-more > summary:focus-visible {
+:is(.fivo-toolbar, .fivo-status) button:focus-visible {
   outline: 2px solid var(--fivo-primary);
   outline-offset: 2px;
 }
@@ -367,107 +369,6 @@
   background: var(--fivo-hover);
 }
 
-.fivo-toolbar-more {
-  position: static;
-}
-
-.fivo-toolbar-more > summary {
-  list-style: none;
-  width: 32px;
-  padding: 4px;
-}
-
-.fivo-toolbar-more > summary::-webkit-details-marker {
-  display: none;
-}
-
-.fivo-toolbar-menu {
-  position: absolute;
-  top: calc(100% - 1px);
-  right: 12px;
-  z-index: 30;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: min(264px, calc(100% - 24px));
-  max-width: min(320px, calc(100% - 24px));
-  box-sizing: border-box;
-  max-height: 360px;
-  overflow: auto;
-  padding: 6px;
-  border: 1px solid var(--fivo-border);
-  border-radius: 6px;
-  background: var(--fivo-surface);
-  box-shadow: 0 8px 24px rgb(0 0 0 / 14%);
-}
-
-.fivo-toolbar-more:not([open]) > .fivo-toolbar-menu {
-  display: none;
-}
-
-.fivo-toolbar-menu > .fivo-capability-group {
-  display: flex;
-  justify-content: space-between;
-  min-width: 0;
-  min-height: 34px;
-  box-sizing: border-box;
-  padding: 2px 8px;
-}
-
-.fivo-toolbar-menu > label > .fivo-capability-label {
-  flex: 0 0 auto;
-  white-space: nowrap;
-}
-
-.fivo-toolbar-menu > label > .fivo-select {
-  flex: 0 1 170px;
-}
-
-.fivo-toolbar-menu .fivo-select-trigger {
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-}
-
-// 菜单采用整行操作和右侧勾选状态，避免堆叠成一组描边工具栏按钮。
-.fivo-toolbar-menu > button.fivo-capability-group {
-  justify-content: flex-start;
-  width: 100%;
-  border-color: transparent;
-  background: transparent;
-  text-align: left;
-}
-
-.fivo-toolbar-menu > button.fivo-capability-group[aria-pressed='true'] {
-  border-color: transparent;
-  background: var(--fivo-hover);
-}
-
-.fivo-toolbar-menu > button.fivo-capability-group:focus-visible {
-  outline: 1px solid var(--fivo-primary);
-  outline-offset: -1px;
-}
-
-.fivo-toolbar-menu > button.fivo-capability-group > .fivo-icon {
-  display: none;
-}
-
-.fivo-action-state {
-  display: none;
-}
-
-.fivo-toolbar-menu .fivo-action-state {
-  display: inline-flex;
-  flex: 0 0 16px;
-  margin-left: auto;
-  color: var(--fivo-primary);
-  visibility: hidden;
-}
-
-.fivo-toolbar-menu .fivo-action-state[data-checked='true'] {
-  visibility: visible;
-}
-
 .fivo-toolbar[data-compact='true'] .fivo-open-file {
   padding-inline: 6px;
 }
@@ -584,6 +485,43 @@
   gap: 12px;
   text-align: center;
   color: var(--fivo-muted);
+}
+
+// 首次读取失败时使用完整选择控件，恢复入口不能依赖工具栏的按钮样式。
+.fivo-reading-status .fivo-select-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 144px;
+  max-width: 240px;
+  min-height: 34px;
+  box-sizing: border-box;
+  padding: 5px 10px;
+  color: var(--fivo-text);
+  background: var(--fivo-surface);
+  border: 1px solid var(--fivo-border);
+  border-radius: 5px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.fivo-reading-status .fivo-select-trigger:hover:not(:disabled) {
+  border-color: var(--fivo-primary);
+}
+
+.fivo-reading-status .fivo-select-trigger:focus-visible {
+  outline: 1px solid var(--fivo-primary);
+  outline-offset: 1px;
+}
+
+.fivo-reading-status .fivo-select-trigger:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.fivo-reading-body:focus {
+  outline: 0;
 }
 
 .fivo-reading-status[hidden],
@@ -707,7 +645,6 @@
 
 @media (pointer: coarse) {
   :is(.fivo-toolbar, .fivo-status) button,
-  .fivo-toolbar-more > summary,
   .fivo-toolbar select,
   .fivo-zoom-field {
     min-height: 44px;

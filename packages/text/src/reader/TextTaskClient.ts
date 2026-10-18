@@ -96,7 +96,15 @@ export class TextTaskClient {
     try {
       return await new Promise<T>((resolve, reject) => {
         const id = ++this.sequence;
-        const abort = () => this.clearWorker(signal.reason ?? abortError());
+        const abort = () => {
+          const pending = this.pending.get(id);
+          if (!pending) return;
+          this.pending.delete(id);
+          pending.stop();
+          pending.reject(signal.reason ?? abortError());
+          // 编码尝试与原内容解析可能并行；仍有使用者时不能销毁共享 Worker。
+          if (!this.pending.size) this.clearWorker(signal.reason ?? abortError());
+        };
         signal.addEventListener('abort', abort, { once: true });
         this.pending.set(id, {
           task,

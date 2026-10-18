@@ -2,6 +2,7 @@ import type { CapabilityAction, ViewContext, ViewHandle } from '@fivo/dom';
 import { createReadingFrame } from '@fivo/dom';
 import { STYLE_SCOPE } from '../generated/package';
 import type { TextEncoding } from '../reader/types';
+import { formatEncodingWarning } from '../reader/formatEncodingWarning';
 import type { TextSurfaceHandle } from '../view/types';
 import './frame.less';
 import type { TextSessionData } from './openText';
@@ -18,7 +19,8 @@ export async function mountText(context: ViewContext): Promise<ViewHandle> {
     surface: TextSurfaceHandle | undefined,
     closed = false,
     active = true,
-    generation = 0;
+    generation = 0,
+    renderedRevision = -1;
   const surfaceOptions = () => ({
     ...options,
     zoom,
@@ -29,24 +31,29 @@ export async function mountText(context: ViewContext): Promise<ViewHandle> {
   });
   const encoding = (): CapabilityAction => ({
     id: 'text.encoding',
+    allowReselect: true,
     label: options.locale === 'en-US' ? 'Encoding' : '编码',
     kind: 'select',
     toolbar: { placement: 'more', order: 10 },
-    value: content.encoding,
-    options: ['auto', 'utf-8', 'utf-16le', 'utf-16be', 'gbk', 'gb18030'].map(
-      (value) => ({
-        value,
-        label:
-          value === 'auto'
-            ? (options.locale === 'en-US' ? 'Auto' : '自动') +
-              (content.document
-                ? ' · ' + content.document.encoding.toUpperCase()
-                : '')
-            : value.toUpperCase(),
-      }),
-    ),
-    run: (value) => content.setEncoding(value as TextEncoding),
+    enabled: !content.loading,
+    // 选中态反映实际解码结果，自动识别保留为列表底部的独立命令。
+    value: content.document?.encoding ?? (content.encoding === 'auto' ? undefined : content.encoding),
+    options: [
+      ...['utf-8', 'utf-16le', 'utf-16be', 'gbk', 'gb18030'].map((value) => ({
+        value, label: value.toUpperCase(),
+      })),
+      { value: 'auto', kind: 'action', dividerBefore: true, label: options.locale === 'en-US' ? 'Detect encoding again' : '重新自动识别' },
+    ],
+    run: (value) => {
+      if (value !== 'auto' && value === content.encoding && content.document && !content.warning) return;
+      return content.setEncoding(value as TextEncoding);
+    },
   });
+  const updateNotice = () => frame.notice(
+    content.warning?.id,
+    content.warning ? formatEncodingWarning(content.warning, options.locale) : undefined,
+    options.locale,
+  );
   const publish = () => {
     const en = options.locale === 'en-US';
     frame.publish(
@@ -100,6 +107,7 @@ export async function mountText(context: ViewContext): Promise<ViewHandle> {
     );
   };
   const render = async () => {
+    renderedRevision = content.document ? content.revision : -1;
     const current = ++generation;
     publish();
     frame.update(options);
@@ -144,7 +152,14 @@ export async function mountText(context: ViewContext): Promise<ViewHandle> {
       if (current === generation && !closed) context.onError(error);
     });
   };
-  const stop = content.subscribe(run);
+  const updateContent = () => {
+    if (closed) return;
+    updateNotice();
+    publish();
+    // 解码尝试和失败通知只更新工具栏与提示，不触碰已显示的正文及查找状态。
+    if (!content.document || content.revision !== renderedRevision) run();
+  };
+  const stop = content.subscribe(updateContent);
   try {
     await render();
   } catch (error) {
@@ -156,15 +171,16 @@ export async function mountText(context: ViewContext): Promise<ViewHandle> {
   return {
     update(next) {
       options = next;
+      updateNotice();
       zoom = next.zoom ?? zoom;
       run();
     },
     setActive(value) {
       active = value;
-      frame.element.hidden = !value;
+      frame.setActive(value);
       surface?.setActive(value);
       if (!value) generation++;
-      else run();
+      else { updateNotice(); run(); }
     },
     async dispose() {
       closed = true;

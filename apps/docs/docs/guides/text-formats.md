@@ -29,6 +29,10 @@ await viewer.open(new File(['第一行\n第二行'], 'sample.txt'));
 
 Text 默认接管 TXT、LOG、INI、CONF、CFG、PROPERTIES、OUT，默认隐藏行号并启用自动换行；可在插件选项中配置 extensions、lineNumbers、wrap，或从更多操作菜单开启行号。
 
+Text 默认还提供内容兜底：所有专用插件均未匹配后，未知后缀、无后缀或只有 text/plain 声明的文件会先检查文件头及编码特征，再完整解码并校验可读性。确认是文本后使用原文视图，HTML、XML 等标签保持文字，不额外执行或解析；无法确认时提示暂不支持该格式。专用插件已经接管后的解析错误、网络失败、超时和配额错误不转换成文本预览。
+
+可通过 `text({ fallback: false })` 关闭自动兜底；未注册 Text 时不会隐式加载它。显式 `viewer.open(input, { pluginId: 'text' })` 仍可选择原文。兜底首次解码固定采用自动识别，不使用 `encoding` 的手动默认值绕过校验，成功打开后仍可切换编码。探测模块按需加载，区间读取不可用时可能读取完整来源，最终打开复用读取缓存并继续遵守 resourcePolicy。
+
 编码、视图切换、查找、自动换行和行号按当前格式收纳到更多操作菜单。Markdown 大纲保留在主工具栏；JSON 使用同一个按钮展开或收起当前选中分支，普通值及空容器不可切换。JSON、Markdown 的原文视图同样默认隐藏行号。
 
 JSON 支持结构和原文模式，原始数字及重复键按源范围保留。默认展开两层，maxDepth 默认 256、maxNodes 默认 200000。错误 JSON 保持可查看原文，不自动伪装成 TXT。

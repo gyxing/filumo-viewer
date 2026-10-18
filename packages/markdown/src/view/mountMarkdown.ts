@@ -1,6 +1,7 @@
 import type { CapabilityAction, ViewContext, ViewHandle } from '@fivo/dom';
 import { createReadingFrame } from '@fivo/dom';
 import type { TextEncoding } from '@fivo/text/reader';
+import { formatEncodingWarning } from '@fivo/text/reader';
 import type { TextSurfaceHandle } from '@fivo/text/view';
 import { STYLE_SCOPE } from '../generated/package';
 import type { MarkdownSession } from '../runtime/MarkdownSession';
@@ -19,30 +20,37 @@ export async function mountMarkdown(context: ViewContext): Promise<ViewHandle> {
     surface: TextSurfaceHandle | undefined,
     closed = false,
     active = true,
-    generation = 0;
+    dirty = false,
+    generation = 0,
+    renderedRevision = -1;
   let savedRevision = content.revision,
     sourcePosition = { top: 0, left: 0 },
     readingPosition = { top: 0, left: 0 };
   const encoding = (): CapabilityAction => ({
     id: 'markdown.encoding',
+    allowReselect: true,
     kind: 'select',
     toolbar: { placement: 'more', order: 10 },
     label: options.locale === 'en-US' ? 'Encoding' : '编码',
-    value: content.encoding,
-    options: ['auto', 'utf-8', 'utf-16le', 'utf-16be', 'gbk', 'gb18030'].map(
-      (value) => ({
-        value,
-        label:
-          value === 'auto'
-            ? (options.locale === 'en-US' ? 'Auto' : '自动') +
-              (content.document
-                ? ' · ' + content.document.encoding.toUpperCase()
-                : '')
-            : value.toUpperCase(),
-      }),
-    ),
-    run: (value) => content.setEncoding(value as TextEncoding),
+    enabled: !content.loading,
+    // 选中态反映实际解码结果，自动识别保留为列表底部的独立命令。
+    value: content.document?.encoding ?? (content.encoding === 'auto' ? undefined : content.encoding),
+    options: [
+      ...['utf-8', 'utf-16le', 'utf-16be', 'gbk', 'gb18030'].map((value) => ({
+        value, label: value.toUpperCase(),
+      })),
+      { value: 'auto', kind: 'action', dividerBefore: true, label: options.locale === 'en-US' ? 'Detect encoding again' : '重新自动识别' },
+    ],
+    run: (value) => {
+      if (value !== 'auto' && value === content.encoding && content.document && !content.warning) return;
+      return content.setEncoding(value as TextEncoding);
+    },
   });
+  const updateNotice = () => frame.notice(
+    content.warning?.id,
+    content.warning ? formatEncodingWarning(content.warning, options.locale) : undefined,
+    options.locale,
+  );
   const publish = () => {
     const en = options.locale === 'en-US';
     frame.publish(
@@ -111,6 +119,7 @@ export async function mountMarkdown(context: ViewContext): Promise<ViewHandle> {
     );
   };
   const render = async () => {
+    renderedRevision = content.document ? content.revision : -1;
     const current = ++generation;
     if (savedRevision === content.revision) {
       if (surface) sourcePosition = surface.getPosition();
@@ -213,14 +222,24 @@ export async function mountMarkdown(context: ViewContext): Promise<ViewHandle> {
     publish();
   };
   function run() {
-    if (!active || closed) return;
+    if (closed) return;
+    dirty = true;
+    if (!active) return;
+    dirty = false;
     const current = generation + 1;
     void render().catch((error) => {
       if (!closed && current === generation && !content.taskSignal.aborted)
         frame.state(String(error), encoding(), true);
     });
   }
-  const stop = content.subscribe(run);
+  const updateContent = () => {
+    if (closed) return;
+    updateNotice();
+    publish();
+    // 解码未提交时保留阅读 DOM，大纲、滚动、折叠与查找继续使用原内容。
+    if (!content.document || content.revision !== renderedRevision) run();
+  };
+  const stop = content.subscribe(updateContent);
   try {
     await render();
   } catch (error) {
@@ -234,6 +253,7 @@ export async function mountMarkdown(context: ViewContext): Promise<ViewHandle> {
     update(next) {
       const localeChanged = next.locale !== options.locale;
       options = next;
+      updateNotice();
       zoom = next.zoom ?? zoom;
       frame.update(options);
       if (localeChanged) run();
@@ -251,11 +271,15 @@ export async function mountMarkdown(context: ViewContext): Promise<ViewHandle> {
     },
     setActive(value) {
       active = value;
-      frame.element.hidden = !value;
+      frame.setActive(value);
       reading?.setActive(value);
       surface?.setActive(value);
       if (!value) generation++;
-      else if (!reading && !surface) run();
+      // 停用期间的内容、模式和语言更新需要在恢复时重建，保留同一内容的滚动位置。
+      else {
+        updateNotice();
+        if (dirty || content.revision !== renderedRevision || (!reading && !surface)) run();
+      }
     },
     async dispose() {
       closed = true;

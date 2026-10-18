@@ -90,9 +90,9 @@ export function SmokePage() {
           selectedId={c.selectedId}
           onSample={c.selectSample}
           onFile={c.selectFile}
-          accept={c.plugins
-            .flatMap((plugin) => [...plugin.document.extensions])
-            .join(',')}
+          accept={c.plugins.some((plugin) => plugin.document.detectFallback)
+            ? ''
+            : c.plugins.flatMap((plugin) => [...plugin.document.extensions]).join(',')}
         />
         <section className="smoke-preview" aria-label="文档预览">
           <header className="smoke-preview-heading">

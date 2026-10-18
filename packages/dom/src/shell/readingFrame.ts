@@ -5,6 +5,7 @@ import type {
 import type { ViewContext, ViewOptions } from '../contracts';
 import { useStyles as acquireStyles } from '../styles';
 import { createSelectControl } from './SelectControl';
+import { createReadingNotice } from './ReadingNotice';
 
 /** 轻量阅读框架只提供状态和布局，不加载任何格式引擎或原文视图。 */
 export function createReadingFrame(
@@ -20,19 +21,26 @@ export function createReadingFrame(
   frame.className = 'fivo-reading-frame';
   const body = document.createElement('div');
   body.className = 'fivo-reading-body';
+  body.tabIndex = -1;
   const status = document.createElement('div');
   status.className = 'fivo-reading-status';
   status.setAttribute('role', 'status');
   const watermark = document.createElement('div');
   watermark.className = 'fivo-reading-watermark';
   watermark.setAttribute('aria-hidden', 'true');
-  frame.append(body, status, watermark);
+  const notice = createReadingNotice(document, () => body.focus({ preventScroll: true }));
+  frame.append(body, status, watermark, notice.element);
   element.append(frame);
   context.container.append(element);
   let choice: ReturnType<typeof createSelectControl> | undefined;
   return {
     element,
     body,
+    notice: notice.update,
+    setActive(active: boolean) {
+      element.hidden = !active;
+      notice.setActive(active);
+    },
     state(message: string, action?: CapabilityAction, error = false) {
       choice?.dispose();
       choice = undefined;
@@ -62,6 +70,7 @@ export function createReadingFrame(
       watermark.textContent = options.watermark ?? '';
     },
     dispose() {
+      notice.dispose();
       choice?.dispose();
       element.remove();
       release();

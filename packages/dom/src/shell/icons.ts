@@ -6,6 +6,16 @@ const paths = {
   review:
     'M21 14a2 2 0 0 1-2 2H8l-5 5V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2ZM7 7h10M7 11h6',
   notes: 'M5 3h14v18H5ZM8 7h8M8 11h8M8 15h5',
+  encoding:
+    'M14 2H5a1 1 0 0 0-1 1v18a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V8ZM14 2v6h6M9 11l-3 3 3 3m6-6 3 3-3 3',
+  view: 'M3 4h18v16H3ZM3 9h18M9 9v11',
+  wrap: 'M3 5h18M3 10h14a4 4 0 0 1 0 8h-5m3-3-3 3 3 3M3 15h4M3 20h4',
+  lines: 'M9 5h12M9 12h12M9 19h12M3 3h1v5M2.5 11a1.5 1.5 0 0 1 3 0c0 1-3 2-3 3h3M3 18h2l-1 1a1.5 1.5 0 1 1-1.5 2',
+  branch: 'M4 3h6v5H4ZM14 15h6v5h-6M4 8v10h10M4 12h10M14 10h6v5h-6Z',
+  path: 'M9 8H5a4 4 0 0 0 0 8h4M15 8h4a4 4 0 0 1 0 8h-4M8 12h8',
+  sheet: 'M3 3h18v18H3ZM3 8h18M8 8v13M3 13h18M3 17h18',
+  transitions: 'M3 5h7v14H3ZM14 5h7v14h-7M8 12h8m-3-3 3 3-3 3',
+  command: 'M4 3h16v18H4ZM8 8l3 3-3 3M13 15h4',
   zoomOut:
     'M17 10.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0ZM15.5 15.5 21 21M7.5 10.5h6',
   zoomIn:

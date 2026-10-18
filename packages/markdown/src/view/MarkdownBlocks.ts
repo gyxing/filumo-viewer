@@ -1,6 +1,4 @@
 import type { ViewContext } from '@fivo/dom';
-import type { TextMatch } from '@fivo/text/reader';
-import { findTextMatches } from '@fivo/text/reader';
 import type { MarkdownOptions } from '../options';
 import { buildOutline } from '../parser/buildOutline';
 import { markdownInlineText } from '../parser/inlineText';
@@ -10,6 +8,8 @@ import { CodeBlock } from './CodeBlock';
 import type { HtmlFragment } from './HtmlFragment';
 import { MarkdownImage } from './MarkdownImage';
 import { MarkdownOutline } from './MarkdownOutline';
+import { MarkdownNavigation } from './MarkdownNavigation';
+import { MarkdownSearch } from './MarkdownSearch';
 import './markdown.less';
 let sequence = 0;
 /** Markdown 与受控 HTML 构建阅读 DOM，原始节点和事件属性不进入页面。 */
@@ -18,12 +18,8 @@ export class MarkdownBlocks {
   private article: HTMLElement;
   private scroll: HTMLDivElement;
   private outline: MarkdownOutline;
-  private outlineFrame?: number;
-  private layoutObserver?: ResizeObserver;
-  private headingOffsets?: Array<{ id: string; top: number }>;
-  private find: HTMLDivElement;
-  private query: HTMLInputElement;
-  private count: HTMLOutputElement;
+  private navigation?: MarkdownNavigation;
+  private search: MarkdownSearch;
   private codes: CodeBlock[] = [];
   private headingNodes = new Map<string, HTMLElement>();
   private targets = new Map<string, HTMLElement>();
@@ -31,9 +27,6 @@ export class MarkdownBlocks {
   private images: MarkdownImage[] = [];
   private imageObserver?: IntersectionObserver;
   private lifetime = new AbortController();
-  private searchAbort = new AbortController();
-  private matches: TextMatch[] = [];
-  private matchIndex = -1;
   private active = true;
   private deferred: Array<() => void> = [];
   private prefix = 'fivo-md-' + ++sequence + '-';
@@ -96,7 +89,7 @@ export class MarkdownBlocks {
     this.outline = new MarkdownOutline(
       document,
       this.model.headings,
-      (id) => this.revealTarget(id),
+      (id) => this.navigation?.revealTarget(id),
       this.en,
       () => this.setOutlineOpen(false),
     );
@@ -105,50 +98,23 @@ export class MarkdownBlocks {
     );
     workspace.append(this.outline.element, this.scroll);
     this.outline.setActive(true);
-    this.find = document.createElement('div');
-    this.find.className = 'fivo-markdown-find';
-    this.find.hidden = true;
-    this.query = document.createElement('input');
-    this.query.type = 'search';
-    this.query.placeholder = this.en ? 'Find in document' : '查找文档';
-    this.query.setAttribute('aria-label', this.query.placeholder);
-    this.query.oninput = () => {
-      void this.search();
-    };
-    this.query.onkeydown = (event) => {
-      if (event.key === 'Enter') {
-        event.preventDefault();
-        this.moveMatch(event.shiftKey ? -1 : 1);
-      }
-    };
-    this.count = document.createElement('output');
-    this.count.setAttribute('role', 'status');
-    const button = (label: string, run: () => void) => {
-      const control = document.createElement('button');
-      control.type = 'button';
-      control.textContent = label;
-      control.onclick = run;
-      return control;
-    };
-    this.find.append(
-      this.query,
-      button(this.en ? 'Previous' : '上一项', () => this.moveMatch(-1)),
-      button(this.en ? 'Next' : '下一项', () => this.moveMatch(1)),
-      this.count,
-      button(this.en ? 'Close' : '关闭', () => {
-        this.find.hidden = true;
-        this.searchAbort.abort();
-      }),
+    this.navigation = new MarkdownNavigation(
+      this.scroll, this.article, this.headingNodes, this.targets,
+      this.outline, this.model.headings, this.prefix,
     );
-    this.element.append(this.find, workspace);
+    this.search = new MarkdownSearch(
+      this.article, this.en,
+      (element) => this.navigation?.openAncestors(element),
+      (rect, align) => this.navigation?.revealRect(rect, align),
+    );
+    this.element.append(this.search.element, workspace);
     this.element.onkeydown = (event) => {
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'f') {
         event.preventDefault();
         this.showSearch();
       }
       if (event.key === 'Escape') {
-        this.find.hidden = true;
-        this.searchAbort.abort();
+        this.search.hide();
         this.scroll.focus({ preventScroll: true });
       }
     };
@@ -175,17 +141,6 @@ export class MarkdownBlocks {
         image.element.loading = 'lazy';
         this.loadImage(image);
       }
-    this.scroll.addEventListener('scroll', this.scheduleOutlineSync, {
-      passive: true,
-    });
-    document.defaultView?.addEventListener('resize', this.invalidateOutline);
-    const Resize = document.defaultView?.ResizeObserver;
-    if (Resize) {
-      this.layoutObserver = new Resize(this.invalidateOutline);
-      this.layoutObserver.observe(this.scroll);
-      this.layoutObserver.observe(this.article);
-    }
-    this.scheduleOutlineSync();
   }
   private entities(value: string) {
     const document = this.context.container.ownerDocument,
@@ -208,108 +163,7 @@ export class MarkdownBlocks {
       this.invalidateOutline();
     } else this.deferred.push(update);
   }
-  private target(id: string) {
-    return this.targets.get(id) ?? this.targets.get(id.toLowerCase());
-  }
-  private revealTarget(id: string) {
-    if (!this.active || this.lifetime.signal.aborted) return;
-    const target = this.target(id);
-    if (!target) return;
-    this.openAncestors(target);
-    const headingId = target.id.slice(this.prefix.length);
-    if (this.headingNodes.has(headingId)) this.outline.setCurrent(headingId);
-    this.revealRect(target.getBoundingClientRect(), 'start');
-  }
-  private openAncestors(element: HTMLElement | null) {
-    let changed = false;
-    while (element && element !== this.article) {
-      if (element.tagName === 'DETAILS' && !(element as HTMLDetailsElement).open) {
-        (element as HTMLDetailsElement).open = true;
-        changed = true;
-      }
-      element = element.parentElement;
-    }
-    if (changed) this.invalidateOutline();
-  }
-  /** 仅调整正文滚动，避免 scrollIntoView 连带移动目录、外框和宿主页面。 */
-  private revealRect(rect: DOMRect, align: 'start' | 'center') {
-    if (!this.active || this.lifetime.signal.aborted) return;
-    const viewport = this.scroll.getBoundingClientRect();
-    const top =
-      this.scroll.scrollTop + rect.top - viewport.top - this.scroll.clientTop;
-    // 标题预留顶部间距，查找结果居中；超出一屏的匹配从起始位置显示。
-    const inset =
-      align === 'center'
-        ? Math.max(0, (this.scroll.clientHeight - rect.height) / 2)
-        : 16;
-    this.scroll.scrollTop = Math.max(0, top - inset);
-    this.scheduleOutlineSync();
-  }
-  private invalidateOutline = () => {
-    this.headingOffsets = undefined;
-    this.scheduleOutlineSync();
-  };
-  private scheduleOutlineSync = () => {
-    if (
-      !this.active ||
-      this.lifetime.signal.aborted ||
-      this.outline.element.hidden ||
-      this.outlineFrame !== undefined
-    )
-      return;
-    const window = this.context.container.ownerDocument.defaultView;
-    if (window)
-      this.outlineFrame = window.requestAnimationFrame(() => {
-        this.outlineFrame = undefined;
-        this.syncOutline();
-      });
-    else this.syncOutline();
-  };
-  private syncOutline() {
-    if (
-      !this.active || this.lifetime.signal.aborted || this.outline.element.hidden
-    )
-      return;
-    if (!this.headingOffsets) {
-      const origin =
-        this.scroll.getBoundingClientRect().top + this.scroll.clientTop;
-      this.headingOffsets = this.model.headings.flatMap(({ id }) => {
-        const heading = this.headingNodes.get(id);
-        return heading?.getClientRects().length
-          ? [{
-              id,
-              top: heading.getBoundingClientRect().top - origin +
-                this.scroll.scrollTop,
-            }]
-          : [];
-      }).sort((left, right) => left.top - right.top);
-    }
-    const headings = this.headingOffsets;
-    if (!headings.length) return;
-    // 排版变化时才重新测量，连续滚动通过二分查找定位当前章节。
-    let low = 0,
-      high = headings.length;
-    const edge = this.scroll.scrollTop + 24;
-    while (low < high) {
-      const middle = (low + high) >>> 1;
-      if (headings[middle].top <= edge) low = middle + 1;
-      else high = middle;
-    }
-    const bottom = this.scroll.scrollTop + this.scroll.clientHeight;
-    const atEnd =
-      this.scroll.scrollTop > 0 && bottom >= this.scroll.scrollHeight - 1;
-    const index = atEnd && headings[headings.length - 1].top <= bottom
-      ? headings.length - 1
-      : Math.max(0, low - 1);
-    this.outline.setCurrent(headings[index].id);
-  }
-  private stopOutlineSync() {
-    if (this.outlineFrame !== undefined)
-      this.context.container.ownerDocument.defaultView?.cancelAnimationFrame(
-        this.outlineFrame,
-      );
-    this.outlineFrame = undefined;
-  }
+  private invalidateOutline = () => this.navigation?.invalidate();
   private appendTokens(tokens: readonly MarkdownToken[], parent: HTMLElement) {
     if (tokens.some((token) => token.type === 'html')) {
       if (!this.html) throw new Error('HTML 渲染模块未就绪');
@@ -483,7 +337,7 @@ export class MarkdownBlocks {
       const id = url.startsWith('#') ? decodeURIComponent(url.slice(1)) : undefined;
       this.present(() => {
         if (id !== undefined) {
-          const target = id ? this.target(id) : undefined;
+          const target = id ? this.navigation?.target(id) : undefined;
           if (id && !target) {
             this.unavailableLink(link, this.en ? 'Heading not found' : '目标章节不存在');
             return;
@@ -491,10 +345,11 @@ export class MarkdownBlocks {
           link.href = '#' + (target?.id ?? this.prefix);
           link.onclick = (event) => {
             event.preventDefault();
-            if (id) this.revealTarget(id);
+            if (id) this.navigation?.revealTarget(id);
             else {
+              this.navigation?.resetTarget();
               this.scroll.scrollTop = 0;
-              this.scheduleOutlineSync();
+              this.navigation?.schedule();
             }
           };
         } else {
@@ -542,72 +397,6 @@ export class MarkdownBlocks {
         });
       });
   }
-  private textNodes() {
-    const nodes: Array<{ node: Text; start: number; end: number }> = [];
-    let text = '';
-    const walker = this.article.ownerDocument.createTreeWalker(this.article, 4);
-    let node: Node | null;
-    while ((node = walker.nextNode())) {
-      if (node.parentElement?.closest('[data-search-exclude], button'))
-        continue;
-      const value = node.textContent ?? '';
-      nodes.push({
-        node: node as Text,
-        start: text.length,
-        end: text.length + value.length,
-      });
-      text += value;
-    }
-    return { nodes, text };
-  }
-  private async search() {
-    this.searchAbort.abort();
-    const controller = (this.searchAbort = new AbortController());
-    this.matches = [];
-    this.matchIndex = -1;
-    const { text } = this.textNodes();
-    try {
-      for await (const batch of findTextMatches(
-        {
-          text,
-          encoding: 'utf-8',
-          lineStarts: Uint32Array.of(0),
-          newline: 'none',
-        },
-        this.query.value,
-        { matchCase: false, wholeWord: false },
-        controller.signal,
-      )) {
-        if (!this.active || controller.signal.aborted) return;
-        this.matches.push(...batch);
-        this.count.textContent = String(this.matches.length);
-      }
-      if (this.matches.length) this.moveMatch(1);
-      else this.count.textContent = this.en ? 'No matches' : '未找到';
-    } catch (error) {
-      if (!controller.signal.aborted) this.count.textContent = String(error);
-    }
-  }
-  private moveMatch(delta: number) {
-    if (!this.matches.length) return;
-    this.matchIndex =
-      (this.matchIndex + delta + this.matches.length) % this.matches.length;
-    const hit = this.matches[this.matchIndex],
-      { nodes } = this.textNodes();
-    const start = nodes.find((item) => item.end > hit.start),
-      end = nodes.find((item) => item.end >= hit.end);
-    if (start && end) {
-      this.openAncestors(start.node.parentElement);
-      const range = this.article.ownerDocument.createRange();
-      range.setStart(start.node, hit.start - start.start);
-      range.setEnd(end.node, hit.end - end.start);
-      const selection = this.article.ownerDocument.defaultView?.getSelection();
-      selection?.removeAllRanges();
-      selection?.addRange(range);
-      this.revealRect(range.getBoundingClientRect(), 'center');
-    }
-    this.count.textContent = this.matchIndex + 1 + ' / ' + this.matches.length;
-  }
   /** 大纲显隐只改变现有阅读布局，不重新解析原文。 */
   toggleOutline() {
     this.setOutlineOpen(this.outline.element.hidden);
@@ -617,7 +406,7 @@ export class MarkdownBlocks {
       this.context.container.ownerDocument.activeElement,
     );
     this.outline.setOpen(open && this.model.headings.length > 0);
-    if (!open) this.stopOutlineSync();
+    if (!open) this.navigation?.stopOutlineSync();
     if (!open && focused) this.scroll.focus({ preventScroll: true });
     this.invalidateOutline();
     this.onOutlineChange?.();
@@ -631,8 +420,7 @@ export class MarkdownBlocks {
   }
   /** 查找在用户打开并输入之后执行。 */
   showSearch() {
-    this.find.hidden = false;
-    this.query.focus();
+    this.search.show();
   }
   /** 阅读字号不会缩放工具栏和控件。 */
   setZoom(zoom: number) {
@@ -645,6 +433,7 @@ export class MarkdownBlocks {
     return { top: this.scroll.scrollTop, left: this.scroll.scrollLeft };
   }
   restorePosition(position: { top: number; left: number }) {
+    this.navigation?.resetTarget();
     this.scroll.scrollTop = position.top;
     this.scroll.scrollLeft = position.left;
     this.invalidateOutline();
@@ -653,9 +442,9 @@ export class MarkdownBlocks {
   setActive(active: boolean) {
     this.active = active;
     this.outline.setActive(active);
+    this.navigation?.setActive(active);
+    this.search.setActive(active);
     if (active) {
-      this.layoutObserver?.observe(this.scroll);
-      this.layoutObserver?.observe(this.article);
       this.invalidateOutline();
       const pending = this.deferred;
       this.deferred = [];
@@ -663,10 +452,7 @@ export class MarkdownBlocks {
     }
     for (const code of this.codes) code.setActive(active);
     if (!active) {
-      this.stopOutlineSync();
-      this.layoutObserver?.disconnect();
       this.imageObserver?.disconnect();
-      this.searchAbort.abort();
     } else
       for (const image of this.images)
         if (!image.started) {
@@ -679,14 +465,10 @@ export class MarkdownBlocks {
     this.setActive(false);
     this.lifetime.abort();
     this.deferred = [];
-    this.scroll.removeEventListener('scroll', this.scheduleOutlineSync);
-    this.context.container.ownerDocument.defaultView?.removeEventListener(
-      'resize',
-      this.invalidateOutline,
-    );
+    this.navigation?.dispose();
+    this.search.dispose();
     this.outline.dispose();
     this.html?.dispose();
-    this.headingOffsets = undefined;
     for (const image of this.images) image.dispose();
     for (const code of this.codes) code.dispose();
     this.targets.clear();

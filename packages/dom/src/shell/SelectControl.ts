@@ -40,7 +40,7 @@ export function createSelectControl(
     if (!action || !option || control.disabled || disposed) return;
     popup.close();
     control.focus({ preventScroll: true });
-    if (option.value !== action.value)
+    if (option.kind === 'action' || option.value !== action.value || action.allowReselect)
       void Promise.resolve()
         .then(() => {
           if (!disposed) return action.run(option.value);
@@ -79,7 +79,7 @@ export function createSelectControl(
       const button = popup.element.children[index] as HTMLButtonElement;
       button.setAttribute(
         'aria-selected',
-        String(current?.options?.[index]?.value === current?.value),
+        String(current?.options?.[index]?.kind !== 'action' && current?.options?.[index]?.value === current?.value),
       );
       button.dataset.active = String(index === active);
     }
@@ -98,7 +98,7 @@ export function createSelectControl(
       active = Math.max(
         0,
         current?.options?.findIndex(
-          (option) => option.value === current?.value,
+          (option) => option.kind !== 'action' && option.value === current?.value,
         ) ?? 0,
       );
     render();
@@ -171,8 +171,8 @@ export function createSelectControl(
       control.title = action.label;
       popup.element.setAttribute('aria-label', action.label);
       value.textContent =
-        action.options?.find((option) => option.value === action.value)
-          ?.label ?? '';
+        action.options?.find((option) => option.kind !== 'action' && option.value === action.value)
+          ?.label ?? action.label;
       value.title = value.textContent ?? '';
       const nextKey = JSON.stringify(action.options ?? []);
       if (optionKey !== nextKey) {

@@ -11,7 +11,9 @@ const bundle = await build({
     export {TextViewport} from './packages/text/src/view/TextViewport';
     export {readText} from './packages/text/src/reader/decodeText';
     export {MarkdownOutline} from './packages/markdown/src/view/MarkdownOutline';
-    export {MarkdownImage} from './packages/markdown/src/view/MarkdownImage';`,
+    export {MarkdownImage} from './packages/markdown/src/view/MarkdownImage';
+    export {TextFindBar} from './packages/text/src/view/TextFindBar';
+    export {actionMenuItem} from './packages/dom/src/shell/toolbarMenuItems';`,
     resolveDir: resolve('.'),
   },
   bundle: true,
@@ -21,11 +23,92 @@ const bundle = await build({
   loader: { '.less': 'empty' },
 });
 const {
-  JsonTree, scanJson, TextViewport, readText, MarkdownOutline, MarkdownImage,
+  JsonTree, scanJson, TextViewport, readText, MarkdownOutline, MarkdownImage, TextFindBar, actionMenuItem,
 } = await import(
   'data:text/javascript;base64,' +
     Buffer.from(bundle.outputFiles[0].text).toString('base64')
 );
+
+test('编码重试按命令执行，已检测编码仍可手动指定，其他选择项保留原语义', async () => {
+  const calls = [];
+  const action = {
+    id: 'custom.charset', label: '编码', kind: 'select', value: 'utf-8', allowReselect: true,
+    options: [{ value: 'utf-8', label: 'UTF-8' }, { value: 'auto', label: '重新自动识别', kind: 'action', dividerBefore: true }],
+    run: (value) => { calls.push(value); },
+  };
+  const item = actionMenuItem(action, true);
+  assert.equal(item.value, 'UTF-8');
+  const [utf8, retry] = item.children;
+  assert.equal(utf8.kind, 'radio');
+  assert.equal(utf8.checked, true);
+  assert.equal(retry.kind, undefined);
+  assert.equal(retry.checked, undefined);
+  assert.equal(retry.dividerBefore, true);
+  await retry.run();
+  await retry.run();
+  await utf8.run();
+  assert.deepEqual(calls, ['auto', 'auto', 'utf-8']);
+  const other = actionMenuItem({
+    ...action, id: 'text.encoding', allowReselect: false,
+    options: [{ value: 'utf-8', label: 'UTF-8' }, { value: 'auto', label: '自动' }],
+  }, true);
+  assert.equal(other.children[1].kind, 'radio');
+  await other.children[0].run();
+  assert.equal(calls.length, 3);
+});
+
+test('菜单开关与执行后关闭由声明决定，不再依赖动作 ID', () => {
+  const action = { id: 'custom.search', kind: 'toggle', label: '查找', pressed: true, run() {} };
+  assert.equal(actionMenuItem(action, true).kind, 'checkbox');
+  const command = actionMenuItem({ ...action, menu: { kind: 'action' } }, true);
+  assert.equal(command.kind, undefined);
+  assert.equal(command.checked, undefined);
+  assert.equal(actionMenuItem({ ...action, menu: { closeOnRun: true } }, true).closeOnRun, true);
+});
+
+test('第一级操作均提供图标，子菜单选项不添加操作图标', () => {
+  const expected = {
+    'text.encoding': 'encoding', 'text.search': 'search',
+    'text.wrap': 'wrap', 'text.lines': 'lines',
+    'json.mode': 'view', 'json.branch': 'branch', 'json.path': 'path',
+    'markdown.outline': 'outline', 'office.revision': 'review',
+    'office.review': 'review', 'office.sheetMode': 'view',
+    'office.sheet': 'sheet', 'office.zoomMode': 'view',
+    'office.notes': 'notes', 'office.transitions': 'transitions',
+    'custom.operation': 'command',
+  };
+  for (const [id, icon] of Object.entries(expected)) {
+    const action = { id, label: id, kind: 'action', run() {} };
+    assert.equal(actionMenuItem(action, true).icon, icon, id);
+  }
+  const select = actionMenuItem({
+    id: 'text.encoding', label: '编码', kind: 'select',
+    options: [{ value: 'utf-8', label: 'UTF-8' }], run() {},
+  }, true);
+  assert.equal(select.children[0].icon, undefined);
+});
+
+test('查找控件动态更新语言时保留查询、焦点和开关状态', () => {
+  const document = createDocument();
+  const bar = new TextFindBar(document, false, () => {}, () => {}, () => {});
+  bar.query.value = '中文';
+  bar.query.focus();
+  bar.matchCase.checked = true;
+  bar.wholeWord.checked = true;
+  bar.updateLocale(true);
+  assert.equal(bar.query.value, '中文');
+  assert.equal(document.activeElement, bar.query);
+  assert.equal(bar.query.getAttribute('aria-label'), 'Find text');
+  assert.equal(bar.element.children[1].textContent, 'Previous');
+  assert.equal(bar.element.children[2].textContent, 'Next');
+  assert.equal(bar.element.children[3].children[1].data, 'Case');
+  assert.equal(bar.element.children[4].children[1].data, 'Whole word');
+  assert.equal(bar.element.children[6].textContent, 'Close');
+  assert.equal(bar.matchCase.checked, true);
+  assert.equal(bar.wholeWord.checked, true);
+  bar.updateLocale(false);
+  assert.equal(bar.query.placeholder, '查找文本');
+});
 
 test('合并分支操作同步选中状态，收起再展开保留其他分支与子分支', async () => {
   const source = '{"a":{"child":{"value":1}},"b":[2],"empty":{},"leaf":3}';

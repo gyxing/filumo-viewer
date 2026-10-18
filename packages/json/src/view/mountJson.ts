@@ -1,6 +1,7 @@
 import type { CapabilityAction, ViewContext, ViewHandle } from '@fivo/dom';
 import { createReadingFrame } from '@fivo/dom';
 import type { TextEncoding } from '@fivo/text/reader';
+import { formatEncodingWarning } from '@fivo/text/reader';
 import { STYLE_SCOPE } from '../generated/package';
 import type { JsonSession } from '../runtime/JsonSession';
 import type { JsonWorkspace } from './JsonWorkspace';
@@ -17,27 +18,33 @@ export async function mountJson(context: ViewContext): Promise<ViewHandle> {
     closed = false,
     active = true,
     generation = 0,
-    revision = content.revision;
+    revision = content.revision,
+    renderedRevision = -1;
   const encoding = (): CapabilityAction => ({
     id: 'json.encoding',
+    allowReselect: true,
     kind: 'select',
     toolbar: { placement: 'more', order: 10 },
     label: options.locale === 'en-US' ? 'Encoding' : '编码',
-    value: content.encoding,
-    options: ['auto', 'utf-8', 'utf-16le', 'utf-16be', 'gbk', 'gb18030'].map(
-      (value) => ({
-        value,
-        label:
-          value === 'auto'
-            ? (options.locale === 'en-US' ? 'Auto' : '自动') +
-              (content.document
-                ? ' · ' + content.document.encoding.toUpperCase()
-                : '')
-            : value.toUpperCase(),
-      }),
-    ),
-    run: (value) => content.setEncoding(value as TextEncoding),
+    enabled: !content.loading,
+    // 选中态反映实际解码结果，自动识别保留为列表底部的独立命令。
+    value: content.document?.encoding ?? (content.encoding === 'auto' ? undefined : content.encoding),
+    options: [
+      ...['utf-8', 'utf-16le', 'utf-16be', 'gbk', 'gb18030'].map((value) => ({
+        value, label: value.toUpperCase(),
+      })),
+      { value: 'auto', kind: 'action', dividerBefore: true, label: options.locale === 'en-US' ? 'Detect encoding again' : '重新自动识别' },
+    ],
+    run: (value) => {
+      if (value !== 'auto' && value === content.encoding && content.document && !content.warning) return;
+      return content.setEncoding(value as TextEncoding);
+    },
   });
+  const updateNotice = () => frame.notice(
+    content.warning?.id,
+    content.warning ? formatEncodingWarning(content.warning, options.locale) : undefined,
+    options.locale,
+  );
   const publish = () => {
     const en = options.locale === 'en-US',
       state = workspace?.getState(),
@@ -79,6 +86,7 @@ export async function mountJson(context: ViewContext): Promise<ViewHandle> {
         },
         {
           id: 'json.branch',
+          menu: { kind: 'action' },
           kind: 'toggle',
           toolbar: {
             visible: state?.treeReady === true,
@@ -128,6 +136,7 @@ export async function mountJson(context: ViewContext): Promise<ViewHandle> {
     );
   };
   const render = async () => {
+    renderedRevision = content.document ? content.revision : -1;
     const current = ++generation;
     frame.update(options);
     if (revision !== content.revision) {
@@ -184,7 +193,14 @@ export async function mountJson(context: ViewContext): Promise<ViewHandle> {
         frame.state(String(error), encoding(), true);
     });
   };
-  const stop = content.subscribe(run);
+  const updateContent = () => {
+    if (closed) return;
+    updateNotice();
+    publish();
+    // 只有成功提交的新内容才重建工作区，失败时保留结构树与双栏比例。
+    if (!content.document || content.revision !== renderedRevision) run();
+  };
+  const stop = content.subscribe(updateContent);
   try {
     await render();
   } catch (error) {
@@ -196,6 +212,7 @@ export async function mountJson(context: ViewContext): Promise<ViewHandle> {
   return {
     update(next) {
       options = next;
+      updateNotice();
       zoom = next.zoom ?? zoom;
       frame.update(options);
       workspace?.update(options, zoom);
@@ -203,11 +220,12 @@ export async function mountJson(context: ViewContext): Promise<ViewHandle> {
     },
     setActive(value) {
       active = value;
-      frame.element.hidden = !value;
+      frame.setActive(value);
       if (!value) {
         workspace?.setActive(false);
         generation++;
       } else {
+        updateNotice();
         if (revision === content.revision && content.document)
           workspace?.setActive(true);
         run();

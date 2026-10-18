@@ -2,6 +2,11 @@
 const activePopups = new WeakMap<Node, { close(): void }>();
 let sequence = 0;
 
+/** 打开工具栏菜单前关闭同一预览器的表单选项，避免两套浮层同时占用焦点。 */
+export function closeOptionPopups(owner: HTMLElement) {
+  activePopups.get(owner.closest('.fivo-viewer') ?? owner.ownerDocument)?.close();
+}
+
 /** 为选择和缩放提供共享浮层，负责避让、主题继承、外部关闭和资源清理。 */
 export function createOptionPopup(
   anchor: HTMLElement,

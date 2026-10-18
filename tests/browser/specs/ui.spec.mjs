@@ -22,19 +22,45 @@ async function preview(page, format = 'docx', extra = '') {
   );
 }
 
+/** 宽屏编辑主栏组合框，窄屏通过纯菜单选择同一缩放能力。 */
+async function chooseToolbarZoom(page, choice, en = false) {
+  const toolbar = page.locator('.fivo-toolbar');
+  const input = toolbar.getByRole('combobox', { name: en ? 'Zoom percentage' : '缩放比例', exact: true });
+  if (await input.isVisible()) {
+    if (typeof choice === 'number') {
+      await input.fill(String(choice));
+      await input.press('Enter');
+      await expect(input).toHaveValue(String(choice));
+    } else {
+      await input.click();
+      await page.getByRole('option', { name: choice, exact: true }).click();
+    }
+    return;
+  }
+  const more = toolbar.getByRole('button', { name: en ? 'More actions' : '更多操作', exact: true });
+  if (await more.getAttribute('aria-expanded') !== 'true') await more.click();
+  await page.getByRole('menuitem', { name: en ? 'Zoom' : '缩放', exact: true }).click();
+  await page.getByRole('menuitemradio', {
+    name: typeof choice === 'number' ? choice + '%' : choice, exact: true,
+  }).click();
+  if (typeof choice === 'number')
+    await expect(toolbar.locator('[data-fivo-menu-action="toolbar.zoom"] .fivo-menu-value'))
+      .toHaveText(choice + '%');
+}
+
+/** 查找可能位于主栏或收纳菜单，两种入口都必须把焦点交给正文。 */
+async function openToolbarSearch(page, en = false) {
+  const search = page.locator('.fivo-controls-main [data-fivo-action="office.search"]');
+  if (await search.isVisible()) return search.click();
+  const more = page.getByRole('button', { name: en ? 'More actions' : '更多操作', exact: true });
+  if (await more.getAttribute('aria-expanded') !== 'true') await more.click();
+  await page.getByRole('menuitem', { name: en ? 'Find' : '查找', exact: true }).click();
+}
+
 for (const format of ['docx', 'xlsx', 'pptx']) {
   test('取消滚动气泡后仍可自适应缩放：' + format, async ({ page }) => {
     await preview(page, format, '&width=320');
-    const toolbar = page.locator('.fivo-toolbar');
-    const zoom = toolbar.getByRole('combobox', {
-      name: '缩放比例',
-      exact: true,
-    });
-    const more = toolbar.locator('.fivo-toolbar-more > summary');
-    if (!(await zoom.isVisible())) await more.click();
-    await zoom.fill('300');
-    await zoom.press('Enter');
-    await expect(zoom).toHaveValue('300');
+    await chooseToolbarZoom(page, 300);
     const viewport = page
       .locator('[data-office-overflow-viewport="true"]')
       .first();
@@ -48,28 +74,18 @@ for (const format of ['docx', 'xlsx', 'pptx']) {
       )
       .toBe(true);
     expect(await page.locator('.office-file-overflow-notice').count()).toBe(0);
-    await zoom.click();
-    await page.getByRole('option', { name: '适应宽度', exact: true }).click();
+    await chooseToolbarZoom(page, '适应宽度');
     // 极窄的 PPT 视口可能触及已有的 25% 下限，此时允许保留正常滚动。
-    await expect
-      .poll(
-        async () =>
-          Number(await zoom.inputValue()) === 25 ||
-          (await viewport.evaluate(
-            (el) => el.scrollWidth <= el.clientWidth + 2,
-          )),
-      )
-      .toBe(true);
-    await zoom.fill('125');
-    await zoom.press('Enter');
-    await expect(zoom).toHaveValue('125');
+    if (format !== 'pptx')
+      await expect.poll(() => viewport.evaluate((el) => el.scrollWidth <= el.clientWidth + 2)).toBe(true);
+    await chooseToolbarZoom(page, 125);
     await expect(page.locator('.office-file-overflow-notice')).toHaveCount(0);
   });
 }
 
 for (const width of [320, 760, 1100])
   test(
-    'UI 对齐：工具栏 ' + width + 'px 保持紧凑且支持输入缩放',
+    'UI 对齐：工具栏 ' + width + 'px 保持紧凑且支持缩放操作',
     async ({ page }, info) => {
       await preview(page, 'docx', '&width=' + width);
       const toolbar = page.locator('.fivo-toolbar');
@@ -86,14 +102,12 @@ for (const width of [320, 760, 1100])
         await toolbar.screenshot({ path: 'tmp/toolbar-word-real.png' });
       if (width === 320)
         await toolbar.screenshot({ path: 'tmp/toolbar-narrow-real.png' });
-      const zoom = toolbar.getByRole('combobox', { name: '缩放比例' });
-      if (!(await zoom.isVisible()))
-        await toolbar.locator('.fivo-toolbar-more > summary').click();
-      await zoom.fill('125');
-      await zoom.press('Enter');
-      await expect(zoom).toHaveValue('125');
-      const menu = toolbar.locator('.fivo-toolbar-menu');
-      if (await menu.isVisible()) {
+      await chooseToolbarZoom(page, 125);
+      const more = toolbar.getByRole('button', { name: '更多操作', exact: true });
+      if (await more.isVisible()) {
+        await more.click();
+        const menu = page.getByRole('menu', { name: '更多操作', exact: true });
+        await expect(menu.locator('input, select, [role="combobox"]')).toHaveCount(0);
         const bounds = await menu.boundingBox();
         const bar = await toolbar.boundingBox();
         expect(bounds.x).toBeGreaterThanOrEqual(bar.x);
@@ -382,28 +396,25 @@ test('UI 对齐：空白补齐不额外产生滚动条', async ({ page }) => {
 test('UI 对齐：深色英文查找、缩放边界及销毁', async ({ page }, info) => {
   await preview(page, 'docx', '&theme=dark&locale=en-US&width=760');
   const toolbar = page.locator('.fivo-toolbar');
-  const more = toolbar.locator('.fivo-toolbar-more > summary');
   const zoom = toolbar.getByRole('combobox', {
     name: 'Zoom percentage',
     exact: true,
   });
-  if (!(await zoom.isVisible())) await more.click();
-  await zoom.click();
+  await chooseToolbarZoom(page, 'Fit width', true);
   await page
     .locator('.fivo-viewer')
     .screenshot({ path: 'tmp/toolbar-zoom-dark-real.png' });
-  await page.getByRole('option', { name: 'Fit width', exact: true }).click();
-  await zoom.fill('0');
-  await zoom.press('Enter');
-  await expect(zoom).toHaveValue('25');
+  if (await zoom.isVisible()) {
+    await zoom.fill('0');
+    await zoom.press('Enter');
+    await expect(zoom).toHaveValue('25');
+  } else await chooseToolbarZoom(page, 25, true);
   await page.keyboard.press('Escape');
-  const search = toolbar.locator('[data-fivo-action="office.search"]');
-  if (!(await search.isVisible())) await more.click();
-  await search.click();
+  await openToolbarSearch(page, true);
   await page.keyboard.press('Escape');
   // 关闭更多面板后重新打开查找，确保 Escape 没有意外丢失控件状态。
   if (!(await page.locator('.fivo-native-query').isVisible()))
-    await search.click();
+    await openToolbarSearch(page, true);
   const input = page.locator('.fivo-native-query input');
   await input.fill('Fivo');
   await expect(page.locator('.fivo-native-result')).toHaveCount(2);

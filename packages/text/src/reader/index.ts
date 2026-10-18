@@ -1,5 +1,6 @@
 export { TextContent, type TextContentOptions } from './TextContent';
 export { TextTaskClient } from './TextTaskClient';
+export { formatEncodingWarning } from './formatEncodingWarning';
 export { readText } from './decodeText';
 export { findTextMatches } from './findTextMatches';
 export { indexLines, textLineAt } from './indexLines';

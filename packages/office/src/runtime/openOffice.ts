@@ -6,10 +6,6 @@ import type {
 } from '@fivo/core';
 import { abortError, createSession, throwIfAborted } from '@fivo/core';
 import { createOfficeFileViewerParseSession } from '../engine/parsing/createParseSession';
-import {
-  OFFICE_FORMAT_METADATA,
-  SUPPORTED_OFFICE_EXTENSIONS,
-} from '../engine/parsing/formatDefinitions';
 import type {
   OfficeFileViewerPreviewHandle,
   OfficeFileViewerPreviewState,
@@ -17,7 +13,7 @@ import type {
 import { createOfficeDocumentSession } from '../engine/session/OfficeDocumentSession';
 import type { OfficeOptions } from '../options';
 import { createOfficeInteractions } from './createOfficeInteractions';
-import { inferOfficeKind } from './inferOfficeKind';
+import { readOfficeFile } from './readOfficeFile';
 import type { OfficeInteractionPort } from './interactionTypes';
 import { getOfficeDocumentInfo } from './previewMetadata';
 import type { OfficeRuntimeData } from './types';
@@ -28,21 +24,7 @@ export async function openOffice(
   context: OpenContext,
   options: OfficeOptions,
 ): Promise<DocumentSession> {
-  const bytes = await source.readAll(context.signal);
-  throwIfAborted(context.signal);
-  const extension = source.name?.toLowerCase().match(/\.[^.]+$/)?.[0];
-  const inferred = Object.values(OFFICE_FORMAT_METADATA).find((format) =>
-    format.mimeTypes.some(
-      (type) => type.mimeType === source.mimeType?.split(';')[0],
-    ),
-  )?.extensions[0];
-  const name =
-    extension &&
-    (SUPPORTED_OFFICE_EXTENSIONS as readonly string[]).includes(extension)
-      ? source.name!
-      : 'document' +
-        (inferred ?? '.' + (await inferOfficeKind(bytes, context.signal)));
-  const file = new File([bytes], name, { type: source.mimeType });
+  const file = await readOfficeFile(source, context.signal);
   const legacySession = createOfficeDocumentSession();
   const parser = createOfficeFileViewerParseSession(
     file,

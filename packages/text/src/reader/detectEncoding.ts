@@ -37,9 +37,10 @@ function declaredEncoding(mimeType?: string): Encoding | undefined {
 }
 
 /** 无 BOM 时只采用明显的零字节方向，普通中文双字节数据不能据此猜成 UTF-16。 */
-function inferredUtf16(bytes: Uint8Array): Encoding | undefined {
-  if (bytes.length % 2 || bytes.length < 4) return undefined;
-  const pairs = Math.min(bytes.length, SAMPLE_BYTES) / 2;
+function inferredUtf16(bytes: Uint8Array, partial = false): Encoding | undefined {
+  if ((!partial && bytes.length % 2) || bytes.length < 4) return undefined;
+  // 探测前缀可能在一个代码单元中间结束，推断只统计完整字节对。
+  const pairs = Math.floor(Math.min(bytes.length, SAMPLE_BYTES) / 2);
   let even = 0,
     odd = 0;
   for (let pair = 0; pair < pairs; pair++) {
@@ -81,6 +82,8 @@ export async function decodeTextBytes(
   options: {
     encoding?: TextEncoding;
     mimeType?: string;
+    /** 有界探测可能截断多字节字符；正式解码不传此项，仍要求完整序列。 */
+    partial?: boolean;
     signal: AbortSignal;
   },
 ): Promise<DecodedText | undefined> {
@@ -94,7 +97,9 @@ export async function decodeTextBytes(
     tried.add(encoding);
     let text: string;
     try {
-      text = new TextDecoder(encoding, { fatal: true }).decode(bytes);
+      text = new TextDecoder(encoding, { fatal: true }).decode(bytes, {
+        stream: options.partial === true,
+      });
     } catch {
       return undefined;
     }
@@ -124,7 +129,7 @@ export async function decodeTextBytes(
   if (bom) return attempt(bom);
   for (const encoding of [
     declaredEncoding(options.mimeType),
-    inferredUtf16(bytes),
+    inferredUtf16(bytes, options.partial),
     'utf-8',
     'gb18030',
   ] as const) {

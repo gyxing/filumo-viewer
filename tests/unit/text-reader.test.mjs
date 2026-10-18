@@ -188,6 +188,114 @@ test('自动模式使用 charset，BOM 与手动编码保持更高优先级', as
   );
 });
 
+test('切换编码失败保留成功内容、编码、版本和解析信号，成功后才提交', async () => {
+  const content = new TextContent(new TextEncoder().encode('abc'), {
+    worker: 'never', workerFactory: () => { throw Error('不应创建'); },
+  }, options().signal);
+  try {
+    await content.setEncoding('utf-8');
+    const document = content.document, revision = content.revision, task = content.taskSignal;
+    const pending = content.setEncoding('utf-16le');
+    assert.equal(content.loading, true);
+    assert.equal(content.document, document);
+    assert.equal(task.aborted, false);
+    await pending;
+    assert.equal(content.document, document);
+    assert.equal(content.encoding, 'utf-8');
+    assert.equal(content.revision, revision);
+    assert.equal(content.taskSignal, task);
+    assert.equal(task.aborted, false);
+    assert.equal(content.warning.encoding, 'utf-16le');
+    assert.equal(content.warning.retainedEncoding, 'utf-8');
+    const warningId = content.warning.id;
+    await content.setEncoding('utf-16le');
+    assert.ok(content.warning.id > warningId);
+    await content.setEncoding('auto');
+    assert.equal(content.warning, undefined);
+    assert.equal(content.document.text, 'abc');
+    assert.equal(content.encoding, 'auto');
+    assert.equal(content.revision, revision + 1);
+    assert.equal(task.aborted, true);
+  } finally { content.dispose(); }
+});
+
+test('首次解码失败仍保留恢复状态，失败尝试不产生已提交内容版本', async () => {
+  const content = new TextContent(new TextEncoder().encode('abc'), {
+    worker: 'never', workerFactory: () => { throw Error('不应创建'); },
+  }, options().signal);
+  try {
+    await content.setEncoding('utf-16le');
+    assert.equal(content.document, undefined);
+    assert.equal(content.result.kind, 'needs-encoding');
+    assert.equal(content.encoding, 'utf-16le');
+    assert.equal(content.revision, 0);
+    assert.equal(content.warning, undefined);
+    await content.setEncoding('utf-8');
+    assert.equal(content.document.text, 'abc');
+  } finally { content.dispose(); }
+});
+
+test('取消一个 Worker 请求不取消仍在使用原内容的其他请求', async () => {
+  const listeners = new Map(), requests = [];
+  let terminated = 0;
+  const worker = {
+    addEventListener: (type, callback) => listeners.set(type, callback),
+    removeEventListener: (type) => listeners.delete(type),
+    terminate: () => { terminated++; },
+    postMessage: (request) => requests.push(request),
+  };
+  const client = new TextTaskClient({ mode: 'always', factory: () => worker,
+    executeLocal: async () => { throw Error('不应降级'); } });
+  try {
+    const parsing = client.run('parse', {}, options().signal);
+    const abort = new AbortController();
+    const decoding = client.run('decode', {}, abort.signal);
+    abort.abort();
+    await assert.rejects(decoding, { name: 'AbortError' });
+    assert.equal(terminated, 0);
+    listeners.get('message')({ data: { ...requests[0], ok: true, value: '原内容解析' } });
+    assert.equal(await parsing, '原内容解析');
+  } finally { client.dispose(); }
+});
+
+test('连续切换编码以最新请求为准，迟到失败和销毁结果不覆盖当前内容', async () => {
+  const listeners = new Map(), requests = [];
+  const worker = {
+    addEventListener: (type, callback) => listeners.set(type, callback),
+    removeEventListener: (type) => listeners.delete(type),
+    terminate() {},
+    postMessage: (request) => requests.push(request),
+  };
+  const content = new TextContent(new TextEncoder().encode('abc'), {
+    worker: 'always', workerFactory: () => worker,
+  }, options().signal);
+  const ready = { kind: 'ready', document: { text: 'abc', encoding: 'utf-8',
+    lineStarts: Uint32Array.of(0), newline: 'none' } };
+  const reply = (request, value) => listeners.get('message')?.({ data: { ...request, ok: true, value } });
+  try {
+    const initial = content.setEncoding('utf-8');
+    reply(requests[0], ready);
+    await initial;
+    const first = content.setEncoding('utf-16le');
+    const second = content.setEncoding('auto');
+    reply(requests[2], ready);
+    await second;
+    reply(requests[1], { kind: 'needs-encoding', reason: '迟到失败' });
+    await first;
+    assert.equal(content.document.text, 'abc');
+    assert.equal(content.encoding, 'auto');
+    assert.equal(content.warning, undefined);
+    assert.equal(content.loading, false);
+    assert.equal(content.revision, 2);
+    const last = content.setEncoding('utf-16le');
+    content.dispose();
+    reply(requests[3], ready);
+    await last;
+    assert.equal(content.document, undefined);
+    assert.equal(content.warning, undefined);
+  } finally { content.dispose(); }
+});
+
 test('Worker 解码任务和本地读取使用同一来源声明，任务取消不会被降级吞掉', async () => {
   const result = await decodeTextTask(
     {
@@ -293,10 +401,13 @@ test('会话在 Worker 与本地路径传递来源 charset，重新选择自动�
     await content.setEncoding('auto');
     assert.equal(content.document.encoding, 'gbk');
     await content.setEncoding('utf-8');
-    assert.equal(content.result.kind, 'needs-encoding');
+    assert.equal(content.result.kind, 'ready');
+    assert.equal(content.document.encoding, 'gbk');
+    assert.equal(content.warning.encoding, 'utf-8');
     await content.setEncoding('auto');
     assert.equal(content.document.text, '中文');
     assert.equal(content.encoding, 'auto');
+    assert.equal(content.warning, undefined);
     content.dispose();
   }
   assert.equal(payload.mimeType, 'text/plain;charset=gbk');

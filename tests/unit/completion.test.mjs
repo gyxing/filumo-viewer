@@ -155,6 +155,8 @@ test('超时及时结束忽略取消的驱动，并释放迟到会话', async ()
   await assert.rejects(controller.open(new File(['x'], 'x.late')), {
     code: 'LOAD_TIMEOUT',
   });
+  assert.equal(controller.getSnapshot().status, 'error');
+  assert.equal(controller.getSnapshot().error.code, 'LOAD_TIMEOUT');
   finish();
   await new Promise((resolve) => setTimeout(resolve, 0));
   assert.equal(released, 1);

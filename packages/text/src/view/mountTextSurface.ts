@@ -27,6 +27,7 @@ export function mountTextSurface(
     matches: TextMatch[] = [],
     index = -1;
   let searchAbort = new AbortController();
+  let noMatches = false;
   const viewport = new TextViewport(model, options, document);
   const bar = new TextFindBar(
     document,
@@ -48,6 +49,7 @@ export function mountTextSurface(
     searchAbort.abort();
     const controller = (searchAbort = new AbortController());
     matches = [];
+    noMatches = false;
     index = -1;
     viewport.highlight([], -1);
     bar.status.textContent = '';
@@ -62,10 +64,13 @@ export function mountTextSurface(
         matches.push(...batch);
         bar.status.textContent = String(matches.length);
       }
+      if (closed || controller.signal.aborted) return;
       if (matches.length) move(1);
-      else if (bar.query.value)
+      else if (bar.query.value) {
+        noMatches = true;
         bar.status.textContent =
           options.locale === 'en-US' ? 'No matches' : '未找到';
+      }
     } catch (error) {
       if (!controller.signal.aborted && !closed)
         bar.status.textContent = String(error);
@@ -93,6 +98,9 @@ export function mountTextSurface(
       const changed = model !== next;
       model = next;
       options = nextOptions;
+      bar.updateLocale(options.locale === 'en-US');
+      if (noMatches)
+        bar.status.textContent = options.locale === 'en-US' ? 'No matches' : '未找到';
       viewport.update(model, options);
       watermark.textContent = options.watermark ?? '';
       if (changed && bar.query.value) void search();

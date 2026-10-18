@@ -1,4 +1,4 @@
-import type { ViewerHandle } from '@fivo/dom';
+import type { ViewerHandle, ViewOptions } from '@fivo/dom';
 import { createViewer } from '@fivo/dom';
 import { json } from '@fivo/json';
 import { markdown } from '@fivo/markdown';
@@ -27,8 +27,24 @@ window.addEventListener('pagehide', () => {
   for (const url of assets.values()) URL.revokeObjectURL(url);
 });
 
+/** 固定为奇数字节数，确保 UTF-16 严格解码失败，避免用例取决于样本文字长度。 */
+function encodingFixture(content: string, name: string) {
+  return new File([content, new TextEncoder().encode(content).length % 2 ? '' : '\n'], name);
+}
+
 // 只使用无业务数据的内存样本，验收页面不依赖私有文件或远端内容。
 const samples = {
+  encodingText: encodingFixture('编码恢复测试\n' + '正文保留\n'.repeat(100), 'encoding.txt'),
+  encodingJson: encodingFixture('{"message":"编码恢复测试","nested":{"value":1}}', 'encoding.json'),
+  encodingMarkdown: encodingFixture('# 编码恢复测试\n\n' + '## 章节\n\n正文保留\n\n'.repeat(35), 'encoding.md'),
+  unreadableText: new File([Uint8Array.of(0xff)], 'unreadable.txt'),
+  unknownText: new File([
+    '未知后缀文本\n<script>window.fivoFallbackExecuted = true</script>\n配置项=中文',
+  ], 'settings.custom'),
+  unknownBinary: new File([Uint8Array.of(137, 80, 78, 71, 13, 10, 26, 10)], 'image.custom'),
+  mixedBinary: new File([
+    'A'.repeat(70 * 1024), Uint8Array.of(0),
+  ], 'mixed.custom'),
   text: new File(
     ['第一行\r\n第二行\t内容\n' + '长行 '.repeat(1000)],
     'sample.txt',
@@ -48,6 +64,29 @@ const samples = {
     ],
     'sample.md',
   ),
+  shortMarkdown: new File([[
+    '# Markdown 示例',
+    '',
+    '用于检查短文档中多个标题共享底部滚动位置的目录定位。',
+    '',
+    '## 任务',
+    '',
+    '- [x] 已完成',
+    '- [ ] 待处理',
+    '',
+    '| 名称 | 值 |',
+    '| --- | --- |',
+    '| 示例 | 内容 |',
+    '',
+    '## 代码',
+    '',
+    '```js',
+    'const message = "中文";',
+    'console.log(message);',
+    '```',
+    '',
+    '[跳转任务](#任务)',
+  ].join('\n')], 'short-outline.md'),
   typeset: new File([[
     '# 排版验收',
     '',
@@ -165,10 +204,11 @@ async function open(kind: keyof typeof samples, source = false) {
   await viewer?.destroy();
   viewer = createViewer(host, {
     height: 560,
+    locale: new URL(location.href).searchParams.get('locale') === 'en-US' ? 'en-US' : 'zh-CN',
     theme: new URL(location.href).searchParams.get('theme') === 'dark'
       ? 'dark' : 'light',
     plugins: [
-      text(),
+      text({ fallback: new URL(location.href).searchParams.get('fallback') !== 'off' }),
       json({ initialMode: source ? 'source' : 'tree' }),
       markdown({
         initialMode: source ? 'source' : 'reading',
@@ -180,6 +220,9 @@ async function open(kind: keyof typeof samples, source = false) {
   document.body.dataset.ready = kind;
 }
 for (const [label, kind, source] of [
+  ['未知文本', 'unknownText', false],
+  ['未知二进制', 'unknownBinary', false],
+  ['混合文件', 'mixedBinary', false],
   ['文本', 'text', false],
   ['GBK', 'gbk', false],
   ['JSON', 'json', false],
@@ -187,6 +230,7 @@ for (const [label, kind, source] of [
   ['无效 JSON', 'invalid', false],
   ['Markdown', 'markdown', false],
   ['Markdown 原文', 'markdown', true],
+  ['Markdown 短文档', 'shortMarkdown', false],
   ['Markdown 排版', 'typeset', false],
   ['Markdown HTML', 'html', false],
   ['Markdown 纯文档', 'plainMarkdown', false],
@@ -202,5 +246,11 @@ for (const [label, kind, source] of [
   document.body.prepend(button);
 }
 Object.assign(window, {
-  fivoTextFormats: { open, dispose: () => viewer?.destroy() },
+  fivoTextFormats: {
+    open,
+    update: (options: ViewOptions) => viewer?.update(options),
+    setActive: (active: boolean) => viewer?.setActive(active),
+    getCapabilities: () => viewer?.getCapabilities(),
+    dispose: () => viewer?.destroy(),
+  },
 });

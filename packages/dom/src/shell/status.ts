@@ -31,9 +31,11 @@ export function createViewerStatus(
     en: boolean,
     canRetry = false,
     inline = false,
-    errorMessage?: string,
+    error?: Error,
   ) => {
     const failed = kind === 'error';
+    const code = error && 'code' in error ? error.code : undefined;
+    const unsupported = failed && (code === 'UNSUPPORTED_FORMAT' || code === 'UNSUPPORTED_FILE_TYPE');
     const loading = kind === 'loading' || kind === 'detecting';
     const cancelled = kind === 'cancelled';
     const name = failed ? 'error' : loading ? 'loading' : 'document';
@@ -44,7 +46,9 @@ export function createViewerStatus(
     host.classList.toggle('fivo-status--centered', !inline);
     host.dataset.kind = kind;
     host.setAttribute('role', failed ? 'alert' : 'status');
-    heading.textContent = failed
+    heading.textContent = unsupported
+      ? en ? 'Unsupported format' : '暂不支持该格式'
+      : failed
       ? en
         ? 'Preview failed'
         : '预览失败'
@@ -59,7 +63,11 @@ export function createViewerStatus(
       : en
       ? 'Select a document to preview'
       : '请选择文档进行预览';
-    description.textContent = failed
+    description.textContent = unsupported
+      ? en
+        ? 'No enabled preview format matched this file, and it could not be read as plain text. Choose another file.'
+        : '该文件未匹配可用的预览格式，且无法按纯文本读取，请选择其他文件。'
+      : failed
       ? en
         ? 'Check that the file format is supported and the file is not damaged, then retry or choose another file.'
         : '请确认文件格式正确且文件未损坏，然后重试或选择其他文件。'
@@ -70,12 +78,14 @@ export function createViewerStatus(
       : en
       ? 'Open a file supported by the enabled document plugins.'
       : '点击打开文件，选择当前已启用格式的文档。';
-    labelShellButton(choose, en ? 'Open file' : '打开文件', 'open');
+    labelShellButton(choose,
+      unsupported ? en ? 'Open another file' : '打开其他文件' : en ? 'Open file' : '打开文件',
+      'open');
     retry.textContent = en ? 'Retry' : '重试';
-    retry.hidden = !(failed && canRetry);
+    retry.hidden = !(failed && canRetry && !unsupported);
     actions.hidden = loading;
     summary.textContent = en ? 'Technical details' : '技术详情';
-    technical.textContent = errorMessage ?? '';
-    details.hidden = !failed || !errorMessage;
+    technical.textContent = error?.message ?? '';
+    details.hidden = !failed || !error?.message;
   };
 }

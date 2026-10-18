@@ -1,5 +1,5 @@
 import { abortError, FivoError, throwIfAborted } from './errors';
-import { guardSource } from './guardSource';
+import { guardSource, waitForSource } from './guardSource';
 import type { DocumentInput, DocumentSource, ResourcePolicy } from './types';
 
 /** 校验限制值，不设置与文件格式无关的默认硬上限。 */
@@ -155,6 +155,39 @@ export async function normalizeSource(
       return url;
     },
     readAll: read,
+    async readBlob(signal) {
+      if (disposed) throw new FivoError('SOURCE_DISPOSED', '文件来源已释放');
+      throwIfAborted(signal);
+      if (size !== undefined) checkSize(size);
+      return blob;
+    },
+    async readRange(offset, length, signal) {
+      if (disposed) throw new FivoError('SOURCE_DISPOSED', '文件来源已释放');
+      throwIfAborted(signal);
+      if (
+        ![offset, length, offset + length].every(Number.isSafeInteger) ||
+        offset < 0 || length < 0
+      )
+        throw new FivoError('INVALID_RANGE', '来源读取范围无效');
+      if (size !== undefined) checkSize(size);
+      // 本地前缀探测只读切片；远程仍共享全文缓存，避免另起一次下载。
+      if (!blob) return (await read(signal)).slice(offset, offset + length);
+      const abort = new AbortController();
+      const cancel = () =>
+        abort.abort(signal.reason ?? localAbort.signal.reason ?? abortError());
+      signal.addEventListener('abort', cancel, { once: true });
+      localAbort.signal.addEventListener('abort', cancel, { once: true });
+      try {
+        const buffer = await waitForSource(
+          blob.slice(offset, offset + length).arrayBuffer(), abort.signal,
+        );
+        throwIfAborted(abort.signal);
+        return new Uint8Array(buffer);
+      } finally {
+        signal.removeEventListener('abort', cancel);
+        localAbort.signal.removeEventListener('abort', cancel);
+      }
+    },
     async dispose() {
       if (disposed) return;
       disposed = true;

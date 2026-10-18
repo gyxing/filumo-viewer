@@ -9,6 +9,8 @@ export interface DocumentSource {
   readonly size?: number;
   readonly url?: string;
   readAll(signal: AbortSignal): Promise<Uint8Array>;
+  /** 可直接交付不可变的本地 Blob；不具备此能力时返回 undefined，调用方回退到 readAll。 */
+  readBlob?(signal: AbortSignal): Promise<Blob | undefined>;
   readRange?(
     offset: number,
     length: number,
@@ -73,6 +75,12 @@ export interface DocumentPlugin<T = unknown> {
   readonly mimeTypes: readonly string[];
   readonly priority?: number;
   detect(source: DocumentSource, signal: AbortSignal): Promise<boolean>;
+  /** 仅常规探测全部拒绝时调用；策略用于限制探测范围，不加载未注册的实现。 */
+  detectFallback?(
+    source: DocumentSource,
+    signal: AbortSignal,
+    resourcePolicy?: ResourcePolicy,
+  ): Promise<boolean>;
   load(): Promise<DocumentDriver<T>>;
 }
 export interface ControllerSnapshot {

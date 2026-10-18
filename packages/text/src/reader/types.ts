@@ -14,6 +14,14 @@ export interface TextDocument {
 export type TextReadResult =
   | { kind: 'ready'; document: TextDocument }
   | { kind: 'needs-encoding'; reason: string };
+/** 重新解码失败时保留已提交内容，由视图按尝试编号展示一次提示。 */
+export interface TextEncodingWarning {
+  id: number;
+  encoding: TextEncoding;
+  retainedEncoding: TextDocument['encoding'];
+  /** 任务异常与不匹配编码分开提示，避免把 Worker 错误误报成编码问题。 */
+  error?: string;
+}
 export interface TextMatch {
   start: number;
   end: number;

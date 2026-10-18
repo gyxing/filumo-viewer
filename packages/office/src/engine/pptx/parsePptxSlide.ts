@@ -32,16 +32,10 @@ import type {
   PptxPackageState as PackageState,
   PlaceholderStyle,
   TableCellStyle,
-  TableStyleDefinition,
   TableStyleMap,
 } from './PptxPackageContext';
-import {
-  alphaToOpacity,
-  alphaToRatio,
-  resolveThemeColor,
-  toHexColor,
-  transformColor,
-} from './colors';
+import { parseAlphaNode, parseColorNode, parsePaintNode,
+  parseReflectionNode, parseShadowNode } from './parsePptxPaint';
 import {
   formatPptxTextField,
   type PptxTextFieldContext,
@@ -54,21 +48,17 @@ import {
 } from './parsePptxHyperlink';
 import { parsePptxMediaElement } from './parsePptxMedia';
 import { parsePptxTransition } from './parsePptxTransitions';
+import { createPptxTableParser } from './parsePptxTable';
 import { parsePptxSpeakerNotes } from './parseSpeakerNotes';
 import type {
   ChartElement,
-  GradientFill,
   ImageCrop,
   ImageElement,
   PresentationImagePreviewMetadata,
-  ReflectionStyle,
-  ShadowStyle,
   ShapeElement,
   SlideBackground,
   SlideElement,
   SlideModel,
-  TableCell,
-  TableElement,
   TextElement,
   TextParagraph,
   TextRun,
@@ -76,6 +66,11 @@ import type {
   ThemeModel,
   UnsupportedElement,
 } from './types';
+
+const parseTableElement = createPptxTableParser({
+  readParagraphLevelStyle, readDefaultRunStyle, mergeTextStyles,
+  mergeTableCellStyle, emuValue,
+});
 
 /** DrawingML 文本框未声明左右内边距时采用的 0.1 英寸默认值。 */
 const DEFAULT_TEXT_BODY_HORIZONTAL_INSET = emuToPx(91440);
@@ -106,10 +101,6 @@ function pctToLineHeightRatio(value?: string) {
   const next = Number(value);
   if (!Number.isFinite(next)) return undefined;
   return (next / 100000) * OFFICE_FONT_LINE_HEIGHT_RATIO;
-}
-
-function clamp01(value: number) {
-  return Math.max(0, Math.min(1, value));
 }
 
 function boolAttr(node: Element | null, name: string) {
@@ -680,195 +671,6 @@ function readBorderRadius(spPr: Element | null | undefined) {
   return ratio;
 }
 
-function colorWithOpacity(color: string, opacity?: number) {
-  if (opacity === undefined || opacity >= 1) return color;
-  const normalized = color.replace('#', '');
-  if (!/^[0-9a-f]{6}$/i.test(normalized)) return color;
-  const value = Number.parseInt(normalized, 16);
-  const r = (value >> 16) & 255;
-  const g = (value >> 8) & 255;
-  const b = value & 255;
-  return `rgba(${r}, ${g}, ${b}, ${opacity})`;
-}
-
-function readGradientFill(
-  node: Element | null | undefined,
-  theme: ThemeModel,
-): GradientFill | undefined {
-  if (!node || !matchesLocalName(node, 'gradFill')) return undefined;
-
-  const stops = childrenByLocalName(childByLocalName(node, 'gsLst'), 'gs')
-    .map((stop) => {
-      const colorNode =
-        childByLocalName(stop, 'srgbClr') ??
-        childByLocalName(stop, 'schemeClr') ??
-        childByLocalName(stop, 'sysClr') ??
-        childByLocalName(stop, 'prstClr');
-      const color = parseColorNode(colorNode, theme);
-      if (!color) return undefined;
-      return {
-        offset: clamp01(Number(attr(stop, 'pos') ?? 0) / 100000),
-        color: colorWithOpacity(color, parseAlphaNode(colorNode)),
-      };
-    })
-    .filter(
-      (
-        stop,
-      ): stop is {
-        /** 在所属数据范围中的偏移位置。 */
-        offset: number;
-        /** 渐变色标对应的 CSS 颜色值。 */
-        color: string;
-      } => Boolean(stop),
-    )
-    .sort((a, b) => a.offset - b.offset);
-
-  if (!stops.length) return undefined;
-
-  return {
-    type: 'linear',
-    angle: Number(attr(childByLocalName(node, 'lin'), 'ang') ?? 0) / 60000,
-    stops,
-  };
-}
-
-function pickGradientColorNode(node: Element | null | undefined) {
-  if (!node || !matchesLocalName(node, 'gradFill')) return node;
-  const stops = descendantsByLocalName(node, 'gs');
-  for (let index = stops.length - 1; index >= 0; index -= 1) {
-    const colorNode =
-      childByLocalName(stops[index], 'srgbClr') ??
-      childByLocalName(stops[index], 'schemeClr') ??
-      childByLocalName(stops[index], 'sysClr') ??
-      childByLocalName(stops[index], 'prstClr');
-    if (colorNode) return colorNode;
-  }
-  return node;
-}
-
-function parsePaintNode(node: Element | null | undefined, theme: ThemeModel) {
-  return readGradientFill(node, theme) ?? parseColorNode(node, theme);
-}
-
-function parseColorNode(node: Element | null | undefined, theme: ThemeModel) {
-  const sourceNode = pickGradientColorNode(node);
-  if (!sourceNode) return undefined;
-  const srgb = matchesLocalName(sourceNode, 'srgbClr')
-    ? sourceNode
-    : childByLocalName(sourceNode, 'srgbClr');
-  const scheme = matchesLocalName(sourceNode, 'schemeClr')
-    ? sourceNode
-    : childByLocalName(sourceNode, 'schemeClr');
-  const sys = matchesLocalName(sourceNode, 'sysClr')
-    ? sourceNode
-    : childByLocalName(sourceNode, 'sysClr');
-  const prst = matchesLocalName(sourceNode, 'prstClr')
-    ? sourceNode
-    : childByLocalName(sourceNode, 'prstClr');
-  const colorNode = srgb ?? scheme ?? sys ?? prst;
-  const base =
-    attr(srgb, 'val') ??
-    resolveThemeColor(attr(scheme, 'val'), theme) ??
-    attr(sys, 'lastClr') ??
-    attr(prst, 'val');
-  const transforms = descendantsByLocalName(colorNode, 'tint')
-    .concat(descendantsByLocalName(colorNode, 'shade'))
-    .concat(descendantsByLocalName(colorNode, 'lumMod'))
-    .concat(descendantsByLocalName(colorNode, 'lumOff'))
-    .map((item) => ({
-      type: item.localName,
-      val: Number(attr(item, 'val') ?? 0),
-    }));
-  const raw = transformColor(toHexColor(base), transforms);
-  return raw;
-}
-
-function parseAlphaNode(node: Element | null | undefined) {
-  return alphaToOpacity(
-    attr(descendantByLocalName(pickGradientColorNode(node), 'alpha'), 'val'),
-  );
-}
-
-function parseRatioNode(node: Element | null | undefined) {
-  return alphaToRatio(attr(descendantByLocalName(node, 'alpha'), 'val'));
-}
-
-function parseShadowNode(
-  node: Element | null,
-  theme: ThemeModel,
-): ShadowStyle | undefined {
-  if (!node) return undefined;
-  // 阴影参数位于 effectLst/effectDag 内的具体阴影节点，不能从效果容器读取。
-  const shadowNode =
-    (matchesLocalName(node, 'outerShdw') || matchesLocalName(node, 'innerShdw')
-      ? node
-      : childByLocalName(node, 'outerShdw') ??
-        childByLocalName(node, 'innerShdw') ??
-        descendantByLocalName(node, 'outerShdw') ??
-        descendantByLocalName(node, 'innerShdw')) ?? undefined;
-  if (!shadowNode) return undefined;
-  const colorNode =
-    childByLocalName(shadowNode, 'srgbClr') ??
-    childByLocalName(shadowNode, 'schemeClr');
-  const color = parseColorNode(colorNode, theme);
-  const opacity = parseRatioNode(colorNode);
-  const blur = attr(shadowNode, 'blurRad')
-    ? Number(attr(shadowNode, 'blurRad')) / 12700
-    : undefined;
-  const dist = attr(shadowNode, 'dist')
-    ? Number(attr(shadowNode, 'dist')) / 12700
-    : undefined;
-  const dir = attr(shadowNode, 'dir')
-    ? (Number(attr(shadowNode, 'dir')) / 60000) * (Math.PI / 180)
-    : undefined;
-  return {
-    color,
-    opacity,
-    blur,
-    offsetX: dist && dir !== undefined ? Math.cos(dir) * dist : undefined,
-    offsetY: dist && dir !== undefined ? Math.sin(dir) * dist : undefined,
-  };
-}
-
-/** 读取 DrawingML 倒影参数，渲染层再转换为浏览器盒倒影。 */
-function parseReflectionNode(
-  node: Element | null | undefined,
-): ReflectionStyle | undefined {
-  if (!node) return undefined;
-  const reflectionNode =
-    (matchesLocalName(node, 'reflection')
-      ? node
-      : childByLocalName(node, 'reflection') ??
-        descendantByLocalName(node, 'reflection')) ?? undefined;
-  if (!reflectionNode) return undefined;
-  const ratio = (name: string) => {
-    const value = attr(reflectionNode, name);
-    if (value === undefined) return undefined;
-    const parsed = Number(value) / 100000;
-    return Number.isFinite(parsed) ? clamp01(parsed) : undefined;
-  };
-  const emu = (name: string) => {
-    const value = attr(reflectionNode, name);
-    if (value === undefined) return undefined;
-    const parsed = Number(value) / 12700;
-    return Number.isFinite(parsed) ? parsed : undefined;
-  };
-  const direction = attr(reflectionNode, 'dir');
-  return {
-    blur: emu('blurRad'),
-    distance: emu('dist'),
-    direction:
-      direction !== undefined && Number.isFinite(Number(direction))
-        ? Number(direction) / 60000
-        : undefined,
-    startOpacity: ratio('stA'),
-    endOpacity: ratio('endA'),
-    startPosition: ratio('stPos'),
-    endPosition: ratio('endPos'),
-  };
-}
-
-/** 解析并确定 `resolveMediaRef` 对应的引用或配置。 */
 function resolveMediaRef(
   target: string | undefined,
   packageState: PackageState,
@@ -1825,240 +1627,6 @@ function parseChartElement(
   };
 }
 
-function parseTableCellText(
-  cellNode: Element,
-  theme: ThemeModel,
-  relationships: Record<string, OfficeRelationship>,
-  slideTargets?: PptxSlideTargetMap,
-) {
-  const txBody = childByLocalName(cellNode, 'txBody');
-  const paragraphs = childrenByLocalName(txBody, 'p').map((paragraphNode) => {
-    const paragraphProps = childByLocalName(paragraphNode, 'pPr');
-    const paragraphStyle = readParagraphLevelStyle(paragraphProps, theme);
-    const defaultRunStyle = mergeTextStyles(
-      readDefaultRunStyle(childByLocalName(paragraphProps, 'defRPr'), theme),
-      readDefaultRunStyle(childByLocalName(paragraphNode, 'endParaRPr'), theme),
-    );
-    const runs: TextRun[] = [];
-
-    Array.from(paragraphNode.children).forEach((child) => {
-      if (child.localName === 'r' || child.localName === 'fld') {
-        const runProps = childByLocalName(child, 'rPr');
-        runs.push({
-          text:
-            textContent(childByLocalName(child, 't')) ||
-            child.textContent ||
-            '',
-          hyperlink: parsePptxHyperlink(runProps, relationships, slideTargets),
-          style: mergeTextStyles(
-            defaultRunStyle,
-            readDefaultRunStyle(runProps, theme),
-          ),
-        });
-        return;
-      }
-
-      if (child.localName === 'br') {
-        const runProps = childByLocalName(child, 'rPr');
-        runs.push({
-          text: '\n',
-          style: mergeTextStyles(
-            defaultRunStyle,
-            readDefaultRunStyle(runProps, theme),
-          ),
-        });
-      }
-    });
-
-    if (!runs.length && paragraphNode.textContent) {
-      runs.push({ text: paragraphNode.textContent, style: defaultRunStyle });
-    }
-
-    return {
-      runs,
-      style: paragraphStyle,
-      bullet: paragraphStyle.bullet,
-    };
-  });
-
-  const text = paragraphs
-    .map((paragraph) => paragraph.runs.map((run) => run.text).join(''))
-    .join('\n');
-  const firstRunStyle = paragraphs
-    .flatMap((paragraph) => paragraph.runs)
-    .find(Boolean)?.style;
-
-  return { text, paragraphs, firstRunStyle };
-}
-
-function parseTableBorder(tcPr: Element | null, theme: ThemeModel) {
-  const line =
-    childByLocalName(tcPr, 'ln') ??
-    childByLocalName(tcPr, 'lnL') ??
-    childByLocalName(tcPr, 'lnR') ??
-    childByLocalName(tcPr, 'lnT') ??
-    childByLocalName(tcPr, 'lnB');
-  if (!line) return {};
-  if (childByLocalName(line, 'noFill')) {
-    return {
-      borderColor: null,
-    };
-  }
-  const fill = childByLocalName(line, 'solidFill') ?? line;
-  return {
-    borderColor: parseColorNode(fill, theme),
-    borderOpacity: parseAlphaNode(fill),
-    borderWidth: attr(line, 'w') ? Number(attr(line, 'w')) / 12700 : undefined,
-  };
-}
-
-function tableFlag(node: Element | null, name: string) {
-  return attr(node, name) === '1' || attr(node, name) === 'true';
-}
-
-/** 解析并确定 `resolveTableCellStyle` 对应的引用或配置。 */
-function resolveTableCellStyle(
-  style: TableStyleDefinition | undefined,
-  tblPr: Element | null,
-  rowIndex: number,
-  columnIndex: number,
-  rowCount: number,
-  columnCount: number,
-) {
-  if (!style) return {};
-  const isFirstRow = tableFlag(tblPr, 'firstRow') && rowIndex === 0;
-  const isLastRow = tableFlag(tblPr, 'lastRow') && rowIndex === rowCount - 1;
-  const isFirstCol = tableFlag(tblPr, 'firstCol') && columnIndex === 0;
-  const isLastCol =
-    tableFlag(tblPr, 'lastCol') && columnIndex === columnCount - 1;
-  const bandRowOffset = tableFlag(tblPr, 'firstRow') ? 1 : 0;
-  const bandColOffset = tableFlag(tblPr, 'firstCol') ? 1 : 0;
-  const rowBand =
-    tableFlag(tblPr, 'bandRow') && !isFirstRow && !isLastRow
-      ? (rowIndex - bandRowOffset) % 2 === 0
-        ? style.variants.band1H
-        : style.variants.band2H
-      : undefined;
-  const colBand =
-    tableFlag(tblPr, 'bandCol') && !isFirstCol && !isLastCol
-      ? (columnIndex - bandColOffset) % 2 === 0
-        ? style.variants.band1V
-        : style.variants.band2V
-      : undefined;
-
-  return mergeTableCellStyle(
-    style.variants.wholeTbl,
-    rowBand,
-    colBand,
-    isFirstRow ? style.variants.firstRow : undefined,
-    isLastRow ? style.variants.lastRow : undefined,
-    isFirstCol ? style.variants.firstCol : undefined,
-    isLastCol ? style.variants.lastCol : undefined,
-  );
-}
-
-function parseTableElement(
-  node: Element,
-  index: number,
-  theme: ThemeModel,
-  tableStyles?: TableStyleMap,
-  relationships: Record<string, OfficeRelationship> = {},
-  slideTargets?: PptxSlideTargetMap,
-): TableElement {
-  const xfrm = childByLocalName(node, 'xfrm');
-  const off = childByLocalName(xfrm, 'off');
-  const ext = childByLocalName(xfrm, 'ext');
-  const tbl = descendantByLocalName(node, 'tbl');
-  const tblPr = childByLocalName(tbl, 'tblPr');
-  const styleId = textContent(childByLocalName(tblPr, 'tableStyleId')).trim();
-  const tableStyle = styleId ? tableStyles?.[styleId] : undefined;
-  const columnWidths = childrenByLocalName(
-    childByLocalName(tbl, 'tblGrid'),
-    'gridCol',
-  ).map((col) => emuValue(col, 'w') ?? 0);
-  const rowNodes = childrenByLocalName(tbl, 'tr');
-  const rowHeights = rowNodes.map((rowNode) => emuValue(rowNode, 'h') ?? 0);
-  const rows: TableCell[][] = rowNodes.map((rowNode, rowIndex) =>
-    childrenByLocalName(rowNode, 'tc').map(
-      (cellNode, columnIndex): TableCell => {
-        const tcPr = childByLocalName(cellNode, 'tcPr');
-        const fillNode =
-          childByLocalName(tcPr, 'solidFill') ??
-          childByLocalName(tcPr, 'gradFill');
-        const { text, paragraphs, firstRunStyle } = parseTableCellText(
-          cellNode,
-          theme,
-          relationships,
-          slideTargets,
-        );
-        const explicitBorder = parseTableBorder(tcPr, theme);
-        const styled = resolveTableCellStyle(
-          tableStyle,
-          tblPr,
-          rowIndex,
-          columnIndex,
-          rowNodes.length,
-          columnWidths.length,
-        );
-        const explicitBackgroundColor = childByLocalName(tcPr, 'noFill')
-          ? null
-          : parseColorNode(fillNode, theme);
-        const explicitBackgroundOpacity = childByLocalName(tcPr, 'noFill')
-          ? undefined
-          : parseAlphaNode(fillNode);
-        return {
-          text,
-          paragraphs,
-          style: mergeTextStyles(styled.text, firstRunStyle),
-          backgroundColor:
-            explicitBackgroundColor !== undefined
-              ? explicitBackgroundColor
-              : styled.backgroundColor ?? undefined,
-          backgroundOpacity:
-            explicitBackgroundOpacity !== undefined
-              ? explicitBackgroundOpacity
-              : styled.backgroundOpacity,
-          borderColor:
-            explicitBorder.borderColor !== undefined
-              ? explicitBorder.borderColor
-              : styled.borderColor ?? undefined,
-          borderOpacity:
-            explicitBorder.borderOpacity !== undefined
-              ? explicitBorder.borderOpacity
-              : styled.borderOpacity,
-          borderWidth:
-            explicitBorder.borderWidth !== undefined
-              ? explicitBorder.borderWidth
-              : styled.borderWidth,
-          margins: {
-            left: emuValue(tcPr, 'marL'),
-            right: emuValue(tcPr, 'marR'),
-            top: emuValue(tcPr, 'marT'),
-            bottom: emuValue(tcPr, 'marB'),
-          },
-          verticalAlign:
-            attr(tcPr, 'anchor') === 'b'
-              ? 'bottom'
-              : attr(tcPr, 'anchor') === 'ctr'
-              ? 'middle'
-              : 'top',
-        };
-      },
-    ),
-  );
-
-  return {
-    id: `table-${index}`,
-    type: 'table',
-    x: emuValue(off, 'x') ?? 0,
-    y: emuValue(off, 'y') ?? 0,
-    width: emuValue(ext, 'cx') ?? 0,
-    height: emuValue(ext, 'cy') ?? 0,
-    columnWidths,
-    rowHeights,
-    rows,
-  };
-}
 
 function parseUnsupportedElement(
   index: number,

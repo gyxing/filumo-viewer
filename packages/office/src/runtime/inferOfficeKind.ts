@@ -3,16 +3,22 @@ import type { PreviewKind } from '../engine/preview';
 
 /** 无名称输入只检查容器目录，不解析页面内容；目录读取结束立即释放。 */
 export async function inferOfficeKind(
-  bytes: Uint8Array,
+  input: Uint8Array | Blob,
   signal: AbortSignal,
 ): Promise<PreviewKind> {
   throwIfAborted(signal);
+  const prefix = input instanceof Uint8Array
+    ? input.subarray(0, 8)
+    : new Uint8Array(await input.slice(0, 8).arrayBuffer());
+  throwIfAborted(signal);
   let names: string[];
-  if (bytes[0] === 0x50 && bytes[1] === 0x4b) {
-    const { ZipReader, Uint8ArrayReader } = await import('@zip.js/zip.js');
-    const reader = new ZipReader(new Uint8ArrayReader(bytes), {
-      useWebWorkers: false,
-    });
+  if (prefix[0] === 0x50 && prefix[1] === 0x4b) {
+    const { ZipReader, Uint8ArrayReader, BlobReader } =
+      await import('@zip.js/zip.js');
+    const reader = new ZipReader(
+      input instanceof Uint8Array ? new Uint8ArrayReader(input) : new BlobReader(input),
+      { useWebWorkers: false },
+    );
     try {
       names = [];
       for await (const entry of reader.getEntriesGenerator()) {
@@ -30,7 +36,9 @@ export async function inferOfficeKind(
     const { openCfbRandomAccess } = await import('../engine/cfb');
     const { createBlobRandomAccessSource } = await import('../engine/io');
     const reader = await openCfbRandomAccess(
-      createBlobRandomAccessSource(new Blob([bytes])),
+      createBlobRandomAccessSource(
+        input instanceof Uint8Array ? new Blob([input]) : input,
+      ),
       signal,
     );
     try {

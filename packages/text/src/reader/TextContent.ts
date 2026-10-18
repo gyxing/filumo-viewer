@@ -1,7 +1,7 @@
 import { abortError, notify, throwIfAborted } from '@fivo/core';
 import { TextTaskClient } from './TextTaskClient';
 import { decodeTextTask } from './tasks';
-import type { TaskWorker, TextEncoding, TextReadResult } from './types';
+import type { TaskWorker, TextEncoding, TextEncodingWarning, TextReadResult } from './types';
 
 export interface TextContentOptions {
   encoding?: TextEncoding;
@@ -17,8 +17,11 @@ export class TextContent {
   loading = false;
   revision = 0;
   encoding: TextEncoding;
+  warning?: TextEncodingWarning;
   private listeners = new Set<() => void>();
   private controller = new AbortController();
+  private decoding = new AbortController();
+  private attempt = 0;
   private closed = false;
   private client: TextTaskClient;
   private mimeType?: string;
@@ -53,24 +56,25 @@ export class TextContent {
   get taskSignal() {
     return this.controller.signal;
   }
-  /** 编码改变使旧解析和高亮失效，失败时保留编码选择入口。 */
+  /** 新编码成功后才提交内容版本，失败保留已有正文和解析任务。 */
   async setEncoding(encoding: TextEncoding) {
     if (this.closed) throw abortError();
-    this.controller.abort();
-    this.controller = new AbortController();
-    this.encoding = encoding;
-    const revision = ++this.revision;
+    this.decoding.abort();
+    const decoding = (this.decoding = new AbortController());
+    const attempt = ++this.attempt;
+    const previous = this.document;
+    if (!previous) this.encoding = encoding;
     this.loading = true;
-    this.result = undefined;
+    this.warning = undefined;
     this.error = undefined;
     notify(this.listeners);
     try {
       const result = await this.client.run<TextReadResult>(
         'decode',
         { bytes: this.bytes, encoding, mimeType: this.mimeType },
-        this.taskSignal,
+        decoding.signal,
       );
-      if (this.closed || revision !== this.revision) return;
+      if (this.closed || attempt !== this.attempt || decoding.signal.aborted) return;
       if (
         !result ||
         !['ready', 'needs-encoding'].includes(result.kind) ||
@@ -81,12 +85,24 @@ export class TextContent {
             result.document.lineStarts[0] !== 0))
       )
         throw new Error('解码任务返回了无效内容');
-      this.result = result;
+      if (result.kind === 'ready') {
+        // 仅提交成功结果时淘汰旧版本；解码中的通知不会清空可见内容。
+        this.controller.abort();
+        this.controller = new AbortController();
+        this.result = result;
+        this.encoding = encoding;
+        this.revision++;
+      } else if (previous) {
+        this.warning = { id: attempt, encoding, retainedEncoding: previous.encoding };
+      } else this.result = result;
     } catch (error) {
-      if (revision !== this.revision || this.closed) return;
-      this.error = error instanceof Error ? error.message : String(error);
+      if (attempt !== this.attempt || this.closed || decoding.signal.aborted) return;
+      const message = error instanceof Error ? error.message : String(error);
+      if (previous)
+        this.warning = { id: attempt, encoding, retainedEncoding: previous.encoding, error: message };
+      else this.error = message;
     } finally {
-      if (revision === this.revision && !this.closed) {
+      if (attempt === this.attempt && !this.closed) {
         this.loading = false;
         notify(this.listeners);
       }
@@ -110,11 +126,14 @@ export class TextContent {
     if (this.closed) return;
     this.closed = true;
     this.revision++;
+    this.attempt++;
+    this.decoding.abort();
     this.controller.abort();
     this.client.dispose();
     this.listeners.clear();
     this.bytes = new Uint8Array();
     this.result = undefined;
+    this.warning = undefined;
     this.signal.removeEventListener('abort', this.dispose);
   };
 }

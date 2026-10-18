@@ -1,0 +1,138 @@
+.fivo-toolbar-more {
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+
+.fivo-toolbar .fivo-toolbar-more-trigger {
+  width: 32px;
+  padding: 4px;
+}
+
+.fivo-toolbar .fivo-toolbar-more-trigger[aria-expanded='true'] {
+  color: var(--fivo-primary);
+  background: var(--fivo-hover);
+}
+
+.fivo-toolbar-menu {
+  position: fixed;
+  inset: auto;
+  z-index: 45;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 4px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  color: var(--fivo-text);
+  background: var(--fivo-surface);
+  border: 1px solid var(--fivo-border);
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 16%);
+  font: 13px/1.5 system-ui, sans-serif;
+  text-align: left;
+}
+
+// 菜单行覆盖主栏按钮样式，不能继承边框、居中布局和固定输入控件尺寸。
+.fivo-toolbar .fivo-toolbar-menu > .fivo-toolbar-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  width: 100%;
+  height: 34px;
+  min-height: 34px;
+  box-sizing: border-box;
+  padding: 5px 10px;
+  color: var(--fivo-text);
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  outline: 0;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+// 同层存在图标时为无图标项预留一列；纯文字子菜单不增加空白缩进。
+.fivo-toolbar .fivo-toolbar-menu[data-icons='true'] > .fivo-toolbar-menu-item[data-icon=''] {
+  padding-left: 32px;
+}
+
+.fivo-toolbar .fivo-toolbar-menu-item:is(:hover, [data-active='true'], [aria-expanded='true']):not(:disabled) {
+  color: var(--fivo-text);
+  background: var(--fivo-hover);
+}
+
+.fivo-toolbar .fivo-toolbar-menu-item[role='menuitemradio'][aria-checked='true']:not(:disabled) {
+  color: var(--fivo-primary);
+  background: var(--fivo-selected);
+}
+
+.fivo-toolbar .fivo-toolbar-menu-item:focus-visible {
+  outline: 1px solid var(--fivo-primary);
+  outline-offset: -1px;
+}
+
+.fivo-toolbar .fivo-toolbar-menu-item:disabled {
+  color: var(--fivo-disabled-text);
+  background: transparent;
+  opacity: 1;
+  cursor: default;
+}
+
+.fivo-menu-label {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.fivo-menu-value {
+  flex: 0 1 auto;
+  min-width: 0;
+  margin-left: auto;
+  overflow: hidden;
+  color: var(--fivo-muted);
+  font-size: 12px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.fivo-menu-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 14px;
+  margin-left: auto;
+}
+
+.fivo-menu-value:not([hidden]) + .fivo-menu-indicator {
+  margin-left: 0;
+}
+
+.fivo-menu-indicator > svg {
+  width: 14px;
+  height: 14px;
+}
+
+.fivo-toolbar-menu-item[aria-checked='true'] > .fivo-menu-indicator {
+  color: var(--fivo-primary);
+}
+
+.fivo-toolbar-menu > [role='separator'] {
+  height: 1px;
+  margin: 4px 8px;
+  background: var(--fivo-border);
+}
+
+.fivo-toolbar-menu[hidden] {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  .fivo-toolbar .fivo-toolbar-menu > .fivo-toolbar-menu-item {
+    height: 44px;
+    min-height: 44px;
+  }
+}

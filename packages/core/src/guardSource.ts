@@ -48,45 +48,65 @@ export function guardSource(
         '文件超过宿主配置的大小限制',
       );
   };
-  const read = async (signal: AbortSignal, range?: [number, number]) => {
+  const run = async <T>(
+    signal: AbortSignal,
+    operation: (signal: AbortSignal) => Promise<T>,
+  ): Promise<T> => {
     if (closed) throw new FivoError('SOURCE_DISPOSED', '文件来源已释放');
     throwIfAborted(signal);
     check(raw.size);
-    if (range) {
-      if (
-        !range.every(Number.isSafeInteger) ||
-        range.some((value) => value < 0)
-      )
-        throw new FivoError('INVALID_RANGE', '来源读取范围无效');
-      check(range[0] + range[1]);
-    }
-    if (cached)
-      return range ? cached.slice(range[0], range[0] + range[1]) : cached;
     const abort = new AbortController();
     const cancel = () =>
       abort.abort(signal.reason ?? lifetime.signal.reason ?? abortError());
     signal.addEventListener('abort', cancel, { once: true });
     lifetime.signal.addEventListener('abort', cancel, { once: true });
     try {
-      const bytes = await waitForSource(
-        Promise.resolve().then(() =>
-          range && raw.readRange
-            ? raw.readRange(range[0], range[1], abort.signal)
-            : raw.readAll(abort.signal),
-        ),
+      const result = await waitForSource(
+        Promise.resolve().then(() => {
+          throwIfAborted(abort.signal);
+          return operation(abort.signal);
+        }),
         abort.signal,
       );
       throwIfAborted(abort.signal);
       check(raw.size);
-      check(bytes.byteLength);
-      if (range && raw.readRange) return bytes;
-      cached = bytes;
-      return range ? bytes.slice(range[0], range[0] + range[1]) : bytes;
+      return result;
     } finally {
       signal.removeEventListener('abort', cancel);
       lifetime.signal.removeEventListener('abort', cancel);
     }
   };
+  const read = (signal: AbortSignal, range?: [number, number]) =>
+    run(signal, async (readingSignal) => {
+      if (
+        range &&
+        (!range.every(Number.isSafeInteger) ||
+          range.some((value) => value < 0) ||
+          !Number.isSafeInteger(range[0] + range[1]))
+      )
+        throw new FivoError('INVALID_RANGE', '来源读取范围无效');
+      if (cached)
+        return range ? cached.slice(range[0], range[0] + range[1]) : cached;
+      if (range && raw.readRange) {
+        // 请求窗口可以大于文件；配额限制实际文件和返回数据，不把窗口末端当文件大小。
+        const [offset, requested] = range;
+        const limit = raw.size ?? policy?.maxFileBytes;
+        const length = limit === undefined
+          ? requested
+          : Math.min(requested, Math.max(0, Math.floor(limit) - offset));
+        if (!length) return new Uint8Array();
+        const bytes = await raw.readRange(offset, length, readingSignal);
+        check(bytes.byteLength);
+        if (bytes.byteLength > length)
+          throw new FivoError('INVALID_RANGE', '来源返回了超出请求范围的数据');
+        return bytes;
+      }
+      const bytes = await raw.readAll(readingSignal);
+      throwIfAborted(readingSignal);
+      check(bytes.byteLength);
+      cached = bytes;
+      return range ? bytes.slice(range[0], range[0] + range[1]) : bytes;
+    });
   return {
     get name() {
       return raw.name;
@@ -101,6 +121,13 @@ export function guardSource(
       return raw.url;
     },
     readAll: (signal) => read(signal),
+    readBlob: raw.readBlob
+      ? (signal) => run(signal, async (readingSignal) => {
+          const blob = await raw.readBlob!(readingSignal);
+          if (blob) check(blob.size);
+          return blob;
+        })
+      : undefined,
     readRange: (offset, length, signal) => read(signal, [offset, length]),
     async dispose() {
       if (closed) return;

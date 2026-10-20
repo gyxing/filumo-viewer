@@ -8,6 +8,9 @@ export const WORKSPACE_PACKAGES = [
   'text',
   'json',
   'markdown',
+  'csv',
+  'xml',
+  'code',
   'react',
   'vue',
   'vue2',
@@ -16,8 +19,17 @@ export const WORKSPACE_PACKAGES = [
   Object.freeze({
     name,
     entries:
-      name === 'dom'
-        ? { index: 'src/index.ts', outline: 'src/outline.ts' }
+      name === 'core'
+        ? { index: 'src/index.ts', text: 'src/text.ts' }
+        : name === 'dom'
+        ? {
+            index: 'src/index.ts',
+            outline: 'src/outline.ts',
+            text: 'src/text.ts',
+            'text-messages': 'src/text-messages.ts',
+            'text-highlight': 'src/text-highlight.ts',
+            split: 'src/split.ts',
+          }
         : name === 'image'
         ? { index: 'src/index.ts', view: 'src/view/index.ts' }
         : name === 'pdf'
@@ -38,12 +50,15 @@ export const WORKSPACE_PACKAGES = [
       'markdown',
       'image',
       'pdf',
+      'csv',
+      'xml',
+      'code',
     ].includes(name),
     assetStrategy: name === 'pdf' ? 'pdfjs' : undefined,
     workerEntry:
       name === 'office'
         ? 'src/engine/parsing/runtime/worker/entry.js'
-        : ['text', 'json', 'markdown'].includes(name)
+        : ['text', 'json', 'markdown', 'csv', 'xml', 'code'].includes(name)
         ? 'src/worker/entry.ts'
         : undefined,
   }),

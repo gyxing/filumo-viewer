@@ -76,9 +76,15 @@ importers:
 
   apps/docs:
     dependencies:
+      '@fivo/code':
+        specifier: workspace:^
+        version: link:../../packages/code
       '@fivo/core':
         specifier: workspace:^
         version: link:../../packages/core
+      '@fivo/csv':
+        specifier: workspace:^
+        version: link:../../packages/csv
       '@fivo/dom':
         specifier: workspace:^
         version: link:../../packages/dom
@@ -106,6 +112,9 @@ importers:
       '@fivo/viewer':
         specifier: workspace:^
         version: link:../../packages/viewer
+      '@fivo/xml':
+        specifier: workspace:^
+        version: link:../../packages/xml
       antd:
         specifier: ^5.29.3
         version: 5.29.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -126,7 +135,28 @@ importers:
         specifier: ^2.4.38-beta.1
         version: 2.4.47(@babel/core@7.29.7)(@swc/helpers@0.5.15)(@types/node@26.1.1)(@types/react@18.3.31)(lightningcss@1.22.1)(prettier@2.8.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rollup@3.30.0)(terser@5.49.0)(type-fest@1.4.0)(typescript@5.4.2)
 
+  packages/code:
+    dependencies:
+      '@fivo/core':
+        specifier: workspace:^
+        version: link:../core
+      '@fivo/dom':
+        specifier: workspace:^
+        version: link:../dom
+      highlight.js:
+        specifier: 11.12.0
+        version: 11.12.0
+
   packages/core: {}
+
+  packages/csv:
+    dependencies:
+      '@fivo/core':
+        specifier: workspace:^
+        version: link:../core
+      '@fivo/dom':
+        specifier: workspace:^
+        version: link:../dom
 
   packages/dom:
     dependencies:
@@ -151,9 +181,6 @@ importers:
       '@fivo/dom':
         specifier: workspace:^
         version: link:../dom
-      '@fivo/text':
-        specifier: workspace:^
-        version: link:../text
 
   packages/markdown:
     dependencies:
@@ -163,9 +190,6 @@ importers:
       '@fivo/dom':
         specifier: workspace:^
         version: link:../dom
-      '@fivo/text':
-        specifier: workspace:^
-        version: link:../text
       highlight.js:
         specifier: 11.12.0
         version: 11.12.0
@@ -236,6 +260,12 @@ importers:
 
   packages/viewer:
     dependencies:
+      '@fivo/code':
+        specifier: workspace:^
+        version: link:../code
+      '@fivo/csv':
+        specifier: workspace:^
+        version: link:../csv
       '@fivo/image':
         specifier: workspace:^
         version: link:../image
@@ -254,6 +284,9 @@ importers:
       '@fivo/text':
         specifier: workspace:^
         version: link:../text
+      '@fivo/xml':
+        specifier: workspace:^
+        version: link:../xml
 
   packages/vue:
     dependencies:
@@ -280,6 +313,18 @@ importers:
       vue:
         specifier: 2.7.16
         version: 2.7.16
+
+  packages/xml:
+    dependencies:
+      '@fivo/core':
+        specifier: workspace:^
+        version: link:../core
+      '@fivo/dom':
+        specifier: workspace:^
+        version: link:../dom
+      saxes:
+        specifier: 6.0.0
+        version: 6.0.0
 
 packages:
 

@@ -15,7 +15,7 @@ export async function mountText(context: ViewContext): Promise<ViewHandle> {
   let options = context.options,
     zoom = options.zoom ?? 100,
     wrap = textOptions.wrap !== false,
-    lineNumbers = textOptions.lineNumbers === true,
+    lineNumbers = textOptions.lineNumbers !== false,
     surface: TextSurfaceHandle | undefined,
     closed = false,
     active = true,

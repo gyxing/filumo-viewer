@@ -75,7 +75,7 @@ test('标准描述符静态闭包不包含格式引擎、样式、Worker 或高�
     false,
     initial.join('\n'),
   );
-  for (const name of ['text', 'json', 'markdown']) {
+  for (const name of ['text', 'json', 'markdown', 'csv', 'xml', 'code']) {
     const manifest = JSON.parse(
       await readFile(`packages/${name}/dist/build-manifest.json`, 'utf8'),
     );
@@ -125,17 +125,40 @@ test('单格式根入口与读取入口不会带入其他格式实现', async ()
       false,
       files.join('\n'),
     );
-    if (entry === 'reader')
+    if (entry === 'reader') {
+      const dom = JSON.parse(
+        await readFile('packages/dom/dist/build-manifest.json', 'utf8'),
+      );
+      const pureMessages = new Set(
+        dom.outputs
+          .filter(
+            (output) =>
+              output.inputs.length &&
+              output.inputs.every((input) =>
+                [
+                  'src/text-messages.ts',
+                  'src/text/formatEncodingWarning.ts',
+                ].includes(input),
+              ),
+          )
+          .map((output) => resolve('packages/dom/dist', output.file)),
+      );
       assert.equal(
-        files.some((file) => /packages[\\/]dom[\\/]|\.less$/.test(file)),
+        files.some(
+          (file) =>
+            /\.less$/.test(file) ||
+            (/packages[\\/]dom[\\/]/.test(file) &&
+              !pureMessages.has(resolve(file))),
+        ),
         false,
         files.join('\n'),
       );
+    }
   }
 });
 
 test('新 Worker 保持 JSON 和 Markdown 解析动态边界', async () => {
-  for (const name of ['json', 'markdown']) {
+  for (const name of ['json', 'markdown', 'csv', 'xml', 'code']) {
     const manifest = JSON.parse(
       await readFile('packages/' + name + '/dist/build-manifest.json', 'utf8'),
     );
@@ -143,7 +166,11 @@ test('新 Worker 保持 JSON 和 Markdown 解析动态边界', async () => {
       ...collectStaticInputs({ outputs: manifest.worker.graph }, 'worker.js'),
     ];
     assert.equal(
-      initial.some((file) => /src\/parser\/|node_modules.*marked/.test(file)),
+      initial.some((file) =>
+        /src\/(?:parser|highlight)\/|node_modules.*(?:marked|saxes|highlight\.js)/.test(
+          file,
+        ),
+      ),
       false,
       initial.join('\n'),
     );

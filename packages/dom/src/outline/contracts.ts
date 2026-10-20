@@ -28,6 +28,8 @@ export interface OutlineTreeOptions<TNode> {
   accessors: OutlineAccessors<TNode>;
   locale?: 'zh-CN' | 'en-US';
   stylePolicy?: StylePolicy;
+  /** 只渲染可见行的标签内容；可访问名称、提示及键盘操作仍使用 getText。 */
+  renderLabel?(node: TNode, document: Document): Node | null | undefined;
   onToggle(id: string, expanded: boolean): void;
   onActivate(id: string): void;
 }

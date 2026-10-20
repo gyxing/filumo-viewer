@@ -1,4 +1,4 @@
-import type { TextEncoding } from '@fivo/text/reader';
+import type { TextEncoding } from '@fivo/core/text';
 import { Input, InputNumber, Select, Switch } from 'antd';
 import React from 'react';
 import { changeView } from './config';
@@ -17,11 +17,14 @@ export function ConfigPanel({
 }) {
   const update = (patch: Partial<SmokeConfig['viewer']>) =>
     onChange(changeView(value, patch));
-  const textual =
-    format === 'text' || format === 'json' || format === 'markdown'
-      ? format
-      : undefined;
-  const updateFormat = <K extends 'text' | 'json' | 'markdown'>(
+  const textual = ['text', 'json', 'markdown', 'csv', 'xml', 'code'].includes(
+    format ?? '',
+  )
+    ? (format as 'text' | 'json' | 'markdown' | 'csv' | 'xml' | 'code')
+    : undefined;
+  const updateFormat = <
+    K extends 'text' | 'json' | 'markdown' | 'csv' | 'xml' | 'code',
+  >(
     key: K,
     patch: Partial<SmokeConfig[K]>,
   ) => onChange({ ...value, [key]: { ...value[key], ...patch } });

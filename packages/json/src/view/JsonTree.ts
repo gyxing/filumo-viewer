@@ -1,5 +1,5 @@
-import type { TextDocument, TextMatch } from '@fivo/text/reader';
-import { findTextMatches } from '@fivo/text/reader';
+import type { TextDocument, TextMatch } from '@fivo/core/text';
+import { findTextMatches } from '@fivo/core/text';
 import { findJsonNodeAt } from '../parser/indexJson';
 import { jsonPath } from '../parser/jsonPath';
 import type { JsonDocument, JsonNode } from '../parser/types';

@@ -1,8 +1,8 @@
 import type { CapabilityAction, ViewContext, ViewHandle } from '@fivo/dom';
 import { createReadingFrame } from '@fivo/dom';
-import type { TextEncoding } from '@fivo/text/reader';
-import { formatEncodingWarning } from '@fivo/text/reader';
-import type { TextSurfaceHandle } from '@fivo/text/view';
+import type { TextEncoding } from '@fivo/core/text';
+import { formatEncodingWarning } from '@fivo/dom/text-messages';
+import type { TextSurfaceHandle } from '@fivo/dom/text';
 import { STYLE_SCOPE } from '../generated/package';
 import type { MarkdownSession } from '../runtime/MarkdownSession';
 import type { MarkdownBlocks } from './MarkdownBlocks';
@@ -34,23 +34,41 @@ export async function mountMarkdown(context: ViewContext): Promise<ViewHandle> {
     label: options.locale === 'en-US' ? 'Encoding' : '编码',
     enabled: !content.loading,
     // 选中态反映实际解码结果，自动识别保留为列表底部的独立命令。
-    value: content.document?.encoding ?? (content.encoding === 'auto' ? undefined : content.encoding),
+    value:
+      content.document?.encoding ??
+      (content.encoding === 'auto' ? undefined : content.encoding),
     options: [
       ...['utf-8', 'utf-16le', 'utf-16be', 'gbk', 'gb18030'].map((value) => ({
-        value, label: value.toUpperCase(),
+        value,
+        label: value.toUpperCase(),
       })),
-      { value: 'auto', kind: 'action', dividerBefore: true, label: options.locale === 'en-US' ? 'Detect encoding again' : '重新自动识别' },
+      {
+        value: 'auto',
+        kind: 'action',
+        dividerBefore: true,
+        label:
+          options.locale === 'en-US' ? 'Detect encoding again' : '重新自动识别',
+      },
     ],
     run: (value) => {
-      if (value !== 'auto' && value === content.encoding && content.document && !content.warning) return;
+      if (
+        value !== 'auto' &&
+        value === content.encoding &&
+        content.document &&
+        !content.warning
+      )
+        return;
       return content.setEncoding(value as TextEncoding);
     },
   });
-  const updateNotice = () => frame.notice(
-    content.warning?.id,
-    content.warning ? formatEncodingWarning(content.warning, options.locale) : undefined,
-    options.locale,
-  );
+  const updateNotice = () =>
+    frame.notice(
+      content.warning?.id,
+      content.warning
+        ? formatEncodingWarning(content.warning, options.locale)
+        : undefined,
+      options.locale,
+    );
   const publish = () => {
     const en = options.locale === 'en-US';
     frame.publish(
@@ -153,7 +171,7 @@ export async function mountMarkdown(context: ViewContext): Promise<ViewHandle> {
     }
     frame.state('');
     if (session.mode === 'source') {
-      const module = await import('@fivo/text/view');
+      const module = await import('@fivo/dom/text');
       if (
         closed ||
         !active ||
@@ -209,7 +227,9 @@ export async function mountMarkdown(context: ViewContext): Promise<ViewHandle> {
         html?.HtmlFragment,
       );
       if (
-        closed || !active || context.session.signal.aborted ||
+        closed ||
+        !active ||
+        context.session.signal.aborted ||
         current !== generation
       ) {
         reading.dispose();
@@ -278,7 +298,12 @@ export async function mountMarkdown(context: ViewContext): Promise<ViewHandle> {
       // 停用期间的内容、模式和语言更新需要在恢复时重建，保留同一内容的滚动位置。
       else {
         updateNotice();
-        if (dirty || content.revision !== renderedRevision || (!reading && !surface)) run();
+        if (
+          dirty ||
+          content.revision !== renderedRevision ||
+          (!reading && !surface)
+        )
+          run();
       }
     },
     async dispose() {

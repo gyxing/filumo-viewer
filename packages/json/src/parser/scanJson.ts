@@ -1,4 +1,6 @@
 import { throwIfAborted } from '@fivo/core';
+import { readJsonToken } from './jsonLexer';
+import type { JsonToken } from './jsonLexer';
 import type {
   JsonDiagnostic,
   JsonNode,
@@ -7,38 +9,32 @@ import type {
 } from './types';
 interface Frame {
   node: JsonNode;
-  state:
-    | 'key-or-end'
-    | 'key'
-    | 'colon'
-    | 'value'
-    | 'array-or-end'
-    | 'array-value'
-    | 'comma';
+  state: 'key-or-end' | 'key' | 'colon' | 'value-or-end' | 'value' | 'comma';
   property?: JsonNode;
   keys: Set<string>;
 }
-/** 只扫描标准 JSON，结构与数值均以源范围保留，避免转换为对象后丢失信息。 */
+
+/** 严格 JSON 与 JSONC 共用原文词法范围，重复属性和大数值不经过对象转换。 */
 export async function scanJson(
   text: string,
-  options: { maxDepth: number; maxNodes: number },
+  options: { maxDepth: number; maxNodes: number; variant?: 'json' | 'jsonc' },
   signal: AbortSignal,
 ): Promise<JsonParseResult> {
   const nodes: JsonNode[] = [],
     diagnostics: JsonDiagnostic[] = [],
     stack: Frame[] = [];
   let offset = 0,
+    measured = 0,
+    line = 1,
+    lineStart = 0,
     rootId = '',
     steps = 0;
-  // 诊断位置按单调扫描进度增量计算，重复属性多时也不反复切分整个前缀。
-  let measured = 0,
-    line = 1,
-    lineStart = 0;
+  const variant = options.variant ?? 'json';
   const diagnostic = (
     message: string,
-    position = offset,
-    severity: JsonDiagnostic['severity'] = 'error',
-  ) => {
+    position: number,
+    severity: 'error' | 'warning' = 'error',
+  ): JsonDiagnostic => {
     while (measured < position) {
       const char = text[measured++];
       if (char === '\r') {
@@ -58,14 +54,15 @@ export async function scanJson(
       severity,
     };
   };
-  const fail = (message: string): never => {
-    throw diagnostic(message);
+  const fail = (message: string, position = offset): never => {
+    throw { message, offset: position };
   };
-  const whitespace = () => {
-    while (offset < text.length && /[ \r\n\t]/.test(text[offset])) offset++;
-  };
-  const add = (type: JsonNodeType, start: number, parent?: JsonNode) => {
-    if (nodes.length >= options.maxNodes) fail('JSON 节点数量超过限制');
+  const add = (
+    type: JsonNodeType,
+    start: number,
+    parent?: JsonNode,
+  ): JsonNode => {
+    if (nodes.length >= options.maxNodes) fail('JSON 节点数量超过限制', start);
     const node: JsonNode = {
       id: String(nodes.length),
       type,
@@ -78,152 +75,111 @@ export async function scanJson(
     parent?.childIds.push(node.id);
     return node;
   };
-  const string = async () => {
-    const start = offset++;
-    let checkpoint = offset + 65536;
-    while (offset < text.length) {
-      if (offset >= checkpoint) {
-        await new Promise<void>((resolve) => {
-          setTimeout(resolve, 0);
-        });
-        throwIfAborted(signal);
-        checkpoint = offset + 65536;
-      }
-      const char = text[offset++];
-      if (char === '"') return { start, end: offset };
-      if (char.charCodeAt(0) < 32) fail('字符串中存在未转义的控制字符');
-      if (char === '\\') {
-        const escaped = text[offset++];
-        if (escaped === 'u') {
-          if (!/^[0-9a-f]{4}$/i.test(text.slice(offset, offset + 4)))
-            fail('Unicode 转义无效');
-          offset += 4;
-        } else if (!escaped || !'"\\/bfnrt'.includes(escaped))
-          fail('字符串转义无效');
-      }
-    }
-    return fail('字符串未结束');
-  };
-  const number = /-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/y;
-  const value = async (parent?: JsonNode): Promise<JsonNode> => {
-    whitespace();
-    const start = offset,
-      char = text[offset];
-    if (char === '{' || char === '[') {
-      if (stack.length >= options.maxDepth) fail('JSON 嵌套深度超过限制');
-      const node = add(char === '{' ? 'object' : 'array', start, parent);
-      offset++;
+  const value = (token: JsonToken, parent?: JsonNode): JsonNode => {
+    offset = token.end;
+    if (token.kind === '{' || token.kind === '[') {
+      if (stack.length >= options.maxDepth)
+        fail('JSON 嵌套深度超过限制', token.start);
+      const node = add(
+        token.kind === '{' ? 'object' : 'array',
+        token.start,
+        parent,
+      );
       stack.push({
         node,
-        state: char === '{' ? 'key-or-end' : 'array-or-end',
+        state: token.kind === '{' ? 'key-or-end' : 'value-or-end',
         keys: new Set(),
       });
       return node;
     }
-    if (char === '"') {
-      const range = await string();
-      const node = add('string', start, parent);
-      node.end = range.end;
-      return node;
-    }
-    for (const literal of ['true', 'false', 'null'])
-      if (text.startsWith(literal, offset)) {
-        const node = add(
-          literal === 'null' ? 'null' : 'boolean',
-          start,
-          parent,
-        );
-        offset += literal.length;
-        node.end = offset;
-        return node;
-      }
-    number.lastIndex = offset;
-    const matched = number.exec(text);
-    if (matched) {
-      const node = add('number', start, parent);
-      offset = number.lastIndex;
-      node.end = offset;
-      return node;
-    }
-    return fail('应为 JSON 值');
+    const type =
+      token.kind === 'string'
+        ? 'string'
+        : token.kind === 'number'
+        ? 'number'
+        : token.kind === 'null'
+        ? 'null'
+        : token.kind === 'true' || token.kind === 'false'
+        ? 'boolean'
+        : undefined;
+    if (!type) return fail('JSON 值无效', token.start);
+    const node = add(type, token.start, parent);
+    node.end = token.end;
+    return node;
   };
   try {
     throwIfAborted(signal);
-    whitespace();
-    rootId = (await value()).id;
+    rootId = value(await readJsonToken(text, offset, variant, signal)).id;
     while (stack.length) {
       if (++steps % 4096 === 0) {
+        await new Promise<void>((resolve) => setTimeout(resolve, 0));
         throwIfAborted(signal);
-        await new Promise<void>((resolve) => {
-          setTimeout(resolve, 0);
-        });
       }
-      whitespace();
       const frame = stack[stack.length - 1],
-        char = text[offset];
+        token = await readJsonToken(text, offset, variant, signal),
+        close = frame.node.type === 'object' ? '}' : ']';
+      offset = token.start;
       if (frame.state === 'key-or-end' || frame.state === 'key') {
-        if (char === '}' && frame.state === 'key-or-end') {
-          frame.node.end = ++offset;
+        if (
+          token.kind === '}' &&
+          (frame.state === 'key-or-end' || variant === 'jsonc')
+        ) {
+          frame.node.end = offset = token.end;
           stack.pop();
           continue;
         }
-        if (char !== '"') fail('对象属性名必须使用双引号');
-        const range = await string(),
-          key = JSON.parse(text.slice(range.start, range.end)) as string;
+        if (token.kind !== 'string') fail('对象属性名必须使用双引号');
+        const key = JSON.parse(text.slice(token.start, token.end)) as string;
         if (frame.keys.has(key))
           diagnostics.push(
-            diagnostic('重复属性：' + key, range.start, 'warning'),
+            diagnostic('重复属性：' + key, token.start, 'warning'),
           );
         frame.keys.add(key);
-        const property = add('property', range.start, frame.node);
+        const property = add('property', token.start, frame.node);
         property.key = key;
-        property.keyRange = range;
+        property.keyRange = { start: token.start, end: token.end };
         frame.property = property;
         frame.state = 'colon';
+        offset = token.end;
       } else if (frame.state === 'colon') {
-        if (char !== ':') fail('属性名后缺少冒号');
-        offset++;
+        if (token.kind !== ':') fail('属性名后缺少冒号');
         frame.state = 'value';
-      } else if (frame.state === 'value') {
-        frame.state = 'comma';
-        await value(frame.property);
-      } else if (
-        frame.state === 'array-or-end' ||
-        frame.state === 'array-value'
-      ) {
-        if (char === ']' && frame.state === 'array-or-end') {
-          frame.node.end = ++offset;
+        offset = token.end;
+      } else if (frame.state === 'value-or-end' || frame.state === 'value') {
+        if (
+          frame.node.type === 'array' &&
+          token.kind === ']' &&
+          (frame.state === 'value-or-end' || variant === 'jsonc')
+        ) {
+          frame.node.end = offset = token.end;
           stack.pop();
           continue;
         }
         frame.state = 'comma';
-        await value(frame.node);
+        value(token, frame.property ?? frame.node);
       } else {
         if (frame.property) {
           frame.property.end = nodes[Number(frame.property.childIds[0])].end;
           frame.property = undefined;
         }
-        const close = frame.node.type === 'object' ? '}' : ']';
-        if (char === close) {
-          frame.node.end = ++offset;
+        if (token.kind === close) {
+          frame.node.end = offset = token.end;
           stack.pop();
-        } else if (char === ',') {
-          offset++;
-          frame.state = frame.node.type === 'object' ? 'key' : 'array-value';
+        } else if (token.kind === ',') {
+          frame.state = frame.node.type === 'object' ? 'key' : 'value';
+          offset = token.end;
         } else fail('缺少逗号或结束括号');
       }
     }
-    whitespace();
-    if (offset !== text.length) fail('JSON 值后存在额外内容');
+    const last = await readJsonToken(text, offset, variant, signal);
+    if (last.kind !== 'eof') fail('JSON 值后存在额外内容', last.start);
     throwIfAborted(signal);
     return { kind: 'ready', document: { text, nodes, rootId, diagnostics } };
   } catch (error) {
     throwIfAborted(signal);
-    const current = error as Partial<JsonDiagnostic>;
+    const current = error as { message?: string; offset?: number };
     diagnostics.push(
-      typeof current?.offset === 'number'
-        ? (current as JsonDiagnostic)
-        : diagnostic('JSON 语法无效'),
+      diagnostic(current.message ?? 'JSON 解析失败', current.offset ?? offset),
     );
     return { kind: 'invalid', text, diagnostics };
   }

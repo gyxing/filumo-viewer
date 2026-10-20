@@ -9,8 +9,8 @@ export const DOC_GUIDES = [
     slug: 'text-formats',
     file: 'text-formats',
     title: {
-      'en-US': 'Text, JSON & Markdown',
-      'zh-CN': '纯文本、JSON 与 Markdown',
+      'en-US': 'Text, JSON, Markdown, CSV, XML & Code',
+      'zh-CN': '文本与结构化格式',
     },
   },
   {

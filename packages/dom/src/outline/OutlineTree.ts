@@ -13,6 +13,7 @@ import { buildOutlineRows } from './treeRows';
 /** 文档大纲的公共树视图；格式状态与正文导航由调用方持有。 */
 export class OutlineTree<TNode> {
   readonly element: HTMLElement;
+  private rowHeight: number = SIZE.rowHeight;
   private canvas: HTMLElement;
   private rows: OutlineRow<TNode>[] = [];
   private indices = new Map<string, number>();
@@ -34,7 +35,7 @@ export class OutlineTree<TNode> {
     this.element.setAttribute('role', 'tree');
     this.element.tabIndex = 0;
     for (const [name, value] of Object.entries({
-      'row-height': SIZE.rowHeight,
+      'row-height': this.rowHeight,
       indent: SIZE.indent,
       'switcher-width': SIZE.switcherWidth,
       'icon-size': SIZE.iconSize,
@@ -74,14 +75,14 @@ export class OutlineTree<TNode> {
         this.focused =
           index === undefined ? undefined : oldRows[index].parentId;
       }
-      this.canvas.style.height = this.rows.length * SIZE.rowHeight + 'px';
+      this.canvas.style.height = this.rows.length * this.rowHeight + 'px';
       const height = this.element.clientHeight;
       if (height > 0)
         this.element.scrollTop = Math.max(
           0,
           Math.min(
             this.element.scrollTop,
-            this.rows.length * SIZE.rowHeight - height,
+            this.rows.length * this.rowHeight - height,
           ),
         );
       if (hadFocus && previousFocus !== this.focused && this.focused)
@@ -118,13 +119,13 @@ export class OutlineTree<TNode> {
     const focusInside = this.element.contains(document.activeElement);
     const begin = Math.max(
       0,
-      Math.floor(this.element.scrollTop / SIZE.rowHeight) - SIZE.overscan,
+      Math.floor(this.element.scrollTop / this.rowHeight) - SIZE.overscan,
     );
     const end = Math.min(
       this.rows.length,
       Math.ceil(
         (this.element.scrollTop + (this.element.clientHeight || 400)) /
-          SIZE.rowHeight,
+          this.rowHeight,
       ) + SIZE.overscan,
     );
     const focusedIndex =
@@ -152,7 +153,7 @@ export class OutlineTree<TNode> {
         row = document.createElement('div');
       row.className = 'fivo-outline-row';
       row.dataset.outlineId = item.id;
-      row.style.top = index * SIZE.rowHeight + 'px';
+      row.style.top = index * this.rowHeight + 'px';
       row.style.paddingLeft = item.depth * SIZE.indent + 'px';
       row.setAttribute('role', 'treeitem');
       row.setAttribute('aria-label', item.text);
@@ -237,7 +238,10 @@ export class OutlineTree<TNode> {
       }
       const label = document.createElement('span');
       label.className = 'fivo-outline-label';
-      label.textContent = label.title = item.text;
+      label.title = item.text;
+      const content = this.options.renderLabel?.(item.node, document);
+      if (content) label.append(content);
+      else label.textContent = item.text;
       row.append(label);
       this.canvas.append(row);
       if (focusInside && item.id === this.focused)
@@ -288,17 +292,17 @@ export class OutlineTree<TNode> {
     const index = this.indices.get(id),
       height = this.element.clientHeight;
     if (index === undefined || height <= 0) return;
-    const top = index * SIZE.rowHeight;
+    const top = index * this.rowHeight;
     if (options.align === 'reading') {
-      const middle = top + SIZE.rowHeight / 2 - this.element.scrollTop;
+      const middle = top + this.rowHeight / 2 - this.element.scrollTop;
       if (middle < height * 0.25 || middle > height * 0.6)
         this.element.scrollTop = Math.max(
           0,
-          top + SIZE.rowHeight / 2 - height * 0.4,
+          top + this.rowHeight / 2 - height * 0.4,
         );
     } else if (top < this.element.scrollTop) this.element.scrollTop = top;
-    else if (top + SIZE.rowHeight > this.element.scrollTop + height)
-      this.element.scrollTop = Math.max(0, top + SIZE.rowHeight - height);
+    else if (top + this.rowHeight > this.element.scrollTop + height)
+      this.element.scrollTop = Math.max(0, top + this.rowHeight - height);
     if (options.focus) this.focused = id;
   }
 
@@ -315,6 +319,18 @@ export class OutlineTree<TNode> {
       for (const node of Array.from(this.canvas.children))
         if ((node as HTMLElement).dataset.outlineId === id)
           (node as HTMLElement).focus({ preventScroll: true });
+  }
+  /** 调整结构阅读字号时同步测量行高，未调用的文档大纲保持默认尺寸。 */
+  setScale(scale: number): void {
+    if (this.closed || !Number.isFinite(scale) || scale <= 0) return;
+    const height = SIZE.rowHeight * scale;
+    if (height === this.rowHeight) return;
+    const anchor = this.element.scrollTop / this.rowHeight;
+    this.rowHeight = height;
+    this.element.style.setProperty('--fivo-outline-row-height', height + 'px');
+    this.canvas.style.height = this.rows.length * height + 'px';
+    this.element.scrollTop = anchor * height;
+    this.render();
   }
   /** 将焦点交给当前选择或可见行，不触发正文定位。 */
   focus(): void {

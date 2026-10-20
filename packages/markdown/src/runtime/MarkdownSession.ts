@@ -1,4 +1,4 @@
-import type { TextContent } from '@fivo/text/reader';
+import type { TextContent } from '@fivo/core/text';
 import type { MarkdownOptions } from '../options';
 import type { MarkdownDocument } from '../parser/types';
 /** 按原文版本保留 token，source 模式不触发解析或计数。 */

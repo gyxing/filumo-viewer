@@ -71,7 +71,7 @@
 
 .fivo-json-separator {
   margin: 0 6px 0 3px;
-  color: var(--fivo-json-muted, #888);
+  color: var(--fivo-json-muted, var(--fivo-structure-muted, #888));
 }
 
 .fivo-json-guide {
@@ -134,7 +134,7 @@
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: var(--fivo-json-key, #691010);
+  color: var(--fivo-json-key, var(--fivo-structure-name, #691010));
 }
 
 .fivo-json-value {
@@ -144,21 +144,21 @@
 }
 
 .fivo-json-value--string {
-  color: var(--fivo-json-string, #1569b1);
+  color: var(--fivo-json-string, var(--fivo-structure-string, #1569b1));
 }
 
 .fivo-json-value--number {
-  color: var(--fivo-json-value, #09933a);
+  color: var(--fivo-json-value, var(--fivo-structure-literal, #09933a));
 }
 
 .fivo-json-value--boolean {
-  color: var(--fivo-json-value, #09933a);
+  color: var(--fivo-json-value, var(--fivo-structure-literal, #09933a));
 }
 
 .fivo-json-value--null,
 .fivo-json-value--array,
 .fivo-json-value--object {
-  color: var(--fivo-json-muted, #888);
+  color: var(--fivo-json-muted, var(--fivo-structure-muted, #888));
 }
 
 .fivo-json-path {

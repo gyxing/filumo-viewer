@@ -1,3 +1,4 @@
+import { textSourceAliases } from './helpers/text-source-aliases.mjs';
 import { build } from 'esbuild';
 import assert from 'node:assert/strict';
 import { resolve } from 'node:path';
@@ -8,11 +9,12 @@ const bundle = await build({
   stdin: {
     contents: `export {JsonTree} from './packages/json/src/view/JsonTree';
     export {scanJson} from './packages/json/src/parser/scanJson';
-    export {TextViewport} from './packages/text/src/view/TextViewport';
-    export {readText} from './packages/text/src/reader/decodeText';
+    export {TextViewport} from './packages/dom/src/text/TextViewport';
+    export {textViewportFlags} from './packages/dom/src/text/internalFlags';
+    export {readText} from './packages/core/src/text/decodeText';
     export {MarkdownOutline} from './packages/markdown/src/view/MarkdownOutline';
     export {MarkdownImage} from './packages/markdown/src/view/MarkdownImage';
-    export {TextFindBar} from './packages/text/src/view/TextFindBar';
+    export {TextFindBar} from './packages/dom/src/text/TextFindBar';
     export {actionMenuItem} from './packages/dom/src/shell/toolbarMenuItems';`,
     resolveDir: resolve('.'),
   },
@@ -21,10 +23,21 @@ const bundle = await build({
   format: 'esm',
   platform: 'node',
   loader: { '.less': 'empty' },
-  alias: { '@fivo/dom/outline': resolve('packages/dom/src/outline.ts') },
+  alias: {
+    ...textSourceAliases,
+    '@fivo/dom/outline': resolve('packages/dom/src/outline.ts'),
+  },
 });
 const {
-  JsonTree, scanJson, TextViewport, readText, MarkdownOutline, MarkdownImage, TextFindBar, actionMenuItem,
+  JsonTree,
+  scanJson,
+  TextViewport,
+  textViewportFlags,
+  readText,
+  MarkdownOutline,
+  MarkdownImage,
+  TextFindBar,
+  actionMenuItem,
 } = await import(
   'data:text/javascript;base64,' +
     Buffer.from(bundle.outputFiles[0].text).toString('base64')
@@ -33,9 +46,23 @@ const {
 test('编码重试按命令执行，已检测编码仍可手动指定，其他选择项保留原语义', async () => {
   const calls = [];
   const action = {
-    id: 'custom.charset', label: '编码', kind: 'select', value: 'utf-8', allowReselect: true,
-    options: [{ value: 'utf-8', label: 'UTF-8' }, { value: 'auto', label: '重新自动识别', kind: 'action', dividerBefore: true }],
-    run: (value) => { calls.push(value); },
+    id: 'custom.charset',
+    label: '编码',
+    kind: 'select',
+    value: 'utf-8',
+    allowReselect: true,
+    options: [
+      { value: 'utf-8', label: 'UTF-8' },
+      {
+        value: 'auto',
+        label: '重新自动识别',
+        kind: 'action',
+        dividerBefore: true,
+      },
+    ],
+    run: (value) => {
+      calls.push(value);
+    },
   };
   const item = actionMenuItem(action, true);
   assert.equal(item.value, 'UTF-8');
@@ -49,49 +76,88 @@ test('编码重试按命令执行，已检测编码仍可手动指定，其他�
   await retry.run();
   await utf8.run();
   assert.deepEqual(calls, ['auto', 'auto', 'utf-8']);
-  const other = actionMenuItem({
-    ...action, id: 'text.encoding', allowReselect: false,
-    options: [{ value: 'utf-8', label: 'UTF-8' }, { value: 'auto', label: '自动' }],
-  }, true);
+  const other = actionMenuItem(
+    {
+      ...action,
+      id: 'text.encoding',
+      allowReselect: false,
+      options: [
+        { value: 'utf-8', label: 'UTF-8' },
+        { value: 'auto', label: '自动' },
+      ],
+    },
+    true,
+  );
   assert.equal(other.children[1].kind, 'radio');
   await other.children[0].run();
   assert.equal(calls.length, 3);
 });
 
 test('菜单开关与执行后关闭由声明决定，不再依赖动作 ID', () => {
-  const action = { id: 'custom.search', kind: 'toggle', label: '查找', pressed: true, run() {} };
+  const action = {
+    id: 'custom.search',
+    kind: 'toggle',
+    label: '查找',
+    pressed: true,
+    run() {},
+  };
   assert.equal(actionMenuItem(action, true).kind, 'checkbox');
   const command = actionMenuItem({ ...action, menu: { kind: 'action' } }, true);
   assert.equal(command.kind, undefined);
   assert.equal(command.checked, undefined);
-  assert.equal(actionMenuItem({ ...action, menu: { closeOnRun: true } }, true).closeOnRun, true);
+  assert.equal(
+    actionMenuItem({ ...action, menu: { closeOnRun: true } }, true).closeOnRun,
+    true,
+  );
 });
 
 test('第一级操作均提供图标，子菜单选项不添加操作图标', () => {
   const expected = {
-    'text.encoding': 'encoding', 'text.search': 'search',
-    'text.wrap': 'wrap', 'text.lines': 'lines',
-    'json.mode': 'view', 'json.branch': 'branch', 'json.path': 'path',
-    'markdown.outline': 'outline', 'office.revision': 'review',
-    'office.review': 'review', 'office.sheetMode': 'view',
-    'office.sheet': 'sheet', 'office.zoomMode': 'view',
-    'office.notes': 'notes', 'office.transitions': 'transitions',
+    'text.encoding': 'encoding',
+    'text.search': 'search',
+    'text.wrap': 'wrap',
+    'text.lines': 'lines',
+    'json.lines': 'lines',
+    'xml.lines': 'lines',
+    'json.mode': 'view',
+    'json.branch': 'branch',
+    'json.path': 'path',
+    'markdown.outline': 'outline',
+    'office.revision': 'review',
+    'office.review': 'review',
+    'office.sheetMode': 'view',
+    'office.sheet': 'sheet',
+    'office.zoomMode': 'view',
+    'office.notes': 'notes',
+    'office.transitions': 'transitions',
     'custom.operation': 'command',
   };
   for (const [id, icon] of Object.entries(expected)) {
     const action = { id, label: id, kind: 'action', run() {} };
     assert.equal(actionMenuItem(action, true).icon, icon, id);
   }
-  const select = actionMenuItem({
-    id: 'text.encoding', label: '编码', kind: 'select',
-    options: [{ value: 'utf-8', label: 'UTF-8' }], run() {},
-  }, true);
+  const select = actionMenuItem(
+    {
+      id: 'text.encoding',
+      label: '编码',
+      kind: 'select',
+      options: [{ value: 'utf-8', label: 'UTF-8' }],
+      run() {},
+    },
+    true,
+  );
   assert.equal(select.children[0].icon, undefined);
 });
 
 test('查找控件动态更新语言时保留查询、焦点和开关状态', () => {
   const document = createDocument();
-  const bar = new TextFindBar(document, false, () => {}, () => {}, () => {});
+  const bar = new TextFindBar(
+    document,
+    false,
+    () => {},
+    () => {},
+    () => {},
+  );
   bar.query.value = '中文';
   bar.query.focus();
   bar.matchCase.checked = true;
@@ -189,6 +255,168 @@ test('共享原文视图默认隐藏行号，显式开启及更新可恢复', as
   viewport.dispose();
 });
 
+test('默认只显示真实行号，缩放和容器变化不启用空白区延续', async () => {
+  assert.equal(textViewportFlags.extendLineNumbersToViewport, false);
+  const signal = new AbortController().signal;
+  for (const source of ['', 'one', Array(13).fill('line').join('\n')]) {
+    const model = (
+      await readText(new TextEncoder().encode(source), { signal })
+    ).document;
+    const viewport = new TextViewport(
+      model,
+      { lineNumbers: true },
+      createDocument(),
+    );
+    try {
+      const fill = viewport.element.querySelector('.fivo-text-gutter-fill'),
+        canvas = viewport.element.querySelector('.fivo-text-canvas');
+      assert.equal(canvas.children.length, model.lineStarts.length);
+      assert.equal(fill.hidden, true);
+      assert.equal(fill.children.length, 0);
+      viewport.element.clientHeight = 620;
+      viewport.update(model, { lineNumbers: true, zoom: 150 });
+      assert.equal(fill.hidden, true);
+      assert.equal(fill.children.length, 0);
+      assert.equal(model.text, source);
+    } finally {
+      viewport.dispose();
+    }
+  }
+});
+
+test('内部开关开启后，空白区延续行号且不改变源文件', async () => {
+  const signal = new AbortController().signal;
+  const model = (
+    await readText(new TextEncoder().encode('one\ntwo\n'), { signal })
+  ).document;
+  const viewport = new TextViewport(
+    model,
+    { lineNumbers: true },
+    createDocument(),
+  );
+  const canvas = viewport.element.querySelector('.fivo-text-canvas');
+  const previous = textViewportFlags.extendLineNumbersToViewport;
+  try {
+    textViewportFlags.extendLineNumbersToViewport = true;
+    viewport.highlight([], -1);
+    assert.equal(canvas.style.height, '400px');
+    assert.equal(viewport.element.dataset.lineNumbers, 'true');
+    assert.equal(canvas.children.length, 3);
+    const fill = viewport.element.querySelector('.fivo-text-gutter-fill');
+    assert.equal(fill.hidden, false);
+    assert.equal(fill.getAttribute('aria-hidden'), 'true');
+    assert.equal(fill.style.top, '66px');
+    assert.equal(fill.style.height, '334px');
+    assert.equal(fill.children[0].textContent, '4');
+    assert.equal(fill.children.at(-1).textContent, '19');
+    assert.equal(
+      canvas.children[2].querySelector('.fivo-text-line-number').textContent,
+      '3',
+    );
+    viewport.goTo(4);
+    assert.equal(canvas.style.height, '400px');
+    viewport.restorePosition({ top: 0, left: 0 });
+    assert.equal(canvas.style.height, '400px');
+    viewport.element.clientHeight = 620;
+    viewport.highlight([], -1);
+    assert.equal(canvas.style.height, '620px');
+    assert.equal(canvas.children.length, 3);
+    assert.equal(fill.children.at(-1).textContent, '29');
+    viewport.update(model, { lineNumbers: true, zoom: 200 });
+    assert.equal(fill.style.top, '132px');
+    assert.equal(fill.children.at(-1).textContent, '15');
+    viewport.update(model, { lineNumbers: false });
+    assert.equal(viewport.element.dataset.lineNumbers, 'false');
+    assert.equal(
+      viewport.element.querySelector('.fivo-text-line-number').hidden,
+      true,
+    );
+    assert.equal(fill.hidden, true);
+    assert.equal(fill.children.length, 0);
+    assert.equal(model.lineStarts.length, 3);
+    assert.equal(model.text, 'one\ntwo\n');
+  } finally {
+    textViewportFlags.extendLineNumbersToViewport = previous;
+    viewport.dispose();
+  }
+});
+
+test('内容超过视口时不补行号，换成短文件后重新延续', async () => {
+  const signal = new AbortController().signal;
+  const read = async (value) =>
+    (await readText(new TextEncoder().encode(value), { signal })).document;
+  const long = await read(Array(100).fill('line').join('\n'));
+  const viewport = new TextViewport(
+    long,
+    { lineNumbers: true },
+    createDocument(),
+  );
+  const previous = textViewportFlags.extendLineNumbersToViewport;
+  try {
+    textViewportFlags.extendLineNumbersToViewport = true;
+    viewport.highlight([], -1);
+    const fill = viewport.element.querySelector('.fivo-text-gutter-fill');
+    assert.equal(fill.hidden, true);
+    assert.equal(fill.children.length, 0);
+    const short = await read('one');
+    viewport.update(short, { lineNumbers: true });
+    assert.equal(fill.hidden, false);
+    assert.equal(fill.children[0].textContent, '2');
+    assert.equal(fill.children.at(-1).textContent, '19');
+    assert.equal(short.lineStarts.length, 1);
+    viewport.update(long, { lineNumbers: true });
+    assert.equal(fill.hidden, true);
+    assert.equal(fill.children.length, 0);
+  } finally {
+    textViewportFlags.extendLineNumbersToViewport = previous;
+    viewport.dispose();
+  }
+});
+
+test('容器高度变化立即同步画布，停用后不处理已排队的尺寸通知', async () => {
+  const signal = new AbortController().signal;
+  const model = (
+    await readText(new TextEncoder().encode('one\ntwo'), { signal })
+  ).document;
+  const document = createDocument(),
+    observers = [],
+    frames = [];
+  document.defaultView = {
+    ResizeObserver: class {
+      constructor(callback) {
+        observers.push(callback);
+      }
+      observe() {}
+      disconnect() {}
+    },
+    requestAnimationFrame(callback) {
+      frames.push(callback);
+      return frames.length;
+    },
+    cancelAnimationFrame() {},
+  };
+  const viewport = new TextViewport(model, { lineNumbers: true }, document);
+  try {
+    frames.shift()();
+    const canvas = viewport.element.querySelector('.fivo-text-canvas');
+    assert.equal(canvas.style.height, '400px');
+    viewport.element.clientHeight = 620;
+    observers[1]([]);
+    // 尺寸通知后、下一帧行渲染前，底色所依赖的画布已经覆盖新视口。
+    assert.equal(canvas.style.height, '620px');
+    assert.equal(canvas.children.length, 2);
+    viewport.setActive(false);
+    viewport.element.clientHeight = 800;
+    observers[1]([]);
+    assert.equal(canvas.style.height, '620px');
+    viewport.setActive(true);
+    frames.at(-1)();
+    assert.equal(canvas.style.height, '800px');
+  } finally {
+    viewport.dispose();
+  }
+});
+
 test('Markdown 大纲折叠不跳正文，键盘导航与当前章节分别同步', () => {
   const document = createDocument(),
     navigated = [];
@@ -209,7 +437,9 @@ test('Markdown 大纲折叠不跳正文，键盘导航与当前章节分别同�
     canvas.children.find((item) => item.dataset.outlineId === id);
   const key = (id, value) =>
     row(id).onkeydown({
-      key: value, preventDefault() {}, stopPropagation() {},
+      key: value,
+      preventDefault() {},
+      stopPropagation() {},
     });
   assert.equal(row('a').style.paddingLeft, '0px');
   assert.equal(row('b').style.paddingLeft, '16px');
@@ -245,7 +475,11 @@ test('Markdown 长大纲仅生成窗口内节点，同步远处章节后仍有�
     depth: 2,
   }));
   const outline = new MarkdownOutline(
-    document, headings, () => {}, false, () => {},
+    document,
+    headings,
+    () => {},
+    false,
+    () => {},
   );
   const list = outline.element.querySelector('.fivo-outline-tree'),
     canvas = outline.element.querySelector('.fivo-outline-canvas');
@@ -264,7 +498,11 @@ test('Markdown 长大纲仅生成窗口内节点，同步远处章节后仍有�
 test('Markdown 图片的迟到状态通过阅读生命周期呈现，失败不留下空白', () => {
   const pending = [];
   const image = new MarkdownImage(
-    createDocument(), 'example.png', '示意图', '', false,
+    createDocument(),
+    'example.png',
+    '示意图',
+    '',
+    false,
     (update) => pending.push(update),
   );
   image.load('blob:example');

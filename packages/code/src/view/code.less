@@ -1,0 +1,47 @@
+.fivo-reading-body {
+  .hljs-keyword,
+  .hljs-selector-tag,
+  .hljs-meta,
+  .hljs-type,
+  .hljs-literal {
+    color: var(--fivo-code-keyword);
+  }
+  .hljs-string,
+  .hljs-selector-attr,
+  .hljs-regexp,
+  .hljs-addition {
+    color: var(--fivo-code-string);
+  }
+  .hljs-number,
+  .hljs-symbol,
+  .hljs-attribute,
+  .hljs-attr {
+    color: var(--fivo-code-number);
+  }
+  .hljs-title,
+  .hljs-section,
+  .hljs-selector-class,
+  .hljs-selector-id,
+  .hljs-selector-pseudo,
+  .hljs-bullet,
+  .hljs-built_in {
+    color: var(--fivo-primary);
+  }
+  .hljs-tag,
+  .hljs-name {
+    color: var(--fivo-code-keyword);
+  }
+  .hljs-deletion {
+    color: var(--fivo-code-deletion, var(--fivo-code-keyword));
+  }
+  // 装饰会合并嵌套语法类，变量与注释需覆盖外层字符串的颜色。
+  .hljs-variable,
+  .hljs-template-variable {
+    color: var(--fivo-code-keyword);
+  }
+  .hljs-comment,
+  .hljs-quote {
+    color: var(--fivo-muted);
+    font-style: italic;
+  }
+}

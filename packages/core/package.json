@@ -14,11 +14,23 @@
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./text": {
+      "types": "./dist/text.d.ts",
+      "import": "./dist/text.js",
+      "default": "./dist/text.js"
+    }
   },
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
     "dist"
-  ]
+  ],
+  "typesVersions": {
+    "*": {
+      "text": [
+        "dist/text.d.ts"
+      ]
+    }
+  }
 }

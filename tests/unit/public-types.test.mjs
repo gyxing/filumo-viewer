@@ -5,8 +5,54 @@ import ts from 'typescript';
 import { preparePackageMetadata } from '../../scripts/build/metadata.mjs';
 await preparePackageMetadata(process.cwd());
 
+test('公共树富标签为可选配置，原有消费者与 DOM 节点返回类型兼容', () => {
+  const filename = resolve('tests/__outline_label_consumer__.ts');
+  const source = `
+    import type {OutlineTreeOptions} from '../packages/dom/dist/outline';
+    type Item = { id: string; children: Item[] };
+    const legacy: OutlineTreeOptions<Item> = {
+      document, accessors: { getId: item => item.id, getText: item => item.id, isLeaf: item => !item.children.length, getChildren: item => item.children },
+      onToggle() {}, onActivate() {},
+    };
+    const rich: OutlineTreeOptions<Item> = {...legacy, renderLabel(item, owner) { if (!item.id) return undefined; const label=owner.createElement('span'); label.textContent=item.id; return label; }};
+    void rich;
+  `;
+  const options = {
+    target: ts.ScriptTarget.ES2020,
+    module: ts.ModuleKind.ESNext,
+    moduleResolution: ts.ModuleResolutionKind.Node10,
+    strict: true,
+    noEmit: true,
+    skipLibCheck: false,
+    types: [],
+    lib: ['lib.es2022.d.ts', 'lib.dom.d.ts', 'lib.dom.iterable.d.ts'],
+  };
+  const host = ts.createCompilerHost(options),
+    original = host.getSourceFile.bind(host);
+  host.getSourceFile = (file, language, ...rest) =>
+    resolve(file) === filename
+      ? ts.createSourceFile(file, source, language, true)
+      : original(file, language, ...rest);
+  assert.deepEqual(
+    ts
+      .getPreEmitDiagnostics(ts.createProgram([filename], options, host))
+      .map((diagnostic) =>
+        ts.flattenDiagnosticMessageText(diagnostic.messageText, ' '),
+      ),
+    [],
+  );
+});
+
 test('新格式公开声明不跟随解析器或第三方实现，reader 无 DOM 依赖', () => {
   for (const entry of [
+    'core/text',
+    'dom/text',
+    'dom/text-messages',
+    'dom/text-highlight',
+    'dom/split',
+    'csv/index',
+    'xml/index',
+    'code/index',
     'text/index',
     'text/reader',
     'text/view',
@@ -32,10 +78,9 @@ test('新格式公开声明不跟随解析器或第三方实现，reader 无 DOM
         strict: true,
         noEmit: true,
         skipLibCheck: false,
-        lib:
-          entry === 'text/reader'
-            ? ['lib.es2022.d.ts', 'lib.webworker.d.ts']
-            : ['lib.es2022.d.ts', 'lib.dom.d.ts', 'lib.dom.iterable.d.ts'],
+        lib: ['text/reader', 'core/text'].includes(entry)
+          ? ['lib.es2022.d.ts', 'lib.webworker.d.ts']
+          : ['lib.es2022.d.ts', 'lib.dom.d.ts', 'lib.dom.iterable.d.ts'],
         types: [],
       },
     );
@@ -49,16 +94,23 @@ test('新格式公开声明不跟随解析器或第三方实现，reader 无 DOM
     const files = program.getSourceFiles().map((source) => source.fileName);
     assert.equal(
       files.some((path) =>
-        /(?:json|markdown|pdf)[\\/]dist[\\/](?:parser|runtime|view)[\\/]|node_modules.*(?:marked|highlight\.js|pdfjs-dist)/.test(
+        /(?:json|markdown|pdf|csv|xml|code)[\\/]dist[\\/](?:parser|runtime|view)[\\/]|node_modules.*(?:marked|highlight\.js|pdfjs-dist|saxes)/.test(
           path,
         ),
       ),
       false,
       entry,
     );
-    if (entry === 'text/reader')
+    if (['text/reader', 'core/text'].includes(entry))
       assert.equal(
-        files.some((path) => /lib\.dom|packages[\\/]dom[\\/]/.test(path)),
+        files.some(
+          (path) =>
+            /lib\.dom/.test(path) ||
+            (/packages[\\/]dom[\\/]/.test(path) &&
+              !/dist[\\/](?:text-messages\.d\.ts|text[\\/]formatEncodingWarning\.d\.ts)/.test(
+                path,
+              )),
+        ),
         false,
       );
   }

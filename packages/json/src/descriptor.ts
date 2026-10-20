@@ -16,15 +16,25 @@ export const json: JsonFactory = (options = {}) => {
       id: 'json',
       protocolVersion: 1,
       priority: 10,
-      extensions: ['.json'],
-      mimeTypes: ['application/json'],
+      extensions: ['.json', '.jsonc', '.jsonl', '.ndjson'],
+      mimeTypes: [
+        'application/json',
+        'application/jsonc',
+        'application/x-ndjson',
+        'application/ndjson',
+        'application/jsonl',
+      ],
       async detect(source) {
         const extension = source.name?.toLowerCase().match(/\.[^.]+$/)?.[0];
-        if (extension) return extension === '.json';
-        return (
-          source.mimeType?.split(';')[0].trim().toLowerCase() ===
-          'application/json'
-        );
+        if (extension)
+          return ['.json', '.jsonc', '.jsonl', '.ndjson'].includes(extension);
+        return [
+          'application/json',
+          'application/jsonc',
+          'application/x-ndjson',
+          'application/ndjson',
+          'application/jsonl',
+        ].includes(source.mimeType?.split(';')[0].trim().toLowerCase() ?? '');
       },
       async load() {
         const { openJson } = await import('./runtime/openJson');

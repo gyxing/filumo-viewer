@@ -100,6 +100,7 @@ export class CodeBlock {
         const fragment = renderHighlight(
           this.document,
           highlighter.highlight(this.source, this.language).html,
+          this.source,
         );
         // 高亮只能改变样式，转换不一致时保留完整原文。
         if (fragment.textContent === this.source) {

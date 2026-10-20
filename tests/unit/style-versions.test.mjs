@@ -10,6 +10,43 @@ const result = await build({
   format: 'esm',
   platform: 'node',
 });
+
+test('共享原文样式的两个实例保留 nonce，最后一个卸载才释放', () => {
+  const elements = [];
+  const document = {
+    head: {
+      append(element) {
+        elements.push(element);
+      },
+    },
+    createElement() {
+      return {
+        dataset: {},
+        sheet: {},
+        remove() {
+          elements.splice(elements.indexOf(this), 1);
+        },
+      };
+    },
+  };
+  registerStyle(
+    'text-lease-fixture',
+    'text-lease-fixture:0.1.0-next.0:1111111111111111',
+    '.fivo-text-scope{height:100%}',
+  );
+  const first = useStyles('text-lease-fixture', document, {
+    nonce: 'fixture-nonce',
+  });
+  const second = useStyles('text-lease-fixture', document, {
+    nonce: 'fixture-nonce',
+  });
+  assert.equal(elements.length, 1);
+  assert.equal(elements[0].nonce, 'fixture-nonce');
+  first();
+  assert.equal(elements.length, 1);
+  second();
+  assert.equal(elements.length, 0);
+});
 const { registerStyle, replaceStyle, useStyles } = await import(
   'data:text/javascript;base64,' +
     Buffer.from(result.outputFiles[0].text).toString('base64')

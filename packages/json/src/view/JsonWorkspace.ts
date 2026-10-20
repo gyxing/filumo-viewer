@@ -1,5 +1,5 @@
 import type { ViewContext, ViewOptions } from '@fivo/dom';
-import type { TextSurfacePosition } from '@fivo/text/view';
+import type { TextSurfacePosition } from '@fivo/dom/text';
 import type { JsonDiagnostic } from '../parser/types';
 import type { JsonSession } from '../runtime/JsonSession';
 import type { JsonSource } from './JsonSource';
@@ -66,7 +66,11 @@ export class JsonWorkspace {
     panes.className = 'fivo-json-panes';
     this.sourcePane = this.pane('source', () => this.setMode('tree'));
     this.treePane = this.pane('tree', () => this.setMode('source'));
-    this.split = new JsonSplitHandle(panes, this.sourcePane.element);
+    this.split = new JsonSplitHandle(
+      panes,
+      this.sourcePane.element,
+      context.stylePolicy,
+    );
     this.treeStatus = document.createElement('div');
     this.treeStatus.className = 'fivo-json-tree-status';
     this.treeStatus.setAttribute('role', 'status');
@@ -218,7 +222,9 @@ export class JsonWorkspace {
     // 提示随结构标题显示，详细诊断保留在悬停文本中，不额外占用内容区域。
     this.treePane.title.textContent = count
       ? en
-        ? `Structure (${count} duplicate ${count === 1 ? 'key' : 'keys'} preserved)`
+        ? `Structure (${count} duplicate ${
+            count === 1 ? 'key' : 'keys'
+          } preserved)`
         : `结构（已保留 ${count} 个重复属性）`
       : en
       ? 'Structure'
@@ -282,6 +288,9 @@ export class JsonWorkspace {
       this.options,
       this.zoom,
       this.context.stylePolicy,
+      this.session.variant === 'jsonc' ? 'jsonc' : 'json',
+      undefined,
+      () => this.session.lineNumbers,
     );
     this.source.restorePosition(this.sourcePosition);
     if (this.pendingRange) {

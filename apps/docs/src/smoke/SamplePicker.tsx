@@ -2,6 +2,7 @@ import { Alert, Button, Empty, Input, Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { docsPath } from '../site-path';
 import type { Sample } from './types';
+import { code } from '@fivo/code';
 
 // 按实际解析族展示本机和公开样本，WPS 随 Word 分组。
 const groups = [
@@ -12,7 +13,13 @@ const groups = [
     name: '纯文本',
     formats: ['txt', 'log', 'ini', 'conf', 'cfg', 'properties', 'out'],
   },
-  { name: 'JSON', formats: ['json'] },
+  { name: 'JSON', formats: ['json', 'jsonc', 'jsonl', 'ndjson'] },
+  { name: 'CSV / TSV', formats: ['csv', 'tsv'] },
+  { name: 'XML', formats: ['xml'] },
+  {
+    name: 'Code',
+    formats: code().document.extensions.map((extension) => extension.slice(1)),
+  },
   { name: 'Markdown', formats: ['md', 'markdown'] },
   {
     name: '图片',

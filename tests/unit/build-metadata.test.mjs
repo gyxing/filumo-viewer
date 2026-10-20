@@ -3,6 +3,7 @@ import { mkdir, mkdtemp, readFile, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
+import { WORKSPACE_PACKAGES } from '../../scripts/workspace-packages.js';
 import {
   preparePackageMetadata,
   readPackageMetadata,
@@ -10,15 +11,11 @@ import {
 
 test('DOM 和 Office 元数据分别来自所属包，重复准备不改文件', async () => {
   const root = await mkdtemp(join(tmpdir(), 'fivo-metadata-'));
-  for (const [name, version] of [
-    ['dom', '1.2.0'],
-    ['office', '2.3.0-next.1'],
-    ['image', '1.0.0'],
-    ['pdf', '1.0.0'],
-    ['text', '1.0.0'],
-    ['json', '1.0.0'],
-    ['markdown', '1.0.0'],
-  ]) {
+  for (const { name } of WORKSPACE_PACKAGES.filter(
+    (item) => item.name === 'dom' || item.scopedStyles,
+  )) {
+    const version =
+      name === 'dom' ? '1.2.0' : name === 'office' ? '2.3.0-next.1' : '1.0.0';
     await mkdir(join(root, 'packages', name, 'src'), { recursive: true });
     await writeFile(
       join(root, 'packages', name, 'package.json'),

@@ -1,5 +1,5 @@
-// 作用域类和布局类在同一个根节点，编译后必须使用复合选择器。
-&.fivo-text-scope {
+// 原文样式由 DOM 公共层持有，兼容入口与各格式复用同一租约。
+.fivo-text-scope {
   height: 100%;
   min-height: 0;
   min-width: 0;
@@ -21,6 +21,8 @@
 }
 
 .fivo-text-viewport {
+  --fivo-text-gutter-width: 56px;
+  --fivo-text-gutter-padding: 10px;
   position: relative;
   flex: 1;
   min-height: 0;
@@ -34,6 +36,25 @@
 .fivo-text-canvas {
   position: relative;
   min-width: 100%;
+  // 内容不足一屏或脚本仍持有旧高度时，由布局直接保证行号底色铺满视口。
+  min-height: 100%;
+}
+
+// 通栏背景不依赖可见行 DOM，短文件和折行之间都能保持连续。
+.fivo-text-canvas::before {
+  position: absolute;
+  inset: 0 auto 0 0;
+  display: none;
+  width: var(--fivo-text-gutter-width);
+  box-sizing: border-box;
+  background: var(--fivo-hover, #f3f6fb);
+  border-right: 1px solid var(--fivo-border, #dfe5ec);
+  pointer-events: none;
+  content: '';
+}
+
+.fivo-text-viewport[data-line-numbers='true'] .fivo-text-canvas::before {
+  display: block;
 }
 
 .fivo-text-row {
@@ -47,15 +68,34 @@
   box-sizing: border-box;
 }
 
-.fivo-text-line-number {
-  flex: 0 0 56px;
+.fivo-text-line-number,
+.fivo-text-filler-number {
+  flex: 0 0 var(--fivo-text-gutter-width);
   box-sizing: border-box;
-  padding: 0 10px;
+  padding: 0 var(--fivo-text-gutter-padding);
+  // 分隔线移到背景后，仍为它预留 1px，保持数字右侧原有间距。
+  padding-right: calc(var(--fivo-text-gutter-padding) + 1px);
   color: var(--fivo-muted, #697586);
   text-align: right;
   user-select: none;
-  background: var(--fivo-hover, #f3f6fb);
-  border-right: 1px solid var(--fivo-border, #dfe5ec);
+}
+
+.fivo-text-gutter-fill {
+  position: absolute;
+  left: 0;
+  width: var(--fivo-text-gutter-width);
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+}
+
+.fivo-text-gutter-fill[hidden] {
+  display: none;
+}
+
+.fivo-text-filler-number {
+  display: block;
+  width: 100%;
 }
 
 .fivo-text-line-content {

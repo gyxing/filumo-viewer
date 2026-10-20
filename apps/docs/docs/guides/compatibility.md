@@ -72,3 +72,5 @@ Set resource limits using realistic files and targeted benchmarks. No universal 
 ## Recommended checks
 
 Test the target framework, production bundler, deployment base and representative files in a real browser. Cover open/switch, zoom, find, image overlays, disposal and automatic styles. Type safety is not a replacement for visual acceptance.
+
+CSV/TSV、XML、Code 可使用独立 @fivo/csv、@fivo/xml、@fivo/code 插件；JSONC/JSONL/NDJSON 由 @fivo/json 处理，标准预设均已注册。默认参数、预算、懒加载与外部样式说明见[文本格式指南](./text-formats)。

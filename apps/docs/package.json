@@ -21,7 +21,10 @@
     "@fivo/viewer": "workspace:^",
     "antd": "^5.29.3",
     "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "react-dom": "^18.0.0",
+    "@fivo/csv": "workspace:^",
+    "@fivo/xml": "workspace:^",
+    "@fivo/code": "workspace:^"
   },
   "devDependencies": {
     "@types/react": "^18.0.0",

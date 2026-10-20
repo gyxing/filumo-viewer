@@ -1,0 +1,30 @@
+{
+  "name": "@fivo/csv",
+  "version": "0.1.0-next.0",
+  "description": "Fivo csv 只读预览插件",
+  "license": "MIT",
+  "sideEffects": [
+    "**/*.css",
+    "./dist/chunks/*.js"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json",
+    "./styles.css": "./dist/styles.css",
+    "./worker.js": "./dist/worker.js"
+  },
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@fivo/core": "workspace:^",
+    "@fivo/dom": "workspace:^"
+  }
+}

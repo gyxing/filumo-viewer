@@ -245,3 +245,5 @@ const plugins = [
 - 重复解析：不要同时通过 source 和 handle.open 驱动同一文件。
 - 销毁后无法再打开：创建新实例；destroy 是终止生命周期。
 - 特殊 CSP/Worker 部署：使用明确的 nonce 或 workerFactory，并验证真实生产资源 URL。
+
+CSV/TSV、XML、Code 可使用独立 @fivo/csv、@fivo/xml、@fivo/code 插件；JSONC/JSONL/NDJSON 由 @fivo/json 处理，标准预设均已注册。默认参数、预算、懒加载与外部样式说明见[文本格式指南](./text-formats)。

@@ -241,3 +241,5 @@ The host deploys licensed fonts. preventDefault blocks default navigation withou
 - Double parsing: avoid driving the same file through both source and handle.open.
 - Reopening a destroyed instance: create a new viewer after destroy.
 - Worker/CSP failures: provide an explicit factory/nonce where needed and test actual production asset URLs.
+
+CSV/TSV、XML、Code 可使用独立 @fivo/csv、@fivo/xml、@fivo/code 插件；JSONC/JSONL/NDJSON 由 @fivo/json 处理，标准预设均已注册。默认参数、预算、懒加载与外部样式说明见[文本格式指南](./text-formats)。

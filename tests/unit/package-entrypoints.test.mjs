@@ -47,6 +47,11 @@ test('图片公共视图与 PDF 资产子入口具有独立产物', async () => 
     ['image', 'view'],
     ['pdf', 'assets'],
     ['dom', 'outline'],
+    ['core', 'text'],
+    ['dom', 'text'],
+    ['dom', 'text-messages'],
+    ['dom', 'text-highlight'],
+    ['dom', 'split'],
   ]) {
     const manifest = JSON.parse(
       await readFile(`packages/${name}/package.json`, 'utf8'),

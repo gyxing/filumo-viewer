@@ -1,0 +1,119 @@
+.fivo-json-lines-workspace {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  color: var(--fivo-text);
+  background: var(--fivo-surface);
+}
+.fivo-json-lines-workspace [hidden] {
+  display: none;
+}
+.fivo-json-lines-panes {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+.fivo-json-lines-list {
+  display: flex;
+  flex: 0 0 260px;
+  max-width: 40%;
+  min-width: 180px;
+  min-height: 0;
+  border-right: 1px solid var(--fivo-border);
+}
+.fivo-json-lines-detail {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+.fivo-json-record-tabs,
+.fivo-json-lines-layout-tabs {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--fivo-border);
+}
+.fivo-json-record-tabs button,
+.fivo-json-lines-layout-tabs button {
+  padding: 4px 10px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--fivo-muted);
+  cursor: pointer;
+  font: inherit;
+}
+.fivo-json-record-tabs button[aria-selected='true'],
+.fivo-json-lines-layout-tabs button[aria-selected='true'] {
+  color: var(--fivo-primary);
+  background: var(--fivo-selected);
+}
+.fivo-json-record-body,
+.fivo-json-lines-full {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+}
+.fivo-json-record-body > .fivo-text-scope,
+.fivo-json-record-body > .fivo-json-tree {
+  height: 100%;
+}
+.fivo-json-lines-full {
+  height: 100%;
+}
+.fivo-json-lines-status {
+  padding: 8px 12px;
+  color: var(--fivo-muted);
+  font: 13px/1.5 system-ui, sans-serif;
+}
+.fivo-json-lines-status:empty {
+  display: none;
+}
+.fivo-json-record-list {
+  flex: 1;
+  overflow: auto;
+  min-width: 0;
+  outline: none;
+  font: 13px/1.5 system-ui, sans-serif;
+}
+.fivo-json-record-canvas {
+  position: relative;
+}
+.fivo-json-record {
+  position: absolute;
+  left: 0;
+  right: 0;
+  padding: 4px 10px;
+  box-sizing: border-box;
+  cursor: pointer;
+  border-bottom: 1px solid var(--fivo-border);
+}
+.fivo-json-record > strong,
+.fivo-json-record > span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.fivo-json-record > span {
+  color: var(--fivo-muted);
+}
+.fivo-json-record[aria-selected='true'] {
+  background: var(--fivo-selected);
+  color: var(--fivo-primary);
+}
+.fivo-json-record[data-invalid='true'] > strong {
+  color: var(--fivo-danger, #c43b35);
+}
+.fivo-json-lines-workspace[data-narrow='true'] .fivo-json-lines-list {
+  flex: 1;
+  max-width: none;
+}

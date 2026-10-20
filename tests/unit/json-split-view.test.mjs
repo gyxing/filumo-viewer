@@ -1,3 +1,4 @@
+import { textSourceAliases } from './helpers/text-source-aliases.mjs';
 import { build } from 'esbuild';
 import assert from 'node:assert/strict';
 import { resolve } from 'node:path';
@@ -5,11 +6,12 @@ import test from 'node:test';
 const bundle = await build({
   stdin: {
     resolveDir: resolve('.'),
-    contents: `export {textSegments} from './packages/text/src/view/textSegments';
+    contents: `export {textSegments} from './packages/dom/src/text/textSegments';
   export {jsonLineDecorations} from './packages/json/src/view/jsonTokens';
   export {jsonTreeGuides,jsonNodeRange,jsonNodePreview} from './packages/json/src/view/treeRows';
   export {scanJson} from './packages/json/src/parser/scanJson';`,
   },
+  alias: textSourceAliases,
   bundle: true,
   write: false,
   format: 'esm',

@@ -1,10 +1,24 @@
 import type { CapabilityAction, ViewContext, ViewHandle } from '@fivo/dom';
 import { createReadingFrame } from '@fivo/dom';
-import type { TextEncoding } from '@fivo/text/reader';
-import { formatEncodingWarning } from '@fivo/text/reader';
+import type { TextEncoding } from '@fivo/core/text';
+import { formatEncodingWarning } from '@fivo/dom/text-messages';
 import { STYLE_SCOPE } from '../generated/package';
 import type { JsonSession } from '../runtime/JsonSession';
 import type { JsonWorkspace } from './JsonWorkspace';
+import type { JsonLinesSession } from '../runtime/JsonLinesSession';
+type JsonReadingWorkspace = Pick<
+  JsonWorkspace,
+  | 'initialize'
+  | 'update'
+  | 'dispose'
+  | 'getState'
+  | 'getBranchState'
+  | 'getPath'
+  | 'toggleBranch'
+  | 'showSearch'
+  | 'setMode'
+  | 'setActive'
+>;
 import './frame.less';
 
 /** 外壳只管理编码恢复与工具栏，工作区再按可见区域加载代码和结构视图。 */
@@ -14,12 +28,13 @@ export async function mountJson(context: ViewContext): Promise<ViewHandle> {
   const frame = createReadingFrame(context, STYLE_SCOPE!, 'json');
   let options = context.options,
     zoom = options.zoom ?? 100,
-    workspace: JsonWorkspace | undefined,
+    workspace: JsonReadingWorkspace | undefined,
     closed = false,
     active = true,
     generation = 0,
     revision = content.revision,
     renderedRevision = -1;
+  let recordNotice = 0;
   const encoding = (): CapabilityAction => ({
     id: 'json.encoding',
     allowReselect: true,
@@ -28,23 +43,41 @@ export async function mountJson(context: ViewContext): Promise<ViewHandle> {
     label: options.locale === 'en-US' ? 'Encoding' : '编码',
     enabled: !content.loading,
     // 选中态反映实际解码结果，自动识别保留为列表底部的独立命令。
-    value: content.document?.encoding ?? (content.encoding === 'auto' ? undefined : content.encoding),
+    value:
+      content.document?.encoding ??
+      (content.encoding === 'auto' ? undefined : content.encoding),
     options: [
       ...['utf-8', 'utf-16le', 'utf-16be', 'gbk', 'gb18030'].map((value) => ({
-        value, label: value.toUpperCase(),
+        value,
+        label: value.toUpperCase(),
       })),
-      { value: 'auto', kind: 'action', dividerBefore: true, label: options.locale === 'en-US' ? 'Detect encoding again' : '重新自动识别' },
+      {
+        value: 'auto',
+        kind: 'action',
+        dividerBefore: true,
+        label:
+          options.locale === 'en-US' ? 'Detect encoding again' : '重新自动识别',
+      },
     ],
     run: (value) => {
-      if (value !== 'auto' && value === content.encoding && content.document && !content.warning) return;
+      if (
+        value !== 'auto' &&
+        value === content.encoding &&
+        content.document &&
+        !content.warning
+      )
+        return;
       return content.setEncoding(value as TextEncoding);
     },
   });
-  const updateNotice = () => frame.notice(
-    content.warning?.id,
-    content.warning ? formatEncodingWarning(content.warning, options.locale) : undefined,
-    options.locale,
-  );
+  const updateNotice = () =>
+    frame.notice(
+      content.warning?.id,
+      content.warning
+        ? formatEncodingWarning(content.warning, options.locale)
+        : undefined,
+      options.locale,
+    );
   const publish = () => {
     const en = options.locale === 'en-US',
       state = workspace?.getState(),
@@ -61,13 +94,18 @@ export async function mountJson(context: ViewContext): Promise<ViewHandle> {
           options: [
             {
               value: 'tree',
-              label: state?.narrow
-                ? en
-                  ? 'Structure'
-                  : '结构'
-                : en
-                ? 'Split view'
-                : '双栏',
+              label:
+                session.variant === 'lines'
+                  ? en
+                    ? 'Records'
+                    : '记录'
+                  : state?.narrow
+                  ? en
+                    ? 'Structure'
+                    : '结构'
+                  : en
+                  ? 'Split view'
+                  : '双栏',
             },
             { value: 'source', label: en ? 'Source' : '原文' },
           ],
@@ -83,6 +121,19 @@ export async function mountJson(context: ViewContext): Promise<ViewHandle> {
           label: en ? 'Find' : '查找',
           enabled: !!(state?.treeReady || state?.sourceReady),
           run: () => workspace?.showSearch(),
+        },
+        {
+          id: 'json.lines',
+          kind: 'toggle',
+          toolbar: { placement: 'more', order: 35 },
+          label: en ? 'Line numbers' : '行号',
+          enabled: !!content.document,
+          pressed: session.lineNumbers,
+          run: () => {
+            session.lineNumbers = !session.lineNumbers;
+            workspace?.update(options, zoom);
+            publish();
+          },
         },
         {
           id: 'json.branch',
@@ -168,7 +219,10 @@ export async function mountJson(context: ViewContext): Promise<ViewHandle> {
       workspace.update(options, zoom);
       return;
     }
-    const module = await import('./JsonWorkspace');
+    const module =
+      session.variant === 'lines'
+        ? await import('./JsonLinesWorkspace')
+        : await import('./JsonWorkspace');
     if (
       closed ||
       !active ||
@@ -176,12 +230,34 @@ export async function mountJson(context: ViewContext): Promise<ViewHandle> {
       current !== generation
     )
       return;
-    workspace = new module.JsonWorkspace(
-      frame.body,
-      session,
-      { ...context, options: { ...options, zoom } },
-      publish,
-    );
+    workspace =
+      'JsonLinesWorkspace' in module
+        ? new module.JsonLinesWorkspace(
+            frame.body,
+            session as JsonLinesSession,
+            {
+              ...context,
+              options: { ...options, zoom },
+              onError: (reason) => {
+                if (
+                  !closed &&
+                  (reason as { name?: string })?.name !== 'AbortError'
+                )
+                  frame.notice(
+                    --recordNotice,
+                    reason instanceof Error ? reason.message : String(reason),
+                    options.locale,
+                  );
+              },
+            },
+            publish,
+          )
+        : new module.JsonWorkspace(
+            frame.body,
+            session,
+            { ...context, options: { ...options, zoom } },
+            publish,
+          );
     await workspace.initialize();
     if (!closed && current === generation) publish();
   };

@@ -303,6 +303,8 @@ test('文本、编码恢复和 JSON 原文切换使用真实会话', async ({ pa
   );
   await page.getByRole('button', { name: 'JSON', exact: true }).click();
   await expect(page.locator('.fivo-json-tree')).toBeVisible();
+  await expect(page.locator('.fivo-text-line-number').first()).toBeVisible();
+  await expect(page.locator('.fivo-text-filler-number')).toHaveCount(0);
   await expect(
     page
       .locator('.fivo-json-tree')
@@ -310,12 +312,13 @@ test('文本、编码恢复和 JSON 原文切换使用真实会话', async ({ pa
   ).toBeVisible();
   await page.getByRole('button', { name: 'JSON 原文', exact: true }).click();
   await expect(page.locator('.fivo-text-surface')).toBeVisible();
+  await expect(page.locator('.fivo-text-line-number').first()).toBeVisible();
   await expect(page.locator('.fivo-json-tree')).toHaveCount(0);
   await page.getByRole('button', { name: '无效 JSON', exact: true }).click();
   await expect(page.getByText(/JSON 语法错误/)).toBeVisible();
 });
 
-test('文本菜单集中次要操作，行号默认关闭，查找打开后菜单收起', async ({
+test('文本菜单集中次要操作，行号默认开启且可切换，查找打开后菜单收起', async ({
   page,
 }) => {
   await page.goto(server.url + '/text-formats.html');
@@ -323,7 +326,8 @@ test('文本菜单集中次要操作，行号默认关闭，查找打开后菜�
   await expect(
     page.locator('.fivo-controls-main [data-fivo-action^="text."]'),
   ).toHaveCount(0);
-  await expect(page.locator('.fivo-text-line-number:visible')).toHaveCount(0);
+  await expect(page.locator('.fivo-text-line-number').first()).toBeVisible();
+  await expect(page.locator('.fivo-text-filler-number')).toHaveCount(0);
   const menu = await openMore(page);
   await expect(
     menu.getByRole('menuitem', { name: '编码', exact: true }),
@@ -333,7 +337,10 @@ test('文本菜单集中次要操作，行号默认关闭，查找打开后菜�
     labels.map((label) => label.getBoundingClientRect().left));
   expect(Math.max(...labelPositions) - Math.min(...labelPositions)).toBeLessThanOrEqual(1);
   const lines = menu.getByRole('menuitemcheckbox', { name: '行号', exact: true });
+  await expect(lines).toHaveAttribute('aria-checked', 'true');
+  await lines.click();
   await expect(lines).toHaveAttribute('aria-checked', 'false');
+  await expect(page.locator('.fivo-text-line-number:visible')).toHaveCount(0);
   await lines.click();
   await expect(lines).toHaveAttribute('aria-checked', 'true');
   await expect(page.locator('.fivo-text-line-number').first()).toBeVisible();
@@ -342,6 +349,34 @@ test('文本菜单集中次要操作，行号默认关闭，查找打开后菜�
   await expect(
     page.locator('.fivo-text-find input[type="search"]'),
   ).toBeFocused();
+});
+
+test('JSON 行号菜单带图标，开关状态在缩放及视图切换后保留', async ({ page }) => {
+  await page.goto(server.url + '/text-formats.html');
+  await page.getByRole('button', { name: 'JSON', exact: true }).click();
+  await expect(page.locator('.fivo-text-line-number').first()).toBeVisible();
+  const menu = await openMore(page),
+    lines = menu.getByRole('menuitemcheckbox', { name: '行号', exact: true });
+  await expect(lines.locator('[data-name="lines"] svg')).toBeVisible();
+  await expect(lines).toHaveAttribute('aria-checked', 'true');
+  await lines.click();
+  await expect(lines).toHaveAttribute('aria-checked', 'false');
+  await expect(page.locator('.fivo-text-line-number:visible')).toHaveCount(0);
+  await page.keyboard.press('Escape');
+  await page.evaluate(() => window.fivoTextFormats.update({ zoom: 150 }));
+  await openMore(page);
+  await expect(lines).toHaveAttribute('aria-checked', 'false');
+  await menu.getByRole('menuitem', { name: '视图', exact: true }).click();
+  await page.getByRole('menuitemradio', { name: '原文', exact: true }).click();
+  await expect(page.locator('.fivo-text-line-number:visible')).toHaveCount(0);
+  await openMore(page);
+  await lines.click();
+  await expect(lines).toHaveAttribute('aria-checked', 'true');
+  await expect(page.locator('.fivo-text-line-number').first()).toBeVisible();
+  await menu.getByRole('menuitem', { name: '视图', exact: true }).click();
+  await page.getByRole('menuitemradio', { name: '双栏', exact: true }).click();
+  await expect(page.locator('.fivo-json-tree')).toBeVisible();
+  await expect(page.locator('.fivo-text-line-number').first()).toBeVisible();
 });
 
 test('JSON 分支只有一个按钮，标签随树状态变化，叶节点禁用', async ({

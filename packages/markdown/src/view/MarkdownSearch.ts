@@ -1,5 +1,5 @@
-import type { TextMatch } from '@fivo/text/reader';
-import { findTextMatches } from '@fivo/text/reader';
+import type { TextMatch } from '@fivo/core/text';
+import { findTextMatches } from '@fivo/core/text';
 
 /** 查找维护查询和文字范围，定位操作交给阅读导航，避免耦合内容构建。 */
 export class MarkdownSearch {

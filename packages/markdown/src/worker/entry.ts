@@ -1,5 +1,5 @@
-import type { TextTaskScope } from '@fivo/text/reader';
-import { decodeTextTask, serveTextTasks } from '@fivo/text/reader';
+import type { TextTaskScope } from '@fivo/core/text';
+import { decodeTextTask, serveTextTasks } from '@fivo/core/text';
 // 只解码原文时，Worker 也不会请求 Markdown 引擎。
 serveTextTasks(globalThis as unknown as TextTaskScope, {
   decode: decodeTextTask,

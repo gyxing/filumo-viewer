@@ -34,8 +34,8 @@ test('图片/PDF 描述符入口没有引擎、样式或 DOM 视图的静态依�
     );
   }
 });
-test('十二包声明依赖保持 image 与 Office 单向，PDF 仅增加必要引擎', async () => {
-  assert.equal(WORKSPACE_PACKAGES.length, 12);
+test('十五包声明依赖保持 image 与 Office 单向，PDF 仅增加必要引擎', async () => {
+  assert.equal(WORKSPACE_PACKAGES.length, 15);
   const image = JSON.parse(
       await readFile('packages/image/package.json', 'utf8'),
     ),
@@ -63,6 +63,9 @@ test('公共大纲只进入相关懒加载视图，根入口和其他格式不�
     'text',
     'image',
     'json',
+    'csv',
+    'xml',
+    'code',
   ]) {
     const result = await build({
       entryPoints: [`packages/${name}/src/index.ts`],
@@ -113,7 +116,7 @@ test('公共大纲只进入相关懒加载视图，根入口和其他格式不�
     );
     assert.equal(
       all.some(isOutline),
-      ['office', 'markdown', 'pdf'].includes(name),
+      ['office', 'markdown', 'pdf', 'xml'].includes(name),
       name,
     );
   }

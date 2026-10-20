@@ -57,7 +57,7 @@ const aliases = {
     builder.onLoad(
       {
         filter:
-          /[\\/]packages[\\/](?:office|text|json|markdown)[\\/]dist[\\/]index\.js$/,
+          /[\\/]packages[\\/](?:office|text|json|markdown|csv|xml|code)[\\/]dist[\\/]index\.js$/,
       },
       async ({ path }) => {
         const name = path.split(/[\\/]/).at(-3);
@@ -92,6 +92,7 @@ const result = await build({
   entryPoints: {
     'image-pdf': join(root, 'tests/browser/harness/image-pdf.ts'),
     'text-formats': join(root, 'tests/browser/harness/text-formats.ts'),
+    'text-expansion': join(root, 'tests/browser/harness/text-expansion.ts'),
     main: join(
       root,
       'examples',
@@ -186,6 +187,7 @@ const server = http.createServer(async (req, res) => {
     const page =
       path === '/' ||
       path === '/text-formats.html' ||
+      path === '/text-expansion.html' ||
       path === '/image-pdf.html';
     if (!page && !file) {
       res.writeHead(404).end();
@@ -196,6 +198,8 @@ const server = http.createServer(async (req, res) => {
         ? html
         : path === '/image-pdf.html'
         ? imagePdfHtml
+        : path === '/text-expansion.html'
+        ? textFormatsHtml.replaceAll('text-formats', 'text-expansion')
         : textFormatsHtml
       : await readFile(file);
     const type = page

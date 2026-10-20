@@ -45,6 +45,49 @@ function fixture() {
 const press = (element, key) =>
   element.onkeydown({ key, preventDefault() {}, stopPropagation() {} });
 
+test('可选富标签保留纯文本名称、键盘激活和默认大纲标签', () => {
+  const document = fixture(),
+    activations = [];
+  const tree = new OutlineTree({
+    document,
+    accessors,
+    onToggle() {},
+    onActivate: (id) => activations.push(id),
+    renderLabel(item, owner) {
+      const content = owner.createElement('span');
+      content.className = 'fixture-rich-label';
+      content.textContent = '<' + item.id + '>';
+      return item.id === 'plain' ? undefined : content;
+    },
+  });
+  try {
+    tree.update({
+      roots: [node('rich'), node('plain')],
+      revision: 1,
+      expanded: new Set(),
+      loading: new Set(),
+    });
+    const row = tree.element.querySelector('[data-outline-id="rich"]'),
+      label = row.querySelector('.fivo-outline-label');
+    assert.equal(row.getAttribute('aria-label'), 'rich');
+    assert.equal(label.title, 'rich');
+    assert.equal(
+      label.querySelector('.fixture-rich-label').textContent,
+      '<rich>',
+    );
+    assert.equal(
+      tree.element
+        .querySelector('[data-outline-id="plain"]')
+        .querySelector('.fivo-outline-label').textContent,
+      'plain',
+    );
+    press(row, 'Enter');
+    assert.deepEqual(activations, ['rich']);
+  } finally {
+    tree.dispose();
+  }
+});
+
 test('树方框只展开，方向键只移动，激活一次且结构未变不重新读取整树', () => {
   const document = fixture(),
     toggles = [],

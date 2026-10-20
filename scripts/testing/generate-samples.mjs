@@ -237,6 +237,12 @@ await writeFile(
   '纯文本示例\r\n第二行：保留空白与制表符\t内容\n\n结束。\n',
   'utf8',
 );
+
+// 格式扩展样本与浏览器夹具共享同一来源。
+for (const sample of (
+  await import('../../tests/fixtures/public/text-expansion/samples.mjs')
+).expansionSamples)
+  await writeFile(out + '/' + sample.file, sample.text, 'utf8');
 await writeFile(
   out + '/sample.log',
   Array.from(

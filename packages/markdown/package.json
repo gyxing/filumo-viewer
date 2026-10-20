@@ -26,7 +26,6 @@
   "dependencies": {
     "@fivo/core": "workspace:^",
     "@fivo/dom": "workspace:^",
-    "@fivo/text": "workspace:^",
     "highlight.js": "11.12.0",
     "marked": "18.1.1"
   }

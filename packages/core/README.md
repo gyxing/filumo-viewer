@@ -13,3 +13,5 @@
 当前为工作区预发布实现，尚未发布 npm；格式解析由插件负责，Core 不依赖图片或 PDF 引擎。
 
 请参阅仓库 [框架接入指南](../../apps/docs/docs/guides/preview-integration.md) 和 [兼容范围](../../apps/docs/docs/guides/compatibility.md)。
+
+公共文本能力从 @fivo/core/text 导入，包含解码、行索引、查找、TextContent 和可取消的 Worker 任务协议，不依赖 DOM 或格式包。

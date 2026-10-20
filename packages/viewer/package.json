@@ -27,7 +27,10 @@
     "@fivo/markdown": "workspace:^",
     "@fivo/office": "workspace:^",
     "@fivo/pdf": "workspace:^",
-    "@fivo/text": "workspace:^"
+    "@fivo/text": "workspace:^",
+    "@fivo/csv": "workspace:^",
+    "@fivo/xml": "workspace:^",
+    "@fivo/code": "workspace:^"
   },
   "peerDependencies": {}
 }

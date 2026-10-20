@@ -1,4 +1,5 @@
 import { readFile } from 'node:fs/promises';
+import { basename } from 'node:path';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import {
   loadLocalCatalog,
@@ -44,6 +45,7 @@ export function createSampleMiddleware(root: string, base = '/') {
                 label: s.id,
                 format: s.format,
                 extension: s.format,
+                fileName: basename(s.absolute),
                 bytes: s.bytes,
               })),
               ...local.samples.map(

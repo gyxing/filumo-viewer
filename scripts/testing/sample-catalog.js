@@ -1,3 +1,4 @@
+import { expansionSamples } from '../../tests/fixtures/public/text-expansion/samples.mjs';
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
@@ -39,6 +40,13 @@ export async function sampleCatalog(root, local = false) {
       id,
       format,
       absolute: resolve(root, 'tests/fixtures/public/generated', file),
+      local: false,
+    });
+  for (const sample of expansionSamples)
+    result.push({
+      id: sample.id,
+      format: sample.format,
+      absolute: resolve(root, 'tests/fixtures/public/generated', sample.file),
       local: false,
     });
   if (local) {

@@ -1,4 +1,4 @@
-import type { TextDecoration } from '@fivo/text/view';
+import type { TextDecoration } from '@fivo/dom/text';
 
 // 着色是可选增强，超长行保留完整普通文本，避免同步词法工作阻塞阅读。
 const LINE_BUDGET = 65536;

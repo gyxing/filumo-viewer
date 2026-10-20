@@ -8,7 +8,16 @@ import { verifyInstalledPackages } from './pack-packages.mjs';
 /** 独立安装只声明当前格式，防止标准预设依赖掩盖缺包和非必要第三方依赖。 */
 export async function checkFormatConsumers(root, work, packed, overrides) {
   const reports = [];
-  for (const name of ['text', 'json', 'markdown', 'image', 'pdf']) {
+  for (const name of [
+    'text',
+    'json',
+    'markdown',
+    'image',
+    'pdf',
+    'csv',
+    'xml',
+    'code',
+  ]) {
     const directory = join(work, 'format-' + name);
     await mkdir(directory);
     await writeFile(
@@ -33,10 +42,19 @@ export async function checkFormatConsumers(root, work, packed, overrides) {
     await verifyInstalledPackages(directory, packed);
     const installed = await readdir(join(directory, 'node_modules/.pnpm'));
     if (
-      name !== 'markdown' &&
-      installed.some((file) => /^(?:marked|highlight\.js)@/.test(file))
+      (name !== 'markdown' &&
+        installed.some((file) => /^marked@/.test(file))) ||
+      (!['markdown', 'code'].includes(name) &&
+        installed.some((file) => /^highlight\.js@/.test(file)))
     )
-      throw Error(name + ' 独立安装意外包含 Markdown 依赖');
+      throw Error(name + ' 独立安装意外包含文本渲染引擎');
+    if (name !== 'xml' && installed.some((file) => /^saxes@/.test(file)))
+      throw Error(name + ' 独立安装意外包含 XML 引擎');
+    if (
+      ['json', 'markdown', 'csv', 'xml', 'code'].includes(name) &&
+      installed.some((file) => /^@fivo\+text@/.test(file))
+    )
+      throw Error(name + ' 不应反向依赖 Text 格式');
     const symbols =
       name === 'text'
         ? `import {readText} from '@fivo/text/reader'; import {mountTextSurface} from '@fivo/text/view'; void readText; void mountTextSurface;`

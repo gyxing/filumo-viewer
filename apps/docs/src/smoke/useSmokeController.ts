@@ -1,3 +1,7 @@
+import { csv } from '@fivo/csv';
+import { sampleFileName } from './sampleFileName';
+import { xml } from '@fivo/xml';
+import { code } from '@fivo/code';
 import type { ControllerSnapshot } from '@fivo/core';
 import type { ViewerCapabilities, ViewerHandle } from '@fivo/dom';
 import { image } from '@fivo/image';
@@ -48,6 +52,9 @@ export function useSmokeController() {
         onHyperlinkActivate: (event) =>
           log('hyperlink', event.sourceType + ' / ' + event.sourceId),
       }),
+      csv(config.csv),
+      xml(config.xml),
+      code(config.code),
       text(config.text),
       json(config.json),
       markdown(config.markdown),
@@ -56,6 +63,9 @@ export function useSmokeController() {
     ],
     [
       config.office,
+      config.csv,
+      config.xml,
+      config.code,
       config.text,
       config.json,
       config.markdown,
@@ -109,14 +119,7 @@ export function useSmokeController() {
         );
       const bytes = await response.blob();
       if (id !== serial.current || controller.signal.aborted) return;
-      setSource(
-        new File(
-          [bytes],
-          sample.label.toLowerCase().endsWith('.' + sample.extension)
-            ? sample.label
-            : sample.label + '.' + sample.extension,
-        ),
-      );
+      setSource(new File([bytes], sampleFileName(sample)));
       setSelectedId(sample.id);
       setTargetState('document');
       setMounted(true);

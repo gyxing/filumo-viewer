@@ -1,4 +1,4 @@
-import type { TextEncoding } from '@fivo/text/reader';
+import type { TextEncoding } from '@fivo/core/text';
 export interface MarkdownOptions {
   encoding?: TextEncoding;
   initialMode?: 'reading' | 'source';

@@ -25,7 +25,6 @@
   ],
   "dependencies": {
     "@fivo/core": "workspace:^",
-    "@fivo/dom": "workspace:^",
-    "@fivo/text": "workspace:^"
+    "@fivo/dom": "workspace:^"
   }
 }

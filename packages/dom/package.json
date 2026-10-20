@@ -6,9 +6,15 @@
   "sideEffects": [
     "./src/outline.ts",
     "./src/outline/OutlineTree.ts",
+    "./src/text.ts",
+    "./src/text/mountTextSurface.ts",
+    "./src/split.ts",
+    "./src/split/SplitHandle.ts",
     "**/*.less",
     "./dist/index.js",
     "./dist/outline.js",
+    "./dist/text.js",
+    "./dist/split.js",
     "./dist/chunks/*.js",
     "**/*.css"
   ],
@@ -25,7 +31,27 @@
       "import": "./dist/outline.js",
       "default": "./dist/outline.js"
     },
-    "./styles.css": "./dist/styles.css"
+    "./styles.css": "./dist/styles.css",
+    "./text": {
+      "types": "./dist/text.d.ts",
+      "import": "./dist/text.js",
+      "default": "./dist/text.js"
+    },
+    "./text-messages": {
+      "types": "./dist/text-messages.d.ts",
+      "import": "./dist/text-messages.js",
+      "default": "./dist/text-messages.js"
+    },
+    "./text-highlight": {
+      "types": "./dist/text-highlight.d.ts",
+      "import": "./dist/text-highlight.js",
+      "default": "./dist/text-highlight.js"
+    },
+    "./split": {
+      "types": "./dist/split.d.ts",
+      "import": "./dist/split.js",
+      "default": "./dist/split.js"
+    }
   },
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -33,6 +59,18 @@
     "*": {
       "outline": [
         "dist/outline.d.ts"
+      ],
+      "text": [
+        "dist/text.d.ts"
+      ],
+      "text-messages": [
+        "dist/text-messages.d.ts"
+      ],
+      "text-highlight": [
+        "dist/text-highlight.d.ts"
+      ],
+      "split": [
+        "dist/split.d.ts"
       ]
     }
   },

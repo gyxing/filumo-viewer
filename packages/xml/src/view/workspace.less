@@ -1,0 +1,106 @@
+.fivo-xml-workspace {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  color: var(--fivo-text);
+  background: var(--fivo-surface);
+}
+.fivo-xml-workspace [hidden] {
+  display: none;
+}
+.fivo-xml-pane {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+.fivo-xml-workspace[data-layout='split'] > .fivo-xml-pane-tree {
+  flex: 0 0 var(--fivo-xml-tree-width, calc(50% - 3px));
+  min-width: 240px;
+}
+.fivo-xml-workspace[data-layout='split'] > .fivo-xml-pane-source {
+  min-width: 280px;
+}
+.fivo-xml-pane > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 0 0 32px;
+  padding: 0 10px;
+  border-bottom: 1px solid var(--fivo-border);
+  color: var(--fivo-muted);
+  font: 12px/1.5 system-ui, sans-serif;
+}
+.fivo-xml-pane > header button {
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  color: var(--fivo-primary);
+  cursor: pointer;
+  font: inherit;
+}
+.fivo-xml-pane-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
+.fivo-xml-status {
+  padding: 12px;
+  color: var(--fivo-muted);
+}
+.fivo-xml-status:empty {
+  display: none;
+}
+.fivo-xml-tree .fivo-outline-label {
+  font-family: Consolas, 'Courier New', monospace;
+}
+.fivo-xml-node-label {
+  display: inline-flex;
+  max-width: 100%;
+  vertical-align: top;
+  white-space: nowrap;
+}
+.fivo-xml-node-name,
+.fivo-xml-node-value,
+.fivo-xml-node-comment {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fivo-xml-node-name {
+  color: var(--fivo-structure-name, var(--fivo-text));
+}
+.fivo-xml-node-value {
+  color: var(--fivo-structure-string, var(--fivo-primary));
+}
+.fivo-xml-node-marker,
+.fivo-xml-node-punctuation,
+.fivo-xml-node-comment {
+  color: var(--fivo-structure-muted, var(--fivo-muted));
+}
+.fivo-xml-node-marker,
+.fivo-xml-node-punctuation {
+  flex: 0 0 auto;
+}
+.fivo-xml-node-comment {
+  font-style: italic;
+}
+.fivo-xml-tag {
+  color: var(--fivo-primary);
+}
+.fivo-xml-attribute {
+  color: var(--fivo-code-keyword, #a33275);
+}
+.fivo-xml-string {
+  color: var(--fivo-code-string, #167a50);
+}
+.fivo-xml-comment {
+  color: var(--fivo-muted);
+  font-style: italic;
+}

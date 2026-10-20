@@ -1,8 +1,8 @@
 .fivo-json-workspace {
-  --fivo-json-key: #691010;
-  --fivo-json-string: #1569b1;
-  --fivo-json-value: #09933a;
-  --fivo-json-muted: #888;
+  --fivo-json-key: var(--fivo-structure-name, #691010);
+  --fivo-json-string: var(--fivo-structure-string, #1569b1);
+  --fivo-json-value: var(--fivo-structure-literal, #09933a);
+  --fivo-json-muted: var(--fivo-structure-muted, #888);
 
   display: flex;
   flex-direction: column;
@@ -11,10 +11,10 @@
   min-width: 0;
 
   .fivo-viewer[data-theme='dark'] & {
-    --fivo-json-key: #ecb0b0;
-    --fivo-json-string: #83bcf2;
-    --fivo-json-value: #83d6a0;
-    --fivo-json-muted: #a0aabd;
+    --fivo-json-key: var(--fivo-structure-name, #ecb0b0);
+    --fivo-json-string: var(--fivo-structure-string, #83bcf2);
+    --fivo-json-value: var(--fivo-structure-literal, #83d6a0);
+    --fivo-json-muted: var(--fivo-structure-muted, #a0aabd);
   }
 }
 

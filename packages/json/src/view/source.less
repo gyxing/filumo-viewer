@@ -1,17 +1,21 @@
 .fivo-json-token-key {
-  color: var(--fivo-json-key, #691010);
+  color: var(--fivo-json-key, var(--fivo-structure-name, #691010));
 }
 
 .fivo-json-token-string {
-  color: var(--fivo-json-string, #1569b1);
+  color: var(--fivo-json-string, var(--fivo-structure-string, #1569b1));
 }
 
 .fivo-json-token-number,
 .fivo-json-token-boolean {
-  color: var(--fivo-json-value, #09933a);
+  color: var(--fivo-json-value, var(--fivo-structure-literal, #09933a));
 }
 
 .fivo-json-token-null,
 .fivo-json-token-punctuation {
-  color: var(--fivo-json-muted, #888);
+  color: var(--fivo-json-muted, var(--fivo-structure-muted, #888));
+}
+.fivo-json-token-comment {
+  color: var(--fivo-muted);
+  font-style: italic;
 }

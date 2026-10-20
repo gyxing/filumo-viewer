@@ -37,6 +37,9 @@ for (const manager of ['npm', 'yarn']) {
     'text',
     'json',
     'markdown',
+    'csv',
+    'xml',
+    'code',
     'viewer',
   ])
     dependencies['@fivo/' + name] =

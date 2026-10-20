@@ -1,10 +1,11 @@
 import type { ViewerCapabilities } from '../capabilities/types';
 import { labelShellButton } from './icons';
 import { createOptionPopup } from './OptionPopup';
+import { getZoomPresets } from './zoomPresets';
 
 type Zoom = NonNullable<ViewerCapabilities['zoom']>;
 
-/** 绑定通用缩放；插件提供预设时启用组合框，保留旧插件的小数输入语义。 */
+/** 统一绑定比例输入与预设选项，未配置的格式也使用公共默认比例。 */
 export function createZoomControl(
   document: Document,
   onError: (error: unknown) => void,
@@ -72,16 +73,20 @@ export function createZoomControl(
     if (
       !raw.trim() ||
       !Number.isFinite(value) ||
-      (rich && !/^\d+$/.test(raw))
+      (rich && !/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(raw))
     ) {
       reset();
       return;
     }
-    if (!rich && (value < zoom.min || value > zoom.max)) {
+    // 增加默认预设不改变旧插件的越界处理；显式配置继续沿用原有限幅规则。
+    const clampInput = Boolean(zoom.presets || zoom.mode);
+    if (!clampInput && (value < zoom.min || value > zoom.max)) {
       reset();
       return;
     }
-    const next = rich ? Math.max(zoom.min, Math.min(zoom.max, value)) : value;
+    const next = clampInput
+      ? Math.max(zoom.min, Math.min(zoom.max, value))
+      : value;
     dirty = false;
     accepted = input.value = String(next);
     // 自适应测量可能恰好等于输入值，确认手动比例仍须退出该模式。
@@ -142,7 +147,7 @@ export function createZoomControl(
   input.onfocus = open;
   input.onclick = open;
   input.oninput = () => {
-    if (rich && !/^\d*$/.test(input.value)) {
+    if (rich && !/^\d*(?:\.\d*)?$/.test(input.value)) {
       input.value = accepted;
       return;
     }
@@ -206,7 +211,8 @@ export function createZoomControl(
     element,
     close,
     update(zoom: Zoom, locale: 'zh-CN' | 'en-US', available: boolean) {
-      const nextRich = Boolean(zoom.presets || zoom.mode);
+      const presets = getZoomPresets(zoom);
+      const nextRich = Boolean(presets.length || zoom.mode?.options.length);
       if (nextRich !== rich) {
         close();
         dirty = false;
@@ -215,7 +221,7 @@ export function createZoomControl(
       rich = nextRich;
       input.type = rich ? 'text' : 'number';
       input.step = 'any';
-      input.inputMode = rich ? 'numeric' : 'decimal';
+      input.inputMode = 'decimal';
       input.min = String(zoom.min);
       input.max = String(zoom.max);
       input.setAttribute(
@@ -242,7 +248,7 @@ export function createZoomControl(
           label: option.label,
           value: option.value,
         })),
-        ...(zoom.presets ?? []).map((value) => ({ label: value + '%', value })),
+        ...presets.map((value) => ({ label: value + '%', value })),
       ];
       if (!dirty || document.activeElement !== input) reset();
       input.disabled = !available;

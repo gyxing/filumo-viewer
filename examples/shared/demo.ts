@@ -1,7 +1,15 @@
 import type { ViewerHandle } from '@fivo/dom';
+import { image } from '@fivo/image';
 import { office } from '@fivo/office';
+import { pdf } from '@fivo/pdf';
 // 强制 Worker 使资源部署失败可见，正常宿主也可以采用默认 auto 回退策略。
-export const plugins = [office({ worker: 'always' })];
+export const plugins = [
+  office({ worker: 'always' }),
+  image(),
+  pdf({
+    assetsBaseUrl: new URL('assets/pdf/assets/pdfjs/', document.baseURI).href,
+  }),
+];
 export const options = { height: '65vh' };
 let readyCount = 0;
 let activate: ((active: boolean) => Promise<void>) | undefined;
@@ -38,12 +46,14 @@ export function setupDemo(getViewer: () => ViewerHandle | undefined) {
       bytes ? new Uint8Array(data) : new File([data], 'sample.' + kind),
     );
   };
-  for (const kind of ['docx', 'xlsx', 'pptx'])
+  for (const kind of ['docx', 'xlsx', 'pptx', 'svg', 'pdf'])
     document.getElementById(kind)!.onclick = () => {
       void load(kind).catch(events.onError);
     };
   const input = document.getElementById('file') as HTMLInputElement;
-  input.accept = plugins[0].document.extensions.join(',');
+  input.accept = plugins
+    .flatMap((plugin) => [...plugin.document.extensions])
+    .join(',');
   input.onchange = () => {
     if (input.files?.[0])
       void viewer().open(input.files[0]).catch(events.onError);

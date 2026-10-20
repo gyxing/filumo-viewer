@@ -34,6 +34,7 @@ const built = await build({
   format: 'esm',
   platform: 'browser',
   metafile: true,
+  alias: { '@fivo/dom/outline': join(root, 'packages/dom/src/outline.ts') },
   plugins: [styles],
   logLevel: 'warning',
 });

@@ -46,6 +46,9 @@ export function createToolbarOverflow(
     frame = 0;
     if (disposed || !toolbar.clientWidth) return;
     toolbar.dataset.compact = String(toolbar.clientWidth < 900);
+    toolbar.dataset.keepActions = String(
+      items.some((item) => !item.secondary && item.priority === Infinity),
+    );
     const overflow = new Set(items.filter((item) => item.secondary));
     const apply = () => {
       const primary = items.filter((item) => !overflow.has(item));
@@ -70,7 +73,7 @@ export function createToolbarOverflow(
       apply();
       // 缩放比与当前页优先保留，次要能力退入更多面板而非堆叠成多行。
       const candidates = items
-        .filter((item) => !item.secondary)
+        .filter((item) => !item.secondary && item.priority !== Infinity)
         .sort((a, b) => (a.priority ?? 50) - (b.priority ?? 50));
       for (const item of candidates) {
         if (toolbar.scrollWidth <= toolbar.clientWidth + 1) break;
@@ -90,13 +93,19 @@ export function createToolbarOverflow(
         en ? 'More actions' : '更多操作',
       );
       more.hidden = !overflow.size;
-      if (focused && !focused.isConnected && items.some((item) => item.node.contains(focused)))
+      if (
+        focused &&
+        !focused.isConnected &&
+        items.some((item) => item.node.contains(focused))
+      )
         trigger.focus({ preventScroll: true });
       if (more.hidden) {
         menu.close();
         if (hadMenuFocus) {
-          const target = main.querySelector<HTMLElement>('button:not(:disabled), input:not(:disabled)')
-            ?? toolbar.querySelector<HTMLElement>('.fivo-open-file');
+          const target =
+            main.querySelector<HTMLElement>(
+              'button:not(:disabled), input:not(:disabled)',
+            ) ?? toolbar.querySelector<HTMLElement>('.fivo-open-file');
           target?.focus({ preventScroll: true });
         }
       }

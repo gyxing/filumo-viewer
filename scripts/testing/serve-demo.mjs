@@ -7,6 +7,7 @@ import { dirname, extname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { WORKSPACE_PACKAGES } from '../workspace-packages.js';
 import './generate-samples.mjs';
+import { servePdfFixture } from './serve-pdf-fixture.mjs';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const args = process.argv.slice(2);
 let framework = 'vanilla',
@@ -89,6 +90,7 @@ const aliases = {
 const result = await build({
   absWorkingDir: root,
   entryPoints: {
+    'image-pdf': join(root, 'tests/browser/harness/image-pdf.ts'),
     'text-formats': join(root, 'tests/browser/harness/text-formats.ts'),
     main: join(
       root,
@@ -114,7 +116,9 @@ const files = new Map([
 // 测试页用真实产物映射核对请求边界，避免依赖哈希文件名猜测模块身份。
 const assetGraph = {};
 const sourceInputs = new Map();
-for (const item of WORKSPACE_PACKAGES.filter((item) => item.workerEntry)) {
+for (const item of WORKSPACE_PACKAGES.filter(
+  (item) => item.workerEntry || item.assetStrategy || item.name === 'image',
+)) {
   const manifest = JSON.parse(
     await readFile(
       join(root, 'packages', item.name, 'dist/build-manifest.json'),
@@ -126,20 +130,32 @@ for (const item of WORKSPACE_PACKAGES.filter((item) => item.workerEntry)) {
       resolve(root, 'packages', item.name, 'dist', output.file),
       output.inputs.map((input) => 'packages/' + item.name + '/' + input),
     );
-  for (const file of manifest.worker.outputs)
+  for (const file of manifest.worker?.outputs ?? [])
     files.set(
       '/assets/' + item.name + '/' + file,
       join(root, 'packages', item.name, 'dist', file),
     );
-  for (const [file, info] of Object.entries(manifest.worker.graph ?? {}))
+  for (const [file, info] of Object.entries(manifest.worker?.graph ?? {}))
     assetGraph['/assets/' + item.name + '/' + file] = Object.keys(
       info.inputs,
     ).map((input) => 'packages/' + item.name + '/' + input);
+  for (const asset of manifest.pdfAssets?.assets ?? []) {
+    files.set(
+      '/assets/pdf/' + asset.file,
+      join(root, 'packages/pdf/dist', asset.file),
+    );
+    assetGraph['/assets/pdf/' + asset.file] = [asset.source];
+  }
 }
-for (const kind of ['docx', 'xlsx', 'pptx'])
+for (const kind of ['docx', 'xlsx', 'pptx', 'svg', 'pdf'])
   files.set(
     '/fixtures/sample.' + kind,
     join(root, 'tests/fixtures/public/generated/sample.' + kind),
+  );
+for (const kind of ['password', 'scan'])
+  files.set(
+    '/fixtures/sample-' + kind + '.pdf',
+    join(root, 'tests/fixtures/public/generated/sample-' + kind + '.pdf'),
   );
 for (const file of Object.keys(result.metafile.outputs)) {
   const absolute = resolve(root, file);
@@ -156,6 +172,8 @@ const html = (
 ).replace(/src="\.\/src\/main\.tsx?"/, 'src="/assets/main.js"');
 const textFormatsHtml =
   '<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>文本格式验收</title><body><script type="module" src="/assets/text-formats.js"></script></body></html>';
+const imagePdfHtml =
+  '<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>图片和 PDF 验收</title><body><script type="module" src="/assets/image-pdf.js"></script></body></html>';
 const server = http.createServer(async (req, res) => {
   if (!['GET', 'HEAD'].includes(req.method)) {
     res.writeHead(405).end();
@@ -163,8 +181,12 @@ const server = http.createServer(async (req, res) => {
   }
   try {
     const path = new URL(req.url, 'http://localhost').pathname;
+    if (servePdfFixture(req, res, path)) return;
     const file = files.get(path);
-    const page = path === '/' || path === '/text-formats.html';
+    const page =
+      path === '/' ||
+      path === '/text-formats.html' ||
+      path === '/image-pdf.html';
     if (!page && !file) {
       res.writeHead(404).end();
       return;
@@ -172,12 +194,20 @@ const server = http.createServer(async (req, res) => {
     const data = page
       ? path === '/'
         ? html
+        : path === '/image-pdf.html'
+        ? imagePdfHtml
         : textFormatsHtml
       : await readFile(file);
     const type = page
       ? 'text/html'
-      : { '.js': 'text/javascript', '.css': 'text/css' }[extname(file)] ??
-        'application/octet-stream';
+      : {
+          '.js': 'text/javascript',
+          '.mjs': 'text/javascript',
+          '.css': 'text/css',
+          '.svg': 'image/svg+xml',
+          '.pdf': 'application/pdf',
+          '.wasm': 'application/wasm',
+        }[extname(file)] ?? 'application/octet-stream';
     res.writeHead(200, {
       'Content-Type': type + '; charset=utf-8',
       'Cache-Control': 'no-store',

@@ -9,7 +9,7 @@ toc: content
 
 Fivo is a browser-based, cross-framework Office preview library. Parsing, images, charts and rendering run in the browser without a document-conversion service. React, Vue 3, Vue 2 and JavaScript hosts share the native DOM renderer.
 
-> The current workspace version is **0.1.0-next.0** and has not been published to npm. This documentation describes implemented features only. PDF, text, Markdown, JSON, editing and saving edited files are future extensions. Do not install unrelated packages with similar names or use the previous package entry points.
+> The current workspace version is **0.1.0-next.0** and has not been published to npm. The workspace implements read-only Office, text, Markdown, JSON, image and PDF plugins. Editing and saving edited files are future extensions. Do not install unrelated packages with similar names or use the previous package entry points.
 
 <nav className="office-viewer-docs__quick-links" aria-label="Documentation shortcuts">
   <a href="#quick-start">Quick start</a>
@@ -26,14 +26,19 @@ Fivo is a browser-based, cross-framework Office preview library. Parsing, images
 | @fivo/core   | Sources, plugin protocol, sessions, cancellation, original export | Building document flows or plugins       |
 | @fivo/dom    | Native viewer shell, styles and generic capabilities              | Using JavaScript or a custom host        |
 | @fivo/office | Office descriptor, drivers and native renderers                   | Previewing Word, Excel and PowerPoint    |
+| @fivo/text | 纯文本及未知文本兜底 | 文本原文预览 |
+| @fivo/json | JSON 结构与原文 | JSON 文件 |
+| @fivo/markdown | Markdown 阅读与原文 | Markdown 文件 |
+| @fivo/image | 图片及公共图片交互 | 独立图片与 Office 弹层 |
+| @fivo/pdf | PDF 连续阅读 | 部署同版 Worker 及辅助资产 |
 | @fivo/react  | React 18/19 adapter                                               | Using React                              |
 | @fivo/vue    | Vue 3 adapter                                                     | Using Vue 3                              |
 | @fivo/vue2   | Vue 2.6/2.7 adapter                                               | Using Vue 2                              |
-| @fivo/viewer | Explicit Office-only standard preset                              | Reusing the stable standardPlugins array |
+| @fivo/viewer | Lightweight standard preset for six format families               | Reusing the stable standardPlugins array |
 
 Install only your framework adapter. JavaScript and Vue hosts do not acquire React through the Office package.
 
-`office()` creates a lightweight descriptor. Drivers and the appropriate format view load when a document opens. PDF and other future plugins are not installed implicitly or added to existing consumers automatically.
+`office()` creates a lightweight descriptor. Drivers and the appropriate format view load when a document opens. Image and PDF deployment is described in the [image and PDF guide](./guides/image-pdf). Unregistered plugins do not load implicitly.
 
 ## Installation and workspace use
 

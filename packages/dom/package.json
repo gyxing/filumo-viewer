@@ -4,7 +4,11 @@
   "description": "Fivo dom",
   "license": "MIT",
   "sideEffects": [
+    "./src/outline.ts",
+    "./src/outline/OutlineTree.ts",
+    "**/*.less",
     "./dist/index.js",
+    "./dist/outline.js",
     "./dist/chunks/*.js",
     "**/*.css"
   ],
@@ -16,10 +20,22 @@
       "default": "./dist/index.js"
     },
     "./package.json": "./package.json",
+    "./outline": {
+      "types": "./dist/outline.d.ts",
+      "import": "./dist/outline.js",
+      "default": "./dist/outline.js"
+    },
     "./styles.css": "./dist/styles.css"
   },
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "outline": [
+        "dist/outline.d.ts"
+      ]
+    }
+  },
   "files": [
     "dist"
   ],

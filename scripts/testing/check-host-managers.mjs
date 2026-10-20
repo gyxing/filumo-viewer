@@ -32,6 +32,8 @@ for (const manager of ['npm', 'yarn']) {
     'core',
     'dom',
     'office',
+    'image',
+    'pdf',
     'text',
     'json',
     'markdown',
@@ -87,13 +89,21 @@ for (const manager of ['npm', 'yarn']) {
     throw new Error(manager + ' 意外安装 React');
   const fixtures = join(directory, 'app/public/fixtures');
   await mkdir(fixtures, { recursive: true });
-  for (const kind of ['docx', 'xlsx', 'pptx'])
+  for (const kind of ['docx', 'xlsx', 'pptx', 'svg', 'pdf'])
     await copyFile(
       join(root, 'tests/fixtures/public/generated/sample.' + kind),
       join(fixtures, 'sample.' + kind),
     );
   const { build } = await import(
     pathToFileURL(join(directory, 'node_modules/vite/dist/node/index.js')).href
+  );
+  const pdfPackageRoot = await import('node:fs/promises').then((fs) =>
+    fs.realpath(join(directory, 'node_modules/@fivo/pdf')),
+  );
+  await cp(
+    join(pdfPackageRoot, 'dist/assets/pdfjs'),
+    join(directory, 'app/public/assets/pdf/assets/pdfjs'),
+    { recursive: true },
   );
   await build({
     root: join(directory, 'app'),

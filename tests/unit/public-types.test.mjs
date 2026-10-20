@@ -12,10 +12,17 @@ test('新格式公开声明不跟随解析器或第三方实现，reader 无 DOM
     'text/view',
     'json/index',
     'markdown/index',
+    'image/index',
+    'image/view',
+    'pdf/index',
+    'pdf/assets',
   ]) {
     const [name, file] = entry.split('/');
     const declaration =
-      name === 'text' && file !== 'index' ? file + '/index' : file;
+      (name === 'text' && file !== 'index') ||
+      (name === 'image' && file === 'view')
+        ? file + '/index'
+        : file;
     const program = ts.createProgram(
       [resolve(`packages/${name}/dist/${declaration}.d.ts`)],
       {
@@ -42,7 +49,7 @@ test('新格式公开声明不跟随解析器或第三方实现，reader 无 DOM
     const files = program.getSourceFiles().map((source) => source.fileName);
     assert.equal(
       files.some((path) =>
-        /(?:json|markdown)[\\/]dist[\\/](?:parser|runtime|view)[\\/]|node_modules.*(?:marked|highlight\.js)/.test(
+        /(?:json|markdown|pdf)[\\/]dist[\\/](?:parser|runtime|view)[\\/]|node_modules.*(?:marked|highlight\.js|pdfjs-dist)/.test(
           path,
         ),
       ),
@@ -85,16 +92,26 @@ test('兜底探测为可选协议，旧插件与 Text 开关保持公开类型�
     target: ts.ScriptTarget.ES2020,
     module: ts.ModuleKind.ESNext,
     moduleResolution: ts.ModuleResolutionKind.Node10,
-    strict: true, noEmit: true, skipLibCheck: false, types: [],
+    strict: true,
+    noEmit: true,
+    skipLibCheck: false,
+    types: [],
     lib: ['lib.es2022.d.ts', 'lib.dom.d.ts', 'lib.dom.iterable.d.ts'],
   };
   const host = ts.createCompilerHost(options);
   const original = host.getSourceFile.bind(host);
-  host.getSourceFile = (file, language, ...rest) => resolve(file) === filename
-    ? ts.createSourceFile(file, source, language, true)
-    : original(file, language, ...rest);
-  assert.deepEqual(ts.getPreEmitDiagnostics(ts.createProgram([filename], options, host))
-    .map((diagnostic) => ts.flattenDiagnosticMessageText(diagnostic.messageText, ' ')), []);
+  host.getSourceFile = (file, language, ...rest) =>
+    resolve(file) === filename
+      ? ts.createSourceFile(file, source, language, true)
+      : original(file, language, ...rest);
+  assert.deepEqual(
+    ts
+      .getPreEmitDiagnostics(ts.createProgram([filename], options, host))
+      .map((diagnostic) =>
+        ts.flattenDiagnosticMessageText(diagnostic.messageText, ' '),
+      ),
+    [],
+  );
 });
 
 test('Office 公开声明配置不跟随引擎实现，并允许扩展公开 DTO', () => {

@@ -1,8 +1,10 @@
 import type { ControllerSnapshot } from '@fivo/core';
 import type { ViewerCapabilities, ViewerHandle } from '@fivo/dom';
+import { image } from '@fivo/image';
 import { json } from '@fivo/json';
 import { markdown } from '@fivo/markdown';
 import { office } from '@fivo/office';
+import { pdf } from '@fivo/pdf';
 import { text } from '@fivo/text';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { docsPath } from '../site-path';
@@ -49,8 +51,18 @@ export function useSmokeController() {
       text(config.text),
       json(config.json),
       markdown(config.markdown),
+      image(config.image),
+      pdf(config.pdf),
     ],
-    [config.office, config.text, config.json, config.markdown, log],
+    [
+      config.office,
+      config.text,
+      config.json,
+      config.markdown,
+      config.image,
+      config.pdf,
+      log,
+    ],
   );
   useEffect(
     () => () => {

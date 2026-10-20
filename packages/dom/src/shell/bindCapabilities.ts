@@ -4,9 +4,14 @@ import type {
 } from '../capabilities/types';
 import { createSelectControl } from './SelectControl';
 import { createZoomControl } from './ZoomControl';
-import { labelShellButton, type ShellIcon } from './icons';
+import { getActionPresentation } from './actionPresentation';
+import { createShellIcon, labelShellButton, type ShellIcon } from './icons';
 import { createToolbarOverflow, type ToolbarItem } from './overflow';
-import { actionMenuItem, navigationMenuItem, zoomMenuItem } from './toolbarMenuItems';
+import {
+  actionMenuItem,
+  navigationMenuItem,
+  zoomMenuItem,
+} from './toolbarMenuItems';
 
 interface ActionElement {
   kind: CapabilityAction['kind'];
@@ -14,6 +19,7 @@ interface ActionElement {
   control: HTMLButtonElement;
   selection?: ReturnType<typeof createSelectControl>;
   label?: HTMLElement;
+  icon?: ShellIcon;
   current: CapabilityAction;
 }
 /** 按能力更新控件，复用节点以保留键盘焦点，不识别具体文档格式。 */
@@ -35,7 +41,7 @@ export function bindCapabilities(
   };
   const zoomControl = createZoomControl(document, onError);
   const navGroup = document.createElement('span');
-  navGroup.className = 'fivo-capability-group';
+  navGroup.className = 'fivo-capability-group fivo-navigation-control';
   const previous = button(),
     next = button(),
     page = document.createElement('input'),
@@ -129,26 +135,30 @@ export function bindCapabilities(
         }
         entry.current = action;
         entry.control.disabled = !available || action.enabled === false;
+        const presentation = getActionPresentation(action);
         if (entry.label) {
           entry.label.textContent = action.label;
-          entry.label.hidden = action.toolbar?.showLabel === false;
+          entry.label.hidden = !presentation.showLabel;
           entry.label.classList.toggle(
             'fivo-capability-label--visible',
-            action.toolbar?.showLabel === true,
+            presentation.showLabel,
           );
+          if (entry.icon !== presentation.icon) {
+            entry.control.querySelector('.fivo-select-icon')?.remove();
+            if (presentation.icon) {
+              const icon = createShellIcon(document, presentation.icon);
+              icon.classList.add('fivo-select-icon');
+              entry.control.prepend(icon);
+            }
+            entry.icon = presentation.icon;
+          }
           entry.selection?.update(action, available);
         } else {
-          // 能力末段仅用于展示图标；未知动作仍显示原标签，不判断文件格式。
-          const icons: Record<string, ShellIcon> = {
-            search: 'search',
-            outline: 'outline',
-            review: 'review',
-            notes: 'notes',
-          };
           labelShellButton(
             entry.control,
             action.label,
-            icons[action.id.split('.').at(-1) ?? ''],
+            presentation.icon,
+            !presentation.showLabel,
           );
           if (action.kind === 'toggle') {
             entry.control.setAttribute(

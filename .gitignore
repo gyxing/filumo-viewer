@@ -24,3 +24,6 @@ node_modules/
 /packages/text/src/generated/
 /packages/json/src/generated/
 /packages/markdown/src/generated/
+/packages/image/src/generated/
+/packages/pdf/src/generated/
+apps/docs/public/fivo-assets/pdf/

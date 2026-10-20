@@ -5,7 +5,7 @@ export function createDocument() {
     children = [];
     attributes = new Map();
     dataset = {};
-    style = {};
+    style = { setProperty(name, value) { this[name] = value; } };
     scrollTop = 0;
     scrollLeft = 0;
     clientHeight = 400;
@@ -37,6 +37,7 @@ export function createDocument() {
     getAttribute(name) {
       return this.attributes.get(name);
     }
+    removeAttribute(name) { this.attributes.delete(name); }
     contains(node) {
       return (
         this === node || this.children.some((child) => child.contains?.(node))
@@ -52,12 +53,12 @@ export function createDocument() {
         );
     }
     querySelector(selector) {
-      const match = selector.match(/^\[data-node-id="(\d+)"\]$/);
+      const match = selector.match(/^\[data-(node|outline)-id="([^"]+)"\]$/);
       const find = (node) => {
         for (const child of node.children) {
           if (
             match
-              ? child.dataset.nodeId === match[1]
+              ? child.dataset[match[1] === 'node' ? 'nodeId' : 'outlineId'] === match[2]
               : child.className?.split(' ').includes(selector.slice(1))
           )
             return child;

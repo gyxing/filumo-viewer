@@ -6,27 +6,47 @@ test.beforeAll(async () => {
 });
 test.afterAll(async () => server?.close());
 
-test('树线衔接展开方框，叶子横线接近标题且末分支收尾', async ({ page }) => {
+test('子级竖线从父节点横线末端垂下，叶子横线保持文字间距', async ({ page }) => {
   await page.goto(server.url + '/outline.html?complete=1');
   const tree = page.getByRole('tree');
-  const b = tree.locator('[data-outline-id="b"]');
-  const parentEnd = await b.evaluate((row) => {
-    const branch = row.querySelector('.fivo-outline-branch');
-    const end =
-      branch.getBoundingClientRect().left +
-      parseFloat(getComputedStyle(branch, '::after').width);
-    return Math.abs(
-      end -
-        row
-          .querySelector('.fivo-outline-switcher > span')
-          .getBoundingClientRect().left,
-    );
+  const a = tree.locator('[data-outline-id="a"]'),
+    b = tree.locator('[data-outline-id="b"]');
+  const parent = await a.evaluate((row) => {
+    const branch = row.querySelector('.fivo-outline-branch'),
+      line = branch.getBoundingClientRect();
+    const connector = row
+      .querySelector('.fivo-outline-child-connector')
+      .getBoundingClientRect();
+    return {
+      end: line.left + parseFloat(getComputedStyle(branch, '::after').width),
+      y: line.top + parseFloat(getComputedStyle(branch, '::after').top),
+      x: connector.left,
+      top: connector.top,
+      bottom: connector.bottom,
+    };
   });
-  expect(parentEnd).toBeLessThanOrEqual(1);
+  const child = await b.evaluate((row) => {
+    const branch = row.querySelector('.fivo-outline-branch'),
+      icon = row
+        .querySelector('.fivo-outline-switcher > span')
+        .getBoundingClientRect();
+    return {
+      x: branch.getBoundingClientRect().left,
+      top:
+        branch.getBoundingClientRect().top +
+        parseFloat(getComputedStyle(branch, '::before').top),
+      icon: icon.left + icon.width / 2,
+    };
+  });
+  expect(Math.abs(parent.end - parent.x)).toBeLessThanOrEqual(1);
+  expect(Math.abs(parent.y - parent.top)).toBeLessThanOrEqual(1);
+  expect(Math.abs(parent.x - child.x)).toBeLessThanOrEqual(1);
+  expect(Math.abs(parent.bottom - child.top)).toBeLessThanOrEqual(1);
+  expect(Math.abs(parent.x - child.icon)).toBeLessThanOrEqual(1);
   const leaf = tree.locator('[data-outline-id="c"]');
   const leafGap = await leaf.evaluate((row) => {
     const branch = row.querySelector('.fivo-outline-branch');
-    const label = row.querySelector('.fivo-native-outline-label');
+    const label = row.querySelector('.fivo-outline-label');
     return (
       label.getBoundingClientRect().left +
       parseFloat(getComputedStyle(label).paddingLeft) -
@@ -37,14 +57,15 @@ test('树线衔接展开方框，叶子横线接近标题且末分支收尾', as
   expect(leafGap).toBe(4);
   expect(
     await b
-      .locator('.fivo-outline-switcher')
-      .evaluate((el) => getComputedStyle(el, '::after').height),
-  ).toBe('8px');
+      .locator('.fivo-outline-child-connector')
+      .evaluate((el) => getComputedStyle(el).height),
+  ).toBe('14px');
   expect(
     await leaf
       .locator('.fivo-outline-branch')
       .evaluate((el) => getComputedStyle(el, '::before').height),
   ).toBe('14px');
+  await expect(leaf.locator('.fivo-outline-child-connector')).toHaveCount(0);
   await page
     .locator('.fivo-native-word-outline')
     .screenshot({ path: 'tmp/outline-refined-light.png' });
@@ -71,6 +92,80 @@ test('完整小树默认展开全部层级，收起后刷新不强制重开', as
   await expect(b).toHaveAttribute('aria-expanded', 'false');
 });
 
+test('一级目录都有树线，首尾收口且不增加标题缩进', async ({ page }) => {
+  await page.goto(server.url + '/outline.html?complete=1');
+  const tree = page.getByRole('tree'),
+    first = tree.locator('[data-outline-id="a"]');
+  const firstBranch = first.locator('.fivo-outline-branch');
+  await expect(firstBranch).toHaveAttribute('data-root', 'true');
+  await expect(firstBranch).toHaveAttribute('data-first', 'true');
+  expect(
+    await firstBranch.evaluate(
+      (node) => getComputedStyle(node, '::before').top,
+    ),
+  ).toBe('14px');
+  expect(
+    await firstBranch.evaluate(
+      (node) => getComputedStyle(node, '::before').height,
+    ),
+  ).toBe('14px');
+  await first.press('End');
+  const last = tree.locator('[data-outline-id="n99"]'),
+    branch = last.locator('.fivo-outline-branch');
+  await expect(branch).toHaveAttribute('data-root', 'true');
+  await expect(branch).toHaveAttribute('data-continues', 'false');
+  await expect(last).toHaveCSS('padding-left', '0px');
+  await expect(last.locator('.fivo-outline-switcher')).toHaveCount(0);
+  const geometry = await last.evaluate((row) => {
+    const line = row.querySelector('.fivo-outline-branch'),
+      label = row.querySelector('.fivo-outline-label');
+    return {
+      top: getComputedStyle(line, '::before').top,
+      height: getComputedStyle(line, '::before').height,
+      gap:
+        label.getBoundingClientRect().left +
+        parseFloat(getComputedStyle(label).paddingLeft) -
+        line.getBoundingClientRect().left -
+        parseFloat(getComputedStyle(line, '::after').width),
+    };
+  });
+  expect(geometry).toEqual({ top: '0px', height: '14px', gap: 4 });
+  await expect(
+    tree.getByRole('treeitem').first().locator('.fivo-outline-branch'),
+  ).toHaveAttribute('data-first', 'false');
+});
+
+test('一级和子级图标均位于本级竖线上，折叠恢复不改变对齐', async ({ page }) => {
+  await page.goto(server.url + '/outline.html?complete=1');
+  const tree = page.getByRole('tree');
+  const assertAligned = async (id) => {
+    const row = tree.locator('[data-outline-id="' + id + '"]');
+    const geometry = await row.evaluate((node) => {
+      const line = node.querySelector('.fivo-outline-branch'),
+        icon = node
+          .querySelector('.fivo-outline-switcher > span')
+          .getBoundingClientRect();
+      const axis =
+        line.getBoundingClientRect().left +
+        parseFloat(getComputedStyle(line, '::before').width) / 2;
+      return {
+        difference: Math.abs(icon.left + icon.width / 2 - axis),
+        padding: getComputedStyle(node).paddingLeft,
+      };
+    });
+    expect(geometry.difference).toBeLessThanOrEqual(1);
+    expect(geometry.padding).toBe(id === 'a' ? '0px' : '16px');
+  };
+  await assertAligned('a');
+  await assertAligned('b');
+  const root = tree.locator('[data-outline-id="a"]');
+  await root.press('ArrowLeft');
+  await expect(tree.locator('[data-outline-id="b"]')).toHaveCount(0);
+  await assertAligned('a');
+  await root.press('ArrowRight');
+  await assertAligned('b');
+});
+
 test('原生大纲恢复树线、紧凑间距、键盘、滚动同步和渐进更新', async ({
   page,
 }, info) => {
@@ -93,7 +188,7 @@ test('原生大纲恢复树线、紧凑间距、键盘、滚动同步和渐进�
     await b
       .locator('.fivo-outline-branch')
       .evaluate((el) => getComputedStyle(el, '::after').width),
-  ).toBe('10px');
+  ).toBe('16px');
   expect(
     await a
       .locator('.fivo-outline-switcher > span')
@@ -104,7 +199,7 @@ test('原生大纲恢复树线、紧凑间距、键盘、滚动同步和渐进�
   await b.press('ArrowRight');
   const c = tree.locator('[data-outline-id="c"]');
   await expect(c).toHaveAttribute('aria-level', '3');
-  await expect(c.locator('.fivo-outline-guide')).toHaveCount(1);
+  await expect(c.locator('.fivo-outline-guide')).toHaveCount(2);
   await expect(
     tree.locator('[data-outline-id="d"] .fivo-outline-branch'),
   ).toHaveAttribute('data-continues', 'false');
@@ -133,10 +228,7 @@ test('原生大纲恢复树线、紧凑间距、键盘、滚动同步和渐进�
   await expect(tree.locator('[data-outline-id="late"]')).toBeVisible();
   await last.press('Home');
   await expect(a).toBeFocused();
-  await expect(a.locator('.fivo-native-outline-label')).toHaveCSS(
-    'font-size',
-    '14px',
-  );
+  await expect(a.locator('.fivo-outline-label')).toHaveCSS('font-size', '14px');
   await expect(
     page.getByRole('button', { name: '收起大纲', exact: true }),
   ).toBeVisible();

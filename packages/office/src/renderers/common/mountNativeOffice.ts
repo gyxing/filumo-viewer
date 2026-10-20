@@ -55,6 +55,8 @@ export async function mountNativeOffice(
   let services: OfficeViewServices | undefined, view: ViewHandle | undefined;
   let options = { ...context.options };
   let closed = false;
+  let active = true;
+  const activeListeners = new Set<(value: boolean) => void>();
   const stops: Array<() => void> = [];
   try {
     services = createOfficeViewServices(context);
@@ -74,6 +76,14 @@ export async function mountNativeOffice(
       signal: context.session.signal,
       session: context.session,
       locale: options.locale,
+      stylePolicy: context.stylePolicy,
+      isActive: () => active,
+      onActiveChange: (listener) => {
+        activeListeners.add(listener);
+        return () => {
+          activeListeners.delete(listener);
+        };
+      },
       onError: context.onError,
       options,
     };
@@ -141,14 +151,17 @@ export async function mountNativeOffice(
         view?.update(options);
         refresh();
       },
-      setActive(active) {
-        owned.setActive(active);
-        scope.hidden = !active;
-        view?.setActive(active);
+      setActive(value) {
+        active = value;
+        for (const listener of activeListeners) listener(value);
+        owned.setActive(value);
+        scope.hidden = !value;
+        view?.setActive(value);
       },
       async dispose() {
         if (closed) return;
         closed = true;
+        activeListeners.clear();
         // 回调注册后才调用，此时所引用的节点/句柄已初始化。
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
         context.session.signal.removeEventListener('abort', onAbort);

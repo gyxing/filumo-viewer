@@ -6,7 +6,7 @@ toc: content
 
 # Plugins and future editing
 
-Office preview is the only shipped implementation in this workspace. This guide describes the existing extension protocol and future editing boundary, not published PDF, text or editor packages.
+The workspace implements read-only Office, text, JSON, Markdown, image and PDF plugins. This guide describes their shared extension protocol and the future editing boundary. The packages are still a workspace preview release.
 
 ## Layer responsibilities
 

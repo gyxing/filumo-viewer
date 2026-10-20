@@ -25,7 +25,10 @@ async function preview(page, format = 'docx', extra = '') {
 /** 宽屏编辑主栏组合框，窄屏通过纯菜单选择同一缩放能力。 */
 async function chooseToolbarZoom(page, choice, en = false) {
   const toolbar = page.locator('.fivo-toolbar');
-  const input = toolbar.getByRole('combobox', { name: en ? 'Zoom percentage' : '缩放比例', exact: true });
+  const input = toolbar.getByRole('combobox', {
+    name: en ? 'Zoom percentage' : '缩放比例',
+    exact: true,
+  });
   if (await input.isVisible()) {
     if (typeof choice === 'number') {
       await input.fill(String(choice));
@@ -37,24 +40,42 @@ async function chooseToolbarZoom(page, choice, en = false) {
     }
     return;
   }
-  const more = toolbar.getByRole('button', { name: en ? 'More actions' : '更多操作', exact: true });
-  if (await more.getAttribute('aria-expanded') !== 'true') await more.click();
-  await page.getByRole('menuitem', { name: en ? 'Zoom' : '缩放', exact: true }).click();
-  await page.getByRole('menuitemradio', {
-    name: typeof choice === 'number' ? choice + '%' : choice, exact: true,
-  }).click();
+  const more = toolbar.getByRole('button', {
+    name: en ? 'More actions' : '更多操作',
+    exact: true,
+  });
+  if ((await more.getAttribute('aria-expanded')) !== 'true') await more.click();
+  await page
+    .getByRole('menuitem', { name: en ? 'Zoom' : '缩放', exact: true })
+    .click();
+  await page
+    .getByRole('menuitemradio', {
+      name: typeof choice === 'number' ? choice + '%' : choice,
+      exact: true,
+    })
+    .click();
   if (typeof choice === 'number')
-    await expect(toolbar.locator('[data-fivo-menu-action="toolbar.zoom"] .fivo-menu-value'))
-      .toHaveText(choice + '%');
+    await expect(
+      toolbar.locator(
+        '[data-fivo-menu-action="toolbar.zoom"] .fivo-menu-value',
+      ),
+    ).toHaveText(choice + '%');
 }
 
 /** 查找可能位于主栏或收纳菜单，两种入口都必须把焦点交给正文。 */
 async function openToolbarSearch(page, en = false) {
-  const search = page.locator('.fivo-controls-main [data-fivo-action="office.search"]');
+  const search = page.locator(
+    '.fivo-controls-main [data-fivo-action="office.search"]',
+  );
   if (await search.isVisible()) return search.click();
-  const more = page.getByRole('button', { name: en ? 'More actions' : '更多操作', exact: true });
-  if (await more.getAttribute('aria-expanded') !== 'true') await more.click();
-  await page.getByRole('menuitem', { name: en ? 'Find' : '查找', exact: true }).click();
+  const more = page.getByRole('button', {
+    name: en ? 'More actions' : '更多操作',
+    exact: true,
+  });
+  if ((await more.getAttribute('aria-expanded')) !== 'true') await more.click();
+  await page
+    .getByRole('menuitem', { name: en ? 'Find' : '查找', exact: true })
+    .click();
 }
 
 for (const format of ['docx', 'xlsx', 'pptx']) {
@@ -77,7 +98,11 @@ for (const format of ['docx', 'xlsx', 'pptx']) {
     await chooseToolbarZoom(page, '适应宽度');
     // 极窄的 PPT 视口可能触及已有的 25% 下限，此时允许保留正常滚动。
     if (format !== 'pptx')
-      await expect.poll(() => viewport.evaluate((el) => el.scrollWidth <= el.clientWidth + 2)).toBe(true);
+      await expect
+        .poll(() =>
+          viewport.evaluate((el) => el.scrollWidth <= el.clientWidth + 2),
+        )
+        .toBe(true);
     await chooseToolbarZoom(page, 125);
     await expect(page.locator('.office-file-overflow-notice')).toHaveCount(0);
   });
@@ -103,11 +128,16 @@ for (const width of [320, 760, 1100])
       if (width === 320)
         await toolbar.screenshot({ path: 'tmp/toolbar-narrow-real.png' });
       await chooseToolbarZoom(page, 125);
-      const more = toolbar.getByRole('button', { name: '更多操作', exact: true });
+      const more = toolbar.getByRole('button', {
+        name: '更多操作',
+        exact: true,
+      });
       if (await more.isVisible()) {
         await more.click();
         const menu = page.getByRole('menu', { name: '更多操作', exact: true });
-        await expect(menu.locator('input, select, [role="combobox"]')).toHaveCount(0);
+        await expect(
+          menu.locator('input, select, [role="combobox"]'),
+        ).toHaveCount(0);
         const bounds = await menu.boundingBox();
         const bar = await toolbar.boundingBox();
         expect(bounds.x).toBeGreaterThanOrEqual(bar.x);
@@ -338,7 +368,7 @@ async function checkImagePreview(page, info, name) {
   await expect(overlay).toBeVisible();
   await expect(overlay).toHaveCSS('position', 'absolute', { timeout: 3000 });
   await expect(overlay).toHaveCSS('display', 'flex');
-  await expect(overlay).toHaveCSS('background-color', 'rgba(15, 23, 42, 0.94)');
+  await expect(overlay).toHaveCSS('background-color', 'rgba(32, 34, 38, 0.78)');
   const controls = overlay.locator('.fivo-image-preview-controls');
   await expect(controls).toHaveCSS('display', 'flex');
   await expect(
@@ -350,12 +380,44 @@ async function checkImagePreview(page, info, name) {
   expect(Math.abs(root.width - rect.width)).toBeLessThanOrEqual(2);
   expect(Math.abs(root.y - rect.y)).toBeLessThanOrEqual(1);
   await expect(overlay.locator('.fivo-image-preview-title')).toHaveText(
-    'Fivo test picture',
+    'Fivo test picture.png',
   );
   expect(await overlay.locator('button svg').count()).toBeGreaterThanOrEqual(6);
   await expect(
     overlay.getByRole('button', { name: '关闭', exact: true }),
   ).toBeFocused();
+  const previewImage = overlay.locator('.fivo-image-surface > img');
+  await expect(previewImage).toBeVisible();
+  await previewImage.click();
+  await expect(overlay).toBeVisible();
+  const picture = await previewImage.boundingBox();
+  const beforeDrag = await previewImage.getAttribute('style');
+  await page.mouse.move(
+    picture.x + picture.width / 2,
+    picture.y + picture.height / 2,
+  );
+  await page.mouse.down();
+  await page.mouse.move(
+    picture.x + picture.width / 2 + 80,
+    picture.y + picture.height / 2 + 40,
+    { steps: 6 },
+  );
+  await page.mouse.up();
+  await expect(overlay).toBeVisible();
+  await expect
+    .poll(() => previewImage.getAttribute('style'))
+    .not.toBe(beforeDrag);
+  // 空白区域也允许平移；移出后返回起点，松手产生的 click 仍不能关闭弹层。
+  const viewport = overlay.locator('.fivo-image-preview-viewport');
+  const area = await viewport.boundingBox();
+  await page.mouse.move(area.x + 6, area.y + 6);
+  await page.mouse.down();
+  await page.mouse.move(area.x + 36, area.y + 6, { steps: 4 });
+  await page.mouse.move(area.x + 6, area.y + 6, { steps: 4 });
+  await page.mouse.up();
+  await expect(overlay).toBeVisible();
+  await controls.getByRole('button', { name: '复位', exact: true }).click();
+  await expect.poll(() => previewImage.getAttribute('style')).toBe(beforeDrag);
   await info.attach(name, {
     body: await viewer.screenshot(),
     contentType: 'image/png',
@@ -368,6 +430,13 @@ async function checkImagePreview(page, info, name) {
   // 再次打开并用按钮关闭，确保作用域容器和资源租约不会累积。
   await image.dblclick();
   await overlay.getByRole('button', { name: '关闭', exact: true }).click();
+  await expect(overlay).toHaveCount(0);
+  // 正常点击空白仍能关闭，避免通过禁用蒙层交互掩盖拖动误关闭。
+  await image.dblclick();
+  await expect(overlay.locator('.fivo-image-surface > img')).toBeVisible();
+  await overlay
+    .locator('.fivo-image-preview-viewport')
+    .click({ position: { x: 6, y: 6 } });
   await expect(overlay).toHaveCount(0);
   await expect(viewer.locator(':scope > *')).toHaveCount(childrenBefore);
   await expect(page.locator('style[data-fivo-style]')).toHaveCount(

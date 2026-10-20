@@ -1,0 +1,51 @@
+.fivo-pdf-workspace {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+.fivo-pdf-document {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+}
+.fivo-reading-body:has(> .fivo-pdf-workspace) {
+  display: flex;
+  flex-direction: column;
+}
+.fivo-pdf-password input {
+  min-width: 100px;
+  padding: 5px 8px;
+  color: var(--fivo-text);
+  background: var(--fivo-surface);
+  border: 1px solid var(--fivo-border);
+  border-radius: 4px;
+  font: inherit;
+}
+.fivo-pdf-password button,
+.fivo-pdf-page-status button {
+  padding: 5px 8px;
+  color: var(--fivo-text);
+  background: var(--fivo-surface);
+  border: 1px solid var(--fivo-border);
+  border-radius: 4px;
+  font: inherit;
+  cursor: pointer;
+}
+.fivo-pdf-password {
+  display: flex;
+  height: 100%;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+}
+.fivo-pdf-password label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}

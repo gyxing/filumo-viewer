@@ -95,7 +95,7 @@ export function ConfigPanel({
           onChange={(e) => update({ watermark: e.target.value })}
         />
       </label>
-      <label>
+      <label hidden={format === 'image' || format === 'pdf'}>
         Worker
         <Select<'auto' | 'always' | 'never'>
           value={textual ? value[textual].worker : value.office.worker}
@@ -174,7 +174,7 @@ export function ConfigPanel({
           </label>
         </>
       )}
-      {!textual && (
+      {!textual && format !== 'image' && format !== 'pdf' && (
         <>
           <label>
             媒体
@@ -214,6 +214,39 @@ export function ConfigPanel({
             />
           </label>
         </>
+      )}
+      {format === 'pdf' && (
+        <label>
+          页面缓存（MB）
+          <InputNumber
+            min={1}
+            value={(value.pdf.canvasCacheBytes ?? 96 * 1048576) / 1048576}
+            onChange={(n) =>
+              onChange({
+                ...value,
+                pdf: {
+                  ...value.pdf,
+                  canvasCacheBytes: n ? n * 1048576 : undefined,
+                },
+              })
+            }
+          />
+        </label>
+      )}
+      {format === 'image' && (
+        <label>
+          图片像素上限
+          <InputNumber
+            min={1}
+            value={value.image.maxDecodedPixels}
+            onChange={(n) =>
+              onChange({
+                ...value,
+                image: { ...value.image, maxDecodedPixels: n ?? undefined },
+              })
+            }
+          />
+        </label>
       )}
       <label>
         文件上限（MB）

@@ -1,6 +1,11 @@
 // 文档路由与侧栏共用白名单，避免漏掉指南，也不暴露本机烟测或业务样本。
 export const DOC_GUIDES = [
   {
+    slug: 'image-pdf',
+    file: 'image-pdf',
+    title: { 'en-US': 'Images & PDF', 'zh-CN': '图片与 PDF' },
+  },
+  {
     slug: 'text-formats',
     file: 'text-formats',
     title: {

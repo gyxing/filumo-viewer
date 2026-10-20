@@ -245,6 +245,7 @@ async function mountWordView(
     },
     setActive(active) {
       window?.setActive(active);
+      outline?.setActive(active);
       if (active) sync();
     },
     async dispose() {

@@ -3,6 +3,7 @@ export interface ResourcePolicy {
   maxFileBytes?: number;
   timeoutMs?: number;
 }
+export type { DocumentRangeReader } from './range/types';
 export interface DocumentSource {
   readonly name?: string;
   readonly mimeType?: string;
@@ -11,6 +12,10 @@ export interface DocumentSource {
   readAll(signal: AbortSignal): Promise<Uint8Array>;
   /** 可直接交付不可变的本地 Blob；不具备此能力时返回 undefined，调用方回退到 readAll。 */
   readBlob?(signal: AbortSignal): Promise<Blob | undefined>;
+  /** 明确提供高效区间能力；未实现时调用方继续使用原有读取路径。 */
+  getRangeReader?(
+    signal: AbortSignal,
+  ): Promise<import('./range/types').DocumentRangeReader | undefined>;
   readRange?(
     offset: number,
     length: number,

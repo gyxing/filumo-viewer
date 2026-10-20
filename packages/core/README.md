@@ -8,6 +8,8 @@
 
 `DocumentSource.readBlob(signal)` 是可选能力。本地 File/Blob 可直接交给解析器，避免为适配入口先生成全文字节；远程或不支持的来源返回 `undefined`，调用方回退到 `readAll`。`readRange` 允许返回短于请求窗口的数据，请求窗口本身不代表文件长度；来源租约仍校验实际大小、配额、取消和释放状态。远程读取继续共享完整下载缓存。
 
-当前为工作区预发布实现，尚未发布 npm。普通用法自动加载样式；PDF、文本和编辑保存不在当前包中。
+`getRangeReader(signal)` 可选能力明确提供已知总长的高效区间读取；旧 readRange 不被推测为网络分块能力。本地 Blob 直接切片，远程验证实际 206 与 Content-Range，Range 返回 200 时将响应交回全文读取，避免重复下载。取消、限额、共享租约和来源版本由读取层约束。
+
+当前为工作区预发布实现，尚未发布 npm；格式解析由插件负责，Core 不依赖图片或 PDF 引擎。
 
 请参阅仓库 [框架接入指南](../../apps/docs/docs/guides/preview-integration.md) 和 [兼容范围](../../apps/docs/docs/guides/compatibility.md)。

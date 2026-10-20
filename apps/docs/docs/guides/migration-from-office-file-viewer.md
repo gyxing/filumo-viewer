@@ -17,7 +17,7 @@ Fivo has new packages and public contracts. **Old entry points are not supported
 | Vue wrapper around React              | @fivo/vue or @fivo/vue2 using native Office rendering           |
 | Internal parsers or deep dist imports | Public Core protocols; avoid internal format models             |
 
-@fivo/viewer exports standardPlugins for the Office-only preset. It is not a component bundle containing all frameworks.
+@fivo/viewer exports standardPlugins for Office, text, JSON, Markdown, images and PDF. The preset contains lightweight descriptors and does not bundle framework components or eagerly load format engines.
 
 ## Configuration mapping
 

@@ -1,5 +1,11 @@
 import { abortError, FivoError, throwIfAborted } from './errors';
 import { guardSource, waitForSource } from './guardSource';
+import { createBlobRangeReader } from './range/BlobRangeReader';
+import {
+  createHttpRangeReader,
+  type HttpRangeSetup,
+} from './range/HttpRangeReader';
+import type { DocumentRangeReader } from './range/types';
 import type { DocumentInput, DocumentSource, ResourcePolicy } from './types';
 
 /** 校验限制值，不设置与文件格式无关的默认硬上限。 */
@@ -28,6 +34,9 @@ export async function normalizeSource(
   let size: number | undefined;
   let url: string | undefined;
   let request: RequestInit | undefined;
+  let rangeSetup: Promise<HttpRangeSetup> | undefined;
+  let fallbackResponse: Response | undefined;
+  let finishRange: (() => void) | undefined;
   const localAbort = new AbortController();
   if (typeof Blob !== 'undefined' && input instanceof Blob) {
     blob = input;
@@ -61,6 +70,10 @@ export async function normalizeSource(
       }
     }
   }
+  const externalAbort = () =>
+    localAbort.abort(request?.signal?.reason ?? abortError());
+  request?.signal?.addEventListener('abort', externalAbort, { once: true });
+  if (request?.signal?.aborted) externalAbort();
   const checkSize = (actual: number) => {
     if (
       options.resourcePolicy?.maxFileBytes !== undefined &&
@@ -74,6 +87,7 @@ export async function normalizeSource(
   const read = async (signal: AbortSignal): Promise<Uint8Array> => {
     if (disposed) throw new FivoError('SOURCE_DISPOSED', '文件来源已释放');
     throwIfAborted(signal);
+    throwIfAborted(localAbort.signal);
     if (size !== undefined) checkSize(size);
     if (bytes) return bytes;
     if (!reading)
@@ -84,10 +98,14 @@ export async function normalizeSource(
           if (blob) {
             bytes = new Uint8Array(await blob.arrayBuffer());
           } else {
-            const response = await fetch(url!, {
-              ...request,
-              signal: localAbort.signal,
-            });
+            if (rangeSetup) await rangeSetup;
+            const response =
+              fallbackResponse ??
+              (await fetch(url!, {
+                ...request,
+                signal: localAbort.signal,
+              }));
+            fallbackResponse = undefined;
             if (!response.ok)
               throw new FivoError(
                 'DOWNLOAD_FAILED',
@@ -128,14 +146,19 @@ export async function normalizeSource(
             }
           }
           throwIfAborted(signal);
+          throwIfAborted(localAbort.signal);
           if (disposed) throw abortError();
           checkSize(bytes.byteLength);
           size = bytes.byteLength;
           return bytes;
         } finally {
+          finishRange?.();
+          finishRange = undefined;
           signal.removeEventListener('abort', abort);
         }
       })().catch((error) => {
+        if (disposed || signal.aborted || localAbort.signal.aborted)
+          bytes = undefined;
         reading = undefined;
         throw error;
       });
@@ -155,18 +178,70 @@ export async function normalizeSource(
       return url;
     },
     readAll: read,
+    async getRangeReader(signal): Promise<DocumentRangeReader | undefined> {
+      if (disposed) throw new FivoError('SOURCE_DISPOSED', '文件来源已释放');
+      throwIfAborted(signal);
+      throwIfAborted(localAbort.signal);
+      if (size !== undefined) checkSize(size);
+      if (blob) return createBlobRangeReader(blob, localAbort.signal);
+      if (reading) await waitForSource(reading, signal);
+      if (bytes)
+        return {
+          length: bytes.length,
+          async read(offset, length, current) {
+            throwIfAborted(current);
+            throwIfAborted(localAbort.signal);
+            if (
+              ![offset, length, offset + length].every(Number.isSafeInteger) ||
+              offset < 0 ||
+              length < 0
+            )
+              throw new FivoError('INVALID_RANGE', '来源读取范围无效');
+            return bytes!.slice(offset, offset + length);
+          },
+        };
+      if (!rangeSetup)
+        rangeSetup = createHttpRangeReader(
+          url!,
+          request,
+          options.resourcePolicy,
+          localAbort.signal,
+        )
+          .then((setup) => {
+            if (disposed) {
+              void setup.fallbackResponse?.body
+                ?.cancel()
+                .catch(() => undefined);
+              setup.finish?.();
+              throw abortError();
+            }
+            fallbackResponse = setup.fallbackResponse;
+            finishRange = setup.finish;
+            mimeType ||= setup.mimeType;
+            if (setup.reader) size = setup.reader.length;
+            return setup;
+          })
+          .catch((error) => {
+            rangeSetup = undefined;
+            throw error;
+          });
+      return (await waitForSource(rangeSetup, signal)).reader;
+    },
     async readBlob(signal) {
       if (disposed) throw new FivoError('SOURCE_DISPOSED', '文件来源已释放');
       throwIfAborted(signal);
+      throwIfAborted(localAbort.signal);
       if (size !== undefined) checkSize(size);
       return blob;
     },
     async readRange(offset, length, signal) {
       if (disposed) throw new FivoError('SOURCE_DISPOSED', '文件来源已释放');
       throwIfAborted(signal);
+      throwIfAborted(localAbort.signal);
       if (
         ![offset, length, offset + length].every(Number.isSafeInteger) ||
-        offset < 0 || length < 0
+        offset < 0 ||
+        length < 0
       )
         throw new FivoError('INVALID_RANGE', '来源读取范围无效');
       if (size !== undefined) checkSize(size);
@@ -179,7 +254,8 @@ export async function normalizeSource(
       localAbort.signal.addEventListener('abort', cancel, { once: true });
       try {
         const buffer = await waitForSource(
-          blob.slice(offset, offset + length).arrayBuffer(), abort.signal,
+          blob.slice(offset, offset + length).arrayBuffer(),
+          abort.signal,
         );
         throwIfAborted(abort.signal);
         return new Uint8Array(buffer);
@@ -192,6 +268,11 @@ export async function normalizeSource(
       if (disposed) return;
       disposed = true;
       localAbort.abort();
+      request?.signal?.removeEventListener('abort', externalAbort);
+      void fallbackResponse?.body?.cancel().catch(() => undefined);
+      fallbackResponse = undefined;
+      finishRange?.();
+      finishRange = undefined;
       blob = undefined;
       bytes = undefined;
       reading = undefined;

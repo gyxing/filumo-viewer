@@ -26,6 +26,7 @@
   "dependencies": {
     "@fivo/core": "workspace:^",
     "@fivo/dom": "workspace:^",
+    "@fivo/image": "workspace:^",
     "@zip.js/zip.js": "^2.8.34",
     "echarts": "^5.6.0",
     "emf-converter": "^2.0.2",

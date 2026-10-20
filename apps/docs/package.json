@@ -11,9 +11,11 @@
   "dependencies": {
     "@fivo/core": "workspace:^",
     "@fivo/dom": "workspace:^",
+    "@fivo/image": "workspace:^",
     "@fivo/json": "workspace:^",
     "@fivo/markdown": "workspace:^",
     "@fivo/office": "workspace:^",
+    "@fivo/pdf": "workspace:^",
     "@fivo/react": "workspace:^",
     "@fivo/text": "workspace:^",
     "@fivo/viewer": "workspace:^",

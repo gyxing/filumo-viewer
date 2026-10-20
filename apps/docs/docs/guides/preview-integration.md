@@ -176,7 +176,7 @@ export function Preview({ file }: { file?: File }) {
 }
 ```
 
-standardPlugins is a frozen Office-only array. Use a stable [office(options)] for fonts, policies and callbacks. The preset does not import framework components or register unimplemented formats.
+standardPlugins is a frozen array of Office, text, JSON, Markdown, image and PDF descriptors. Use your own stable plugin array for format-specific options; PDF asset deployment is described in the [image and PDF guide](./image-pdf). The preset does not import framework components or eagerly load format engines.
 
 ## Custom source factories
 

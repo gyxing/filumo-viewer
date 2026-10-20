@@ -92,6 +92,7 @@ export class MarkdownBlocks {
       (id) => this.navigation?.revealTarget(id),
       this.en,
       () => this.setOutlineOpen(false),
+      context.stylePolicy,
     );
     this.outline.setOpen(
       options.outline !== false && !!this.model.headings.length,

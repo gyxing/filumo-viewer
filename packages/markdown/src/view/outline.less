@@ -15,7 +15,8 @@
 
 .fivo-markdown-outline-header {
   display: flex;
-  flex: 0 0 40px;
+  flex: 0 0 48px;
+  min-height: 48px;
   align-items: center;
   gap: 8px;
   padding: 0 8px 0 12px;
@@ -40,7 +41,7 @@
   align-items: center;
   justify-content: center;
   width: 24px;
-  height: 24px;
+  height: 28px;
   padding: 3px;
   color: var(--fivo-muted);
   background: transparent;
@@ -62,176 +63,6 @@
   stroke-width: 1.5;
   stroke-linecap: round;
   stroke-linejoin: round;
-}
-
-.fivo-markdown-outline-list {
-  flex: 1;
-  min-height: 0;
-  margin: 8px 6px 10px;
-  overflow: auto;
-  scrollbar-gutter: stable;
-}
-
-.fivo-markdown-outline-canvas {
-  position: relative;
-}
-
-.fivo-markdown-outline-row {
-  position: absolute;
-  left: 0;
-  display: flex;
-  align-items: center;
-  box-sizing: border-box;
-  width: 100%;
-  height: 28px;
-  min-width: 0;
-  padding-right: 4px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.fivo-markdown-outline-row:hover {
-  background: var(--fivo-hover);
-}
-
-.fivo-markdown-outline-row[aria-selected='true'] {
-  color: var(--fivo-primary);
-  background: var(--fivo-selected);
-}
-
-.fivo-markdown-outline .fivo-markdown-outline-row:focus-visible {
-  outline: none;
-  box-shadow: inset 0 0 0 2px var(--fivo-primary);
-}
-
-.fivo-markdown-outline-guides {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.fivo-markdown-outline-guide {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  background: var(--fivo-border);
-}
-
-.fivo-markdown-outline-branch {
-  --fivo-outline-branch-length: 10px;
-
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: var(--fivo-outline-branch-length);
-}
-
-// 横线对齐方框边缘，叶子节点的连线延伸至文字前 4px。
-.fivo-markdown-outline-branch[data-leaf='true'] {
-  --fivo-outline-branch-length: 28px;
-}
-
-.fivo-markdown-outline-branch::before,
-.fivo-markdown-outline-branch::after {
-  position: absolute;
-  background: var(--fivo-border);
-  content: '';
-}
-
-.fivo-markdown-outline-branch::before {
-  top: 0;
-  left: 0;
-  width: 1px;
-  height: 50%;
-}
-
-.fivo-markdown-outline-branch[data-continues='true']::before {
-  height: 100%;
-}
-
-.fivo-markdown-outline-branch::after {
-  top: 50%;
-  left: 0;
-  width: var(--fivo-outline-branch-length);
-  height: 1px;
-}
-
-.fivo-markdown-outline-switcher,
-.fivo-markdown-outline-leaf {
-  position: relative;
-  z-index: 1;
-  display: inline-flex;
-  flex: 0 0 20px;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 28px;
-}
-
-.fivo-markdown-outline-switcher {
-  padding: 0;
-  color: var(--fivo-muted);
-  background: transparent;
-  border: 0;
-  cursor: pointer;
-}
-
-.fivo-markdown-outline-switcher > span {
-  position: relative;
-  box-sizing: border-box;
-  width: 12px;
-  height: 12px;
-  background: var(--fivo-surface);
-  border: 1px solid currentcolor;
-}
-
-.fivo-markdown-outline-switcher > span::before,
-.fivo-markdown-outline-switcher > span::after {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 6px;
-  height: 1px;
-  background: currentcolor;
-  content: '';
-  transform: translate(-50%, -50%);
-}
-
-.fivo-markdown-outline-switcher > span::after {
-  transform: translate(-50%, -50%) rotate(90deg);
-}
-
-.fivo-markdown-outline-switcher[data-expanded='true'] > span::after {
-  display: none;
-}
-
-.fivo-markdown-outline-switcher:hover {
-  color: var(--fivo-primary);
-}
-
-// 补齐方框下缘至下一行的父子线段。
-.fivo-markdown-outline-switcher[data-has-children='true']::after {
-  position: absolute;
-  top: 20px;
-  left: 10px;
-  width: 1px;
-  height: 8px;
-  background: var(--fivo-border);
-  content: '';
-  pointer-events: none;
-}
-
-.fivo-markdown-outline-label {
-  display: block;
-  flex: 1 1 auto;
-  min-width: 0;
-  padding: 0 6px;
-  overflow: hidden;
-  font-size: 14px;
-  line-height: 28px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .fivo-markdown-outline-resize {

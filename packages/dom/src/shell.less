@@ -86,6 +86,17 @@
   overflow: hidden;
 }
 
+// 固定主栏的能力允许换行，保持所有操作可见，不再进入更多菜单。
+.fivo-toolbar[data-keep-actions='true'] {
+  flex-wrap: wrap;
+}
+.fivo-toolbar[data-keep-actions='true'] .fivo-controls,
+.fivo-toolbar[data-keep-actions='true'] .fivo-controls-main {
+  flex-shrink: 1;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
 .fivo-title {
   min-width: 0;
   overflow: hidden;
@@ -216,6 +227,45 @@
 
 .fivo-capability-group {
   font-size: 13px;
+}
+
+// PDF 的阅读、翻页、视图和通用操作分组；作用域随当前能力节点切换。
+.fivo-toolbar:has([data-fivo-action='pdf.rotate']) {
+  .fivo-controls-main {
+    row-gap: 8px;
+  }
+
+  .fivo-controls,
+  .fivo-navigation-control:not(:first-child),
+  .fivo-zoom-control:not(:first-child) {
+    position: relative;
+    margin-inline-start: 6px;
+    padding-inline-start: 12px;
+  }
+
+  .fivo-controls::before,
+  .fivo-navigation-control:not(:first-child)::before,
+  .fivo-zoom-control:not(:first-child)::before,
+  .fivo-controls + button::before {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 1px;
+    height: 18px;
+    background: var(--fivo-border);
+    transform: translateY(-50%);
+    content: '';
+    pointer-events: none;
+  }
+
+  .fivo-controls + button {
+    position: relative;
+    margin-inline-start: 8px;
+  }
+
+  .fivo-controls + button::before {
+    left: -9px;
+  }
 }
 
 .fivo-toolbar select,

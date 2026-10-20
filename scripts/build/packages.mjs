@@ -18,6 +18,7 @@ import {
 import { resolveBuildOrder } from './build-order.mjs';
 import { createBuildManifest } from './manifest.mjs';
 import { preparePackageMetadata, readPackageMetadata } from './metadata.mjs';
+import { copyPdfAssets } from './pdf-assets.mjs';
 import { serializeStyles } from './style-order.mjs';
 import { stylePlugin } from './styles.mjs';
 import { buildFormatWorker, buildOfficeWorker } from './worker.mjs';
@@ -135,6 +136,10 @@ for (const name of names) {
       : definition.workerEntry
       ? await buildFormatWorker(directory, ROOT, definition.workerEntry)
       : undefined;
+  const pdfAssets =
+    definition.assetStrategy === 'pdfjs'
+      ? await copyPdfAssets(directory, output, metadata.styleScope)
+      : undefined;
   await writeFile(
     join(output, 'styles.css'),
     ':root { --fivo-style-' +
@@ -142,7 +147,8 @@ for (const name of names) {
       ': ' +
       metadata.version +
       '; }\n' +
-      serializeStyles(styles),
+      serializeStyles(styles) +
+      (pdfAssets?.textLayerCss ?? ''),
     'utf8',
   );
   await writeFile(
@@ -154,6 +160,21 @@ for (const name of names) {
           directory,
         }),
         styleCount: styles.size,
+        ...(pdfAssets
+          ? {
+              pdfAssets: {
+                version: pdfAssets.version,
+                assets: pdfAssets.assets,
+              },
+              worker: {
+                publicPath: 'worker.js',
+                outputs: pdfAssets.assets
+                  .filter((item) => item.role === 'worker')
+                  .map((item) => item.file),
+                graph: {},
+              },
+            }
+          : {}),
       },
       null,
       2,

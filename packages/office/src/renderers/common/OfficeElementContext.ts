@@ -7,7 +7,7 @@ import type {
   OfficeHyperlink,
   OfficeHyperlinkSource,
 } from '../../shared/hyperlink/types';
-import { downloadOfficeImage } from '../../shared/image-preview/downloadOfficeImage';
+import { downloadOfficeImageSource } from '../../shared/image-preview/downloadOfficeImage';
 import { createDom, type DomChild } from '../../view/dom/createDom';
 import { mountImagePreview } from '../../view/shared/mountImagePreview';
 import type { OfficeRenderContext } from '../../view/types';
@@ -44,6 +44,7 @@ export class OfficeElementContext {
   private fits = new Map<string, FitState>();
   private menu?: HTMLElement;
   private closePopup?: () => void;
+  private popupGeneration = 0;
   private unsubscribeFonts: () => void;
   constructor(
     readonly renderContext: OfficeRenderContext,
@@ -241,9 +242,7 @@ export class OfficeElementContext {
       } else if (event.key === 'Tab') {
         this.dismissMenu();
         trigger.focus({ preventScroll: true });
-      } else if (
-        ['ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)
-      ) {
+      } else if (['ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) {
         event.preventDefault();
         event.stopPropagation();
         const buttons = Array.from(menu.querySelectorAll('button'));
@@ -255,7 +254,9 @@ export class OfficeElementContext {
             ? 0
             : event.key === 'End'
             ? buttons.length - 1
-            : (current + (event.key === 'ArrowDown' ? 1 : -1) + buttons.length) %
+            : (current +
+                (event.key === 'ArrowDown' ? 1 : -1) +
+                buttons.length) %
               buttons.length;
         buttons[next]?.focus();
       }
@@ -461,12 +462,33 @@ export class OfficeElementContext {
     };
     const open = () => {
       this.closePopup?.();
-      void mountImagePreview(model, image, this.renderContext)
+      const generation = ++this.popupGeneration;
+      const abort = new AbortController();
+      const stop = () => {
+        abort.abort();
+        this.renderContext.signal.removeEventListener('abort', stop);
+      };
+      this.renderContext.signal.addEventListener('abort', stop, { once: true });
+      this.closePopup = stop;
+      void mountImagePreview(model, image, {
+        ...this.renderContext,
+        signal: abort.signal,
+      })
         .then((view) => {
-          if (this.closed) view.dispose();
-          else this.closePopup = view.dispose;
+          if (
+            this.closed ||
+            generation !== this.popupGeneration ||
+            abort.signal.aborted
+          )
+            return view.dispose();
+          this.closePopup = () => {
+            stop();
+            void view.dispose().catch(this.renderContext.onError);
+          };
         })
-        .catch(this.renderContext.onError);
+        .catch((error) => {
+          if (!abort.signal.aborted) this.renderContext.onError(error);
+        });
     };
     image.addEventListener('dblclick', (event) => {
       if (!event.defaultPrevented && !event.ctrlKey && !event.metaKey) open();
@@ -502,10 +524,10 @@ export class OfficeElementContext {
               : '下载图片',
           icon: 'download',
           run: () => {
-            void downloadOfficeImage(
-              image.src,
+            void downloadOfficeImageSource(
               { ...model, id: model.id },
               this.document,
+              this.abort.signal,
             ).catch(this.renderContext.onError);
           },
         },

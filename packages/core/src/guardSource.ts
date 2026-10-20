@@ -91,9 +91,10 @@ export function guardSource(
         // 请求窗口可以大于文件；配额限制实际文件和返回数据，不把窗口末端当文件大小。
         const [offset, requested] = range;
         const limit = raw.size ?? policy?.maxFileBytes;
-        const length = limit === undefined
-          ? requested
-          : Math.min(requested, Math.max(0, Math.floor(limit) - offset));
+        const length =
+          limit === undefined
+            ? requested
+            : Math.min(requested, Math.max(0, Math.floor(limit) - offset));
         if (!length) return new Uint8Array();
         const bytes = await raw.readRange(offset, length, readingSignal);
         check(bytes.byteLength);
@@ -121,12 +122,46 @@ export function guardSource(
       return raw.url;
     },
     readAll: (signal) => read(signal),
+    getRangeReader: raw.getRangeReader
+      ? (signal) =>
+          run(signal, async (readingSignal) => {
+            const reader = await raw.getRangeReader!(readingSignal);
+            if (!reader) return undefined;
+            check(reader.length);
+            if (!Number.isSafeInteger(reader.length))
+              throw new FivoError('INVALID_SOURCE_SIZE', '来源长度无效');
+            return {
+              length: reader.length,
+              read: (offset: number, length: number, current: AbortSignal) =>
+                run(current, async (rangeSignal) => {
+                  if (
+                    ![offset, length, offset + length].every(
+                      Number.isSafeInteger,
+                    ) ||
+                    offset < 0 ||
+                    length < 0
+                  )
+                    throw new FivoError('INVALID_RANGE', '来源读取范围无效');
+                  const count = Math.min(
+                    length,
+                    Math.max(0, reader.length - offset),
+                  );
+                  const bytes = await reader.read(offset, count, rangeSignal);
+                  check(bytes.length);
+                  if (bytes.length !== count)
+                    throw new FivoError('INVALID_RANGE', '来源区间数据不完整');
+                  return bytes;
+                }),
+            };
+          })
+      : undefined,
     readBlob: raw.readBlob
-      ? (signal) => run(signal, async (readingSignal) => {
-          const blob = await raw.readBlob!(readingSignal);
-          if (blob) check(blob.size);
-          return blob;
-        })
+      ? (signal) =>
+          run(signal, async (readingSignal) => {
+            const blob = await raw.readBlob!(readingSignal);
+            if (blob) check(blob.size);
+            return blob;
+          })
       : undefined,
     readRange: (offset, length, signal) => read(signal, [offset, length]),
     async dispose() {

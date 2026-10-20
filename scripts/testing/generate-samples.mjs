@@ -1,4 +1,12 @@
 import { fileURLToPath } from 'node:url';
+import {
+  createPasswordPdfFixture,
+  createScanPdfFixture,
+} from '../../tests/fixtures/public/image-pdf/node-samples.mjs';
+import {
+  createPdfFixture,
+  imageFixture,
+} from '../../tests/fixtures/public/image-pdf/samples.mjs';
 // 生成不含业务数据的最小 OOXML 文档，供示例和集成验收复用。
 import { mkdir, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
@@ -15,6 +23,10 @@ const out = fileURLToPath(
   new URL('../../tests/fixtures/public/generated/', import.meta.url),
 );
 await mkdir(out, { recursive: true });
+await writeFile(out + '/sample.svg', imageFixture, 'utf8');
+await writeFile(out + '/sample.pdf', createPdfFixture(12, true));
+await writeFile(out + '/sample-password.pdf', createPasswordPdfFixture());
+await writeFile(out + '/sample-scan.pdf', createScanPdfFixture());
 const rels = (target) =>
   '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="' +
   target +

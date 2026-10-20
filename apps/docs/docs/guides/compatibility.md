@@ -6,6 +6,10 @@ toc: content
 
 # Compatibility and limits
 
+## Images and PDF
+
+The workspace includes independent image and PDF plugins. Images use browser decoders; AVIF support depends on the browser. PDF uses the pinned PDF.js browser engine and matching local Worker, CMap, fonts and WASM assets. See [image and PDF deployment](./image-pdf). The new browser and consumer cases have been written; their execution and performance measurements remain pending. Canvas and text cache budgets do not bound the entire browser process.
+
 ## 纯文本、JSON 和 Markdown
 
 新增格式通过独立插件接入，详见 [纯文本、JSON 与 Markdown](./text-formats)。文本支持结合 BOM、来源 charset 和字节特征自动识别 UTF-8、UTF-16、GBK/GB18030，并可手动切换。JSON 按原文范围保留数字和重复键；Markdown 支持基础排版、表格、任务列表和按需代码高亮，不包含公式、Mermaid 或编辑器。原文窗口化不等于文件大小无限，仍需配置资源限制。

@@ -22,9 +22,11 @@
     "dist"
   ],
   "dependencies": {
+    "@fivo/image": "workspace:^",
     "@fivo/json": "workspace:^",
     "@fivo/markdown": "workspace:^",
     "@fivo/office": "workspace:^",
+    "@fivo/pdf": "workspace:^",
     "@fivo/text": "workspace:^"
   },
   "peerDependencies": {}

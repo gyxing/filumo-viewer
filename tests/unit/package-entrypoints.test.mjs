@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
 import test from 'node:test';
+import { pathToFileURL } from 'node:url';
 import { WORKSPACE_PACKAGES } from '../../scripts/workspace-packages.js';
 
 const packages = WORKSPACE_PACKAGES.map((item) => item.name);
@@ -38,4 +40,30 @@ test('独立消费者脚本直接覆盖 core 和 viewer 入口', async () => {
   const source = await readFile('scripts/testing/check-consumers.mjs', 'utf8');
   assert.match(source, /@fivo\/core/);
   assert.match(source, /@fivo\/viewer/);
+});
+
+test('图片公共视图与 PDF 资产子入口具有独立产物', async () => {
+  for (const [name, entry] of [
+    ['image', 'view'],
+    ['pdf', 'assets'],
+    ['dom', 'outline'],
+  ]) {
+    const manifest = JSON.parse(
+      await readFile(`packages/${name}/package.json`, 'utf8'),
+    );
+    for (const field of ['import', 'types'])
+      await readFile(
+        `packages/${name}/` + manifest.exports['./' + entry][field],
+        'utf8',
+      );
+  }
+});
+
+test('公共大纲发布子入口支持没有浏览器全局对象的仅导入', async () => {
+  assert.equal(typeof globalThis.document, 'undefined');
+  const api = await import(
+    pathToFileURL(resolve('packages/dom/dist/outline.js')).href
+  );
+  assert.equal(typeof api.OutlineTree, 'function');
+  assert.equal(api.OUTLINE_DEFAULTS.rowHeight, 28);
 });

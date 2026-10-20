@@ -14,6 +14,11 @@ const groups = [
   },
   { name: 'JSON', formats: ['json'] },
   { name: 'Markdown', formats: ['md', 'markdown'] },
+  {
+    name: '图片',
+    formats: ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg', 'avif'],
+  },
+  { name: 'PDF', formats: ['pdf'] },
 ];
 
 /** 样本只从开发接口读取，工作台源码不包含真实文件名或本机路径。 */

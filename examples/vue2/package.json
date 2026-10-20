@@ -3,12 +3,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build"
+    "build": "vite build",
+    "dev": "vite"
   },
   "dependencies": {
     "@fivo/dom": "0.1.0-next.0",
+    "@fivo/image": "0.1.0-next.0",
     "@fivo/office": "0.1.0-next.0",
+    "@fivo/pdf": "0.1.0-next.0",
     "@fivo/vue2": "0.1.0-next.0",
     "vue": "2.7.16"
   },

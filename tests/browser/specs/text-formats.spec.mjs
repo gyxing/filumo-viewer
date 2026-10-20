@@ -11,6 +11,24 @@ test.beforeAll(async () => {
 });
 test.afterAll(async () => server?.close());
 
+test('Markdown 大纲使用公共树线，折叠不跳正文并保留标题键盘导航', async ({ page }) => {
+  await page.goto(server.url + '/text-formats.html');
+  await page.getByRole('button', { name: 'Markdown', exact: true }).click();
+  const outline = page.locator('.fivo-markdown-outline'), tree = outline.getByRole('tree');
+  const root = tree.getByRole('treeitem', { name: '示例', exact: true });
+  const child = tree.getByRole('treeitem', { name: '跳级章节', exact: true });
+  await expect(child).toHaveAttribute('aria-level', '2');
+  await expect(child.locator('.fivo-outline-branch')).toHaveAttribute('data-continues', 'true');
+  await expect(child.locator('.fivo-outline-label')).toHaveCSS('font-size', '14px');
+  const scroll = page.locator('.fivo-markdown-scroll');
+  const before = await scroll.evaluate((node) => node.scrollTop);
+  await root.getByRole('button', { name: '收起 示例', exact: true }).click();
+  await expect(child).toHaveCount(0);
+  expect(await scroll.evaluate((node) => node.scrollTop)).toBe(before);
+  await root.press('ArrowRight'); await root.press('ArrowRight');
+  await expect(child).toBeFocused();
+});
+
 /** 更多菜单保留开关项编辑状态，避免重复点击把已打开的菜单反向关闭。 */
 async function openMore(page) {
   const more = page.locator('.fivo-toolbar-more');

@@ -2,6 +2,8 @@
 export const WORKSPACE_PACKAGES = [
   'core',
   'dom',
+  'image',
+  'pdf',
   'office',
   'text',
   'json',
@@ -14,7 +16,13 @@ export const WORKSPACE_PACKAGES = [
   Object.freeze({
     name,
     entries:
-      name === 'text'
+      name === 'dom'
+        ? { index: 'src/index.ts', outline: 'src/outline.ts' }
+        : name === 'image'
+        ? { index: 'src/index.ts', view: 'src/view/index.ts' }
+        : name === 'pdf'
+        ? { index: 'src/index.ts', assets: 'src/assets.ts' }
+        : name === 'text'
         ? {
             index: 'src/index.ts',
             reader: 'src/reader/index.ts',
@@ -23,7 +31,15 @@ export const WORKSPACE_PACKAGES = [
         : { index: 'src/index.ts' },
     declarationConfig:
       name === 'office' ? 'tsconfig.types.json' : 'tsconfig.json',
-    scopedStyles: ['office', 'text', 'json', 'markdown'].includes(name),
+    scopedStyles: [
+      'office',
+      'text',
+      'json',
+      'markdown',
+      'image',
+      'pdf',
+    ].includes(name),
+    assetStrategy: name === 'pdf' ? 'pdfjs' : undefined,
     workerEntry:
       name === 'office'
         ? 'src/engine/parsing/runtime/worker/entry.js'

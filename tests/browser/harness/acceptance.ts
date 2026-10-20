@@ -46,7 +46,7 @@ button.onclick = async () => {
       missing = true;
     }
     check(missing, '外部 CSS 缺失明确失败');
-    for (const name of ['dom', 'office'])
+    for (const name of ['dom', 'office', 'image'])
       await new Promise<void>((resolve, reject) => {
         const link = document.createElement('link');
         link.rel = 'stylesheet';

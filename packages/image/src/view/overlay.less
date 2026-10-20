@@ -1,0 +1,106 @@
+.fivo-image-preview {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: #e2e8f0;
+  background: rgb(32 34 38 / 78%);
+  font: 13px/1.5 system-ui, sans-serif;
+}
+.fivo-image-preview[hidden] {
+  display: none;
+}
+.fivo-image-preview-toolbar {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  min-height: 56px;
+  padding: 10px 16px;
+  box-sizing: border-box;
+  background: rgb(32 34 38 / 22%);
+  border-bottom: 1px solid rgb(255 255 255 / 14%);
+}
+.fivo-image-preview-title {
+  display: flex;
+  flex: 1;
+  align-items: baseline;
+  min-width: 60px;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 500;
+}
+.fivo-image-preview-title-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fivo-image-preview-title-extension {
+  flex: 0 0 auto;
+}
+.fivo-image-preview-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.fivo-image-preview-controls output {
+  min-width: 48px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.fivo-image-preview-controls button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 4px;
+  color: inherit;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.fivo-image-preview-controls button > svg {
+  width: 16px;
+  height: 16px;
+}
+.fivo-image-preview-controls button:hover:not(:disabled) {
+  background: rgb(255 255 255 / 12%);
+}
+.fivo-image-preview-controls button:focus-visible {
+  outline: 2px solid #91caff;
+  outline-offset: 2px;
+}
+.fivo-image-preview-controls button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.fivo-image-preview-controls button[hidden] {
+  display: none;
+}
+.fivo-image-preview-controls .fivo-image-preview-retry {
+  width: auto;
+}
+.fivo-image-preview-viewport {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  overflow: hidden;
+}
+.fivo-image-preview-viewport .fivo-image-surface {
+  background: transparent;
+}
+.fivo-image-preview > [role='status'] {
+  text-align: center;
+  padding: 8px;
+}
+.fivo-image-preview > [role='status']:empty {
+  display: none;
+}

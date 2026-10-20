@@ -1,8 +1,8 @@
 # Fivo
 
-跨框架、按需加载的 Office 文档预览组件。当前工作区预览版本尚未发布，不兼容旧包入口。
+跨框架、按需加载的 Office、文本、图片和 PDF 文件预览组件。当前工作区预览版本尚未发布，不兼容旧包入口。
 
-公开包：@fivo/core、@fivo/dom、@fivo/office、@fivo/text、@fivo/json、@fivo/markdown、@fivo/react、@fivo/vue、@fivo/vue2、@fivo/viewer。格式视图使用原生 DOM，Vue/原生宿主不安装 React。普通接入按需加载样式。
+公开包：@fivo/core、@fivo/dom、@fivo/office、@fivo/text、@fivo/json、@fivo/markdown、@fivo/image、@fivo/pdf、@fivo/react、@fivo/vue、@fivo/vue2、@fivo/viewer。格式视图使用原生 DOM，Vue/原生宿主不安装 React。普通接入按需加载样式。
 
 ## 开发
 
@@ -34,9 +34,9 @@ pnpm demo:vue2   # Vue 2
 - [回归与本地样本](apps/docs/docs/guides/testing.md)
 - [迁移说明](apps/docs/docs/guides/migration-from-office-file-viewer.md)
 
-apps/docs 为私有文档与烟测应用；packages 为十个公开组件包。examples 为独立宿主示例。真实样本存放在被忽略的 tests/fixtures/local，不进入公开站点。
+apps/docs 为私有文档与烟测应用；packages 为十二个公开组件包。examples 为独立宿主示例。真实样本存放在被忽略的 tests/fixtures/local，不进入公开站点。
 
-当前仅 Office 预览，不含 PDF、文本、Markdown、JSON 或编辑保存。
+当前实现 Office、Text、JSON、Markdown、图片和 PDF 只读预览，不包含编辑保存。新增格式须完成实际宿主验证；PDF 的 Worker 与辅助资产部署参见 [图片与 PDF 指南](apps/docs/docs/guides/image-pdf.md)。
 
 `pnpm smoke` 的根入口直接进入 `/dev/smoke-test` 工作台；`pnpm docs:dev` 仍进入文档首页。烟测工作台提供按格式分组的样本侧栏、参数重置、Office/DOM 外壳切换与事件日志，真实样本只从本机开发接口读取。
 

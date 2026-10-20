@@ -69,7 +69,7 @@ for (const [id, example, version] of cases) {
   );
   metadata.dependencies['@fivo/core'] = overrides['@fivo/core'];
   metadata.dependencies['@fivo/viewer'] = overrides['@fivo/viewer'];
-  for (const name of ['text', 'json', 'markdown'])
+  for (const name of ['text', 'json', 'markdown', 'image', 'pdf'])
     metadata.dependencies['@fivo/' + name] = overrides['@fivo/' + name];
   for (const name of Object.keys(metadata.dependencies))
     if (overrides[name]) metadata.dependencies[name] = overrides[name];
@@ -99,7 +99,7 @@ for (const [id, example, version] of cases) {
     throw new Error(id + ' 意外安装框架兼容运行时：' + installed.join(','));
   await writeFile(
     join(directory, 'type-smoke.ts'),
-    "import {office,type OfficeOptions} from '@fivo/office'; import {standardPlugins} from '@fivo/viewer'; import {createSession} from '@fivo/core'; import type {ViewerHandle} from '@fivo/dom'; import {text} from '@fivo/text'; import {readText} from '@fivo/text/reader'; import {mountTextSurface} from '@fivo/text/view'; import {json} from '@fivo/json'; import {markdown} from '@fivo/markdown'; const options:OfficeOptions={worker:'never',onWarning:warning=>console.log(warning.code)}; const plugin=office(options); let viewer:ViewerHandle|undefined; void viewer; void plugin; void standardPlugins; void createSession; void text; void readText; void mountTextSurface; void json; void markdown;\n",
+    "import {office,type OfficeOptions} from '@fivo/office'; import {standardPlugins} from '@fivo/viewer'; import {createSession} from '@fivo/core'; import type {ViewerHandle} from '@fivo/dom'; import {OutlineTree,type OutlineSnapshot} from '@fivo/dom/outline'; import {text} from '@fivo/text'; import {readText} from '@fivo/text/reader'; import {mountTextSurface} from '@fivo/text/view'; import {json} from '@fivo/json'; import {markdown} from '@fivo/markdown'; const options:OfficeOptions={worker:'never',onWarning:warning=>console.log(warning.code)}; const plugin=office(options); let viewer:ViewerHandle|undefined; let outline:OutlineTree<{id:string}>|undefined; let outlineSnapshot:OutlineSnapshot<{id:string}>|undefined; void outline; void outlineSnapshot; void viewer; void plugin; void standardPlugins; void createSession; void text; void readText; void mountTextSurface; void json; void markdown;\n",
   );
   await writeFile(
     join(directory, 'tsconfig-smoke.json'),
@@ -132,19 +132,25 @@ for (const [id, example, version] of cases) {
   );
   const fixtures = join(directory, 'app/public/fixtures');
   await mkdir(fixtures, { recursive: true });
-  for (const kind of ['docx', 'xlsx', 'pptx'])
+  for (const kind of ['docx', 'xlsx', 'pptx', 'svg', 'pdf'])
     await copyFile(
       join(root, 'tests/fixtures/public/generated/sample.' + kind),
       join(fixtures, 'sample.' + kind),
     );
   if (id === 'vanilla')
-    for (const name of ['dom', 'office'])
+    for (const name of ['dom', 'office', 'image'])
       await copyFile(
         join(root, 'packages', name, 'dist/styles.css'),
         join(directory, 'app/public/external-' + name + '.css'),
       );
   const officeRoot = await realpath(
     join(directory, 'node_modules/@fivo/office'),
+  );
+  const pdfRoot = await realpath(join(directory, 'node_modules/@fivo/pdf'));
+  await cp(
+    join(pdfRoot, 'dist/assets/pdfjs'),
+    join(directory, 'app/public/assets/pdf/assets/pdfjs'),
+    { recursive: true },
   );
   const officeManifest = JSON.parse(
     await readFile(join(officeRoot, 'dist/build-manifest.json'), 'utf8'),

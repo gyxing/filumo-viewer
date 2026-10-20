@@ -5,7 +5,7 @@ import { loadLocalCatalog, resolveSampleFile } from './local-samples.js';
 /** 公共夹具与真实本机文件严格分开，消费页面共享同一 ID。 */
 export async function sampleCatalog(root, local = false) {
   const result = [];
-  for (const format of ['docx', 'xlsx', 'pptx'])
+  for (const format of ['docx', 'xlsx', 'pptx', 'svg', 'pdf'])
     result.push({
       id: 'basic-' + format,
       format,
@@ -25,11 +25,22 @@ export async function sampleCatalog(root, local = false) {
     local: false,
   });
   for (const [id, format, file] of [
-    ['text-utf8', 'txt', 'sample.txt'], ['text-log', 'log', 'sample.log'],
-    ['text-utf16', 'txt', 'sample-utf16.txt'], ['text-gbk', 'txt', 'sample-gbk.txt'],
-    ['json-basic', 'json', 'sample.json'], ['json-invalid', 'json', 'sample-invalid.json'],
+    ['text-utf8', 'txt', 'sample.txt'],
+    ['text-log', 'log', 'sample.log'],
+    ['text-utf16', 'txt', 'sample-utf16.txt'],
+    ['text-gbk', 'txt', 'sample-gbk.txt'],
+    ['json-basic', 'json', 'sample.json'],
+    ['json-invalid', 'json', 'sample-invalid.json'],
     ['markdown-basic', 'md', 'sample.md'],
-  ]) result.push({ id, format, absolute: resolve(root, 'tests/fixtures/public/generated', file), local: false });
+    ['pdf-password', 'pdf', 'sample-password.pdf'],
+    ['pdf-scan', 'pdf', 'sample-scan.pdf'],
+  ])
+    result.push({
+      id,
+      format,
+      absolute: resolve(root, 'tests/fixtures/public/generated', file),
+      local: false,
+    });
   if (local) {
     const catalog = await loadLocalCatalog(root);
     for (const id of [

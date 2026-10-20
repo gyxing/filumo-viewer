@@ -1,22 +1,17 @@
+import { OUTLINE_DEFAULTS, OutlineTree } from '@fivo/dom/outline';
 import type { WordOutlineProvider } from '../../engine/word/WordOutlineProvider';
 import type { WordOutlineTreeNode } from '../../engine/word/types';
 import type { OfficeRenderContext } from '../../view/types';
 import { setOfficeIconButton } from '../../view/ui';
 import { mountSidebarResize } from '../common/SidebarResize';
 import './styles/outline.less';
-import { flattenOutlineRows, type OutlineRow } from './support/outlineTree';
-
-// 虚拟窗口、键盘定位和 CSS 使用相同尺寸，防止滚动后连接线错位。
-const ROW_HEIGHT = 28;
-// 收紧窄侧栏的层级留白，连接线长度在 outline.less 中同步调整。
-const INDENT = 16;
-const COMPLETE_TREE_LIMIT = 200;
 
 /** 原生大纲共享按层 Provider，保留经典树形效果、键盘导航与正文定位。 */
 export class WordOutline {
   readonly element: HTMLElement;
-  private list: HTMLDivElement;
-  private canvas: HTMLDivElement;
+  private tree: OutlineTree<WordOutlineTreeNode>;
+  private treeRevision = 0;
+  private viewActive = true;
   private title: HTMLButtonElement;
   private count: HTMLSpanElement;
   private find: HTMLButtonElement;
@@ -27,9 +22,7 @@ export class WordOutline {
   private loading = new Map<string, Promise<void>>();
   private nodes = new Map<string, WordOutlineTreeNode>();
   private roots: WordOutlineTreeNode[] = [];
-  private rows: OutlineRow[] = [];
   private active = '';
-  private focused = '';
   private closed = false;
   private version = 0;
   private revision = -1;
@@ -37,7 +30,6 @@ export class WordOutline {
   private navigating = 0;
   private resize: ReturnType<typeof mountSidebarResize>;
   private observer?: MutationObserver;
-  private sizeObserver?: ResizeObserver;
   private cancel?: () => void;
   private stop: () => void;
   private key = 'outline-' + Math.random().toString(36).slice(2);
@@ -49,6 +41,7 @@ export class WordOutline {
     private readonly scroller?: HTMLElement,
   ) {
     const doc = base.document;
+    this.viewActive = base.isActive?.() ?? true;
     this.element = doc.createElement('aside');
     this.element.className = 'fivo-native-word-outline';
     const header = doc.createElement('header');
@@ -77,14 +70,25 @@ export class WordOutline {
         .catch(base.onError);
     };
     header.append(tabs, this.count, this.close);
-    this.list = doc.createElement('div');
-    this.list.className = 'fivo-native-list';
-    this.list.setAttribute('role', 'tree');
-    this.canvas = doc.createElement('div');
-    this.canvas.className = 'fivo-native-list-canvas';
-    this.list.append(this.canvas);
-    this.element.append(header, this.list);
-    this.list.onscroll = () => this.render();
+    this.tree = new OutlineTree({
+      document: doc,
+      locale: base.locale,
+      stylePolicy: base.stylePolicy,
+      accessors: {
+        getId: (node: WordOutlineTreeNode) => node.id,
+        getText: (node) => node.text,
+        isLeaf: (node) => node.isLeaf,
+        getChildren: (node) => this.children.get(node.id) ?? node.children,
+      },
+      onToggle: (id, expanded) => {
+        if (this.expanded.has(id) !== expanded) this.toggle(id);
+      },
+      onActivate: (id) => {
+        const node = this.nodes.get(id);
+        if (node) this.select(node);
+      },
+    });
+    this.element.append(header, this.tree.element);
     this.stop = provider.subscribe(() => this.refresh());
     this.resize = mountSidebarResize(
       this.element,
@@ -94,10 +98,6 @@ export class WordOutline {
       () => this.render(),
     );
     const win = doc.defaultView;
-    if (win?.ResizeObserver) {
-      this.sizeObserver = new win.ResizeObserver(() => this.render());
-      this.sizeObserver.observe(this.list);
-    }
     if (scroller) {
       scroller.addEventListener('scroll', this.scheduleSync, { passive: true });
       if (win?.MutationObserver) {
@@ -106,6 +106,7 @@ export class WordOutline {
       }
     }
     this.refresh();
+    this.tree.setActive(this.viewActive);
   }
 
   private refresh() {
@@ -117,7 +118,8 @@ export class WordOutline {
       this.children.clear();
       this.loading.clear();
     }
-    const complete = snapshot.complete && snapshot.count <= COMPLETE_TREE_LIMIT;
+    const complete =
+      snapshot.complete && snapshot.count <= OUTLINE_DEFAULTS.completeTreeLimit;
     this.roots = this.provider.getRoots(complete ? undefined : 2);
     this.nodes.clear();
     const visit = (nodes: WordOutlineTreeNode[], depth: number) =>
@@ -132,10 +134,7 @@ export class WordOutline {
         if (node.children) this.children.set(node.id, node.children);
         if (this.expanded.has(node.id)) {
           if (node.children) visit(node.children, depth + 1);
-          else if (!node.isLeaf)
-            void this.loadChildren(node.id).catch((error) => {
-              if (!this.closed) this.base.onError(error);
-            });
+          else if (!node.isLeaf) this.loadVisibleChildren(node.id);
         }
       });
     visit(this.roots, 0);
@@ -144,8 +143,15 @@ export class WordOutline {
   }
 
   private rebuild() {
-    this.rows = flattenOutlineRows(this.roots, this.expanded, this.children);
+    this.treeRevision++;
     this.render();
+  }
+
+  private loadVisibleChildren(id: string) {
+    const version = this.version;
+    void this.loadChildren(id).catch((error) => {
+      if (!this.closed && version === this.version) this.base.onError(error);
+    });
   }
 
   private loadChildren(id: string): Promise<void> {
@@ -164,9 +170,10 @@ export class WordOutline {
       .finally(() => {
         if (this.closed || version !== this.version) return;
         this.loading.delete(id);
-        this.render();
+        this.rebuild();
       });
     this.loading.set(id, task);
+    this.rebuild();
     return task;
   }
 
@@ -190,7 +197,7 @@ export class WordOutline {
 
   private select(node: WordOutlineTreeNode) {
     this.revealing++;
-    this.active = this.focused = node.id;
+    this.active = node.id;
     this.navigating++;
     this.render();
     // 点击只定位正文，不把已在视野内的目录项再次强制居中。
@@ -201,63 +208,6 @@ export class WordOutline {
       });
   }
 
-  private focusRow(index: number) {
-    const row = this.rows[Math.max(0, Math.min(this.rows.length - 1, index))];
-    if (!row) return;
-    this.focused = row.node.id;
-    const top = this.rows.indexOf(row) * ROW_HEIGHT;
-    if (top < this.list.scrollTop) this.list.scrollTop = top;
-    else if (top + ROW_HEIGHT > this.list.scrollTop + this.list.clientHeight)
-      this.list.scrollTop = top + ROW_HEIGHT - this.list.clientHeight;
-    this.render();
-    this.canvas
-      .querySelector<HTMLElement>(
-        '[data-outline-id="' + CSS.escape(this.focused) + '"]',
-      )
-      ?.focus({ preventScroll: true });
-  }
-
-  private keyDown(event: KeyboardEvent, index: number) {
-    const row = this.rows[index];
-    if (!row) return;
-    switch (event.key) {
-      case 'ArrowDown':
-        this.focusRow(index + 1);
-        break;
-      case 'ArrowUp':
-        this.focusRow(index - 1);
-        break;
-      case 'Home':
-        this.focusRow(0);
-        break;
-      case 'End':
-        this.focusRow(this.rows.length - 1);
-        break;
-      case 'ArrowRight':
-        if (!row.node.isLeaf && !this.expanded.has(row.node.id))
-          this.toggle(row.node.id);
-        else if (this.rows[index + 1]?.parentId === row.node.id)
-          this.focusRow(index + 1);
-        break;
-      case 'ArrowLeft':
-        if (this.expanded.has(row.node.id) && !row.node.isLeaf)
-          this.toggle(row.node.id);
-        else if (row.parentId)
-          this.focusRow(
-            this.rows.findIndex((item) => item.node.id === row.parentId),
-          );
-        break;
-      case 'Enter':
-      case ' ':
-        this.select(row.node);
-        break;
-      default:
-        return;
-    }
-    event.preventDefault();
-    event.stopPropagation();
-  }
-
   private render() {
     if (this.closed) return;
     const en = this.base.locale === 'en-US';
@@ -265,7 +215,6 @@ export class WordOutline {
       'aria-label',
       en ? 'Document outline' : '文档大纲',
     );
-    this.list.setAttribute('aria-label', en ? 'Headings' : '大纲条目');
     this.title.textContent = en ? 'Outline' : '大纲';
     this.find.textContent = en ? 'Find' : '查找';
     this.count.textContent = String(this.provider.getSnapshot().count);
@@ -276,105 +225,24 @@ export class WordOutline {
       'panelLeftClose',
     );
     this.resize?.setLabel(en ? 'Resize outline' : '调整大纲宽度');
-    this.list.setAttribute('aria-busy', String(this.loading.size > 0));
-    const focusInside = this.list.contains(this.base.document.activeElement);
-    const start = Math.max(0, Math.floor(this.list.scrollTop / ROW_HEIGHT) - 8);
-    const end = Math.min(
-      this.rows.length,
-      Math.ceil(
-        (this.list.scrollTop + (this.list.clientHeight || 500)) / ROW_HEIGHT,
-      ) + 8,
-    );
-    this.canvas.style.height = this.rows.length * ROW_HEIGHT + 'px';
-    this.canvas.replaceChildren();
-    for (let index = start; index < end; index++) {
-      const item = this.rows[index];
-      const { node, depth } = item;
-      const row = this.base.document.createElement('div');
-      row.className = 'fivo-native-outline-row';
-      row.dataset.outlineId = node.id;
-      row.style.top = index * ROW_HEIGHT + 'px';
-      row.style.paddingLeft = depth * INDENT + 'px';
-      row.setAttribute('role', 'treeitem');
-      row.setAttribute('aria-level', String(depth + 1));
-      row.setAttribute('aria-posinset', String(item.siblingIndex + 1));
-      row.setAttribute('aria-setsize', String(item.siblingCount));
-      row.setAttribute('aria-selected', String(node.id === this.active));
-      row.tabIndex =
-        node.id === (this.focused || this.active || this.rows[0]?.node.id)
-          ? 0
-          : -1;
-      row.onfocus = () => {
-        this.focused = node.id;
-      };
-      row.onkeydown = (event) => this.keyDown(event, index);
-      row.onclick = () => {
-        this.select(node);
-        this.focusRow(index);
-      };
-      if (depth) {
-        const guides = this.base.document.createElement('span');
-        guides.className = 'fivo-outline-guides';
-        guides.setAttribute('aria-hidden', 'true');
-        item.ancestorHasNextSibling.slice(1).forEach((continues, level) => {
-          if (!continues) return;
-          const guide = this.base.document.createElement('span');
-          guide.className = 'fivo-outline-guide';
-          guide.style.left = level * INDENT + 10 + 'px';
-          guides.append(guide);
-        });
-        const branch = this.base.document.createElement('span');
-        branch.className = 'fivo-outline-branch';
-        branch.dataset.continues = String(item.hasNextSibling);
-        branch.dataset.leaf = String(node.isLeaf);
-        branch.style.left = (depth - 1) * INDENT + 10 + 'px';
-        guides.append(branch);
-        row.append(guides);
-      }
-      const switcher = this.base.document.createElement(
-        node.isLeaf ? 'span' : 'button',
-      );
-      switcher.className = node.isLeaf
-        ? 'fivo-outline-leaf-space'
-        : 'fivo-outline-switcher';
-      if (!node.isLeaf) {
-        const expanded = this.expanded.has(node.id);
-        row.setAttribute('aria-expanded', String(expanded));
-        (switcher as HTMLButtonElement).type = 'button';
-        switcher.tabIndex = -1;
-        switcher.dataset.expanded = String(expanded);
-        switcher.dataset.hasChildren = String(
-          this.rows[index + 1]?.parentId === node.id,
-        );
-        switcher.dataset.loading = String(this.loading.has(node.id));
-        switcher.setAttribute(
-          'aria-label',
-          (expanded ? (en ? 'Collapse ' : '收起 ') : en ? 'Expand ' : '展开 ') +
-            node.text,
-        );
-        const icon = this.base.document.createElement('span');
-        icon.setAttribute('aria-hidden', 'true');
-        switcher.append(icon);
-        switcher.onclick = (event) => {
-          event.stopPropagation();
-          this.focused = node.id;
-          this.toggle(node.id);
-          this.focusRow(index);
-        };
-      } else switcher.setAttribute('aria-hidden', 'true');
-      const label = this.base.document.createElement('span');
-      label.className = 'fivo-native-outline-label';
-      label.textContent = node.text;
-      label.title = node.text;
-      row.append(switcher, label);
-      this.canvas.append(row);
-      if (focusInside && node.id === this.focused)
-        row.focus({ preventScroll: true });
-    }
+    this.tree.setLocale(this.base.locale);
+    this.tree.update({
+      revision: this.treeRevision,
+      roots: this.roots,
+      expanded: this.expanded,
+      loading: new Set(this.loading.keys()),
+      selectedId: this.active,
+    });
   }
 
   private scheduleSync = () => {
-    if (this.closed || this.element.hidden || !this.scroller || this.navigating)
+    if (
+      this.closed ||
+      !this.viewActive ||
+      this.element.hidden ||
+      !this.scroller ||
+      this.navigating
+    )
       return;
     this.cancel = this.base.services.layout.schedule(
       this.key,
@@ -429,8 +297,12 @@ export class WordOutline {
       this.navigating
     )
       return;
+    let changed = false;
     for (const parent of ancestors) {
-      this.expanded.add(parent);
+      if (!this.expanded.has(parent)) {
+        this.expanded.add(parent);
+        changed = true;
+      }
       await this.loadChildren(parent);
       if (
         this.closed ||
@@ -441,33 +313,54 @@ export class WordOutline {
         return;
     }
     this.active = id;
-    this.rebuild();
-    const index = this.rows.findIndex((row) => row.node.id === id);
-    const height = this.list.clientHeight;
-    if (index >= 0 && height > 0) {
-      const middle = (index + 0.5) * ROW_HEIGHT - this.list.scrollTop;
-      if (middle < height * 0.25 || middle > height * 0.6)
-        this.list.scrollTop = Math.max(
-          0,
-          (index + 0.5) * ROW_HEIGHT - height * 0.4,
-        );
-      this.render();
-    }
+    // 正文滚动只改变选择时复用行索引，避免每个标题切换都遍历整棵树。
+    if (changed) this.treeRevision++;
+    this.render();
+    this.tree.reveal(id, { align: 'reading' });
   }
 
+  /** 切换侧栏可见性时保留状态，并阻止隐藏后迟到的阅读同步。 */
   update(visible: boolean) {
+    if (this.closed) return;
     const changed = this.element.hidden === visible;
     this.element.hidden = !visible;
+    this.tree.setActive(visible && this.viewActive);
+    if (!visible) {
+      this.cancel?.();
+      this.cancel = undefined;
+      this.revealing++;
+    }
     if (visible && changed) this.refresh();
     else if (visible) this.render();
   }
+  /** 停用时暂停树和正文同步，恢复不丢失用户展开状态。 */
+  setActive(active: boolean) {
+    if (this.closed) return;
+    this.viewActive = active;
+    this.tree.setActive(active && !this.element.hidden);
+    if (active) {
+      if (this.scroller)
+        this.observer?.observe(this.scroller, {
+          childList: true,
+          subtree: true,
+        });
+      this.scheduleSync();
+    } else {
+      this.observer?.disconnect();
+      this.cancel?.();
+      this.cancel = undefined;
+      this.revealing++;
+    }
+  }
+  /** 释放 Provider 订阅、公共树及本侧栏拥有的观察器。 */
   dispose() {
+    if (this.closed) return;
     this.closed = true;
     this.version++;
     this.revealing++;
     this.cancel?.();
     this.stop();
-    this.sizeObserver?.disconnect();
+    this.tree.dispose();
     this.observer?.disconnect();
     this.scroller?.removeEventListener('scroll', this.scheduleSync);
     this.resize.dispose();

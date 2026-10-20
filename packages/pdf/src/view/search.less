@@ -1,0 +1,156 @@
+.fivo-pdf-search {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  color: var(--fivo-text);
+  font: 13px/1.5 system-ui, sans-serif;
+}
+.fivo-pdf-search-field {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  margin: 10px 10px 6px;
+  padding: 0 7px;
+  box-sizing: border-box;
+  color: var(--fivo-muted);
+  border: 1px solid var(--fivo-border);
+  border-radius: 5px;
+  background: var(--fivo-surface);
+}
+.fivo-pdf-search-field:focus-within {
+  border-color: var(--fivo-primary);
+}
+.fivo-pdf-search-field > svg {
+  flex: 0 0 16px;
+}
+.fivo-pdf-search-field input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  padding: 0;
+  color: var(--fivo-text);
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font: inherit;
+}
+.fivo-pdf-search-field input::-webkit-search-cancel-button {
+  appearance: none;
+}
+.fivo-pdf-search button {
+  font: inherit;
+  cursor: pointer;
+}
+.fivo-pdf-search-field button,
+.fivo-pdf-search-navigation button {
+  display: inline-flex;
+  flex: 0 0 24px;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 26px;
+  padding: 0;
+  color: var(--fivo-muted);
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+}
+.fivo-pdf-search-navigation {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 4px;
+  padding: 0 10px 6px;
+}
+.fivo-pdf-search-navigation button {
+  flex-basis: 28px;
+  width: 28px;
+  height: 28px;
+}
+.fivo-pdf-search-field button > svg,
+.fivo-pdf-search-navigation button > svg {
+  display: block;
+  flex: 0 0 16px;
+  width: 16px;
+  height: 16px;
+}
+.fivo-pdf-search-navigation output {
+  flex: 1;
+  min-width: 0;
+  color: var(--fivo-muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.fivo-pdf-search button:hover:not(:disabled) {
+  color: var(--fivo-primary);
+  background: var(--fivo-hover);
+}
+.fivo-pdf-search button:focus-visible {
+  outline: 2px solid var(--fivo-primary);
+  outline-offset: -2px;
+}
+.fivo-pdf-search button:disabled {
+  // 空查询仍需看清操作含义，通过适度降低对比度表达禁用状态。
+  opacity: 0.65;
+  cursor: default;
+}
+.fivo-pdf-search-status {
+  flex: 0 0 auto;
+  padding: 0 12px 8px;
+  color: var(--fivo-muted);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.fivo-pdf-search-status:empty {
+  display: none;
+}
+.fivo-pdf-search-results {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+.fivo-pdf-search-canvas {
+  position: relative;
+}
+.fivo-pdf-search-result {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  height: 64px;
+  margin: 4px 0;
+  padding: 6px 8px;
+  box-sizing: border-box;
+  color: var(--fivo-text);
+  background: var(--fivo-surface);
+  border: 1px solid transparent;
+  border-radius: 5px;
+  text-align: left;
+}
+.fivo-pdf-search-result[aria-selected='true'] {
+  border-color: var(--fivo-primary);
+  background: var(--fivo-selected);
+}
+.fivo-pdf-search-page {
+  color: var(--fivo-muted);
+  font-size: 12px;
+  line-height: 16px;
+}
+.fivo-pdf-search-snippet {
+  display: -webkit-box;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  line-height: 16px;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.fivo-pdf-search-snippet mark {
+  color: inherit;
+  background: rgb(255 200 0 / 32%);
+}

@@ -1,0 +1,209 @@
+.fivo-outline-tree {
+  --fivo-outline-text: var(--fivo-text, #1f2937);
+  --fivo-outline-muted: var(--fivo-muted, #64748b);
+  --fivo-outline-surface: var(--fivo-surface, #fff);
+  --fivo-outline-hover: var(--fivo-hover, #f5f7fa);
+  --fivo-outline-selected: var(--fivo-selected, #e6f4ff);
+  --fivo-outline-primary: var(--fivo-primary-active, #0958d9);
+  --fivo-outline-focus: var(--fivo-primary, #1677ff);
+  --fivo-outline-line: var(--fivo-border, #d8e1ec);
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  margin: 8px 6px 10px;
+  overflow: auto;
+  scrollbar-gutter: stable;
+  color: var(--fivo-outline-text);
+  font: 13px/1.5 system-ui, sans-serif;
+}
+.fivo-outline-canvas {
+  position: relative;
+}
+.fivo-outline-tree[hidden] {
+  display: none;
+}
+.fivo-outline-row {
+  position: absolute;
+  left: 0;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  height: var(--fivo-outline-row-height);
+  min-width: 0;
+  padding-right: 4px;
+  color: var(--fivo-outline-text);
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+}
+
+.fivo-outline-row:hover {
+  background: var(--fivo-outline-hover);
+}
+
+.fivo-outline-row[aria-selected='true'] {
+  color: var(--fivo-outline-primary);
+  background: var(--fivo-outline-selected);
+}
+
+.fivo-outline-row:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--fivo-outline-focus);
+}
+
+.fivo-outline-guides {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.fivo-outline-guide {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--fivo-outline-line);
+}
+
+.fivo-outline-branch {
+  // 横线末端与下一层图标轴线重合，现有操作区和文字内边距仍留出 4px 间隔。
+  --fivo-outline-branch-length: var(--fivo-outline-indent);
+
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: var(--fivo-outline-branch-length);
+}
+
+.fivo-outline-branch::before,
+.fivo-outline-branch::after {
+  position: absolute;
+  background: var(--fivo-outline-line);
+  content: '';
+}
+
+.fivo-outline-branch::before {
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 50%;
+}
+
+.fivo-outline-branch[data-continues='true']::before {
+  height: 100%;
+}
+
+// 只有根列表首节点去掉悬空上半段；子级首节点需向上接住父行垂下的竖线。
+.fivo-outline-branch[data-root='true'][data-first='true']::before {
+  top: 50%;
+  height: 0;
+}
+
+.fivo-outline-branch[data-root='true'][data-first='true'][data-continues='true']::before {
+  height: 50%;
+}
+
+.fivo-outline-branch::after {
+  top: 50%;
+  left: 0;
+  width: var(--fivo-outline-branch-length);
+  height: 1px;
+}
+
+// 父行横线末端直接下接子级竖线，连接点和横线位于同一行中线。
+.fivo-outline-child-connector {
+  position: absolute;
+  top: 50%;
+  bottom: 0;
+  width: 1px;
+  background: var(--fivo-outline-line);
+}
+
+.fivo-outline-switcher,
+.fivo-outline-leaf {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  flex: 0 0 var(--fivo-outline-switcher-width);
+  align-items: center;
+  justify-content: center;
+  width: var(--fivo-outline-switcher-width);
+  height: var(--fivo-outline-row-height);
+}
+
+.fivo-outline-switcher {
+  justify-content: flex-start;
+  padding: 0;
+  color: var(--fivo-outline-muted);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.fivo-outline-switcher > span {
+  position: relative;
+  box-sizing: border-box;
+  width: var(--fivo-outline-icon-size);
+  height: var(--fivo-outline-icon-size);
+  background: var(--fivo-outline-surface);
+  border: 1px solid currentcolor;
+}
+
+.fivo-outline-switcher > span::before,
+.fivo-outline-switcher > span::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 1px;
+  background: currentcolor;
+  content: '';
+  transform: translate(-50%, -50%);
+}
+
+.fivo-outline-switcher > span::after {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.fivo-outline-switcher[data-expanded='true'] > span::after {
+  display: none;
+}
+
+.fivo-outline-switcher:hover {
+  color: var(--fivo-outline-primary);
+}
+
+.fivo-outline-switcher[data-loading='true'] > span {
+  border-radius: 50%;
+  border-right-color: transparent;
+  animation: fivo-outline-loading 720ms linear infinite;
+}
+
+.fivo-outline-switcher[data-loading='true'] > span::before,
+.fivo-outline-switcher[data-loading='true'] > span::after {
+  display: none;
+}
+
+.fivo-outline-label {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0 6px;
+  overflow: hidden;
+  font-size: 14px;
+  line-height: var(--fivo-outline-row-height);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@keyframes fivo-outline-loading {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fivo-outline-switcher[data-loading='true'] > span {
+    animation-duration: 1.4s;
+  }
+}

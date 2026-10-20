@@ -1,3 +1,4 @@
+import { docsPath } from '../site-path';
 import type { SmokeConfig } from './types';
 export const initialConfig: SmokeConfig = {
   // 不指定固定比例，以检查各格式的默认缩放，PowerPoint 默认按容器适应页面。
@@ -11,6 +12,8 @@ export const initialConfig: SmokeConfig = {
   text: { worker: 'auto' },
   json: { worker: 'auto', initialMode: 'tree' },
   markdown: { worker: 'auto', initialMode: 'reading', highlight: true },
+  image: {},
+  pdf: { assetsBaseUrl: docsPath('fivo-assets/pdf/assets/pdfjs/') },
   toolbarMode: 'default',
 };
 /** 恢复参数时创建独立副本，不清除用户当前的文件来源。 */
@@ -22,6 +25,8 @@ export function resetSmokeConfig(): SmokeConfig {
     text: { ...initialConfig.text },
     json: { ...initialConfig.json },
     markdown: { ...initialConfig.markdown },
+    image: { ...initialConfig.image },
+    pdf: { ...initialConfig.pdf },
   };
 }
 /** 无法在公开 API 中成立的旧配置不伪造兼容字段。 */

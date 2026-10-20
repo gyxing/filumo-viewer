@@ -6,6 +6,10 @@ toc: content
 
 # 兼容范围与限制
 
+## 图片与 PDF
+
+工作区新增独立图片和 PDF 插件。图片使用浏览器解码器，AVIF 支持取决于浏览器。PDF 使用固定版本 PDF.js 和同版的本地 Worker、CMap、字体及 WASM 资源，部署方式见 [图片与 PDF](./image-pdf)。新增浏览器与消费用例已编写，尚待统一运行和性能测量。Canvas 与文本缓存预算不代表整个浏览器进程的内存上限。
+
 ## 纯文本、JSON 和 Markdown
 
 新增格式通过独立插件接入，详见 [纯文本、JSON 与 Markdown](./text-formats)。文本支持结合 BOM、来源 charset 和字节特征自动识别 UTF-8、UTF-16、GBK/GB18030，并可手动切换。JSON 按原文范围保留数字和重复键；Markdown 支持基础排版、表格、任务列表和按需代码高亮，不包含公式、Mermaid 或编辑器。原文窗口化不等于文件大小无限，仍需配置资源限制。

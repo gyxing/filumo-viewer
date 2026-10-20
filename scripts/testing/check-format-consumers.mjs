@@ -8,7 +8,7 @@ import { verifyInstalledPackages } from './pack-packages.mjs';
 /** 独立安装只声明当前格式，防止标准预设依赖掩盖缺包和非必要第三方依赖。 */
 export async function checkFormatConsumers(root, work, packed, overrides) {
   const reports = [];
-  for (const name of ['text', 'json', 'markdown']) {
+  for (const name of ['text', 'json', 'markdown', 'image', 'pdf']) {
     const directory = join(work, 'format-' + name);
     await mkdir(directory);
     await writeFile(
@@ -40,6 +40,10 @@ export async function checkFormatConsumers(root, work, packed, overrides) {
     const symbols =
       name === 'text'
         ? `import {readText} from '@fivo/text/reader'; import {mountTextSurface} from '@fivo/text/view'; void readText; void mountTextSurface;`
+        : name === 'image'
+        ? `import {mountImageSurface, mountImageOverlay} from '@fivo/image/view'; void mountImageSurface; void mountImageOverlay;`
+        : name === 'pdf'
+        ? `import {resolvePdfAssets} from '@fivo/pdf/assets'; void resolvePdfAssets;`
         : '';
     const source = `import {${name}} from '@fivo/${name}'; ${symbols} console.log(${name}());`;
     await writeFile(join(directory, 'main.ts'), source);

@@ -180,7 +180,7 @@ export function Preview({ file }: { file?: File }) {
 }
 ```
 
-standardPlugins 是冻结的 Office-only 数组。需要 fonts、resourcePolicy、onWarning 等定制时使用自己的稳定 [office(options)]。@fivo/viewer 不会自动导入 React/Vue 组件，也不会自动注册尚未实现的格式。
+standardPlugins 是冻结的 Office、Text、JSON、Markdown、图片和 PDF 描述符数组。需要格式专属参数时使用自己的稳定插件数组；PDF 资源部署见 [图片与 PDF 指南](./image-pdf)。@fivo/viewer 不会自动导入 React/Vue 组件，也不会提前加载格式引擎。
 
 ## 自定义来源工厂
 

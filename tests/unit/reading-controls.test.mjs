@@ -21,6 +21,7 @@ const bundle = await build({
   format: 'esm',
   platform: 'node',
   loader: { '.less': 'empty' },
+  alias: { '@fivo/dom/outline': resolve('packages/dom/src/outline.ts') },
 });
 const {
   JsonTree, scanJson, TextViewport, readText, MarkdownOutline, MarkdownImage, TextFindBar, actionMenuItem,
@@ -203,7 +204,7 @@ test('Markdown 大纲折叠不跳正文，键盘导航与当前章节分别同�
     false,
     () => outline.setOpen(false),
   );
-  const canvas = outline.element.querySelector('.fivo-markdown-outline-canvas');
+  const canvas = outline.element.querySelector('.fivo-outline-canvas');
   const row = (id) =>
     canvas.children.find((item) => item.dataset.outlineId === id);
   const key = (id, value) =>
@@ -246,8 +247,8 @@ test('Markdown 长大纲仅生成窗口内节点，同步远处章节后仍有�
   const outline = new MarkdownOutline(
     document, headings, () => {}, false, () => {},
   );
-  const list = outline.element.querySelector('.fivo-markdown-outline-list'),
-    canvas = outline.element.querySelector('.fivo-markdown-outline-canvas');
+  const list = outline.element.querySelector('.fivo-outline-tree'),
+    canvas = outline.element.querySelector('.fivo-outline-canvas');
   assert.ok(canvas.children.length < 40);
   outline.setCurrent('249');
   assert.ok(list.scrollTop > 0);

@@ -56,14 +56,18 @@ function isCrossOriginHttpUrl(url: string, ownerDocument: Document) {
 }
 
 /** 跨域图片先复制为同源临时地址，避免 download 属性被浏览器忽略。 */
-async function createDownloadUrl(url: string, ownerDocument: Document) {
+async function createDownloadUrl(
+  url: string,
+  ownerDocument: Document,
+  signal?: AbortSignal,
+) {
   if (!isCrossOriginHttpUrl(url, ownerDocument)) {
     return { url, revoke: undefined };
   }
   const view = ownerDocument.defaultView;
   const fetchResource = view?.fetch?.bind(view) ?? fetch;
   const urlApi = view?.URL ?? URL;
-  const response = await fetchResource(url);
+  const response = await fetchResource(url, { signal });
   if (!response.ok) {
     throw new Error(`HTTP ${response.status} ${response.statusText}`);
   }
@@ -76,8 +80,14 @@ export async function downloadOfficeImage(
   url: string,
   target: OfficeImagePreviewTarget,
   ownerDocument: Document,
+  signal?: AbortSignal,
 ) {
-  const downloadable = await createDownloadUrl(url, ownerDocument);
+  if (signal?.aborted) throw signal.reason;
+  const downloadable = await createDownloadUrl(url, ownerDocument, signal);
+  if (signal?.aborted) {
+    downloadable.revoke?.();
+    throw signal.reason;
+  }
   const anchor = ownerDocument.createElement('a');
   anchor.href = downloadable.url;
   anchor.download = getOfficeImageDownloadName(target);
@@ -93,5 +103,33 @@ export async function downloadOfficeImage(
       const scheduleCleanup = view ? view.setTimeout.bind(view) : setTimeout;
       scheduleCleanup(downloadable.revoke, DOWNLOAD_URL_REVOKE_DELAY_MS);
     }
+  }
+}
+
+/** 所有 Office 下载入口使用原始来源，展示转换后的 PNG 不参与原图导出。 */
+export async function downloadOfficeImageSource(
+  target: OfficeImagePreviewTarget,
+  ownerDocument: Document,
+  signal?: AbortSignal,
+) {
+  const source = target.source;
+  if (typeof source === 'string' || source.kind === 'url')
+    return downloadOfficeImage(
+      typeof source === 'string' ? source : source.url,
+      target,
+      ownerDocument,
+      signal,
+    );
+  if (signal?.aborted) throw signal.reason;
+  const blob = await source.load(signal ?? new AbortController().signal);
+  if (signal?.aborted) throw signal.reason;
+  const api = ownerDocument.defaultView?.URL ?? URL,
+    url = api.createObjectURL(blob);
+  try {
+    await downloadOfficeImage(url, target, ownerDocument, signal);
+  } finally {
+    const view = ownerDocument.defaultView,
+      schedule = view ? view.setTimeout.bind(view) : setTimeout;
+    schedule(() => api.revokeObjectURL(url), DOWNLOAD_URL_REVOKE_DELAY_MS);
   }
 }

@@ -9,7 +9,7 @@ toc: content
 
 Fivo 是跨框架的浏览器端 Office 文档预览组件。解析、图片、图表与预览在浏览器内完成，不依赖在线文档转换服务。React、Vue 3、Vue 2 和原生 JavaScript 共用原生 DOM 渲染器。
 
-> 当前工作区版本为 **0.1.0-next.0**，尚未发布到 npm。下文只描述当前实现；PDF、文本、Markdown、JSON、文档编辑和编辑后保存属于后续扩展。不要安装同名第三方包，也不要使用旧包入口。
+> 当前工作区版本为 **0.1.0-next.0**，尚未发布到 npm。下文只描述当前实现；已接入 Office、Text、JSON、Markdown、图片和 PDF 只读插件，文档编辑和编辑后保存仍属于后续扩展。不要安装同名第三方包，也不要使用旧包入口。
 
 <nav className="office-viewer-docs__quick-links" aria-label="文档快捷入口">
   <a href="#quick-start">快速接入</a>
@@ -26,14 +26,19 @@ Fivo 是跨框架的浏览器端 Office 文档预览组件。解析、图片、�
 | @fivo/core   | 文档来源、插件协议、会话、取消、原件导出 | 独立文档流程或格式插件         |
 | @fivo/dom    | 原生预览外壳、样式管理、通用能力         | 原生 JS 宿主或自定义界面       |
 | @fivo/office | Office 描述符、解析驱动和原生渲染器      | Word、Excel、PPT 预览          |
+| @fivo/text | 纯文本及未知文本兜底 | 文本原文预览 |
+| @fivo/json | JSON 结构与原文 | JSON 文件 |
+| @fivo/markdown | Markdown 阅读与原文 | Markdown 文件 |
+| @fivo/image | 图片及公共图片交互 | 独立图片与 Office 弹层 |
+| @fivo/pdf | PDF 连续阅读 | 部署同版 Worker 及辅助资产 |
 | @fivo/react  | React 18/19 薄适配组件                   | React 宿主                     |
 | @fivo/vue    | Vue 3 薄适配组件                         | Vue 3 宿主                     |
 | @fivo/vue2   | Vue 2.6/2.7 薄适配组件                   | Vue 2 宿主                     |
-| @fivo/viewer | 仅 Office 的标准插件预设                 | 直接使用稳定的 standardPlugins |
+| @fivo/viewer | 六类格式的轻量标准插件预设                 | 直接使用稳定的 standardPlugins |
 
 只选择自己的框架适配包，不需要安装 React、Vue 两套运行时。原生 JS 和 Vue 的 Office 预览不依赖 React。
 
-`office()` 创建轻量描述符，真正打开文档时才加载驱动和对应格式视图。当前没有 PDF 等扩展包，也不会因未来新增格式自动把它们加入现有宿主。
+`office()` 创建轻量描述符，真正打开文档时才加载驱动和对应格式视图。图片与 PDF 的资源部署见 [图片与 PDF 指南](./guides/image-pdf)。未注册的插件不会隐式加载。
 
 ## 安装与工作区使用
 

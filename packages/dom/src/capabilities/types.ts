@@ -3,7 +3,9 @@ export interface ToolbarPresentation {
   visible?: boolean;
   order?: number;
   placement?: 'main' | 'more';
+  /** 值越大越优先保留；Infinity 固定在主栏，空间不足时换行。 */
   priority?: number;
+  /** 控制主栏名称显示；无图标按钮保留名称，选择控件始终显示当前选中值。 */
   showLabel?: boolean;
 }
 /** 选择值与独立命令共用选项列表，命令不参与选中态。 */
@@ -36,6 +38,7 @@ export interface ViewerCapabilities {
     min: number;
     max: number;
     step: number;
+    /** 未指定时使用 25%～200% 的公共预设，并按当前格式的范围过滤。 */
     presets?: readonly number[];
     mode?: {
       value: string;

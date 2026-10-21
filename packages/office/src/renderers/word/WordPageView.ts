@@ -37,7 +37,7 @@ export class WordPageView {
     private zoom: number,
   ) {
     this.element = base.document.createElement('div');
-    this.element.className = 'fivo-native-word-page';
+    this.element.className = 'filumo-native-word-page';
     const spacing = source.docx?.characterSpacingControl;
     this.context = new WordElementContext(
       base,

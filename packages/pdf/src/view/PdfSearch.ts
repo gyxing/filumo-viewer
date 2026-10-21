@@ -1,4 +1,4 @@
-import { abortError, notify, throwIfAborted } from '@fivo/core';
+import { abortError, notify, throwIfAborted } from '@filumo/core';
 import { PDF_DEFAULTS, type PdfOptions } from '../options';
 import type { PdfBackend, PdfTextPage } from '../runtime/contracts';
 

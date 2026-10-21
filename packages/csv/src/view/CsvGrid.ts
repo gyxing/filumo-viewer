@@ -48,16 +48,16 @@ export class CsvGrid {
     state?: CsvGridState,
   ) {
     this.element = document.createElement('section');
-    this.element.className = 'fivo-csv-grid';
+    this.element.className = 'filumo-csv-grid';
     this.viewport = document.createElement('div');
-    this.viewport.className = 'fivo-csv-viewport';
+    this.viewport.className = 'filumo-csv-viewport';
     this.viewport.tabIndex = 0;
     this.viewport.setAttribute('role', 'grid');
     this.header = document.createElement('div');
-    this.header.className = 'fivo-csv-header';
+    this.header.className = 'filumo-csv-header';
     this.header.setAttribute('role', 'row');
     this.canvas = document.createElement('div');
-    this.canvas.className = 'fivo-csv-canvas';
+    this.canvas.className = 'filumo-csv-canvas';
     this.detail = new CsvCellDetail(document);
     this.find = new CsvFind(
       document,
@@ -192,7 +192,7 @@ export class CsvGrid {
     if (signal.aborted || this.closed) return;
     for (let column = colStart; column < colEnd; column++) {
       const cell = this.document.createElement('div');
-      cell.className = 'fivo-csv-heading';
+      cell.className = 'filumo-csv-heading';
       cell.setAttribute('role', 'columnheader');
       cell.style.left = this.offsets[column] + 'px';
       cell.style.width = this.width(column) + 'px';
@@ -211,7 +211,7 @@ export class CsvGrid {
       }
       const handle = this.document.createElement('span');
       handle.dataset.resizeColumn = String(column);
-      handle.className = 'fivo-csv-column-resize';
+      handle.className = 'filumo-csv-column-resize';
       handle.tabIndex = 0;
       handle.setAttribute('role', 'separator');
       handle.setAttribute('aria-orientation', 'vertical');
@@ -227,7 +227,7 @@ export class CsvGrid {
         fields = await this.session.getRow(row, signal);
       if (signal.aborted || this.closed) return;
       const line = this.document.createElement('div');
-      line.className = 'fivo-csv-row';
+      line.className = 'filumo-csv-row';
       line.setAttribute('role', 'row');
       line.style.top =
         at * height - logicalTop + this.viewport.scrollTop + 'px';
@@ -236,7 +236,7 @@ export class CsvGrid {
       this.canvas.append(line);
       for (let column = colStart; column < colEnd; column++) {
         const cell = this.document.createElement('div');
-        cell.className = 'fivo-csv-cell';
+        cell.className = 'filumo-csv-cell';
         cell.dataset.csvCell = '';
         cell.dataset.row = String(row);
         cell.dataset.column = String(column);

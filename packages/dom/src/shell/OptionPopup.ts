@@ -4,7 +4,7 @@ let sequence = 0;
 
 /** 打开工具栏菜单前关闭同一预览器的表单选项，避免两套浮层同时占用焦点。 */
 export function closeOptionPopups(owner: HTMLElement) {
-  activePopups.get(owner.closest('.fivo-viewer') ?? owner.ownerDocument)?.close();
+  activePopups.get(owner.closest('.filumo-viewer') ?? owner.ownerDocument)?.close();
 }
 
 /** 为选择和缩放提供共享浮层，负责避让、主题继承、外部关闭和资源清理。 */
@@ -17,8 +17,8 @@ export function createOptionPopup(
   const document = owner.ownerDocument;
   const win = document.defaultView;
   const element = document.createElement('div');
-  element.className = 'fivo-option-popup';
-  element.id = 'fivo-option-popup-' + ++sequence;
+  element.className = 'filumo-option-popup';
+  element.id = 'filumo-option-popup-' + ++sequence;
   element.setAttribute('role', 'listbox');
   const nativePopover = typeof element.showPopover === 'function';
   if (nativePopover) element.setAttribute('popover', 'manual');
@@ -44,7 +44,7 @@ export function createOptionPopup(
       close();
       return;
     }
-    const bounds = owner.closest('.fivo-viewer')?.getBoundingClientRect();
+    const bounds = owner.closest('.filumo-viewer')?.getBoundingClientRect();
     const box = anchor.getBoundingClientRect();
     const left = Math.max(4, bounds?.left ?? 0);
     const right = Math.min(win.innerWidth - 4, bounds?.right ?? win.innerWidth);
@@ -117,7 +117,7 @@ export function createOptionPopup(
     },
     open() {
       if (disposed || !owner.isConnected) return;
-      scope = owner.closest('.fivo-viewer') ?? document;
+      scope = owner.closest('.filumo-viewer') ?? document;
       const previous = activePopups.get(scope);
       if (previous && previous !== identity) previous.close();
       opened = true;

@@ -1,8 +1,8 @@
-import type { CapabilityAction, ViewContext, ViewHandle } from '@fivo/dom';
-import { createReadingFrame } from '@fivo/dom';
-import type { TextEncoding } from '@fivo/core/text';
-import { formatEncodingWarning } from '@fivo/dom/text-messages';
-import type { TextSurfaceHandle } from '@fivo/dom/text';
+import type { CapabilityAction, ViewContext, ViewHandle } from '@filumo/dom';
+import { createReadingFrame } from '@filumo/dom';
+import type { TextEncoding } from '@filumo/core/text';
+import { formatEncodingWarning } from '@filumo/dom/text-messages';
+import type { TextSurfaceHandle } from '@filumo/dom/text';
 import { STYLE_SCOPE } from '../generated/package';
 import type { MarkdownSession } from '../runtime/MarkdownSession';
 import type { MarkdownBlocks } from './MarkdownBlocks';
@@ -13,7 +13,7 @@ export async function mountMarkdown(context: ViewContext): Promise<ViewHandle> {
   const session = context.session.data as MarkdownSession,
     content = session.content;
   const frame = createReadingFrame(context, STYLE_SCOPE!, 'markdown');
-  frame.body.parentElement?.classList.add('fivo-markdown-frame');
+  frame.body.parentElement?.classList.add('filumo-markdown-frame');
   let options = context.options,
     zoom = options.zoom ?? 100,
     reading: MarkdownBlocks | undefined,
@@ -171,7 +171,7 @@ export async function mountMarkdown(context: ViewContext): Promise<ViewHandle> {
     }
     frame.state('');
     if (session.mode === 'source') {
-      const module = await import('@fivo/dom/text');
+      const module = await import('@filumo/dom/text');
       if (
         closed ||
         !active ||

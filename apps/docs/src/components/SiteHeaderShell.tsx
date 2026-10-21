@@ -98,14 +98,14 @@ export function SiteHeaderShell({
         <a
           className="office-viewer-site-brand"
           href={content.htmlLang === 'zh-CN' ? SITE_ROOT + 'zh-CN/' : SITE_ROOT}
-          aria-label="Fivo"
+          aria-label="Filumo"
         >
           <span className="office-viewer-site-brand-mark" aria-hidden="true">
             <i />
             <i />
             <i />
           </span>
-          <span>Fivo</span>
+          <span>Filumo</span>
         </a>
 
         <div className="office-viewer-site-nav-links">{navigation}</div>

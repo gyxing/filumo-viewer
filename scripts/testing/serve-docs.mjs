@@ -3,7 +3,7 @@ import { createServer } from 'node:http';
 import { extname, resolve, sep } from 'node:path';
 import { normalizeDocsBase } from '../../apps/docs/config/base-path.js';
 const root = resolve('apps/docs/dist');
-const base = normalizeDocsBase(process.env.FIVO_DOCS_BASE);
+const base = normalizeDocsBase(process.env.FILUMO_DOCS_BASE);
 const server = createServer(async (req, res) => {
   try {
     const url = new URL(req.url, 'http://localhost');

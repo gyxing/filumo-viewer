@@ -1,5 +1,5 @@
-import { throwIfAborted } from '@fivo/core';
-import type { TextDecoration } from '@fivo/dom/text';
+import { throwIfAborted } from '@filumo/core';
+import type { TextDecoration } from '@filumo/dom/text';
 import type { CodeLanguage } from '../options';
 export type CodeHighlightResult =
   | { kind: 'ready'; decorations: readonly TextDecoration[] }
@@ -47,7 +47,7 @@ export async function highlightTask(
   ).loadHighlighter(data.language);
   throwIfAborted(signal);
   const html = highlighter.highlight(data.text);
-  const { highlightToDecorations } = await import('@fivo/dom/text-highlight');
+  const { highlightToDecorations } = await import('@filumo/dom/text-highlight');
   throwIfAborted(signal);
   const decorations = highlightToDecorations(data.text, html, data.maxRanges);
   return decorations

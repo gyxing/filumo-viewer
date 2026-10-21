@@ -1,4 +1,4 @@
-import { DocumentViewer } from '@fivo/vue2';
+import { DocumentViewer } from '@filumo/vue2';
 import Vue from 'vue';
 import {
   events,

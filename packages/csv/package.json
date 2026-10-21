@@ -1,8 +1,49 @@
 {
-  "name": "@fivo/csv",
-  "version": "0.1.0-next.0",
-  "description": "Fivo csv 只读预览插件",
+  "name": "@filumo/csv",
+  "version": "0.1.0",
+  "description": "Read-only CSV and TSV table viewer for Filumo, with delimiter detection, virtualized rows and columns, search and source view.",
+  "keywords": [
+    "filumo",
+    "csv",
+    "tsv",
+    "csv-viewer",
+    "tsv-viewer",
+    "csv-preview",
+    "table-viewer",
+    "delimited-text",
+    "delimiter-detection",
+    "virtual-scroll",
+    "row-virtualization",
+    "column-virtualization",
+    "column-resize",
+    "cell-selection",
+    "text-search",
+    "source-view",
+    "web-worker",
+    "readonly",
+    "typescript",
+    "esm",
+    "csv预览",
+    "表格预览",
+    "分隔符"
+  ],
+  "homepage": "https://github.com/gyxing/office-file-viewer/tree/master/packages/csv#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gyxing/office-file-viewer.git",
+    "directory": "packages/csv"
+  },
+  "bugs": {
+    "url": "https://github.com/gyxing/office-file-viewer/issues"
+  },
+  "author": {
+    "name": "gyxing",
+    "url": "https://github.com/gyxing"
+  },
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "sideEffects": [
     "**/*.css",
     "./dist/chunks/*.js"
@@ -24,7 +65,7 @@
     "dist"
   ],
   "dependencies": {
-    "@fivo/core": "workspace:^",
-    "@fivo/dom": "workspace:^"
+    "@filumo/core": "workspace:^",
+    "@filumo/dom": "workspace:^"
   }
 }

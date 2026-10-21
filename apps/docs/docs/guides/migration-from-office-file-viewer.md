@@ -1,23 +1,29 @@
 ---
-title: Migration to Fivo
+title: Migration to Filumo
+description: Migrate package scopes, APIs, styles, Workers and lifecycle integration to Filumo 0.1.0.
+keywords:
+  - Filumo
+  - file preview
+  - document viewer
+  - browser
 siteLayout: docs
 toc: content
 ---
 
-# Migration to Fivo
+# Migration to Filumo
 
-Fivo has new packages and public contracts. **Old entry points are not supported.** The goal is cross-framework rendering, lazy loading and automatic styles, without carrying a compatibility layer for the old API.
+Filumo has new packages and public contracts. **Old entry points are not supported.** The goal is cross-framework rendering, lazy loading and automatic styles, without carrying a compatibility layer for the old API.
 
 ## Package choices
 
-| Previous usage                        | New integration                                                 |
-| ------------------------------------- | --------------------------------------------------------------- |
-| React OfficeFileViewer                | DocumentViewer from @fivo/react plus office() from @fivo/office |
-| Previous layout subpath               | createViewer and capabilities from @fivo/dom                    |
-| Vue wrapper around React              | @fivo/vue or @fivo/vue2 using native Office rendering           |
-| Internal parsers or deep dist imports | Public Core protocols; avoid internal format models             |
+| Previous usage                        | New integration                                                     |
+| ------------------------------------- | ------------------------------------------------------------------- |
+| React OfficeFileViewer                | DocumentViewer from @filumo/react plus office() from @filumo/office |
+| Previous layout subpath               | createViewer and capabilities from @filumo/dom                      |
+| Vue wrapper around React              | @filumo/vue or @filumo/vue2 using native Office rendering           |
+| Internal parsers or deep dist imports | Public Core protocols; avoid internal format models                 |
 
-@fivo/viewer exports standardPlugins for Office, text, JSON, Markdown, images and PDF. The preset contains lightweight descriptors and does not bundle framework components or eagerly load format engines.
+@filumo/viewer exports standardPlugins for Office, text, JSON, Markdown, images and PDF. The preset contains lightweight descriptors and does not bundle framework components or eagerly load format engines.
 
 ## Configuration mapping
 
@@ -38,8 +44,8 @@ A previous async source returning Response must become a Blob, Uint8Array, URL d
 ## React example
 
 ```tsx | pure
-import { DocumentViewer } from '@fivo/react';
-import { office } from '@fivo/office';
+import { DocumentViewer } from '@filumo/react';
+import { office } from '@filumo/office';
 const plugins = [office({ worker: 'auto' })];
 export function Preview({ file }: { file?: File }) {
   return (
@@ -56,9 +62,9 @@ Keep plugins stable. Do not create a fresh array every render or open the same s
 
 ## Styles and Workers
 
-Remove old package CSS imports and Less configuration used only for that package. Normal Fivo usage automatically loads styles.
+Remove old package CSS imports and Less configuration used only for that package. Normal Filumo usage automatically loads styles.
 
-For strict CSP, choose stylePolicy.nonce or explicit external mode. External mode needs matching @fivo/dom/styles.css and @fivo/office/styles.css. Use the current Worker asset or workerFactory, not old generated chunk filenames.
+For strict CSP, choose stylePolicy.nonce or explicit external mode. External mode needs matching @filumo/dom/styles.css, @filumo/image/styles.css and @filumo/office/styles.css. Use the current Worker asset or workerFactory, not old generated chunk filenames.
 
 ## Lifecycle and interactions
 
@@ -71,3 +77,9 @@ Capabilities can be absent for a document. Do not assume every format has page c
 Old uri/parseOptions/defaultViewState APIs, React-bound Office internals, legacy entry aliases, deep dist imports and undocumented format models are not restored. Current functionality remains read-only preview without edited-document saving.
 
 Validate production bundling, sources, Workers, image overlays, search, teardown and deployment prefixes in the target host. A successful type check or static home page is not complete migration acceptance.
+
+## Scope and version alignment
+
+Public packages use `@filumo/*` at `0.1.0`, CSS uses `filumo-` prefixes, the public error is `FilumoError`, and project environment variables use `FILUMO_*`. Update old identifiers in custom controls, CSP configuration and deployment scripts. Do not edit generated/package.ts or copy old build caches.
+
+Repository and Pages URLs still retain office-file-viewer; this is not an old package API. The Pages base remains /office-file-viewer/ until the actual repository or site address changes. See the [package overview](./packages).

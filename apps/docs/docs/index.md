@@ -1,5 +1,17 @@
 ---
-title: Fivo
+title: Filumo · Browser file previews
+description: Filumo 0.1.0 browser file previews for Office, PDF, images, text, JSON, Markdown, CSV, XML and code, with React, Vue and JavaScript adapters.
+keywords:
+  - Filumo
+  - document viewer
+  - file preview
+  - React
+  - Vue
+  - PDF
+  - Office
+  - Markdown
+  - JSON
+  - CSV
 ---
 
 ```tsx
@@ -7,6 +19,6 @@ title: Fivo
  * inline: true
  */
 import React from 'react';
-import { FivoHomePage } from '../src/components/FivoHomePage';
-export default () => <FivoHomePage locale="en-US" />;
+import { FilumoHomePage } from '../src/components/FilumoHomePage';
+export default () => <FilumoHomePage locale="en-US" />;
 ```

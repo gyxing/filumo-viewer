@@ -8,7 +8,7 @@ export const markdown: MarkdownFactory = (options = {}) => {
       (() =>
         new Worker(new URL('./worker.js', import.meta.url), {
           type: 'module',
-          name: 'fivo-markdown',
+          name: 'filumo-markdown',
         })),
   };
   return {

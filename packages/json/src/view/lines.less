@@ -1,119 +1,119 @@
-.fivo-json-lines-workspace {
+.filumo-json-lines-workspace {
   display: flex;
   flex-direction: column;
   min-height: 0;
   width: 100%;
   height: 100%;
-  color: var(--fivo-text);
-  background: var(--fivo-surface);
+  color: var(--filumo-text);
+  background: var(--filumo-surface);
 }
-.fivo-json-lines-workspace [hidden] {
+.filumo-json-lines-workspace [hidden] {
   display: none;
 }
-.fivo-json-lines-panes {
+.filumo-json-lines-panes {
   display: flex;
   flex: 1;
   min-width: 0;
   min-height: 0;
 }
-.fivo-json-lines-list {
+.filumo-json-lines-list {
   display: flex;
   flex: 0 0 260px;
   max-width: 40%;
   min-width: 180px;
   min-height: 0;
-  border-right: 1px solid var(--fivo-border);
+  border-right: 1px solid var(--filumo-border);
 }
-.fivo-json-lines-detail {
+.filumo-json-lines-detail {
   display: flex;
   flex: 1;
   flex-direction: column;
   min-width: 0;
   min-height: 0;
 }
-.fivo-json-record-tabs,
-.fivo-json-lines-layout-tabs {
+.filumo-json-record-tabs,
+.filumo-json-lines-layout-tabs {
   display: flex;
   flex: 0 0 auto;
   flex-wrap: wrap;
   gap: 6px;
   align-items: center;
   padding: 6px 8px;
-  border-bottom: 1px solid var(--fivo-border);
+  border-bottom: 1px solid var(--filumo-border);
 }
-.fivo-json-record-tabs button,
-.fivo-json-lines-layout-tabs button {
+.filumo-json-record-tabs button,
+.filumo-json-lines-layout-tabs button {
   padding: 4px 10px;
   border: 0;
   border-radius: 5px;
   background: transparent;
-  color: var(--fivo-muted);
+  color: var(--filumo-muted);
   cursor: pointer;
   font: inherit;
 }
-.fivo-json-record-tabs button[aria-selected='true'],
-.fivo-json-lines-layout-tabs button[aria-selected='true'] {
-  color: var(--fivo-primary);
-  background: var(--fivo-selected);
+.filumo-json-record-tabs button[aria-selected='true'],
+.filumo-json-lines-layout-tabs button[aria-selected='true'] {
+  color: var(--filumo-primary);
+  background: var(--filumo-selected);
 }
-.fivo-json-record-body,
-.fivo-json-lines-full {
+.filumo-json-record-body,
+.filumo-json-lines-full {
   flex: 1;
   width: 100%;
   min-height: 0;
 }
-.fivo-json-record-body > .fivo-text-scope,
-.fivo-json-record-body > .fivo-json-tree {
+.filumo-json-record-body > .filumo-text-scope,
+.filumo-json-record-body > .filumo-json-tree {
   height: 100%;
 }
-.fivo-json-lines-full {
+.filumo-json-lines-full {
   height: 100%;
 }
-.fivo-json-lines-status {
+.filumo-json-lines-status {
   padding: 8px 12px;
-  color: var(--fivo-muted);
+  color: var(--filumo-muted);
   font: 13px/1.5 system-ui, sans-serif;
 }
-.fivo-json-lines-status:empty {
+.filumo-json-lines-status:empty {
   display: none;
 }
-.fivo-json-record-list {
+.filumo-json-record-list {
   flex: 1;
   overflow: auto;
   min-width: 0;
   outline: none;
   font: 13px/1.5 system-ui, sans-serif;
 }
-.fivo-json-record-canvas {
+.filumo-json-record-canvas {
   position: relative;
 }
-.fivo-json-record {
+.filumo-json-record {
   position: absolute;
   left: 0;
   right: 0;
   padding: 4px 10px;
   box-sizing: border-box;
   cursor: pointer;
-  border-bottom: 1px solid var(--fivo-border);
+  border-bottom: 1px solid var(--filumo-border);
 }
-.fivo-json-record > strong,
-.fivo-json-record > span {
+.filumo-json-record > strong,
+.filumo-json-record > span {
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.fivo-json-record > span {
-  color: var(--fivo-muted);
+.filumo-json-record > span {
+  color: var(--filumo-muted);
 }
-.fivo-json-record[aria-selected='true'] {
-  background: var(--fivo-selected);
-  color: var(--fivo-primary);
+.filumo-json-record[aria-selected='true'] {
+  background: var(--filumo-selected);
+  color: var(--filumo-primary);
 }
-.fivo-json-record[data-invalid='true'] > strong {
-  color: var(--fivo-danger, #c43b35);
+.filumo-json-record[data-invalid='true'] > strong {
+  color: var(--filumo-danger, #c43b35);
 }
-.fivo-json-lines-workspace[data-narrow='true'] .fivo-json-lines-list {
+.filumo-json-lines-workspace[data-narrow='true'] .filumo-json-lines-list {
   flex: 1;
   max-width: none;
 }

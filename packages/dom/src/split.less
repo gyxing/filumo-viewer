@@ -1,22 +1,22 @@
-.fivo-split-handle {
+.filumo-split-handle {
   position: relative;
   flex: 0 0 6px;
   cursor: col-resize;
   touch-action: none;
   user-select: none;
 }
-.fivo-split-handle::before {
+.filumo-split-handle::before {
   position: absolute;
   inset: 0 auto 0 50%;
   width: 1px;
   content: '';
-  background: var(--fivo-border, #d8e1ec);
+  background: var(--filumo-border, #d8e1ec);
 }
-.fivo-split-handle:hover::before,
-.fivo-split-handle:focus-visible::before {
-  background: var(--fivo-primary, #1677ff);
+.filumo-split-handle:hover::before,
+.filumo-split-handle:focus-visible::before {
+  background: var(--filumo-primary, #1677ff);
 }
-.fivo-split-handle:focus-visible {
-  outline: 1px solid var(--fivo-primary, #1677ff);
+.filumo-split-handle:focus-visible {
+  outline: 1px solid var(--filumo-primary, #1677ff);
   outline-offset: -1px;
 }

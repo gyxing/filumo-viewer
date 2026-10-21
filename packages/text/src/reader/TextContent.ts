@@ -1,1 +1,1 @@
-export { TextContent, type TextContentOptions } from '@fivo/core/text';
+export { TextContent, type TextContentOptions } from '@filumo/core/text';

@@ -13,7 +13,7 @@ const bundle = await build({
   write: false,
   format: 'esm',
   platform: 'node',
-  alias: { '@fivo/dom/outline': resolve('packages/dom/src/outline.ts') },
+  alias: { '@filumo/dom/outline': resolve('packages/dom/src/outline.ts') },
   plugins: [
     {
       name: 'pdf-panel-boundaries',
@@ -310,8 +310,8 @@ test('查找结果按窗口创建，切换面板和语言保留列表位置及�
   try {
     panel.setActive(true);
     await search.setQuery('find');
-    const list = panel.element.querySelector('.fivo-pdf-search-results'),
-      canvas = panel.element.querySelector('.fivo-pdf-search-canvas');
+    const list = panel.element.querySelector('.filumo-pdf-search-results'),
+      canvas = panel.element.querySelector('.filumo-pdf-search-canvas');
     assert.equal(search.getSnapshot().resultCount, 100);
     assert.ok(canvas.children.length < 20);
     search.select(60);

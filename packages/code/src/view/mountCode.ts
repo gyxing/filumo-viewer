@@ -1,8 +1,8 @@
-import { createReadingFrame } from '@fivo/dom';
-import type { CapabilityAction, ViewContext, ViewHandle } from '@fivo/dom';
-import type { TextEncoding } from '@fivo/core/text';
-import type { TextDecoration, TextSurfaceHandle } from '@fivo/dom/text';
-import { formatEncodingWarning } from '@fivo/dom/text-messages';
+import { createReadingFrame } from '@filumo/dom';
+import type { CapabilityAction, ViewContext, ViewHandle } from '@filumo/dom';
+import type { TextEncoding } from '@filumo/core/text';
+import type { TextDecoration, TextSurfaceHandle } from '@filumo/dom/text';
+import { formatEncodingWarning } from '@filumo/dom/text-messages';
 import { codeLanguageOptions } from './languageMenu';
 import type { CodeSession } from '../runtime/CodeSession';
 import { STYLE_SCOPE } from '../generated/package';
@@ -204,7 +204,7 @@ export async function mountCode(context: ViewContext): Promise<ViewHandle> {
     const key = content.revision + ':' + session.language;
     if (enhancedKey !== key) ranges = [];
     if (!surface) {
-      const module = await import('@fivo/dom/text');
+      const module = await import('@filumo/dom/text');
       if (closed || !active || version !== generation) return;
       surface = module.mountTextSurface(frame.body, document, surfaceOptions());
     } else refresh();

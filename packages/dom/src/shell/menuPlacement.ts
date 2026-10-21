@@ -19,7 +19,7 @@ export function positionToolbarMenu(
 ) {
   const win = anchor.ownerDocument.defaultView;
   if (!win) return;
-  const root = anchor.closest('.fivo-viewer')?.getBoundingClientRect();
+  const root = anchor.closest('.filumo-viewer')?.getBoundingClientRect();
   const box = anchor.getBoundingClientRect();
   const left = Math.max(4, root?.left ?? 4);
   const right = Math.min(win.innerWidth - 4, root?.right ?? win.innerWidth - 4);

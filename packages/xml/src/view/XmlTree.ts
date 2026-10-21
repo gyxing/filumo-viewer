@@ -1,5 +1,5 @@
-import { OutlineTree, OUTLINE_DEFAULTS } from '@fivo/dom/outline';
-import type { StylePolicy } from '@fivo/dom';
+import { OutlineTree, OUTLINE_DEFAULTS } from '@filumo/dom/outline';
+import type { StylePolicy } from '@filumo/dom';
 import type { XmlDocument, XmlNode } from '../parser/types';
 import { xmlChildren, xmlNodeLabel } from './xmlRows';
 import { renderXmlLabel } from './xmlLabel';
@@ -62,7 +62,7 @@ export class XmlTree {
       },
     });
     this.element = this.tree.element;
-    this.element.className += ' fivo-xml-tree';
+    this.element.className += ' filumo-xml-tree';
     this.publish();
   }
   private getChildren(node: XmlNode) {

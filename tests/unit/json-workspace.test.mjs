@@ -131,8 +131,8 @@ test('重复属性提示合并到结构标题，切换语言和区域后仍正�
   );
   await f.workspace.initialize();
   const title = f.host
-    .querySelector('.fivo-json-pane--tree')
-    .querySelector('.fivo-json-pane-header').children[0];
+    .querySelector('.filumo-json-pane--tree')
+    .querySelector('.filumo-json-pane-header').children[0];
   assert.equal(title.textContent, '结构（已保留 2 个重复属性）');
   assert.ok(title.title.includes(diagnostic.message));
   f.workspace.setMode('source');
@@ -147,8 +147,8 @@ test('重复属性提示合并到结构标题，切换语言和区域后仍正�
   const clean = fixture(1000, 'tree', ready);
   await clean.workspace.initialize();
   const cleanTitle = clean.host
-    .querySelector('.fivo-json-pane--tree')
-    .querySelector('.fivo-json-pane-header').children[0];
+    .querySelector('.filumo-json-pane--tree')
+    .querySelector('.filumo-json-pane-header').children[0];
   assert.equal(cleanTitle.textContent, '结构');
   assert.equal(cleanTitle.title, '');
   clean.workspace.dispose();
@@ -228,7 +228,7 @@ test('初始窄屏结构失败后才加载原文，并显示诊断', async () =>
   assert.equal(f.workspace.getState().sourceReady, true);
   assert.equal(f.workspace.getState().treeReady, false);
   assert.equal(
-    f.host.querySelector('.fivo-json-workspace-notice').hidden,
+    f.host.querySelector('.filumo-json-workspace-notice').hidden,
     false,
   );
   f.workspace.dispose();
@@ -273,7 +273,7 @@ function splitFixture(width = 1000) {
     captures,
     frames,
     listeners,
-    right: () => Number.parseFloat(panes.style['--fivo-json-tree-width']),
+    right: () => Number.parseFloat(panes.style['--filumo-json-tree-width']),
     emit(type, values = {}) {
       const event = {
         pointerId: 7,
@@ -385,10 +385,10 @@ test('工作区切换区域和窄屏时保留手动比例，调整宽度不重�
     return ready();
   });
   await f.workspace.initialize();
-  const handle = f.host.querySelector('.fivo-json-split-handle'),
-    panes = f.host.querySelector('.fivo-json-panes');
+  const handle = f.host.querySelector('.filumo-json-split-handle'),
+    panes = f.host.querySelector('.filumo-json-panes');
   handle.listeners.get('keydown')({ key: 'Home', preventDefault() {} });
-  const width = panes.style['--fivo-json-tree-width'];
+  const width = panes.style['--filumo-json-tree-width'];
   assert.equal(events.filter((event) => event === 'mount-JsonSource').length, 1);
   assert.equal(events.filter((event) => event === 'mount-JsonTree').length, 1);
   assert.equal(parsed, 1);
@@ -398,13 +398,13 @@ test('工作区切换区域和窄屏时保留手动比例，调整宽度不重�
   f.workspace.setMode('tree');
   await settle();
   assert.equal(handle.hidden, false);
-  assert.equal(panes.style['--fivo-json-tree-width'], width);
+  assert.equal(panes.style['--filumo-json-tree-width'], width);
   f.host.clientWidth = 600;
   await f.workspace.initialize();
   assert.equal(handle.hidden, true);
   f.host.clientWidth = 1000;
   await f.workspace.initialize();
   assert.equal(handle.hidden, false);
-  assert.equal(panes.style['--fivo-json-tree-width'], width);
+  assert.equal(panes.style['--filumo-json-tree-width'], width);
   f.workspace.dispose();
 });

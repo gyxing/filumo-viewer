@@ -1,4 +1,4 @@
-import { findTextMatches } from '@fivo/core/text';
+import { findTextMatches } from '@filumo/core/text';
 import type { CsvSession } from '../runtime/CsvSession';
 import type { CsvIndex } from '../parser/types';
 
@@ -22,7 +22,7 @@ export class CsvFind {
     en: boolean,
   ) {
     this.element = document.createElement('div');
-    this.element.className = 'fivo-csv-find';
+    this.element.className = 'filumo-csv-find';
     this.element.hidden = true;
     this.input = document.createElement('input');
     this.input.type = 'search';

@@ -6,7 +6,7 @@ import test from 'node:test';
 import { installFrozenConsumer } from '../../scripts/testing/install-consumer.mjs';
 
 test('独立消费者必须首次安装、冻结复装，且锁文件保持不变', async () => {
-  const directory = await mkdtemp(join(tmpdir(), 'fivo-install-test-'));
+  const directory = await mkdtemp(join(tmpdir(), 'filumo-install-test-'));
   const commands = [];
   const result = await installFrozenConsumer(directory, async (args) => {
     commands.push(args);
@@ -24,7 +24,7 @@ test('独立消费者必须首次安装、冻结复装，且锁文件保持不�
 });
 
 test('冻结复装改变锁或命令失败时不得记录通过', async () => {
-  const directory = await mkdtemp(join(tmpdir(), 'fivo-install-failure-'));
+  const directory = await mkdtemp(join(tmpdir(), 'filumo-install-failure-'));
   let count = 0;
   await assert.rejects(
     installFrozenConsumer(directory, async () => {

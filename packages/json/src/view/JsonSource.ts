@@ -1,9 +1,9 @@
-import type { StylePolicy, ViewOptions } from '@fivo/dom';
-import type { TextDocument } from '@fivo/core/text';
-import type { TextSurfaceHandle, TextSurfacePosition } from '@fivo/dom/text';
-import type { TextDecoration } from '@fivo/dom/text';
+import type { StylePolicy, ViewOptions } from '@filumo/dom';
+import type { TextDocument } from '@filumo/core/text';
+import type { TextSurfaceHandle, TextSurfacePosition } from '@filumo/dom/text';
+import type { TextDecoration } from '@filumo/dom/text';
 import type { JsonCommentRange } from './sourceComments';
-import { mountTextSurface } from '@fivo/dom/text';
+import { mountTextSurface } from '@filumo/dom/text';
 import { jsonLineDecorations } from './jsonTokens';
 import './source.less';
 
@@ -83,7 +83,7 @@ export class JsonSource {
       result.push({
         start: left,
         end: right,
-        className: 'fivo-json-token-comment',
+        className: 'filumo-json-token-comment',
       });
       cursor = right;
     }

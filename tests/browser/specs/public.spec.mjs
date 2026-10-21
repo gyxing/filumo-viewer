@@ -76,7 +76,7 @@ test('描述符保持轻量，按真实产物映射加载格式与 Worker', asyn
   const id = 'vanilla',
     base = consumers.url + '/' + id + '/';
   const metadata = await (
-    await request.get(base + 'fivo-consumer.json')
+    await request.get(base + 'filumo-consumer.json')
   ).json();
   const requested = new Set(),
     workers = [];

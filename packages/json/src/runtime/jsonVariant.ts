@@ -1,4 +1,4 @@
-import type { DocumentSource } from '@fivo/core';
+import type { DocumentSource } from '@filumo/core';
 import type { JsonOptions } from '../options';
 /** 明确后缀优先，强制变体只在宿主显式配置时生效。 */
 export function resolveJsonVariant(

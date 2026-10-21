@@ -1,4 +1,4 @@
-import { abortError, throwIfAborted } from '@fivo/core';
+import { abortError, throwIfAborted } from '@filumo/core';
 import { PRESENTATION_PRELOAD_RADIUS } from '../../engine/presentation/presentationPerformance';
 import type {
   PresentationSource,

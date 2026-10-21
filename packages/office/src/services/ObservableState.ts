@@ -1,4 +1,4 @@
-import { notify } from '@fivo/core';
+import { notify } from '@filumo/core';
 /** 只保存单份不可变快照；观察者只订阅，不持有并行状态副本。 */
 export class ObservableState<T extends object> {
   private value: Readonly<T>;

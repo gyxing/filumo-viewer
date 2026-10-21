@@ -1,8 +1,8 @@
 /** 为宿主提供稳定错误码，避免通过中文提示判断错误类型。 */
-export class FivoError extends Error {
+export class FilumoError extends Error {
   constructor(readonly code: string, message: string) {
     super(message);
-    this.name = 'FivoError';
+    this.name = 'FilumoError';
   }
 }
 /** 统一被替换或取消的加载任务，返回标准取消错误。 */

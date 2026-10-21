@@ -1,4 +1,4 @@
-import type { CapabilityAction, ViewerCapabilities } from '@fivo/dom';
+import type { CapabilityAction, ViewerCapabilities } from '@filumo/dom';
 import {
   OFFICE_MAX_ZOOM,
   OFFICE_MIN_ZOOM,

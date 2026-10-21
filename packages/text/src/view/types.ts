@@ -1,1 +1,1 @@
-export type * from '@fivo/dom/text';
+export type * from '@filumo/dom/text';

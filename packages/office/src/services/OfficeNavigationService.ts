@@ -1,4 +1,4 @@
-import { FivoError } from '@fivo/core';
+import { FilumoError } from '@filumo/core';
 import type { OfficeSearchTarget } from '../engine/search/types';
 import type {
   OfficeInteractionPort,
@@ -27,16 +27,16 @@ export class OfficeNavigationService {
   }
   navigatePage = async (index: number) => {
     if (this.closed || !this.page)
-      throw new FivoError('COMMAND_NOT_READY', '页面导航尚未就绪');
+      throw new FilumoError('COMMAND_NOT_READY', '页面导航尚未就绪');
     await this.page(index);
   };
   async select(target: OfficeViewTarget) {
-    if (this.closed) throw new FivoError('OFFICE_DISPOSED', '文档已释放');
+    if (this.closed) throw new FilumoError('OFFICE_DISPOSED', '文档已释放');
     if (target.sessionId !== this.sessionId)
-      throw new FivoError('STALE_TARGET', '导航目标属于另一个文档');
+      throw new FilumoError('STALE_TARGET', '导航目标属于另一个文档');
     if (target.kind === 'text') {
       if (!(await this.navigateText?.(target.target)))
-        throw new FivoError('COMMAND_NOT_READY', '文本定位尚未就绪');
+        throw new FilumoError('COMMAND_NOT_READY', '文本定位尚未就绪');
       return;
     }
     await this.port.execute({ type: 'navigate', target, animate: true });

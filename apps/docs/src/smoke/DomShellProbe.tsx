@@ -1,6 +1,6 @@
-import { createSession } from '@fivo/core';
-import type { ViewerPlugin } from '@fivo/dom';
-import { DocumentViewer } from '@fivo/react';
+import { createSession } from '@filumo/core';
+import type { ViewerPlugin } from '@filumo/dom';
+import { DocumentViewer } from '@filumo/react';
 import React, { useMemo } from 'react';
 import type { useSmokeController } from './useSmokeController';
 
@@ -52,7 +52,7 @@ export function DomShellProbe({
 }: {
   controller: ReturnType<typeof useSmokeController>;
 }) {
-  const source = useMemo(() => new File(['Fivo DOM shell'], 'shell.probe'), []);
+  const source = useMemo(() => new File(['Filumo DOM shell'], 'shell.probe'), []);
   return (
     <DocumentViewer
       key={c.generation}

@@ -1,4 +1,4 @@
-import type { TextEncodingWarning } from '@fivo/core/text';
+import type { TextEncodingWarning } from '@filumo/core/text';
 
 /** 纯文字提示可供各格式轻量入口共用，不加载 DOM 阅读器。 */
 export function formatEncodingWarning(

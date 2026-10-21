@@ -1,8 +1,75 @@
 {
-  "name": "@fivo/code",
-  "version": "0.1.0-next.0",
-  "description": "Fivo code 只读预览插件",
+  "name": "@filumo/code",
+  "version": "0.1.0",
+  "description": "Read-only source code viewer for Filumo, with lazy syntax highlighting for common languages, scripts, configuration and stylesheet files.",
+  "keywords": [
+    "filumo",
+    "code-viewer",
+    "source-code",
+    "source-viewer",
+    "syntax-highlighting",
+    "readonly",
+    "line-numbers",
+    "text-search",
+    "web-worker",
+    "lazy-loading",
+    "javascript",
+    "typescript",
+    "jsx",
+    "tsx",
+    "html",
+    "css",
+    "less",
+    "scss",
+    "sass",
+    "shell",
+    "bash",
+    "batch",
+    "python",
+    "sql",
+    "java",
+    "c",
+    "cpp",
+    "csharp",
+    "golang",
+    "rust",
+    "yaml",
+    "toml",
+    "powershell",
+    "php",
+    "ruby",
+    "kotlin",
+    "swift",
+    "lua",
+    "graphql",
+    "protobuf",
+    "dockerfile",
+    "makefile",
+    "cmake",
+    "dotenv",
+    "diff",
+    "esm",
+    "代码预览",
+    "代码高亮",
+    "源码查看器"
+  ],
+  "homepage": "https://github.com/gyxing/office-file-viewer/tree/master/packages/code#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gyxing/office-file-viewer.git",
+    "directory": "packages/code"
+  },
+  "bugs": {
+    "url": "https://github.com/gyxing/office-file-viewer/issues"
+  },
+  "author": {
+    "name": "gyxing",
+    "url": "https://github.com/gyxing"
+  },
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "sideEffects": [
     "**/*.css",
     "./dist/chunks/*.js"
@@ -24,8 +91,8 @@
     "dist"
   ],
   "dependencies": {
-    "@fivo/core": "workspace:^",
-    "@fivo/dom": "workspace:^",
+    "@filumo/core": "workspace:^",
+    "@filumo/dom": "workspace:^",
     "highlight.js": "11.12.0"
   }
 }

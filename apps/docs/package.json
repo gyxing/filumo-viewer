@@ -1,5 +1,5 @@
 {
-  "name": "fivo-docs",
+  "name": "filumo-docs",
   "private": true,
   "type": "module",
   "scripts": {
@@ -9,22 +9,22 @@
     "setup": "dumi setup"
   },
   "dependencies": {
-    "@fivo/core": "workspace:^",
-    "@fivo/dom": "workspace:^",
-    "@fivo/image": "workspace:^",
-    "@fivo/json": "workspace:^",
-    "@fivo/markdown": "workspace:^",
-    "@fivo/office": "workspace:^",
-    "@fivo/pdf": "workspace:^",
-    "@fivo/react": "workspace:^",
-    "@fivo/text": "workspace:^",
-    "@fivo/viewer": "workspace:^",
+    "@filumo/core": "workspace:^",
+    "@filumo/dom": "workspace:^",
+    "@filumo/image": "workspace:^",
+    "@filumo/json": "workspace:^",
+    "@filumo/markdown": "workspace:^",
+    "@filumo/office": "workspace:^",
+    "@filumo/pdf": "workspace:^",
+    "@filumo/react": "workspace:^",
+    "@filumo/text": "workspace:^",
+    "@filumo/viewer": "workspace:^",
     "antd": "^5.29.3",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "@fivo/csv": "workspace:^",
-    "@fivo/xml": "workspace:^",
-    "@fivo/code": "workspace:^"
+    "@filumo/csv": "workspace:^",
+    "@filumo/xml": "workspace:^",
+    "@filumo/code": "workspace:^"
   },
   "devDependencies": {
     "@types/react": "^18.0.0",

@@ -1,4 +1,4 @@
-import { abortError } from '@fivo/core';
+import { abortError } from '@filumo/core';
 import type { OfficeResourceSource } from '../../engine/resource-store/types';
 import type { ResourceLease } from '../../services/OfficeResourceService';
 import type { ElementView, OfficeRenderContext } from '../types';

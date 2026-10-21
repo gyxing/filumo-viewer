@@ -1,4 +1,4 @@
-import type { TextEncoding } from '@fivo/core/text';
+import type { TextEncoding } from '@filumo/core/text';
 
 /** 只检查有界声明，结果不能覆盖 BOM 或来源 charset。 */
 export function xmlEncodingHint(

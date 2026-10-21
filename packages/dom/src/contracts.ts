@@ -5,7 +5,7 @@ import type {
   DocumentPlugin,
   DocumentSession,
   ResourcePolicy,
-} from '@fivo/core';
+} from '@filumo/core';
 import type { ViewerCapabilities } from './capabilities/types';
 export interface ViewOptions {
   zoom?: number;

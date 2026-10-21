@@ -1,5 +1,5 @@
-import { throwIfAborted } from '@fivo/core';
-import type { TextContent } from '@fivo/core/text';
+import { throwIfAborted } from '@filumo/core';
+import type { TextContent } from '@filumo/core/text';
 import type { CsvOptions } from '../options';
 import type { CsvCell, CsvDelimiter, CsvParseResult } from '../parser/types';
 

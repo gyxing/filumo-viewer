@@ -1,1 +1,1 @@
-export type * from '@fivo/core/text';
+export type * from '@filumo/core/text';

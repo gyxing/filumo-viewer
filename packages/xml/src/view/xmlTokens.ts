@@ -1,5 +1,5 @@
-import { throwIfAborted } from '@fivo/core';
-import type { TextDecoration } from '@fivo/dom/text';
+import { throwIfAborted } from '@filumo/core';
+import type { TextDecoration } from '@filumo/dom/text';
 import { sourceSpans } from '../parser/sourceSpans';
 
 /** 原文着色只依赖边界扫描，不加载 SAX 或建立结构树。 */
@@ -15,19 +15,19 @@ export async function indexXmlTokens(
       ranges.push({
         start,
         end: start + (token.name?.length ?? 0),
-        className: 'fivo-xml-tag',
+        className: 'filumo-xml-tag',
       });
       for (const attr of token.attributes ?? [])
         ranges.push(
           {
             start: attr.start,
             end: attr.start + attr.name.length,
-            className: 'fivo-xml-attribute',
+            className: 'filumo-xml-attribute',
           },
           {
             start: attr.valueStart,
             end: attr.valueEnd,
-            className: 'fivo-xml-string',
+            className: 'filumo-xml-string',
           },
         );
     } else if (
@@ -39,7 +39,7 @@ export async function indexXmlTokens(
         start: token.start,
         end: token.end,
         className:
-          token.kind === 'cdata' ? 'fivo-xml-string' : 'fivo-xml-comment',
+          token.kind === 'cdata' ? 'filumo-xml-string' : 'filumo-xml-comment',
       });
   }
   if (ranges.length > 100000) return [];

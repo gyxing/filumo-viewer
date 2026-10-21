@@ -200,7 +200,7 @@ export class OfficeElementContext {
   ) {
     this.dismissMenu();
     const menu = this.document.createElement('div');
-    menu.className = 'fivo-presentation-context-menu';
+    menu.className = 'filumo-presentation-context-menu';
     menu.setAttribute('role', 'menu');
     menu.setAttribute(
       'aria-label',

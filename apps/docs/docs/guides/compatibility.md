@@ -1,35 +1,41 @@
 ---
-title: Fivo Compatibility and Limits
+title: Filumo Compatibility and Limits
+description: Filumo 0.1.0 declared framework ranges, format limits, resource budgets and historical validation boundaries.
+keywords:
+  - Filumo
+  - file preview
+  - document viewer
+  - browser
 siteLayout: docs
 toc: content
 ---
 
 # Compatibility and limits
 
-## Images and PDF
+## Version and declared support
 
-The workspace includes independent image and PDF plugins. Images use browser decoders; AVIF support depends on the browser. PDF uses the pinned PDF.js browser engine and matching local Worker, CMap, fonts and WASM assets. See [image and PDF deployment](./image-pdf). The new browser and consumer cases have been written; their execution and performance measurements remain pending. Canvas and text cache budgets do not bound the entire browser process.
+All public workspace packages use **0.1.0**, which is not yet published. Source capabilities and dependency declarations are not a claim of completed browser acceptance for the current version.
 
-## 纯文本、JSON 和 Markdown
+| Host              | Declared range                 | Adapter       |
+| ----------------- | ------------------------------ | ------------- |
+| React             | >=18 <20                       | @filumo/react |
+| Vue 3             | >=3.3 <4                       | @filumo/vue   |
+| Vue 2             | ^2.6.14 or ^2.7.16             | @filumo/vue2  |
+| Native JavaScript | ESM and DOM in modern browsers | @filumo/dom   |
 
-新增格式通过独立插件接入，详见 [纯文本、JSON 与 Markdown](./text-formats)。文本支持结合 BOM、来源 charset 和字节特征自动识别 UTF-8、UTF-16、GBK/GB18030，并可手动切换。JSON 按原文范围保留数字和重复键；Markdown 支持基础排版、表格、任务列表和按需代码高亮，不包含公式、Mermaid 或编辑器。原文窗口化不等于文件大小无限，仍需配置资源限制。
+The workspace uses pinned pnpm; consumer projects may choose their own manager. Format packages do not depend on React/Vue. React/Ant Design used by the private documentation app are not required by native or Vue consumers.
 
-Compatibility is based on actual package-consumption and browser checks, not a claim that every Office feature, bundler or file is pixel-identical. This is a workspace preview release.
+## Historical validation and current status
 
-## Verified combinations
+Historical records include React 18.3.1/19.2.0, Vue 3.5.43, Vue 2.6.14/2.7.16, Vite 5.4.21, isolated package consumption, Workers, styles and non-root deployment checks. These records do not certify every format after the Filumo rename.
 
-| Host / tool       | Version or setup                                                  | Notes                                                 |
-| ----------------- | ----------------------------------------------------------------- | ----------------------------------------------------- |
-| React             | 18.3.1, 19.2.0                                                    | @fivo/react; includes React 18 development StrictMode |
-| Vue 3             | 3.5.43                                                            | @fivo/vue; includes KeepAlive restore                 |
-| Vue 2             | 2.6.14, 2.7.16                                                    | @fivo/vue2; Options API and KeepAlive                 |
-| JavaScript        | Vite 5.4.21 and repository esbuild demos                          | No React installation                                 |
-| Package consumers | pnpm 11.10.0, npm, Yarn 1.22.22                                   | Isolated hosts installing actual tarballs             |
-| Deployment        | Default Worker, non-root base, automatic styles, strict-CSP tests | Verify special host policies separately               |
+Release readiness needs build, type, unit, isolated-consumer and real-browser evidence from the same commit. Unexecuted checks are not passing checks. PDF performance still requires representative large-file measurements. Local cache budgets do not bound the whole browser process.
 
-The workspace uses pnpm. Consumer projects may use their own package managers; that is not permission to mix lockfiles in the repository.
+## Nine format plugins
 
-Public Office declarations do not depend on React, Vue or internal parser declarations. React/Ant Design in the private documentation app are not dependencies of native/Vue hosts.
+Office, PDF, image, text, JSON, Markdown, CSV, XML and code are registered in the standard preset. See the [package overview](./packages) for all fifteen packages.
+
+Images use browser decoders. PDF requires pinned PDF.js and matching assets; see [images and PDF](./image-pdf). Encoding, budgets and language coverage are described in [text and structured formats](./text-formats).
 
 ## File formats
 
@@ -40,6 +46,8 @@ Public Office declarations do not depend on React, Vue or internal parser declar
 | PPT / PPTX    | .ppt / .pptx, .pptm, .potx       |
 
 Filename and MIME are hints. Renaming a PDF to DOCX does not make it supported. Container contents must also be parsed. Macro-enabled extensions expose read-only content without executing macros.
+
+The table above lists Office extensions only. Other plugin ranges are in the format guides. JSONC does not imply JSON5; XML does not own SVG; HTML code stays source; Markdown renders controlled HTML only. Unknown-file fallback requires Text readability checks.
 
 ## Rendering boundaries
 
@@ -72,5 +80,3 @@ Set resource limits using realistic files and targeted benchmarks. No universal 
 ## Recommended checks
 
 Test the target framework, production bundler, deployment base and representative files in a real browser. Cover open/switch, zoom, find, image overlays, disposal and automatic styles. Type safety is not a replacement for visual acceptance.
-
-CSV/TSV、XML、Code 可使用独立 @fivo/csv、@fivo/xml、@fivo/code 插件；JSONC/JSONL/NDJSON 由 @fivo/json 处理，标准预设均已注册。默认参数、预算、懒加载与外部样式说明见[文本格式指南](./text-formats)。

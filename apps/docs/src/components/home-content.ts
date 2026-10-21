@@ -4,7 +4,7 @@ export type PackageManager = 'npm' | 'yarn';
 
 export const SITE_ROOT = DOCS_BASE;
 export const GITHUB_URL = 'https://github.com/gyxing/office-file-viewer';
-export const NPM_URL = SITE_ROOT + 'docs';
+export const NPM_URL = 'https://www.npmjs.com/org/filumo';
 
 type ProductFactContent = {
   value: string;
@@ -182,18 +182,18 @@ const WEBSITE_CONTENT: Record<WebsiteLocale, WebsiteContent> = {
       highlights: 'Highlights',
       formats: 'Formats',
       github: 'GitHub',
-      npm: 'Docs',
+      npm: 'npm',
     },
     documentation: {
-      tocTitle: 'On this page',
-      openToc: 'On this page',
+      tocTitle: 'Documentation',
+      openToc: 'Documentation',
       closeToc: 'Close table of contents',
     },
     hero: {
-      eyebrow: 'Open-source React Office viewer',
-      title: 'Preview Office files in the browser.',
+      eyebrow: 'Filumo 0.1.0 · Open-source file viewer',
+      title: 'Preview files in your browser.',
       description:
-        'Fivo renders Word documents, Excel spreadsheets, and PowerPoint presentations with one React component—without a document conversion backend.',
+        'Preview Office, PDF, images, text and structured files through one browser viewer, with adapters for React, Vue 3, Vue 2 and native JavaScript.',
       primaryAction: 'Try a local file',
       secondaryAction: 'View on GitHub',
       privacy: 'No upload. No conversion server. Your file stays in this tab.',
@@ -204,7 +204,7 @@ const WEBSITE_CONTENT: Record<WebsiteLocale, WebsiteContent> = {
     productFlow: {
       title: 'Local preview pipeline',
       status: 'Browser only',
-      fileName: 'Your Office file',
+      fileName: 'Your file',
       fileMeta: 'File API · local source',
       stages: [
         {
@@ -215,12 +215,12 @@ const WEBSITE_CONTENT: Record<WebsiteLocale, WebsiteContent> = {
         {
           index: '02',
           title: 'Parse',
-          description: 'A Web Worker handles supported formats.',
+          description: 'The selected format engine loads on demand.',
         },
         {
           index: '03',
           title: 'Render',
-          description: 'React renders the viewer in this tab.',
+          description: 'The shared DOM viewer presents the content.',
         },
       ],
       privacyTitle: 'The file remains local',
@@ -229,17 +229,17 @@ const WEBSITE_CONTENT: Record<WebsiteLocale, WebsiteContent> = {
     },
     overview: {
       eyebrow: 'Product',
-      title: 'One React viewer for documents, spreadsheets, and slides.',
+      title: 'One viewer, nine format plugins.',
       description:
-        'Fivo is an open-source component for applications that need an embedded Office preview without operating a separate conversion service.',
+        'Filumo is a browser-side file viewer with independent format plugins and thin framework adapters. Local files do not require an upload or conversion service.',
       details:
-        'It is designed for product teams building document centers, attachment previews, knowledge bases, and other workflows where Office content needs to stay inside the application experience.',
+        'Use it in attachment previews, knowledge bases and developer tools. Install only the format packages you need, or choose the standard preset.',
       capabilities: [
         {
           index: '01',
           title: 'Accept the source you already have',
           description:
-            'Pass a local File, a URL, or an async loader without creating a separate integration for each document family.',
+            'Pass a File, Blob, Uint8Array, URL or DocumentSource factory through the same source contract.',
         },
         {
           index: '02',
@@ -251,7 +251,7 @@ const WEBSITE_CONTENT: Record<WebsiteLocale, WebsiteContent> = {
           index: '03',
           title: 'Adapt the interface to the file',
           description:
-            'The shared viewer shell presents pages, worksheets, or slides with controls suited to the detected format.',
+            'The shared shell adapts navigation, source views, outlines, structure trees and search to each format.',
         },
       ],
       useCasesLabel: 'Typical use cases',
@@ -262,31 +262,31 @@ const WEBSITE_CONTENT: Record<WebsiteLocale, WebsiteContent> = {
         'Privacy-sensitive tools',
       ],
       facts: [
-        { value: '7', label: 'supported extensions' },
-        { value: '3', label: 'document families' },
-        { value: '1 API', label: 'shared React component' },
+        { value: '0.1.0', label: 'current workspace version' },
+        { value: '9', label: 'format plugins' },
+        { value: '15', label: 'packages in the workspace' },
       ],
       architecture: {
-        imageSrc: `${SITE_ROOT}assets/fivo-architecture-flow.en-us.svg`,
+        imageSrc: `${SITE_ROOT}assets/filumo-architecture-flow.en-us.svg`,
         imageAlt:
-          'Architecture flow showing how Fivo routes and parses Office files before rendering Word, Excel, or PowerPoint previews.',
+          'Filumo architecture: source and session protocols, shared DOM shell, nine lazy format plugins and framework adapters.',
       },
     },
     demo: {
       eyebrow: 'Live demo',
       title: 'Open a file from your device.',
       description:
-        'Choose a supported Office file and use the real viewer. Parsing and rendering happen inside this browser tab.',
+        'Open Office, PDF, images, text, JSON, Markdown, CSV, XML or code. The file stays in this browser tab.',
       privacyTitle: 'Private by default',
       privacyDescription:
         'This page does not upload the file you select to a server.',
       action: 'Open the playground',
     },
     highlights: {
-      eyebrow: 'Why Fivo',
+      eyebrow: 'Why Filumo',
       title: 'Useful capabilities for real product interfaces.',
       description:
-        'The component focuses on the parts that matter when Office preview becomes part of an application rather than a standalone conversion task.',
+        'One integration for file viewing, with format-specific controls and explicit resource and lifecycle boundaries.',
       items: [
         {
           label: 'Privacy',
@@ -299,14 +299,14 @@ const WEBSITE_CONTENT: Record<WebsiteLocale, WebsiteContent> = {
           label: 'Performance',
           title: 'Responsive parsing for larger files',
           description:
-            'Worker parsing, progress events, cancellation, and progressive rendering help keep long-running previews responsive.',
+            'Lazy format engines, windowed text and trees, and budgeted PDF canvases reduce unnecessary work. Actual performance depends on the file and browser.',
           tone: 'cyan',
         },
         {
           label: 'Integration',
           title: 'One component across formats',
           description:
-            'Use the same React API for File, URL, and async sources while keeping lifecycle and error handling in the host application.',
+            'React, Vue and native JavaScript share source, session and capability contracts without duplicating format renderers.',
           tone: 'violet',
         },
         {
@@ -320,67 +320,148 @@ const WEBSITE_CONTENT: Record<WebsiteLocale, WebsiteContent> = {
     },
     formats: {
       eyebrow: 'Supported formats',
-      title:
-        'Thirteen common Office extensions, grouped by how people use them.',
+      title: 'Nine plugins, selected for your application.',
       description:
-        'The viewer provides a shared shell while adapting navigation and controls to each document family.',
+        'Each format has its own package. Registration stays lightweight. Extensions below are examples; see the format guides for full coverage and limits.',
       groups: [
         {
-          category: 'Documents',
-          title: 'Word and WPS documents',
-          formats: ['DOC', 'DOCX', 'DOCM', 'DOTX', 'WPS'],
+          category: 'Office',
+          title: 'Word, Excel & PowerPoint',
+          formats: ['DOCX', 'XLSX', 'PPTX'],
           description:
-            'Preview classic binary documents and modern Word packages in a paginated reading surface.',
+            'Read classic and modern Office files, including WPS documents and macro-enabled OOXML files. Macros are not executed.',
           capabilities: [
-            'Pagination',
-            'Document outline',
-            'Zoom and fullscreen',
+            'Outlines and search',
+            'Worksheets and slides',
+            'Readonly reviews',
           ],
           tone: 'document',
         },
         {
-          category: 'Spreadsheets',
-          title: 'Excel workbooks',
-          formats: ['XLS', 'XLSX', 'XLSM', 'XLTX'],
+          category: 'PDF',
+          title: 'Continuous PDF reading',
+          formats: ['PDF'],
           description:
-            'Switch between a source-faithful layout and a reading mode that prioritizes complete cell text.',
+            'Scroll through every page; render visible pages first and recycle distant canvases within configured budgets.',
           capabilities: [
-            'Worksheet tabs',
-            'Original and reading modes',
-            'Charts and drawings',
+            'Outline and thumbnails',
+            'Text search and selection',
+            'Matching PDF.js assets included',
+          ],
+          tone: 'presentation',
+        },
+        {
+          category: 'Images',
+          title: 'Native image preview',
+          formats: ['PNG', 'JPG', 'SVG', 'WEBP', 'AVIF'],
+          description:
+            'Open browser-supported images with shared pan, zoom and rotation interactions. AVIF support depends on the browser.',
+          capabilities: [
+            'Fit container',
+            'Rotate and reset',
+            'Shared Office image overlay',
           ],
           tone: 'spreadsheet',
         },
         {
-          category: 'Presentations',
-          title: 'PowerPoint presentations',
-          formats: ['PPT', 'PPTX', 'PPTM', 'POTX'],
+          category: 'Text',
+          title: 'Plain text & logs',
+          formats: ['TXT', 'LOG', 'INI', 'CONF'],
           description:
-            'Move through slides with controls suited to presentation review and playback.',
-          capabilities: ['Slide navigation', 'Fullscreen', 'Speaker notes'],
+            'Detect common Unicode and Chinese encodings; inspect other readable files through the optional text fallback.',
+          capabilities: [
+            'Encoding selection',
+            'Line numbers and wrapping',
+            'Windowed source view',
+          ],
+          tone: 'document',
+        },
+        {
+          category: 'JSON',
+          title: 'JSON, JSONC & JSON Lines',
+          formats: ['JSON', 'JSONC', 'JSONL', 'NDJSON'],
+          description:
+            'Read source and structure side by side while retaining duplicate keys and exact numeric source text.',
+          capabilities: [
+            'Resizable split view',
+            'Record-level diagnostics',
+            'Tree-to-source navigation',
+          ],
+          tone: 'spreadsheet',
+        },
+        {
+          category: 'Markdown',
+          title: 'Markdown documents',
+          formats: ['MD', 'MARKDOWN'],
+          description:
+            'Read GFM tables, tasks, code blocks and controlled HTML, with a shared outline and source view.',
+          capabilities: [
+            'Outline and search',
+            'Lazy syntax highlighting',
+            'Relative resource resolver',
+          ],
+          tone: 'presentation',
+        },
+        {
+          category: 'CSV',
+          title: 'CSV & TSV tables',
+          formats: ['CSV', 'TSV'],
+          description:
+            'Inspect readonly tabular data with row and column windowing. Values remain strings and formulas do not execute.',
+          capabilities: [
+            'Delimiter selection',
+            'Resizable columns',
+            'TSV selection copy',
+          ],
+          tone: 'spreadsheet',
+        },
+        {
+          category: 'XML',
+          title: 'XML source & structure',
+          formats: ['XML'],
+          description:
+            'View namespaces, attributes and mixed content in a resizable split view. DTD declarations are rejected.',
+          capabilities: [
+            'Source line numbers',
+            'Colored structure values',
+            'Source location mapping',
+          ],
+          tone: 'document',
+        },
+        {
+          category: 'Code',
+          title: 'Code & developer files',
+          formats: ['TS', 'JS', 'PY', 'SCSS', 'YAML', 'Dockerfile'],
+          description:
+            'Preview common languages, configuration and build files as source. Source code is never executed.',
+          capabilities: [
+            'Language selection',
+            'Line numbers by default',
+            'Budgeted Worker highlighting',
+          ],
           tone: 'presentation',
         },
       ],
-      roadmapTitle: 'More formats are on the roadmap',
+      roadmapTitle: 'Explicit scope and release status',
       roadmapDescription:
-        'The current release focuses on commonly used documents, spreadsheets, and presentations. Future versions will expand Office format support based on real-world needs and community feedback.',
+        'Workspace version 0.1.0 is not yet published. Previews are readonly; editing, OCR, formula recalculation and pixel-perfect Office fidelity are outside the current scope.',
     },
     developer: {
       eyebrow: 'Developer experience',
       title: 'From install to preview in a few lines.',
-      description: 'Install the package in your existing React application.',
+      description:
+        'Install a framework adapter and the standard plugin preset after release. Version 0.1.0 is currently unpublished; use workspace or local packages before release. PDF bundles matching resources; optional URL overrides are described in the PDF guide.',
       installLabel: 'Install',
       exampleLabel: 'React example',
       packageManagerLabel: 'Package manager',
       commands: {
-        npm: 'npm install @fivo/react @fivo/office',
-        yarn: 'yarn add @fivo/react @fivo/office',
+        npm: 'npm install @filumo/react @filumo/viewer',
+        yarn: 'yarn add @filumo/react @filumo/viewer',
       },
-      example: `import { DocumentViewer } from '@fivo/react';
-import { office } from '@fivo/office';
-const plugins = [office()];
-export function Preview({ file }) {
-  return <DocumentViewer source={file} plugins={plugins} options={{ height: 640 }} />;
+      example: `import { DocumentViewer } from '@filumo/react';
+import { standardPlugins } from '@filumo/viewer';
+export function Preview({ file }: { file?: File }) {
+  return <DocumentViewer source={file} plugins={standardPlugins} options={{ height: 640 }} />;
 }`,
       copy: 'Copy command',
       copied: 'Command copied',
@@ -390,24 +471,33 @@ export function Preview({ file }) {
     },
     compatibility: {
       eyebrow: 'Compatibility',
-      title: 'Fits the React stack you already use.',
+      title: 'Choose your framework adapter.',
       description:
         'The viewer supports React 18/19 and Vue 2/3, ships as ESM, and includes its compiled component styles.',
       items: [
-        { name: 'React', version: '>= 16.9', note: 'Hooks support' },
-        { name: 'ReactDOM', version: '>= 16.9', note: 'Match React' },
-        { name: 'Module', version: 'ESM-only', note: 'Built-in CSS' },
+        { name: 'React', version: '18 / 19', note: '@filumo/react' },
+        {
+          name: 'Vue',
+          version: '3.3+ / 2.6–2.7',
+          note: '@filumo/vue / @filumo/vue2',
+        },
+        {
+          name: 'JavaScript',
+          version: 'ESM',
+          note: '@filumo/dom · automatic styles',
+        },
       ],
     },
     finalCta: {
-      title: 'Add Office preview without adding an upload pipeline.',
+      title: 'Bring file previews into your application.',
       description:
-        'Try the real component with a local file, then bring the same viewer into your React project.',
+        'Try a local file, then choose your adapter, format plugins and resource limits.',
       demo: 'Open the demo',
       github: 'Star on GitHub',
     },
     footer: {
-      description: 'Open-source Office file preview for React.',
+      description:
+        'Open-source browser file previews for React, Vue and JavaScript.',
       license: 'MIT License',
       builtWith: 'Built for the browser',
     },
@@ -427,18 +517,18 @@ export function Preview({ file }) {
       highlights: '优点亮点',
       formats: '支持格式',
       github: 'GitHub',
-      npm: 'Docs',
+      npm: 'npm',
     },
     documentation: {
-      tocTitle: '本页目录',
-      openToc: '本页目录',
-      closeToc: '关闭本页目录',
+      tocTitle: '文档目录',
+      openToc: '文档目录',
+      closeToc: '关闭文档目录',
     },
     hero: {
-      eyebrow: '开源 React Office 预览组件',
-      title: '在浏览器中预览 Office 文件',
+      eyebrow: 'Filumo 0.1.0 · 开源文件预览组件',
+      title: '在浏览器中预览多种文件',
       description:
-        'Fivo 使用一个 React 组件渲染 Word 文档、Excel 表格和 PowerPoint 演示文稿，无需额外部署文档转换服务。',
+        'Office、PDF、图片、文本与结构化文件共用统一预览器，支持 React、Vue 3、Vue 2 和原生 JavaScript 接入。',
       primaryAction: '体验本地文件',
       secondaryAction: '查看 GitHub',
       privacy: '无需上传，无需转换服务，文件始终保留在当前标签页。',
@@ -449,7 +539,7 @@ export function Preview({ file }) {
     productFlow: {
       title: '本地预览流程',
       status: '仅在浏览器中',
-      fileName: '你的 Office 文件',
+      fileName: '你的文件',
       fileMeta: 'File API · 本地来源',
       stages: [
         {
@@ -460,12 +550,12 @@ export function Preview({ file }) {
         {
           index: '02',
           title: '解析',
-          description: '通过 Web Worker 处理支持的格式。',
+          description: '按需加载对应格式的解析与视图。',
         },
         {
           index: '03',
           title: '渲染',
-          description: '由 React 在当前标签页呈现预览。',
+          description: '由公共 DOM 预览器呈现内容。',
         },
       ],
       privacyTitle: '文件始终保留在本地',
@@ -473,17 +563,17 @@ export function Preview({ file }) {
     },
     overview: {
       eyebrow: '产品介绍',
-      title: '用一个 React 组件预览文档、表格和演示文稿。',
+      title: '一个预览器，九类格式插件。',
       description:
-        'Fivo 是一个开源 Office 文件预览组件，适合需要在业务系统中嵌入文档预览、又不想额外维护转换服务的 React 项目。',
+        'Filumo 是浏览器端文件预览组件，由独立格式包与轻量框架适配器组成，本地文件无需经过上传或转换服务。',
       details:
-        '它面向文档中心、附件预览、知识库等真实产品场景，让 Office 内容留在现有应用体验中，而不是跳转到独立转换页面。',
+        '适用于文档中心、附件预览、知识库和开发工具。可只安装需要的格式包，也可选择标准插件预设。',
       capabilities: [
         {
           index: '01',
           title: '接收已有的文件来源',
           description:
-            '直接传入本地 File、URL 或异步加载函数，不需要为每类文档单独设计一套接入方式。',
+            '统一接收 File、Blob、Uint8Array、URL 或 DocumentSource 来源工厂，不必为每种格式重新设计来源接口。',
         },
         {
           index: '02',
@@ -495,36 +585,36 @@ export function Preview({ file }) {
           index: '03',
           title: '根据文件调整预览界面',
           description:
-            '统一预览外壳会根据识别结果呈现页面、工作表或幻灯片，并提供对应操作。',
+            '统一外壳按格式提供页面、原文、大纲、结构树和查找等适用能力。',
         },
       ],
       useCasesLabel: '典型使用场景',
       useCases: ['文档管理系统', '企业知识库', '业务附件预览', '隐私敏感工具'],
       facts: [
-        { value: '7', label: '种受支持扩展名' },
-        { value: '3', label: '类 Office 内容' },
-        { value: '1 个 API', label: '统一 React 组件' },
+        { value: '0.1.0', label: '当前工作区版本' },
+        { value: '9', label: '类格式插件' },
+        { value: '15', label: '个工作区包' },
       ],
       architecture: {
-        imageSrc: `${SITE_ROOT}assets/fivo-architecture-flow.zh-cn.svg`,
+        imageSrc: `${SITE_ROOT}assets/filumo-architecture-flow.zh-cn.svg`,
         imageAlt:
-          'Fivo 从文件输入、格式路由和解析执行到 Word、Excel、PowerPoint 预览渲染的架构流程图。',
+          'Filumo 架构：来源与会话协议、公共 DOM 外壳、九类按需加载的格式插件和框架适配层。',
       },
     },
     demo: {
       eyebrow: '在线体验',
       title: '从你的设备打开一个文件。',
       description:
-        '选择受支持的 Office 文件，直接体验真实组件。解析与渲染全部在当前浏览器标签页完成。',
+        '选择 Office、PDF、图片、文本、JSON、Markdown、CSV、XML 或代码文件，在当前浏览器内预览。',
       privacyTitle: '默认保护隐私',
       privacyDescription: '本页面不会把你选择的文件上传到服务器。',
       action: '打开在线体验',
     },
     highlights: {
       eyebrow: '优点亮点',
-      title: '面向真实产品界面的 Office 预览能力。',
+      title: '面向业务系统的多格式预览能力。',
       description:
-        '当 Office 预览成为业务系统的一部分时，组件不仅需要显示内容，还要兼顾隐私、性能、接入成本和文档操作体验。',
+        '统一接入不同文件类型，并按格式提供适合的操作，明确资源限制与生命周期。',
       items: [
         {
           label: '隐私',
@@ -537,14 +627,14 @@ export function Preview({ file }) {
           label: '性能',
           title: '为较大文件保持界面响应',
           description:
-            '通过 Worker 解析、进度事件、取消能力和渐进渲染，降低长时间预览对主界面交互的影响。',
+            '格式引擎按需加载，文本和结构树窗口化，PDF 画布按预算回收；实际性能仍取决于文件规模与浏览器。',
           tone: 'cyan',
         },
         {
           label: '接入',
           title: '多种格式共用一个组件 API',
           description:
-            '使用一致方式传入 File、URL 或异步来源，同时由宿主应用掌控生命周期、错误处理和业务状态。',
+            'React、Vue 与原生 JavaScript 复用来源、会话与能力协议，各格式无需重新实现框架渲染器。',
           tone: 'violet',
         },
         {
@@ -557,57 +647,116 @@ export function Preview({ file }) {
       ],
     },
     formats: {
-      eyebrow: '支持的文档格式',
-      title: '覆盖十三种常见 Office 文件扩展名。',
+      eyebrow: '支持格式',
+      title: '九类插件，按需组合。',
       description:
-        '预览器复用统一外壳，同时根据文档、表格和演示文稿的特点调整导航与操作方式。',
+        '每类格式由独立包提供，注册描述符不会提前加载全部引擎。下列扩展名为代表，完整识别范围与限制见格式指南。',
       groups: [
         {
-          category: '文本文档',
-          title: 'Word 与 WPS 文档',
-          formats: ['DOC', 'DOCX', 'DOCM', 'DOTX', 'WPS'],
-          description: '在分页阅读界面中预览传统二进制文档和现代 Word 文档包。',
-          capabilities: ['分页阅读', '文档大纲', '缩放与全屏'],
+          category: 'Office',
+          title: 'Word、Excel 与 PowerPoint',
+          formats: ['DOCX', 'XLSX', 'PPTX'],
+          description:
+            '预览传统与现代 Office 文件，含 WPS 文档及支持的宏启用 OOXML 格式；不执行宏。',
+          capabilities: ['大纲与查找', '工作表与幻灯片', '只读修订和批注'],
           tone: 'document',
         },
         {
-          category: '电子表格',
-          title: 'Excel 工作簿',
-          formats: ['XLS', 'XLSX', 'XLSM', 'XLTX'],
+          category: 'PDF',
+          title: 'PDF 连续阅读',
+          formats: ['PDF'],
           description:
-            '可在优先还原源文件的版式与完整显示单元格文本的阅读模式之间切换。',
-          capabilities: ['工作表标签', '原始版式与阅读模式', '图表与绘图对象'],
+            '所有页面连续纵向排布，可见页优先绘制，远端高清画布按配置预算回收。',
+          capabilities: [
+            '大纲、缩略图与查找',
+            '文字选择与旋转',
+            '包内集成同版 PDF.js 资源',
+          ],
+          tone: 'presentation',
+        },
+        {
+          category: '图片',
+          title: '独立图片预览',
+          formats: ['PNG', 'JPG', 'SVG', 'WEBP', 'AVIF'],
+          description:
+            '使用浏览器原生解码及公共拖动、缩放、旋转交互；AVIF 支持取决于浏览器。',
+          capabilities: ['适应容器', '旋转与复位', '复用 Office 图片弹层'],
           tone: 'spreadsheet',
         },
         {
-          category: '演示文稿',
-          title: 'PowerPoint 演示文稿',
-          formats: ['PPT', 'PPTX', 'PPTM', 'POTX'],
-          description: '使用适合演示文稿审阅和播放的操作方式浏览幻灯片。',
-          capabilities: ['幻灯片导航', '全屏查看', '演讲者备注'],
+          category: '纯文本',
+          title: '文本与日志',
+          formats: ['TXT', 'LOG', 'INI', 'CONF'],
+          description:
+            '自动识别常见 Unicode 和中文编码，并可对其他可读文件启用文本兜底。',
+          capabilities: ['编码切换', '行号与自动换行', '原文窗口化'],
+          tone: 'document',
+        },
+        {
+          category: 'JSON',
+          title: 'JSON、JSONC 与 JSON Lines',
+          formats: ['JSON', 'JSONC', 'JSONL', 'NDJSON'],
+          description:
+            '原文与结构双栏阅读，保留重复键及原始数字文本，不因解析丢失精度。',
+          capabilities: ['拖动调整双栏', '记录独立诊断', '结构定位原文'],
+          tone: 'spreadsheet',
+        },
+        {
+          category: 'Markdown',
+          title: 'Markdown 文档',
+          formats: ['MD', 'MARKDOWN'],
+          description:
+            '支持 GFM 表格、任务列表、代码块与受控 HTML，提供统一大纲及原文视图。',
+          capabilities: ['大纲与查找', '按需代码高亮', '相对资源解析'],
+          tone: 'presentation',
+        },
+        {
+          category: 'CSV',
+          title: 'CSV 与 TSV 表格',
+          formats: ['CSV', 'TSV'],
+          description: '只读表格按行列窗口化，字段保持字符串，不执行公式。',
+          capabilities: ['分隔符切换', '调整列宽', '选区 TSV 复制'],
+          tone: 'spreadsheet',
+        },
+        {
+          category: 'XML',
+          title: 'XML 原文与结构',
+          formats: ['XML'],
+          description:
+            '双栏查看命名空间、属性和混合内容，支持拖动调整比例；拒绝 DTD 声明。',
+          capabilities: ['原文行号', '结构值分色', '定位源范围'],
+          tone: 'document',
+        },
+        {
+          category: '代码',
+          title: '代码与开发文件',
+          formats: ['TS', 'JS', 'PY', 'SCSS', 'YAML', 'Dockerfile'],
+          description:
+            '以原文预览常用语言、配置和构建文件，不执行代码；高亮超预算时保留普通原文。',
+          capabilities: ['语言切换', '默认显示行号', 'Worker 按需高亮'],
           tone: 'presentation',
         },
       ],
-      roadmapTitle: '持续扩展格式支持',
+      roadmapTitle: '明确支持范围与发布状态',
       roadmapDescription:
-        '当前优先覆盖常见的文档、电子表格和演示文稿格式。后续版本将根据实际使用需求与社区反馈，继续支持更多 Office 文档格式。',
+        '当前工作区版本为 0.1.0，尚未发布。预览均为只读，不提供编辑保存、OCR、公式重算或完整 Office 排版保证。',
     },
     developer: {
       eyebrow: '开发者体验',
       title: '几行代码即可完成安装与预览。',
-      description: '在现有 React 应用中安装组件。',
+      description:
+        '发布后安装框架适配器与标准插件预设。0.1.0 当前尚未发布，发布前使用工作区或本地包。PDF 默认集成同版资源，特殊部署可覆盖资源地址。',
       installLabel: '安装',
       exampleLabel: 'React 示例',
       packageManagerLabel: '包管理器',
       commands: {
-        npm: 'npm install @fivo/react @fivo/office',
-        yarn: 'yarn add @fivo/react @fivo/office',
+        npm: 'npm install @filumo/react @filumo/viewer',
+        yarn: 'yarn add @filumo/react @filumo/viewer',
       },
-      example: `import { DocumentViewer } from '@fivo/react';
-import { office } from '@fivo/office';
-const plugins = [office()];
-export function Preview({ file }) {
-  return <DocumentViewer source={file} plugins={plugins} options={{ height: 640 }} />;
+      example: `import { DocumentViewer } from '@filumo/react';
+import { standardPlugins } from '@filumo/viewer';
+export function Preview({ file }: { file?: File }) {
+  return <DocumentViewer source={file} plugins={standardPlugins} options={{ height: 640 }} />;
 }`,
       copy: '复制命令',
       copied: '命令已复制',
@@ -617,24 +766,27 @@ export function Preview({ file }) {
     },
     compatibility: {
       eyebrow: '兼容性',
-      title: '适配你已经在使用的 React 技术栈。',
+      title: '按你的技术栈选择适配器。',
       description:
         '预览器支持 React 18/19 与 Vue 2/3，以 ESM 发布，并随包提供已编译的组件样式。',
       items: [
-        { name: 'React', version: '>= 16.9', note: '支持 Hooks' },
-        { name: 'ReactDOM', version: '>= 16.9', note: '与 React 匹配' },
-        { name: '模块格式', version: '仅 ESM', note: '内置 CSS' },
+        { name: 'React', version: '18 / 19', note: '@filumo/react' },
+        {
+          name: 'Vue',
+          version: '3.3+ / 2.6–2.7',
+          note: '@filumo/vue / @filumo/vue2',
+        },
+        { name: 'JavaScript', version: 'ESM', note: '@filumo/dom · 自动样式' },
       ],
     },
     finalCta: {
-      title: '接入 Office 预览，而不是再搭建一套上传转换流程。',
-      description:
-        '先使用本地文件体验真实组件，再把同一个预览器接入你的 React 项目。',
+      title: '把多格式文件预览接入你的应用。',
+      description: '先用本地文件体验，再选择适配器、格式插件与资源限制。',
       demo: '打开在线体验',
       github: '在 GitHub 点星',
     },
     footer: {
-      description: '面向 React 的开源 Office 文件预览组件。',
+      description: '面向 React、Vue 和 JavaScript 的开源浏览器文件预览。',
       license: 'MIT 许可证',
       builtWith: '为浏览器而构建',
     },

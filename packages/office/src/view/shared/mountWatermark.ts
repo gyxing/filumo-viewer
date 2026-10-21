@@ -12,7 +12,7 @@ export function mountWatermark(
     ns = 'http://www.w3.org/2000/svg';
   const svg = document.createElementNS(ns, 'svg');
   const id =
-    'fivo-watermark-' + ++sequence + '-' + Math.random().toString(36).slice(2);
+    'filumo-watermark-' + ++sequence + '-' + Math.random().toString(36).slice(2);
   svg.classList.add('office-file-watermark-layer');
   updateAttributes(svg, {
     'aria-hidden': 'true',

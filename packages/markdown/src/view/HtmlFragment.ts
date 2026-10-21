@@ -39,12 +39,12 @@ export class HtmlFragment {
       .join('');
     const reserved = new Set<string>();
     // 一次扫描排除文档占用的标记，避免注释冒充插槽，也避免反复扫描长 HTML。
-    for (const match of raw.matchAll(/fivo-md-slot-(\d{1,16}):/g))
+    for (const match of raw.matchAll(/filumo-md-slot-(\d{1,16}):/g))
       reserved.add(match[1]);
     do {
       sequence++;
     } while (reserved.has(String(sequence)));
-    const marker = 'fivo-md-slot-' + sequence + ':';
+    const marker = 'filumo-md-slot-' + sequence + ':';
     const slots = new Map<string, Slot>();
     const markup = tokens.map((token, index) => {
       if (token.type === 'html') return token.raw ?? token.text ?? '';
@@ -125,7 +125,7 @@ export class HtmlFragment {
         const item = parent.tagName === 'LI' ? parent
           : parent.tagName === 'P' && parent.parentElement?.tagName === 'LI'
           ? parent.parentElement : undefined;
-        if (item) item.classList.add('fivo-markdown-task-item');
+        if (item) item.classList.add('filumo-markdown-task-item');
         target = this.options.createCheckbox(element.hasAttribute('checked'), !!item);
       } else if (tag === 'a') {
         target = element.hasAttribute('href')
@@ -138,7 +138,7 @@ export class HtmlFragment {
       this.attributes(element, target, tag);
       if (tag === 'table') {
         const wrapper = document.createElement('div');
-        wrapper.className = 'fivo-markdown-table';
+        wrapper.className = 'filumo-markdown-table';
         wrapper.append(target);
         parent.append(wrapper);
       } else parent.append(target);
@@ -193,7 +193,7 @@ export class HtmlFragment {
         }
         // 绝对字号随阅读缩放，em 和百分比继续通过继承缩放，避免重复放大。
         const rendered = property === 'font-size' && /(?:px|pt|rem)$/.test(value)
-          ? `calc(${value} * var(--fivo-md-text-scale, 1))` : value;
+          ? `calc(${value} * var(--filumo-md-text-scale, 1))` : value;
         target.style.setProperty(property, rendered);
       }
     }
@@ -244,14 +244,14 @@ export class HtmlFragment {
   /** 全部受控节点就绪后登记标题和锚点，支持前向链接及混合顺序。 */
   navigation(article: HTMLElement) {
     // 行内 HTML 可以在 Markdown 的 li 完成挂载后才确定是否属于任务项。
-    for (const checkbox of article.querySelectorAll<HTMLInputElement>('.fivo-markdown-html-checkbox')) {
+    for (const checkbox of article.querySelectorAll<HTMLInputElement>('.filumo-markdown-html-checkbox')) {
       const parent = checkbox.parentElement;
       const item = parent?.tagName === 'LI' ? parent
         : parent?.tagName === 'P' && parent.parentElement?.tagName === 'LI'
         ? parent.parentElement : undefined;
       if (item) {
-        item.classList.add('fivo-markdown-task-item');
-        checkbox.className = 'fivo-markdown-task-checkbox';
+        item.classList.add('filumo-markdown-task-item');
+        checkbox.className = 'filumo-markdown-task-checkbox';
       }
     }
     return collectHtmlNavigation(article, this.options.prefix, this.ids);

@@ -11,7 +11,7 @@ const output = join(root, 'tmp/testing/format-check-' + process.pid);
 await mkdir(output, { recursive: true });
 const samples = await sampleCatalog(
   root,
-  process.env.FIVO_LOCAL_SAMPLES === '1',
+  process.env.FILUMO_LOCAL_SAMPLES === '1',
 );
 // 各个 Less 回调并行执行，不能用 css += await ... 累加共享字符串。
 const css = new Map();

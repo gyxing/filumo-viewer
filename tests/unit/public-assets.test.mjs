@@ -7,7 +7,7 @@ test('生产文档不包含本机烟测接口及样本清单', async () => {
   assert.ok(files.includes('index.html'));
   for (const name of files.filter((n) => /\.(js|html)$/.test(n))) {
     const text = await readFile(join('apps/docs/dist', name), 'utf8');
-    assert.equal(text.includes('__fivo_smoke/files/'), false);
+    assert.equal(text.includes('__filumo_smoke/files/'), false);
     assert.equal(text.includes('本机样本已配置'), false);
   }
 });

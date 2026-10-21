@@ -1,7 +1,7 @@
 {
-  "name": "fivo-workspace",
+  "name": "filumo-workspace",
   "private": true,
-  "description": "Fivo 跨框架文档预览工作区",
+  "description": "Filumo 跨框架文档预览工作区",
   "homepage": "https://gyxing.github.io/office-file-viewer/",
   "bugs": {
     "url": "https://github.com/gyxing/office-file-viewer/issues"
@@ -18,7 +18,7 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build/packages.mjs",
-    "check": "pnpm run build && pnpm run check:types && pnpm run check:lint && pnpm run check:styles && pnpm --filter fivo-docs build",
+    "check": "pnpm run build && pnpm run check:types && pnpm run check:lint && pnpm run check:styles && pnpm --filter filumo-docs build",
     "check:lint": "eslint packages apps/docs/src --ext .ts,.tsx --ignore-pattern \"**/dist/**\"",
     "check:styles": "stylelint \"packages/*/src/**/*.less\" \"apps/docs/src/**/*.less\"",
     "check:types": "node scripts/checks/types.mjs",

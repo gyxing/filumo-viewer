@@ -1,5 +1,5 @@
 {
-  "name": "fivo-example-vue3",
+  "name": "filumo-example-vue3",
   "private": true,
   "type": "module",
   "scripts": {
@@ -7,18 +7,18 @@
     "dev": "vite"
   },
   "dependencies": {
-    "@fivo/dom": "0.1.0-next.0",
-    "@fivo/image": "0.1.0-next.0",
-    "@fivo/office": "0.1.0-next.0",
-    "@fivo/pdf": "0.1.0-next.0",
-    "@fivo/vue": "0.1.0-next.0",
+    "@filumo/dom": "0.1.0",
+    "@filumo/image": "0.1.0",
+    "@filumo/office": "0.1.0",
+    "@filumo/pdf": "0.1.0",
+    "@filumo/vue": "0.1.0",
     "vue": "3.5.43",
-    "@fivo/text": "0.1.0-next.0",
-    "@fivo/json": "0.1.0-next.0",
-    "@fivo/markdown": "0.1.0-next.0",
-    "@fivo/csv": "0.1.0-next.0",
-    "@fivo/xml": "0.1.0-next.0",
-    "@fivo/code": "0.1.0-next.0"
+    "@filumo/text": "0.1.0",
+    "@filumo/json": "0.1.0",
+    "@filumo/markdown": "0.1.0",
+    "@filumo/csv": "0.1.0",
+    "@filumo/xml": "0.1.0",
+    "@filumo/code": "0.1.0"
   },
   "devDependencies": {
     "vite": "5.4.21"

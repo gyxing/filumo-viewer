@@ -101,7 +101,7 @@ export async function verifyInstalledPackages(directory, records) {
   const rootFile = join(directory, 'package.json');
   const roots = JSON.parse(await readFile(rootFile, 'utf8'));
   const queue = Object.keys(roots.dependencies ?? {})
-    .filter((name) => name.startsWith('@fivo/'))
+    .filter((name) => name.startsWith('@filumo/'))
     .map((name) => ({ name, issuer: rootFile }));
   const visited = new Set();
   while (queue.length) {
@@ -127,7 +127,7 @@ export async function verifyInstalledPackages(directory, records) {
         (/^(workspace:|file:|link:)/.test(range) || isAbsolute(range))
       )
         throw Error('生产依赖残留工作区路径：' + name);
-      if (dep.startsWith('@fivo/') && manifest.dependencies?.[dep])
+      if (dep.startsWith('@filumo/') && manifest.dependencies?.[dep])
         queue.push({ name: dep, issuer: file });
     }
   }

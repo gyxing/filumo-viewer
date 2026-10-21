@@ -1,7 +1,7 @@
-import type { DocumentInput } from '@fivo/core';
-import { createViewer, type ViewerHandle } from '@fivo/dom';
-import { image } from '@fivo/image';
-import { pdf } from '@fivo/pdf';
+import type { DocumentInput } from '@filumo/core';
+import { createViewer, type ViewerHandle } from '@filumo/dom';
+import { image } from '@filumo/image';
+import { pdf } from '@filumo/pdf';
 import {
   createPdfFixture,
   imageFixture,
@@ -35,12 +35,7 @@ async function open(kind: (typeof kinds)[number]) {
   await viewer?.destroy();
   viewer = createViewer(host, {
     height: 640,
-    plugins: [
-      image(),
-      pdf({
-        assetsBaseUrl: new URL('/assets/pdf/assets/pdfjs/', location.href).href,
-      }),
-    ],
+    plugins: [image(), pdf()],
   });
   let file: DocumentInput;
   if (kind === 'gif')
@@ -62,7 +57,7 @@ async function open(kind: (typeof kinds)[number]) {
     file = {
       url: '/fixtures/pdf-' + kind + '.pdf',
       name: kind + '.pdf',
-      request: { headers: { 'x-fivo-fixture': 'allowed' } },
+      request: { headers: { 'x-filumo-fixture': 'allowed' } },
     };
   else
     file =
@@ -97,7 +92,7 @@ for (const kind of kinds) {
   document.body.prepend(button);
 }
 Object.assign(window, {
-  fivoImagePdf: {
+  filumoImagePdf: {
     open,
     async addSibling() {
       await sibling?.destroy();
@@ -107,12 +102,7 @@ Object.assign(window, {
       document.body.append(siblingHost);
       sibling = createViewer(siblingHost, {
         height: 480,
-        plugins: [
-          pdf({
-            assetsBaseUrl: new URL('/assets/pdf/assets/pdfjs/', location.href)
-              .href,
-          }),
-        ],
+        plugins: [pdf()],
       });
       await sibling.open(
         new File([createPdfFixture(3, false, true)], 'sibling.pdf', {

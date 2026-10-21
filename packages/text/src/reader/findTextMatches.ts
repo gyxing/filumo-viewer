@@ -1,1 +1,1 @@
-export { findTextMatches } from '@fivo/core/text';
+export { findTextMatches } from '@filumo/core/text';

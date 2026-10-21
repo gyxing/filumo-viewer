@@ -9,7 +9,7 @@ const require = createRequire(import.meta.url);
 const args = process.argv.slice(2);
 const local = args.includes('--local');
 // 本机文档报告与公开 CI 报告分目录，防止误上传真实样本内容。
-const env = { ...process.env, FIVO_LOCAL_SAMPLES: local ? '1' : '0' };
+const env = { ...process.env, FILUMO_LOCAL_SAMPLES: local ? '1' : '0' };
 const digest = await sourceDigest(root);
 const result = spawnSync(
   process.execPath,

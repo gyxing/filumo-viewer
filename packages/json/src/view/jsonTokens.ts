@@ -1,4 +1,4 @@
-import type { TextDecoration } from '@fivo/dom/text';
+import type { TextDecoration } from '@filumo/dom/text';
 
 // 着色是可选增强，超长行保留完整普通文本，避免同步词法工作阻塞阅读。
 const LINE_BUDGET = 65536;
@@ -36,7 +36,7 @@ export function jsonLineDecorations(
     result.push({
       start: position,
       end: finish,
-      className: 'fivo-json-token-' + kind,
+      className: 'filumo-json-token-' + kind,
     });
     position = finish;
   }

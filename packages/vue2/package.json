@@ -1,8 +1,44 @@
 {
-  "name": "@fivo/vue2",
-  "version": "0.1.0-next.0",
-  "description": "Fivo vue2",
+  "name": "@filumo/vue2",
+  "version": "0.1.0",
+  "description": "Vue 2 document viewer adapter for Filumo, with Options API integration, plugin-based formats and managed lifecycle cleanup.",
+  "keywords": [
+    "filumo",
+    "vue",
+    "vue2",
+    "vue2-component",
+    "vue-document-viewer",
+    "vue-file-viewer",
+    "vue-file-preview",
+    "document-viewer",
+    "file-preview",
+    "options-api",
+    "keep-alive",
+    "typescript",
+    "esm",
+    "plugin-system",
+    "lazy-loading",
+    "readonly",
+    "vue2文件预览",
+    "vue2文档预览"
+  ],
+  "homepage": "https://github.com/gyxing/office-file-viewer/tree/master/packages/vue2#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gyxing/office-file-viewer.git",
+    "directory": "packages/vue2"
+  },
+  "bugs": {
+    "url": "https://github.com/gyxing/office-file-viewer/issues"
+  },
+  "author": {
+    "name": "gyxing",
+    "url": "https://github.com/gyxing"
+  },
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "sideEffects": [
     "**/styles/**",
     "**/*.css"
@@ -22,8 +58,8 @@
     "dist"
   ],
   "dependencies": {
-    "@fivo/core": "workspace:^",
-    "@fivo/dom": "workspace:^"
+    "@filumo/core": "workspace:^",
+    "@filumo/dom": "workspace:^"
   },
   "devDependencies": {
     "vue": "2.7.16"

@@ -18,7 +18,7 @@ export class TextFindBar {
     close: () => void,
   ) {
     this.element = document.createElement('div');
-    this.element.className = 'fivo-text-find';
+    this.element.className = 'filumo-text-find';
     this.element.hidden = true;
     this.query = document.createElement('input');
     this.query.type = 'search';

@@ -1,4 +1,4 @@
-import { abortError, FivoError, notify, throwIfAborted } from './errors';
+import { abortError, FilumoError, notify, throwIfAborted } from './errors';
 import { waitForSource } from './guardSource';
 import { normalizeSource, validatePolicy } from './source';
 import type {
@@ -23,9 +23,9 @@ export function createDocumentController(options: ControllerOptions) {
   const ids = new Set<string>();
   for (const plugin of options.plugins) {
     if (ids.has(plugin.id))
-      throw new FivoError('DUPLICATE_PLUGIN', '插件 ID 重复：' + plugin.id);
+      throw new FilumoError('DUPLICATE_PLUGIN', '插件 ID 重复：' + plugin.id);
     if (plugin.protocolVersion !== 1)
-      throw new FivoError('PROTOCOL_MISMATCH', '插件协议不兼容');
+      throw new FilumoError('PROTOCOL_MISMATCH', '插件协议不兼容');
     ids.add(plugin.id);
   }
   const plugins = [...options.plugins].sort(
@@ -61,7 +61,7 @@ export function createDocumentController(options: ControllerOptions) {
       input: DocumentInput,
       selection: DocumentOpenOptions = {},
     ): Promise<void> {
-      if (disposed) throw new FivoError('VIEWER_DISPOSED', '查看器已释放');
+      if (disposed) throw new FilumoError('VIEWER_DISPOSED', '查看器已释放');
       const task = ++generation;
       activeAbort?.abort(abortError());
       const abort = new AbortController();
@@ -73,7 +73,7 @@ export function createDocumentController(options: ControllerOptions) {
       let timer: ReturnType<typeof setTimeout> | undefined;
       if (options.resourcePolicy?.timeoutMs)
         timer = setTimeout(
-          () => abort.abort(new FivoError('LOAD_TIMEOUT', '文档加载超时')),
+          () => abort.abort(new FilumoError('LOAD_TIMEOUT', '文档加载超时')),
           options.resourcePolicy.timeoutMs,
         );
       try {
@@ -119,7 +119,7 @@ export function createDocumentController(options: ControllerOptions) {
           ? plugins.find((plugin) => plugin.id === pluginId)
           : undefined;
         if (pluginId && !selected)
-          throw new FivoError('UNKNOWN_PLUGIN', '未注册的插件：' + pluginId);
+          throw new FilumoError('UNKNOWN_PLUGIN', '未注册的插件：' + pluginId);
         if (!selected) selected = await detectRegular();
         // 读取后才可能获得远程 MIME；元数据变化时先给专用插件重新判断的机会。
         if (!selected && !pluginId && metadata() !== detectedMetadata)
@@ -144,7 +144,7 @@ export function createDocumentController(options: ControllerOptions) {
             }
           }
         if (!selected)
-          throw new FivoError(
+          throw new FilumoError(
             'UNSUPPORTED_FORMAT',
             '没有已注册的插件可以预览此文件',
           );
@@ -152,7 +152,7 @@ export function createDocumentController(options: ControllerOptions) {
         const driver = await waitForSource(selected.load(), abort.signal);
         throwIfAborted(abort.signal);
         const opening = driver.open(source, {
-          sessionId: 'fivo-' + Date.now() + '-' + task,
+          sessionId: 'filumo-' + Date.now() + '-' + task,
           signal: abort.signal,
           resourcePolicy: options.resourcePolicy,
           reportProgress(progress) {
@@ -198,7 +198,7 @@ export function createDocumentController(options: ControllerOptions) {
             status:
               abort.signal.aborted &&
               !(
-                abort.signal.reason instanceof FivoError &&
+                abort.signal.reason instanceof FilumoError &&
                 abort.signal.reason.code === 'LOAD_TIMEOUT'
               )
                 ? 'cancelled'

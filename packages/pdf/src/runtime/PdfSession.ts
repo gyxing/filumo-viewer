@@ -1,5 +1,5 @@
-import type { DocumentSource, OpenContext } from '@fivo/core';
-import { FivoError, abortError, notify, throwIfAborted } from '@fivo/core';
+import type { DocumentSource, OpenContext } from '@filumo/core';
+import { FilumoError, abortError, notify, throwIfAborted } from '@filumo/core';
 import type { PdfOptions } from '../options';
 import { createPdfBackend, waitPdf } from './PdfBackend';
 import { createPdfRangeTransport } from './PdfRangeTransport';
@@ -70,18 +70,22 @@ export class PdfSession {
     const signal = this.controller.signal;
     throwIfAborted(this.context.signal);
     const assets = await getPdfAssets(this.options);
-    const engine = (await import(
-      /* webpackIgnore: true */ /* @vite-ignore */ assets.display
-    )) as PdfEngine;
+    throwIfAborted(signal);
+    // 默认引擎进入宿主资源图；仅宿主显式指定整套资源时才保留外部导入。
+    const engine = (this.options.assetsBaseUrl === undefined
+      ? await import('pdfjs-dist/legacy/build/pdf.mjs')
+      : await import(
+          /* webpackIgnore: true */ /* @vite-ignore */ assets.display
+        )) as unknown as PdfEngine;
     throwIfAborted(signal);
     if (engine.version !== '6.4.299')
-      throw new FivoError(
+      throw new FilumoError(
         'PDF_ENGINE_VERSION_MISMATCH',
         'PDF 引擎资源版本不一致',
       );
-    this.worker =
-      this.options.workerFactory?.() ??
-      new Worker(assets.worker, { type: 'module', name: 'fivo-pdf' });
+    const { createPdfWorker } = await import('@filumo/pdf/assets');
+    throwIfAborted(signal);
+    this.worker = createPdfWorker(this.options, assets);
     this.pdfWorker = new engine.PDFWorker({ port: this.worker });
     const reader = await this.source.getRangeReader?.(signal);
     throwIfAborted(signal);
@@ -127,6 +131,9 @@ export class PdfSession {
       standardFontDataUrl: assets.standardFonts,
       wasmUrl: assets.wasm,
       iccUrl: assets.icc,
+      // 默认适配在 Worker 内解析资源，保持 PDF.js 的 ICC 色彩处理能力。
+      useWorkerFetch: true,
+      useWasm: this.options.useWasm ?? true,
       enableXfa: false,
       isEvalSupported: false,
     });
@@ -185,7 +192,7 @@ export class PdfSession {
       this.timer = setTimeout(() => {
         this.publish({
           phase: 'error',
-          error: new FivoError('LOAD_TIMEOUT', 'PDF 解锁读取超时'),
+          error: new FilumoError('LOAD_TIMEOUT', 'PDF 解锁读取超时'),
         });
         void this.stopTask().catch(() => undefined);
       }, this.context.resourcePolicy.timeoutMs);

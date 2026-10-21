@@ -15,7 +15,7 @@ export function createSampleMiddleware(root: string, base = '/') {
     next: () => void,
   ) => {
     const path = new URL(req.url ?? '/', 'http://localhost').pathname;
-    const marker = withDocsBase(base, '__fivo_smoke/');
+    const marker = withDocsBase(base, '__filumo_smoke/');
     if (!path.startsWith(marker)) return next();
     if (!['GET', 'HEAD'].includes(req.method ?? '')) {
       res.writeHead(405).end();
@@ -24,7 +24,7 @@ export function createSampleMiddleware(root: string, base = '/') {
     try {
       const tail = path.slice(marker.length);
       const local =
-        process.env.FIVO_PUBLIC_SAMPLES_ONLY === '1'
+        process.env.FILUMO_PUBLIC_SAMPLES_ONLY === '1'
           ? {
               configured: false,
               samples: [],

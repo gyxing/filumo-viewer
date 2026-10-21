@@ -1,28 +1,28 @@
 // 原文样式由 DOM 公共层持有，兼容入口与各格式复用同一租约。
-.fivo-text-scope {
+.filumo-text-scope {
   height: 100%;
   min-height: 0;
   min-width: 0;
 }
 
-.fivo-text-surface {
+.filumo-text-surface {
   position: relative;
   display: flex;
   flex-direction: column;
   height: 100%;
   min-height: 0;
-  background: var(--fivo-surface, #fff);
-  color: var(--fivo-text, #243247);
+  background: var(--filumo-surface, #fff);
+  color: var(--filumo-text, #243247);
   font: 14px/1.6 system-ui, sans-serif;
 }
 
-.fivo-text-surface [hidden] {
+.filumo-text-surface [hidden] {
   display: none;
 }
 
-.fivo-text-viewport {
-  --fivo-text-gutter-width: 56px;
-  --fivo-text-gutter-padding: 10px;
+.filumo-text-viewport {
+  --filumo-text-gutter-width: 56px;
+  --filumo-text-gutter-padding: 10px;
   position: relative;
   flex: 1;
   min-height: 0;
@@ -33,7 +33,7 @@
   scrollbar-gutter: stable;
 }
 
-.fivo-text-canvas {
+.filumo-text-canvas {
   position: relative;
   min-width: 100%;
   // 内容不足一屏或脚本仍持有旧高度时，由布局直接保证行号底色铺满视口。
@@ -41,23 +41,23 @@
 }
 
 // 通栏背景不依赖可见行 DOM，短文件和折行之间都能保持连续。
-.fivo-text-canvas::before {
+.filumo-text-canvas::before {
   position: absolute;
   inset: 0 auto 0 0;
   display: none;
-  width: var(--fivo-text-gutter-width);
+  width: var(--filumo-text-gutter-width);
   box-sizing: border-box;
-  background: var(--fivo-hover, #f3f6fb);
-  border-right: 1px solid var(--fivo-border, #dfe5ec);
+  background: var(--filumo-hover, #f3f6fb);
+  border-right: 1px solid var(--filumo-border, #dfe5ec);
   pointer-events: none;
   content: '';
 }
 
-.fivo-text-viewport[data-line-numbers='true'] .fivo-text-canvas::before {
+.filumo-text-viewport[data-line-numbers='true'] .filumo-text-canvas::before {
   display: block;
 }
 
-.fivo-text-row {
+.filumo-text-row {
   position: absolute;
   left: 0;
   right: 0;
@@ -68,37 +68,37 @@
   box-sizing: border-box;
 }
 
-.fivo-text-line-number,
-.fivo-text-filler-number {
-  flex: 0 0 var(--fivo-text-gutter-width);
+.filumo-text-line-number,
+.filumo-text-filler-number {
+  flex: 0 0 var(--filumo-text-gutter-width);
   box-sizing: border-box;
-  padding: 0 var(--fivo-text-gutter-padding);
+  padding: 0 var(--filumo-text-gutter-padding);
   // 分隔线移到背景后，仍为它预留 1px，保持数字右侧原有间距。
-  padding-right: calc(var(--fivo-text-gutter-padding) + 1px);
-  color: var(--fivo-muted, #697586);
+  padding-right: calc(var(--filumo-text-gutter-padding) + 1px);
+  color: var(--filumo-muted, #697586);
   text-align: right;
   user-select: none;
 }
 
-.fivo-text-gutter-fill {
+.filumo-text-gutter-fill {
   position: absolute;
   left: 0;
-  width: var(--fivo-text-gutter-width);
+  width: var(--filumo-text-gutter-width);
   overflow: hidden;
   pointer-events: none;
   user-select: none;
 }
 
-.fivo-text-gutter-fill[hidden] {
+.filumo-text-gutter-fill[hidden] {
   display: none;
 }
 
-.fivo-text-filler-number {
+.filumo-text-filler-number {
   display: block;
   width: 100%;
 }
 
-.fivo-text-line-content {
+.filumo-text-line-content {
   flex: 1;
   min-width: 0;
   padding-left: 12px;
@@ -107,71 +107,71 @@
   tab-size: 4;
 }
 
-.fivo-text-viewport[data-wrap='false'] .fivo-text-line-content {
+.filumo-text-viewport[data-wrap='false'] .filumo-text-line-content {
   white-space: pre;
   overflow-wrap: normal;
 }
 
-.fivo-text-row mark {
+.filumo-text-row mark {
   padding: 0;
   background: #fff1b8;
   color: #5f4900;
 }
 
-.fivo-text-row .fivo-text-hit-current {
+.filumo-text-row .filumo-text-hit-current {
   background: #ffd666;
 }
 
-.fivo-text-reveal {
-  background: var(--fivo-selected, #e8f2ff);
+.filumo-text-reveal {
+  background: var(--filumo-selected, #e8f2ff);
   border-radius: 2px;
 }
 
-.fivo-text-find {
+.filumo-text-find {
   display: flex;
   flex: 0 0 auto;
   flex-wrap: wrap;
   align-items: center;
   gap: 6px;
   padding: 8px 12px;
-  border-bottom: 1px solid var(--fivo-border, #dfe5ec);
+  border-bottom: 1px solid var(--filumo-border, #dfe5ec);
   font: 12px/1.5 system-ui, sans-serif;
 }
 
-.fivo-text-find input[type='search'] {
+.filumo-text-find input[type='search'] {
   min-width: 100px;
   flex: 1;
 }
 
-.fivo-text-find input[type='search'],
-.fivo-text-find button {
+.filumo-text-find input[type='search'],
+.filumo-text-find button {
   box-sizing: border-box;
   height: 30px;
   padding: 2px 8px;
-  border: 1px solid var(--fivo-border, #dfe5ec);
+  border: 1px solid var(--filumo-border, #dfe5ec);
   border-radius: 5px;
   font: inherit;
   color: inherit;
-  background: var(--fivo-surface, #fff);
+  background: var(--filumo-surface, #fff);
 }
 
-.fivo-text-find button {
+.filumo-text-find button {
   cursor: pointer;
 }
 
-.fivo-text-find label {
+.filumo-text-find label {
   display: inline-flex;
   align-items: center;
   gap: 4px;
 }
 
-.fivo-text-find input:focus-visible,
-.fivo-text-find button:focus-visible {
-  outline: 1px solid var(--fivo-primary, #1677ff);
+.filumo-text-find input:focus-visible,
+.filumo-text-find button:focus-visible {
+  outline: 1px solid var(--filumo-primary, #1677ff);
   outline-offset: -1px;
 }
 
-.fivo-text-watermark {
+.filumo-text-watermark {
   position: absolute;
   inset: 0;
   display: flex;

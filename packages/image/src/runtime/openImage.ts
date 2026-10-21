@@ -1,5 +1,5 @@
-import type { DocumentSource, OpenContext } from '@fivo/core';
-import { createSession, throwIfAborted } from '@fivo/core';
+import type { DocumentSource, OpenContext } from '@filumo/core';
+import { createSession, throwIfAborted } from '@filumo/core';
 import type { ImageOptions } from '../options';
 import type { ImageSession } from './ImageSession';
 // 文件选择器和通用下载接口常丢失 MIME，按已识别的图片后缀补全解码类型。

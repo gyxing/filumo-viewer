@@ -19,10 +19,10 @@ export class CodeBlock {
     en: boolean,
   ) {
     this.element = document.createElement('section');
-    this.element.className = 'fivo-markdown-code';
+    this.element.className = 'filumo-markdown-code';
     this.element.dataset.language = language;
     const header = document.createElement('div');
-    header.className = 'fivo-markdown-code-tools';
+    header.className = 'filumo-markdown-code-tools';
     header.dataset.searchExclude = 'true';
     const name = document.createElement('span');
     name.textContent = language || (en ? 'Code' : '代码');

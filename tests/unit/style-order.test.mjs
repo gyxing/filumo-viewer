@@ -24,8 +24,8 @@ test('公共原文与分栏样式在兼容转导出后仍保留副作用', async
   ])
     assert.ok(manifest.sideEffects.includes(file), file);
   const css = await readFile('packages/dom/dist/styles.css', 'utf8');
-  assert.match(css, /\.fivo-text-scope/);
-  assert.match(css, /\.fivo-split-handle/);
+  assert.match(css, /\.filumo-text-scope/);
+  assert.match(css, /\.filumo-split-handle/);
   const textCss = await readFile('packages/text/dist/styles.css', 'utf8');
-  assert.doesNotMatch(textCss, /\.fivo-text-row/);
+  assert.doesNotMatch(textCss, /\.filumo-text-row/);
 });

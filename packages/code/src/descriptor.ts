@@ -9,7 +9,7 @@ export const code: CodeFactory = (options = {}) => {
       (() =>
         new Worker(new URL('./worker.js', import.meta.url), {
           type: 'module',
-          name: 'fivo-code',
+          name: 'filumo-code',
         })),
   };
   return {

@@ -1,4 +1,4 @@
-import { FivoError, notify } from '@fivo/core';
+import { FilumoError, notify } from '@filumo/core';
 import {
   OFFICE_DEFAULT_ZOOM,
   OFFICE_MAX_ZOOM,
@@ -55,7 +55,7 @@ export function createOfficeInteractions(kind: string): OfficeInteractionPort {
   // 外部统计不能将无穷值或负数传播到工具栏内容条件。
   const normalizeCount = (value: number) => {
     if (!Number.isFinite(value))
-      throw new FivoError('INVALID_COUNT', '内容数量必须是有限数值');
+      throw new FilumoError('INVALID_COUNT', '内容数量必须是有限数值');
     return Math.max(0, Math.trunc(value));
   };
   const update = (change: Partial<OfficeInteractionState>) => {
@@ -71,16 +71,16 @@ export function createOfficeInteractions(kind: string): OfficeInteractionPort {
   };
   const requireFamily = (expected: OfficeInteractionState['family']) => {
     if (family !== expected)
-      throw new FivoError('UNSUPPORTED_COMMAND', '此格式不支持该操作');
+      throw new FilumoError('UNSUPPORTED_COMMAND', '此格式不支持该操作');
   };
   const requireHandler = <T>(handler: T | undefined): T => {
     if (!handler || !state.active)
-      throw new FivoError('COMMAND_NOT_READY', '文档操作尚未就绪');
+      throw new FilumoError('COMMAND_NOT_READY', '文档操作尚未就绪');
     return handler;
   };
   const validateIndex = (index: number, count: number) => {
     if (!Number.isInteger(index) || index < 0 || index >= count)
-      throw new FivoError('INVALID_TARGET', '导航目标超出范围');
+      throw new FilumoError('INVALID_TARGET', '导航目标超出范围');
   };
   return {
     getState: () => state,
@@ -92,7 +92,7 @@ export function createOfficeInteractions(kind: string): OfficeInteractionPort {
       };
     },
     async execute(command: OfficeCommandRequest) {
-      if (closed) throw new FivoError('OFFICE_DISPOSED', 'Office 文档已释放');
+      if (closed) throw new FilumoError('OFFICE_DISPOSED', 'Office 文档已释放');
       switch (command.type) {
         case 'zoom':
           if (
@@ -100,15 +100,15 @@ export function createOfficeInteractions(kind: string): OfficeInteractionPort {
             command.value < OFFICE_MIN_ZOOM ||
             command.value > OFFICE_MAX_ZOOM
           )
-            throw new FivoError('INVALID_ZOOM', '缩放超出支持范围');
+            throw new FilumoError('INVALID_ZOOM', '缩放超出支持范围');
           update({ zoom: command.value, zoomMode: 'percentage' });
           return;
         case 'zoomMode':
           if (!['percentage', 'fit-width', 'fit-page'].includes(command.mode))
-            throw new FivoError('INVALID_ZOOM_MODE', '缩放模式无效');
+            throw new FilumoError('INVALID_ZOOM_MODE', '缩放模式无效');
           // 表格通常是长画布，只提供适合宽度，避免误导为整张表适合页面。
           if (family === 'spreadsheet' && command.mode === 'fit-page')
-            throw new FivoError('UNSUPPORTED_COMMAND', '表格不支持适合页面');
+            throw new FilumoError('UNSUPPORTED_COMMAND', '表格不支持适合页面');
           update({ zoomMode: command.mode });
           return;
         case 'outline':
@@ -128,13 +128,13 @@ export function createOfficeInteractions(kind: string): OfficeInteractionPort {
         case 'revision':
           requireFamily('word');
           if (!['final', 'markup', 'original'].includes(command.mode))
-            throw new FivoError('INVALID_REVISION_MODE', '修订显示模式无效');
+            throw new FilumoError('INVALID_REVISION_MODE', '修订显示模式无效');
           update({ revisionMode: command.mode });
           return;
         case 'sheetMode':
           requireFamily('spreadsheet');
           if (!['source', 'reading'].includes(command.mode))
-            throw new FivoError('INVALID_SHEET_MODE', '表格显示模式无效');
+            throw new FilumoError('INVALID_SHEET_MODE', '表格显示模式无效');
           update({ sheetMode: command.mode });
           return;
         case 'transitions':
@@ -165,7 +165,7 @@ export function createOfficeInteractions(kind: string): OfficeInteractionPort {
             requireFamily('spreadsheet');
             const sheetId = command.target.sheetId;
             if (!state.sheets.some((sheet) => sheet.id === sheetId))
-              throw new FivoError('INVALID_TARGET', '工作表不存在');
+              throw new FilumoError('INVALID_TARGET', '工作表不存在');
             update({ activeSheetId: command.target.sheetId });
           } else {
             requireFamily('word');
@@ -180,7 +180,7 @@ export function createOfficeInteractions(kind: string): OfficeInteractionPort {
               ? requireHandler(handlers?.setQuery)
               : undefined;
           if (command.query !== undefined && typeof command.query !== 'string')
-            throw new FivoError('INVALID_QUERY', '查询必须为文本');
+            throw new FilumoError('INVALID_QUERY', '查询必须为文本');
           update({
             showSearch: command.open ?? true,
             ...(command.open ?? true ? { showOutline: false } : {}),
@@ -193,7 +193,7 @@ export function createOfficeInteractions(kind: string): OfficeInteractionPort {
           return;
         }
         default:
-          throw new FivoError('UNSUPPORTED_COMMAND', '未知 Office 操作');
+          throw new FilumoError('UNSUPPORTED_COMMAND', '未知 Office 操作');
       }
     },
     updateFitZoom(mode, zoom) {
@@ -262,7 +262,7 @@ export function createOfficeInteractions(kind: string): OfficeInteractionPort {
       });
     },
     bind(next) {
-      if (closed) throw new FivoError('OFFICE_DISPOSED', 'Office 文档已释放');
+      if (closed) throw new FilumoError('OFFICE_DISPOSED', 'Office 文档已释放');
       handlers = next;
       update({ ready: true });
       return () => {

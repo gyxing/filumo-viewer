@@ -1,5 +1,5 @@
-import type { ViewerHandle } from '@fivo/dom';
-import { DocumentViewer } from '@fivo/react';
+import type { ViewerHandle } from '@filumo/dom';
+import { DocumentViewer } from '@filumo/react';
 import React, { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { events, options, plugins, setupDemo } from '../../shared/demo';

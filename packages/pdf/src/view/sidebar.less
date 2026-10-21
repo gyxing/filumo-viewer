@@ -1,4 +1,4 @@
-.fivo-pdf-sidebar {
+.filumo-pdf-sidebar {
   display: flex;
   flex: 0 0 260px;
   flex-direction: column;
@@ -9,27 +9,27 @@
   min-height: 0;
   box-sizing: border-box;
   container-type: inline-size;
-  color: var(--fivo-text);
-  background: var(--fivo-surface);
-  border-right: 1px solid var(--fivo-border);
+  color: var(--filumo-text);
+  background: var(--filumo-surface);
+  border-right: 1px solid var(--filumo-border);
   font: 13px/1.5 system-ui, sans-serif;
 }
-.fivo-pdf-sidebar[data-collapsed='true'] {
+.filumo-pdf-sidebar[data-collapsed='true'] {
   flex-basis: 28px;
   width: 28px;
   min-width: 28px;
 }
-.fivo-pdf-sidebar [hidden] {
+.filumo-pdf-sidebar [hidden] {
   display: none;
 }
-.fivo-pdf-sidebar-content {
+.filumo-pdf-sidebar-content {
   display: flex;
   flex: 1;
   flex-direction: column;
   min-width: 0;
   min-height: 0;
 }
-.fivo-pdf-sidebar-content > header {
+.filumo-pdf-sidebar-content > header {
   display: flex;
   flex: 0 0 auto;
   align-items: center;
@@ -37,9 +37,9 @@
   min-height: 48px;
   padding: 0 8px;
   box-sizing: border-box;
-  border-bottom: 1px solid var(--fivo-border);
+  border-bottom: 1px solid var(--filumo-border);
 }
-.fivo-pdf-tabs {
+.filumo-pdf-tabs {
   display: inline-flex;
   flex: 1;
   flex-wrap: wrap;
@@ -50,13 +50,13 @@
   padding: 2px;
   box-sizing: border-box;
   border-radius: 6px;
-  background: var(--fivo-hover);
+  background: var(--filumo-hover);
 }
-.fivo-pdf-tab {
+.filumo-pdf-tab {
   min-width: 40px;
   min-height: 28px;
   padding: 0 8px;
-  color: var(--fivo-muted);
+  color: var(--filumo-muted);
   background: transparent;
   border: 0;
   border-radius: 5px;
@@ -64,20 +64,20 @@
   white-space: nowrap;
   cursor: pointer;
 }
-.fivo-pdf-tab--active {
-  color: var(--fivo-primary-active);
-  background: var(--fivo-surface);
+.filumo-pdf-tab--active {
+  color: var(--filumo-primary-active);
+  background: var(--filumo-surface);
   box-shadow: 0 1px 2px rgb(15 23 42 / 12%);
   font-weight: 600;
 }
-.fivo-pdf-sidebar-count {
+.filumo-pdf-sidebar-count {
   margin-left: auto;
-  color: var(--fivo-muted);
+  color: var(--filumo-muted);
   font-size: 12px;
   white-space: nowrap;
 }
-.fivo-pdf-sidebar-collapse,
-.fivo-pdf-sidebar-expand {
+.filumo-pdf-sidebar-collapse,
+.filumo-pdf-sidebar-expand {
   display: inline-flex;
   flex: 0 0 24px;
   align-items: center;
@@ -85,58 +85,58 @@
   width: 24px;
   height: 28px;
   padding: 0;
-  color: var(--fivo-muted);
+  color: var(--filumo-muted);
   background: transparent;
   border: 0;
   border-radius: 4px;
   cursor: pointer;
 }
-.fivo-pdf-sidebar-expand {
+.filumo-pdf-sidebar-expand {
   margin: 10px 1px;
 }
-.fivo-pdf-sidebar-collapse:hover,
-.fivo-pdf-sidebar-expand:hover,
-.fivo-pdf-tab:hover {
-  color: var(--fivo-primary);
-  background: var(--fivo-selected);
+.filumo-pdf-sidebar-collapse:hover,
+.filumo-pdf-sidebar-expand:hover,
+.filumo-pdf-tab:hover {
+  color: var(--filumo-primary);
+  background: var(--filumo-selected);
 }
-.fivo-pdf-tab:focus-visible,
-.fivo-pdf-sidebar-collapse:focus-visible,
-.fivo-pdf-sidebar-expand:focus-visible {
-  outline: 2px solid var(--fivo-primary);
+.filumo-pdf-tab:focus-visible,
+.filumo-pdf-sidebar-collapse:focus-visible,
+.filumo-pdf-sidebar-expand:focus-visible {
+  outline: 2px solid var(--filumo-primary);
   outline-offset: -2px;
 }
-.fivo-pdf-tab-panel {
+.filumo-pdf-tab-panel {
   display: flex;
   flex: 1;
   flex-direction: column;
   min-height: 0;
   min-width: 0;
 }
-.fivo-pdf-outline {
+.filumo-pdf-outline {
   display: flex;
   flex-direction: column;
   flex: 1;
   min-height: 0;
   overflow: hidden;
 }
-.fivo-pdf-outline-status {
+.filumo-pdf-outline-status {
   padding: 16px 12px;
-  color: var(--fivo-muted);
+  color: var(--filumo-muted);
   overflow-wrap: anywhere;
 }
-.fivo-pdf-outline-status:empty {
+.filumo-pdf-outline-status:empty {
   display: none;
 }
-.fivo-pdf-thumbnails {
+.filumo-pdf-thumbnails {
   flex: 1;
   min-height: 0;
   overflow: auto;
 }
-.fivo-pdf-thumbnails > div {
+.filumo-pdf-thumbnails > div {
   position: relative;
 }
-.fivo-pdf-thumbnail {
+.filumo-pdf-thumbnail {
   position: absolute;
   left: 12px;
   right: 12px;
@@ -148,27 +148,27 @@
   height: 164px;
   padding: 6px;
   box-sizing: border-box;
-  color: var(--fivo-text);
-  background: var(--fivo-bg);
-  border: 1px solid var(--fivo-border);
+  color: var(--filumo-text);
+  background: var(--filumo-bg);
+  border: 1px solid var(--filumo-border);
   border-radius: 4px;
   cursor: pointer;
 }
-.fivo-pdf-thumbnail > canvas {
+.filumo-pdf-thumbnail > canvas {
   max-width: 120px;
   max-height: 140px;
 }
-.fivo-pdf-thumbnail[aria-selected='true'] {
-  color: var(--fivo-primary);
-  background: var(--fivo-selected);
-  border-color: var(--fivo-primary);
+.filumo-pdf-thumbnail[aria-selected='true'] {
+  color: var(--filumo-primary);
+  background: var(--filumo-selected);
+  border-color: var(--filumo-primary);
 }
-.fivo-pdf-thumbnail:focus-visible {
-  outline: 2px solid var(--fivo-primary);
+.filumo-pdf-thumbnail:focus-visible {
+  outline: 2px solid var(--filumo-primary);
   outline-offset: -2px;
 }
 @container (max-width: 235px) {
-  .fivo-pdf-sidebar-count {
+  .filumo-pdf-sidebar-count {
     display: none;
   }
 }

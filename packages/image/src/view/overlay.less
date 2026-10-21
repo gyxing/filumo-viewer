@@ -1,4 +1,4 @@
-.fivo-image-preview {
+.filumo-image-preview {
   position: absolute;
   inset: 0;
   z-index: 100;
@@ -9,10 +9,10 @@
   background: rgb(32 34 38 / 78%);
   font: 13px/1.5 system-ui, sans-serif;
 }
-.fivo-image-preview[hidden] {
+.filumo-image-preview[hidden] {
   display: none;
 }
-.fivo-image-preview-toolbar {
+.filumo-image-preview-toolbar {
   display: flex;
   flex: 0 0 auto;
   align-items: center;
@@ -24,7 +24,7 @@
   background: rgb(32 34 38 / 22%);
   border-bottom: 1px solid rgb(255 255 255 / 14%);
 }
-.fivo-image-preview-title {
+.filumo-image-preview-title {
   display: flex;
   flex: 1;
   align-items: baseline;
@@ -34,26 +34,26 @@
   font-size: 14px;
   font-weight: 500;
 }
-.fivo-image-preview-title-name {
+.filumo-image-preview-title-name {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.fivo-image-preview-title-extension {
+.filumo-image-preview-title-extension {
   flex: 0 0 auto;
 }
-.fivo-image-preview-controls {
+.filumo-image-preview-controls {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 6px;
 }
-.fivo-image-preview-controls output {
+.filumo-image-preview-controls output {
   min-width: 48px;
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
-.fivo-image-preview-controls button {
+.filumo-image-preview-controls button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -66,41 +66,41 @@
   border-radius: 5px;
   cursor: pointer;
 }
-.fivo-image-preview-controls button > svg {
+.filumo-image-preview-controls button > svg {
   width: 16px;
   height: 16px;
 }
-.fivo-image-preview-controls button:hover:not(:disabled) {
+.filumo-image-preview-controls button:hover:not(:disabled) {
   background: rgb(255 255 255 / 12%);
 }
-.fivo-image-preview-controls button:focus-visible {
+.filumo-image-preview-controls button:focus-visible {
   outline: 2px solid #91caff;
   outline-offset: 2px;
 }
-.fivo-image-preview-controls button:disabled {
+.filumo-image-preview-controls button:disabled {
   opacity: 0.4;
   cursor: default;
 }
-.fivo-image-preview-controls button[hidden] {
+.filumo-image-preview-controls button[hidden] {
   display: none;
 }
-.fivo-image-preview-controls .fivo-image-preview-retry {
+.filumo-image-preview-controls .filumo-image-preview-retry {
   width: auto;
 }
-.fivo-image-preview-viewport {
+.filumo-image-preview-viewport {
   position: relative;
   flex: 1;
   min-height: 0;
   width: 100%;
   overflow: hidden;
 }
-.fivo-image-preview-viewport .fivo-image-surface {
+.filumo-image-preview-viewport .filumo-image-surface {
   background: transparent;
 }
-.fivo-image-preview > [role='status'] {
+.filumo-image-preview > [role='status'] {
   text-align: center;
   padding: 8px;
 }
-.fivo-image-preview > [role='status']:empty {
+.filumo-image-preview > [role='status']:empty {
   display: none;
 }

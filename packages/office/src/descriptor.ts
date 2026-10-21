@@ -12,7 +12,7 @@ export const office: OfficeFactory = (options = {}) => {
   const builtInWorker = () =>
     new Worker(new URL('./worker.js', import.meta.url), {
       type: 'module',
-      name: 'fivo-office',
+      name: 'filumo-office',
     });
   return {
     document: {

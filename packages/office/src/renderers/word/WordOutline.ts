@@ -1,4 +1,4 @@
-import { OUTLINE_DEFAULTS, OutlineTree } from '@fivo/dom/outline';
+import { OUTLINE_DEFAULTS, OutlineTree } from '@filumo/dom/outline';
 import type { WordOutlineProvider } from '../../engine/word/WordOutlineProvider';
 import type { WordOutlineTreeNode } from '../../engine/word/types';
 import type { OfficeRenderContext } from '../../view/types';
@@ -43,17 +43,17 @@ export class WordOutline {
     const doc = base.document;
     this.viewActive = base.isActive?.() ?? true;
     this.element = doc.createElement('aside');
-    this.element.className = 'fivo-native-word-outline';
+    this.element.className = 'filumo-native-word-outline';
     const header = doc.createElement('header');
     const tabs = doc.createElement('div');
-    tabs.className = 'fivo-native-navigation-tabs';
+    tabs.className = 'filumo-native-navigation-tabs';
     this.title = doc.createElement('button');
     this.title.type = 'button';
-    this.title.className = 'fivo-native-tab fivo-native-tab--active';
+    this.title.className = 'filumo-native-tab filumo-native-tab--active';
     this.title.setAttribute('aria-pressed', 'true');
     this.find = doc.createElement('button');
     this.find.type = 'button';
-    this.find.className = 'fivo-native-tab';
+    this.find.className = 'filumo-native-tab';
     this.find.onclick = () => {
       void base.services.state
         .execute({ type: 'search', open: true })
@@ -61,7 +61,7 @@ export class WordOutline {
     };
     tabs.append(this.title, this.find);
     this.count = doc.createElement('span');
-    this.count.className = 'fivo-native-count';
+    this.count.className = 'filumo-native-count';
     this.close = doc.createElement('button');
     this.close.type = 'button';
     this.close.onclick = () => {

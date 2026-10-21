@@ -25,7 +25,7 @@ const server = createServer(async (req, res) => {
       res
         .writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' })
         .end(
-          '<h1>Fivo 实际消费验证</h1>' +
+          '<h1>Filumo 实际消费验证</h1>' +
             report.cases
               .map(
                 (item) =>
@@ -49,7 +49,7 @@ const server = createServer(async (req, res) => {
     if (path.endsWith('/checks.html'))
       res.setHeader(
         'Content-Security-Policy',
-        "default-src 'self'; script-src 'self'; style-src 'self' 'nonce-fivo-test'; style-src-attr 'unsafe-inline'; worker-src 'self' blob:; img-src 'self' data: blob:; font-src 'self' data: blob:",
+        "default-src 'self'; script-src 'self'; style-src 'self' 'nonce-filumo-test'; style-src-attr 'unsafe-inline'; worker-src 'self' blob:; img-src 'self' data: blob:; font-src 'self' data: blob:",
       );
     const data = await readFile(file);
     res

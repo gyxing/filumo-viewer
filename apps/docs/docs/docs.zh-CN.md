@@ -1,15 +1,20 @@
 ---
-title: Fivo 开发文档
-description: Fivo Office 预览组件的框架接入、公开 API、资源部署与开发指南。
+title: Filumo 开发文档
+description: Filumo 0.1.0 多格式文件预览：十五个包、九类插件、React 与 Vue 接入、公开 API 和资源部署。
+keywords:
+  - Filumo
+  - file preview
+  - document viewer
+  - 文件预览
 siteLayout: docs
 toc: content
 ---
 
-# Fivo 开发文档
+# Filumo 开发文档
 
-Fivo 是跨框架的浏览器端 Office 文档预览组件。解析、图片、图表与预览在浏览器内完成，不依赖在线文档转换服务。React、Vue 3、Vue 2 和原生 JavaScript 共用原生 DOM 渲染器。
+Filumo 是跨框架的浏览器端文件预览组件。解析、图片、图表与预览在浏览器内完成，不依赖在线文档转换服务。React、Vue 3、Vue 2 和原生 JavaScript 共用原生 DOM 渲染器。
 
-> 当前工作区版本为 **0.1.0-next.0**，尚未发布到 npm。下文只描述当前实现；已接入 Office、Text、JSON、Markdown、图片和 PDF 只读插件，文档编辑和编辑后保存仍属于后续扩展。不要安装同名第三方包，也不要使用旧包入口。
+> 当前工作区版本为 **0.1.0**，尚未发布到 npm。下文只描述当前实现；已接入 Office、PDF、图片、Text、JSON、Markdown、CSV、XML 和 Code 九类只读插件，文档编辑和编辑后保存仍属于后续扩展。不要安装同名第三方包，也不要使用旧包入口。
 
 <nav className="office-viewer-docs__quick-links" aria-label="文档快捷入口">
   <a href="#quick-start">快速接入</a>
@@ -21,24 +26,30 @@ Fivo 是跨框架的浏览器端 Office 文档预览组件。解析、图片、�
 
 ## 包选择与按需加载
 
-| 包           | 用途                                     | 何时引入                       |
-| ------------ | ---------------------------------------- | ------------------------------ |
-| @fivo/core   | 文档来源、插件协议、会话、取消、原件导出 | 独立文档流程或格式插件         |
-| @fivo/dom    | 原生预览外壳、样式管理、通用能力         | 原生 JS 宿主或自定义界面       |
-| @fivo/office | Office 描述符、解析驱动和原生渲染器      | Word、Excel、PPT 预览          |
-| @fivo/text | 纯文本及未知文本兜底 | 文本原文预览 |
-| @fivo/json | JSON 结构与原文 | JSON 文件 |
-| @fivo/markdown | Markdown 阅读与原文 | Markdown 文件 |
-| @fivo/image | 图片及公共图片交互 | 独立图片与 Office 弹层 |
-| @fivo/pdf | PDF 连续阅读 | 部署同版 Worker 及辅助资产 |
-| @fivo/react  | React 18/19 薄适配组件                   | React 宿主                     |
-| @fivo/vue    | Vue 3 薄适配组件                         | Vue 3 宿主                     |
-| @fivo/vue2   | Vue 2.6/2.7 薄适配组件                   | Vue 2 宿主                     |
-| @fivo/viewer | 六类格式的轻量标准插件预设                 | 直接使用稳定的 standardPlugins |
+| 包                                                                 | 用途                                      | 源码与详细说明                                                                              |
+| ------------------------------------------------------------------ | ----------------------------------------- | ------------------------------------------------------------------------------------------- |
+| [@filumo/core](https://www.npmjs.com/package/@filumo/core)         | 来源、插件协议、会话及公共文本处理        | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/core#readme)     |
+| [@filumo/dom](https://www.npmjs.com/package/@filumo/dom)           | 原生 DOM 外壳、工具栏、大纲及原文公共视图 | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/dom#readme)      |
+| [@filumo/viewer](https://www.npmjs.com/package/@filumo/viewer)     | 九类格式的轻量标准插件预设                | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/viewer#readme)   |
+| [@filumo/office](https://www.npmjs.com/package/@filumo/office)     | Word、Excel、PowerPoint 及支持的 WPS 文档 | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/office#readme)   |
+| [@filumo/pdf](https://www.npmjs.com/package/@filumo/pdf)           | PDF 连续阅读、缩略图、大纲及查找          | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/pdf#readme)      |
+| [@filumo/image](https://www.npmjs.com/package/@filumo/image)       | 独立图片及公共图片弹层交互                | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/image#readme)    |
+| [@filumo/text](https://www.npmjs.com/package/@filumo/text)         | 纯文本、日志及可读内容兜底                | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/text#readme)     |
+| [@filumo/json](https://www.npmjs.com/package/@filumo/json)         | JSON、JSONC、JSONL 与 NDJSON              | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/json#readme)     |
+| [@filumo/markdown](https://www.npmjs.com/package/@filumo/markdown) | Markdown 阅读、原文、大纲及受控 HTML      | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/markdown#readme) |
+| [@filumo/csv](https://www.npmjs.com/package/@filumo/csv)           | CSV、TSV 只读表格                         | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/csv#readme)      |
+| [@filumo/xml](https://www.npmjs.com/package/@filumo/xml)           | XML 原文与结构双栏                        | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/xml#readme)      |
+| [@filumo/code](https://www.npmjs.com/package/@filumo/code)         | 常用代码、配置、脚本及构建文件            | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/code#readme)     |
+| [@filumo/react](https://www.npmjs.com/package/@filumo/react)       | React 18/19 适配                          | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/react#readme)    |
+| [@filumo/vue](https://www.npmjs.com/package/@filumo/vue)           | Vue 3.3+（小于 4）适配                    | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/vue#readme)      |
+| [@filumo/vue2](https://www.npmjs.com/package/@filumo/vue2)         | Vue 2.6/2.7 适配                          | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/vue2#readme)     |
 
 只选择自己的框架适配包，不需要安装 React、Vue 两套运行时。原生 JS 和 Vue 的 Office 预览不依赖 React。
 
 `office()` 创建轻量描述符，真正打开文档时才加载驱动和对应格式视图。图片与 PDF 的资源部署见 [图片与 PDF 指南](./guides/image-pdf)。未注册的插件不会隐式加载。
+
+全部十五个包及安装组合见[包总览](./guides/packages)。\
+标准预设是冻结的只读数组，包含九类描述符；它不提供框架组件、createViewer 或独立 styles.css。安装预设会安装全部格式依赖，运行时仍按文件类型懒加载。
 
 ## 安装与工作区使用
 
@@ -50,7 +61,7 @@ pnpm build
 pnpm demo:react
 ```
 
-发布后，宿主安装自己的适配器加 `@fivo/office` 即可；发布前使用工作区或经过构建、打包的本地包。左侧框架接入指南提供完整步骤。所有包使用 ESM，宿主负责提供匹配的 React 或 Vue。
+发布后，宿主安装自己的适配器与所需格式包，或使用 `@filumo/viewer` 标准预设；发布前使用工作区或经过构建、打包的本地包。左侧框架接入指南提供完整步骤。所有包使用 ESM，宿主负责提供匹配的 React 或 Vue。
 
 **普通接入不需要手动导入 CSS，也不要求配置 Less loader。**
 
@@ -60,9 +71,9 @@ pnpm demo:react
 
 ```tsx | pure
 import { useRef } from 'react';
-import { DocumentViewer } from '@fivo/react';
-import { office } from '@fivo/office';
-import type { ViewerHandle } from '@fivo/dom';
+import { DocumentViewer } from '@filumo/react';
+import { office } from '@filumo/office';
+import type { ViewerHandle } from '@filumo/react';
 
 const plugins = [office()];
 export function Preview({ file }: { file?: File }) {
@@ -84,13 +95,13 @@ export function Preview({ file }: { file?: File }) {
 
 ## Vue 3、Vue 2 与原生 JavaScript
 
-Vue 3 使用 `@fivo/vue`，支持模板 ref、Composition API 和 KeepAlive。Vue 2 使用 `@fivo/vue2`，支持 Options API、$refs 和 KeepAlive；不要把 Vue 3 的 script setup 示例直接用于 Vue 2.6。
+Vue 3 使用 `@filumo/vue`，支持模板 ref、Composition API 和 KeepAlive。Vue 2 使用 `@filumo/vue2`，支持 Options API、$refs 和 KeepAlive；不要把 Vue 3 的 script setup 示例直接用于 Vue 2.6。
 
 组件参数均为 source、plugins、options；事件为 ready、error、stateChange、capabilitiesChange。SFC 模板可使用 `@state-change` 和 `@capabilities-change`。运行时句柄不要放入深度响应式对象。左侧框架接入指南分别列出完整示例。
 
 ```ts | pure
-import { createViewer } from '@fivo/dom';
-import { office } from '@fivo/office';
+import { createViewer } from '@filumo/dom';
+import { office } from '@filumo/office';
 
 const viewer = createViewer(container, {
   plugins: [office()],
@@ -115,7 +126,7 @@ async function disposePreview() {
 | URL 描述对象 | { url, name, mimeType, request }                      | 设置显示名称、类型和 RequestInit   |
 | 来源工厂     | () => DocumentSource 或 Promise&lt;DocumentSource&gt; | 每次打开创建独立读取与释放租约     |
 
-直接传入 Response、ArrayBuffer 或旧版 `async (signal) => Response` 不属于当前合同。
+直接传入 Response、ArrayBuffer 或旧版 `async (signal) => Response` 不属于当前接口。
 
 ```ts | pure
 await viewer.open({
@@ -255,7 +266,7 @@ Office 工具栏按文档内容显示专属操作：Word 显示实际存在的�
 ## Office 插件配置
 
 ```ts | pure
-import { office } from '@fivo/office';
+import { office } from '@filumo/office';
 const plugins = [
   office({
     worker: 'auto',
@@ -280,14 +291,14 @@ Office resourcePolicy 支持 maxFileBytes、timeoutMs、maxArchiveEntries、maxA
 
 ## Worker 与部署
 
-默认 Worker 作为 `@fivo/office/worker.js` 发布，通过 new URL/import.meta.url 引用。构建器应输出对应资源，不要把包内路径当作线上绝对 URL。
+默认 Worker 作为 `@filumo/office/worker.js` 发布，通过 new URL/import.meta.url 引用。构建器应输出对应资源，不要把包内路径当作线上绝对 URL。
 
 ```ts | pure
 const plugins = [
   office({
     worker: 'always',
     workerFactory: () =>
-      new Worker('/assets/fivo-office-worker.js', { type: 'module' }),
+      new Worker('/assets/filumo-office-worker.js', { type: 'module' }),
   }),
 ];
 ```
@@ -309,23 +320,34 @@ const plugins = [
 只有宿主主动选择 external 时才需要手动加载：
 
 ```ts | pure
-import '@fivo/dom/styles.css';
-import '@fivo/office/styles.css';
+import '@filumo/dom/styles.css';
+import '@filumo/image/styles.css';
+import '@filumo/office/styles.css';
 const viewer = createViewer(container, {
   plugins: [office()],
   stylePolicy: { mode: 'external' },
 });
 ```
 
+external 示例中的三个样式包都应声明为宿主直接依赖（`@filumo/dom`、`@filumo/image`、`@filumo/office`）。其他格式按实际启用的插件加载对应 styles.css；JSON/XML 原文由 DOM 提供，不要求引入 Text 样式。
+
 CSS 必须匹配包版本；external 缺少匹配标记或同组多版本冲突会报错。nonce 仅授权 style 标签，动态定位与文档布局仍使用内联样式属性，需按宿主策略处理 style-src-attr。不要为解决样式问题关闭整个站点 CSP。
 
 ## 格式、图片与交互
 
-| 文档族     | 支持扩展名                 | 交互                                              |
-| ---------- | -------------------------- | ------------------------------------------------- |
-| Word       | DOC、DOCX、DOCM、DOTX、WPS | 分页、大纲、查找、缩放、只读修订和批注            |
-| Excel      | XLS、XLSX、XLSM、XLTX      | 工作表、稀疏网格、冻结/合并、阅读模式、查找和批注 |
-| PowerPoint | PPT、PPTX、PPTM、POTX      | 缩略图、页码、备注、图片、媒体与部分转场          |
+| 文档族     | 支持扩展名                                | 交互                                              |
+| ---------- | ----------------------------------------- | ------------------------------------------------- |
+| Word       | DOC、DOCX、DOCM、DOTX、WPS                | 分页、大纲、查找、缩放、只读修订和批注            |
+| Excel      | XLS、XLSX、XLSM、XLTX                     | 工作表、稀疏网格、冻结/合并、阅读模式、查找和批注 |
+| PowerPoint | PPT、PPTX、PPTM、POTX                     | 缩略图、页码、备注、图片、媒体与部分转场          |
+| PDF        | PDF                                       | 连续滚动、大纲、缩略图、查找、旋转与文字选择      |
+| 图片       | PNG、JPEG、GIF、WebP、BMP、SVG、AVIF      | 缩放、拖动、旋转、复位；解码能力依赖浏览器        |
+| Text       | TXT、LOG、INI、CONF、CFG、PROPERTIES、OUT | 编码识别、原文、行号、换行及可读内容兜底          |
+| JSON       | JSON、JSONC、JSONL、NDJSON                | 结构与原文、重复键保留、记录诊断                  |
+| Markdown   | MD、MARKDOWN                              | 阅读、原文、大纲、任务列表、表格及受控 HTML       |
+| CSV        | CSV、TSV                                  | 表格窗口化、分隔符、列宽与选区复制                |
+| XML        | XML                                       | 原文与结构双栏、命名空间及源位置映射              |
+| Code       | 常用语言、脚本、配置与构建文件            | 源码高亮、语言选择、行号及查找                    |
 
 - 双击图片可缩放、旋转、复位、下载和关闭，Esc 恢复到触发节点。
 - 表格原始模式保留行高/列宽；阅读模式调整可读性，空白网格只补到视口。
@@ -336,7 +358,7 @@ CSS 必须匹配包版本；external 缺少匹配标记或同组多版本冲突�
 ## 原件导出与后续编辑
 
 ```ts | pure
-import { exportOriginal } from '@fivo/core';
+import { exportOriginal } from '@filumo/core';
 const session = viewer.getSnapshot().session;
 if (session) {
   const result = await exportOriginal(session.source, session.signal);
@@ -369,7 +391,7 @@ open 可能拒绝，同时通过 onError/error 上报。被新任务替换的加
 
 | 命令                            | 用途                                       |
 | ------------------------------- | ------------------------------------------ |
-| pnpm docs:dev                   | dumi 文档和公开 Playground，启动前构建组件 |
+| pnpm docs:dev                   | dumi 文档和公开 Playground，直接编译包源码 |
 | pnpm smoke                      | React 接入的本地样本烟测，/dev/smoke-test  |
 | pnpm demo:js                    | 原生 JS 的构建产物示例                     |
 | pnpm demo:react                 | React 示例                                 |
@@ -377,12 +399,12 @@ open 可能拒绝，同时通过 onError/error 上报。被新任务替换的加
 | pnpm build                      | 构建组件包                                 |
 | pnpm docs:build                 | 公开文档生产构建                           |
 
-组件源码尚无 watch 联动。修改 packages 后重新 build；demo 还需重启服务，不能只刷新浏览器。默认端口 4173，可追加 --port 4174。详细测试步骤、样本隐私和环境变量见本地开发与测试指南。
+docs:dev 和 smoke 通过源码别名及开发插件联动 packages 源码修改；首次启动只准备元数据、样本和 PDF 资源。独立 demo 消费构建产物，修改包源码后仍需重新构建并重启 demo。默认端口 4173，可追加 --port 4174。详细测试步骤、样本隐私和环境变量见本地开发与测试指南。
 
 ## 兼容、限制与迁移
 
-已验证组合包含 React 18.3.1/19.2.0、Vue 3.5.43、Vue 2.6.14/2.7.16、Vite 5.4.21 和真实浏览器。支持 Vue 2 不等于支持 IE11 或所有 Webpack 4 默认配置。
+当前声明支持 React >=18 <20、Vue >=3.3 <4 与 Vue 2.6/2.7。仓库历史验证曾覆盖 React 18.3.1/19.2.0、Vue 3.5.43、Vue 2.6.14/2.7.16 和 Vite 5.4.21；这不代表改名后 0.1.0 的全部格式已重新通过验证。支持 Vue 2 不等于支持 IE11 或所有 Webpack 4 默认配置。
 
 浏览器排版、字体、复杂二进制 Office、图表和媒体编码存在边界，不能保证与 Microsoft Office/WPS 逐像素相同。渐进和窗口化呈现的首屏就绪不代表全部页面完成。
 
-旧包的 uri、parseOptions、defaultViewState 和 layout 深层入口不属于 Fivo API。按迁移指南重新选择包和参数，不添加旧入口兼容层。导航中指南均提供中英文版本，本机业务样本和内部实施计划不进入公开站点。
+旧包的 uri、parseOptions、defaultViewState 和 layout 深层入口不属于 Filumo API。按迁移指南重新选择包和参数，不添加旧入口兼容层。导航中指南均提供中英文版本，本机业务样本和内部实施计划不进入公开站点。

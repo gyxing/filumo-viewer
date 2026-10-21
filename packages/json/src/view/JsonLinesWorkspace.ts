@@ -1,6 +1,6 @@
-import { indexLines } from '@fivo/core/text';
-import type { TextDocument } from '@fivo/core/text';
-import type { ViewContext, ViewOptions } from '@fivo/dom';
+import { indexLines } from '@filumo/core/text';
+import type { TextDocument } from '@filumo/core/text';
+import type { ViewContext, ViewOptions } from '@filumo/dom';
 import type { JsonLinesSession } from '../runtime/JsonLinesSession';
 import type { JsonLinesIndex } from '../parser/linesTypes';
 import type { JsonLinesResult } from '../parser/linesTypes';
@@ -50,25 +50,25 @@ export class JsonLinesWorkspace {
     this.options = context.options;
     this.zoom = context.options.zoom ?? 100;
     this.element = document.createElement('section');
-    this.element.className = 'fivo-json-lines-workspace';
+    this.element.className = 'filumo-json-lines-workspace';
     this.layoutTabs = document.createElement('div');
-    this.layoutTabs.className = 'fivo-json-lines-layout-tabs';
+    this.layoutTabs.className = 'filumo-json-lines-layout-tabs';
     this.listHost = document.createElement('aside');
-    this.listHost.className = 'fivo-json-lines-list';
+    this.listHost.className = 'filumo-json-lines-list';
     this.detailHost = document.createElement('section');
-    this.detailHost.className = 'fivo-json-lines-detail';
+    this.detailHost.className = 'filumo-json-lines-detail';
     this.tabs = document.createElement('div');
-    this.tabs.className = 'fivo-json-record-tabs';
+    this.tabs.className = 'filumo-json-record-tabs';
     this.tabs.setAttribute('role', 'tablist');
     this.recordBody = document.createElement('div');
-    this.recordBody.className = 'fivo-json-record-body';
+    this.recordBody.className = 'filumo-json-record-body';
     this.status = document.createElement('div');
-    this.status.className = 'fivo-json-lines-status';
+    this.status.className = 'filumo-json-lines-status';
     this.status.setAttribute('role', 'status');
     this.fullHost = document.createElement('div');
-    this.fullHost.className = 'fivo-json-lines-full';
+    this.fullHost.className = 'filumo-json-lines-full';
     const panes = document.createElement('div');
-    panes.className = 'fivo-json-lines-panes';
+    panes.className = 'filumo-json-lines-panes';
     this.detailHost.append(this.tabs, this.status, this.recordBody);
     panes.append(this.listHost, this.detailHost);
     this.element.append(this.layoutTabs, panes, this.fullHost);
@@ -373,7 +373,7 @@ export class JsonLinesWorkspace {
     this.recordBody.dataset.mode = this.recordMode;
     // Source 自己持有根节点，借助单独类包裹选择隐藏而不销毁查找状态。
     const surface =
-      this.recordBody.querySelector<HTMLElement>('.fivo-text-scope');
+      this.recordBody.querySelector<HTMLElement>('.filumo-text-scope');
     if (surface) surface.hidden = this.recordMode !== 'source';
     this.tabs.replaceChildren();
     this.button(

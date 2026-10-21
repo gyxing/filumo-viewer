@@ -1,110 +1,123 @@
 ---
-title: Text, JSON and Markdown
+title: Text, structured files and code
+description: Filumo text encoding, JSON variants, Markdown, CSV/TSV, XML and code previews, with defaults and limits.
+keywords:
+  - Filumo
+  - file preview
+  - document viewer
+  - browser
 siteLayout: docs
 toc: content
 ---
 
-# 纯文本、JSON 与 Markdown
+# Text, structured files and code
 
-三个插件共用现有 DOM 外壳和框架适配器，不需要安装新的 React/Vue 专用组件。
+Six independent plugins share Core text processing and DOM views without depending on the Text package or new framework-specific components. Version 0.1.0 is not yet published; see the [package overview](./packages).
 
-```ts
-import { createViewer } from '@fivo/dom';
-import { text } from '@fivo/text';
-import { json } from '@fivo/json';
-import { markdown } from '@fivo/markdown';
+```ts | pure
+import { createViewer } from '@filumo/dom';
+import { text, json, markdown, csv, xml, code } from '@filumo/viewer';
 
 const viewer = createViewer(container, {
-  plugins: [text(), json(), markdown()],
+  plugins: [text(), json(), markdown(), csv(), xml(), code()],
   resourcePolicy: { maxFileBytes: 20 * 1024 * 1024 },
 });
-await viewer.open(new File(['第一行\n第二行'], 'sample.txt'));
+await viewer.open(new File(['first line\nsecond line'], 'sample.txt'));
+// 宿主卸载时调用，释放当前会话与视图。
+async function disposePreview() {
+  await viewer.destroy();
+}
 ```
 
-普通字符串仍表示 URL；直接文本内容应使用 File、Blob 或来源工厂。下载始终保存原文件字节。
+A plain string means a URL; wrap inline content in File, Blob or DocumentSource. Download preserves original bytes. The example's 20 MiB cap is a host choice, not a universal format default.
 
-## 编码与原文
+## Encoding detection and selection
 
-自动模式依次使用 BOM、来源 MIME 中的 charset、明显的 UTF-16 字节特征、严格 UTF-8 和 GB18030 解码，覆盖常见 GBK 文件。识别成功后直接显示正文，编码控件展示实际编码；缺少声明时属于内容推断，仍可手动纠正，非法字节或明显非文本内容保留编码选择入口。手动指定编码优先，切换或重新选择自动均从当前原始字节解码，不再次下载。
+Shared decoding prioritizes manual selection, BOM, source MIME charset, format hints and content inference. Automatic mode uses UTF-16 byte patterns, strict UTF-8 and GB18030, covering common GBK files. Inference remains correctable. XML also reads its encoding declaration within the first 4 KiB, below BOM and source charset priority.
 
-Text 默认接管 TXT、LOG、INI、CONF、CFG、PROPERTIES、OUT，默认显示真实行号并启用自动换行；可在插件选项中配置 extensions、lineNumbers、wrap，通过 lineNumbers: false 或更多操作菜单关闭行号。
+The More menu selects the actual UTF-8, UTF-16LE, UTF-16BE, GBK or GB18030 encoding and offers automatic redetection. Changes reuse original bytes. A failed manual decode retains the last readable content and shows a floating warning; the encoding empty state is used only when no readable content exists.
 
-Text 默认还提供内容兜底：所有专用插件均未匹配后，未知后缀、无后缀或只有 text/plain 声明的文件会先检查文件头及编码特征，再完整解码并校验可读性。确认是文本后使用原文视图，HTML、XML 等标签保持文字，不额外执行或解析；无法确认时提示暂不支持该格式。专用插件已经接管后的解析错误、网络失败、超时和配额错误不转换成文本预览。
+## Default views and toolbar
 
-可通过 `text({ fallback: false })` 关闭自动兜底；未注册 Text 时不会隐式加载它。显式 `viewer.open(input, { pluginId: 'text' })` 仍可选择原文。兜底首次解码固定采用自动识别，不使用 `encoding` 的手动默认值绕过校验，成功打开后仍可切换编码。探测模块按需加载，区间读取不可用时可能读取完整来源，最终打开复用读取缓存并继续遵守 resourcePolicy。
+| Plugin     | Initial view                                               | Source line numbers | Wrap              |
+| ---------- | ---------------------------------------------------------- | ------------------- | ----------------- |
+| Text       | Source                                                     | On                  | On                |
+| Code       | Source                                                     | On                  | On                |
+| JSON / XML | Structure; equal source/structure split in wide containers | On                  | On                |
+| Markdown   | Reading                                                    | Off in source mode  | On                |
+| CSV        | Table with first row as headers                            | Off in source mode  | On in source mode |
 
-编码、视图切换、查找、自动换行和行号按当前格式收纳到更多操作菜单。Markdown 大纲保留在主工具栏；JSON 使用同一个按钮展开或收起当前选中分支，普通值及空容器不可切换。JSON、XML 的左侧原文默认显示真实行号，可在更多菜单中切换，当前文件内缩放、视图切换和重新解码均保留选择；Markdown 的原文视图默认隐藏行号。
+Line numbers represent real lines only. Encoding, views, find, wrapping and line numbers use format-specific More menus with first-level icons. Markdown keeps its outline on the main toolbar. JSON uses one stateful expand/collapse action. JSON/XML line-number choices persist within the open file across views, zoom and decoding.
 
-JSON 支持结构和原文模式，原始数字及重复键按源范围保留。默认展开两层，maxDepth 默认 256、maxNodes 默认 200000。错误 JSON 保持可查看原文，不自动伪装成 TXT。
+## Text and unknown-file fallback
 
-JSON 默认在宽容器显示原生只读双栏，左侧是带语法颜色的原文，右侧结构树使用连接线、加减号和 Object/Array 数量摘要。点击节点可定位原文；收起结构区后原文铺满。小于 720px 的容器一次显示一个区域，原有 `initialMode: 'tree'` 配置值继续有效。结构解析失败时保留原文与诊断；单独原文只加载轻量行着色，不加载结构扫描器。单行超过 65536 个 UTF-16 代码单元时跳过着色，完整内容仍可阅读。
+Text handles TXT, LOG, INI, CONF, CFG, PROPERTIES and OUT. Options include extensions, encoding, lineNumbers, wrap and fallback. Only after dedicated formats fail to match do unknown files undergo header, encoding and complete readability checks. Tags stay literal text. Unreadable content produces an unsupported-format result.
 
-Markdown 支持基础排版、GFM 表格、任务列表、删除线、代码高亮、大纲和原文；不包含公式、Mermaid 或编辑器。常用原生 HTML 在阅读视图中受控呈现，包括表格合并、链接、图片、文字格式、标题和 details 折叠内容；HTML 标题和自定义锚点参与正文内定位。标签、属性和局部样式经过限制，脚本、事件属性、全局样式及嵌入页面不会进入阅读视图。代码中的 HTML 保持字面内容。
+text({ fallback: false }) disables fallback. Initial fallback always uses automatic detection; a manual default cannot bypass readability checks. Dedicated-parser errors, network failures, timeouts and quota errors are not converted to text previews. An unregistered Text plugin is never enabled implicitly.
 
-```ts
-const plugins = [
-  text({ encoding: 'auto', wrap: true }),
-  json({ initialMode: 'source' }),
-  markdown({ initialMode: 'reading', highlight: true, maxHighlightChars: 65536 }),
-];
-```
+## JSON / JSONC / JSONL / NDJSON
 
-## 按需加载与依赖
+JSON is strict; JSONC accepts comments and trailing commas, not JSON5. Source and structure start equally split and can be resized; containers narrower than 720px show one area at a time. Structure preserves duplicate keys and numeric source text, including large integers. Nodes navigate to source; two levels start expanded.
 
-注册插件只创建轻量描述符。JSON/Markdown 初始原文模式只加载读取和原文视图，进入结构/阅读模式才解析；Worker 内部同样保持动态任务边界。
+JSONL/NDJSON validate nonempty physical lines independently, with a windowed record list and separate details. Invalid records do not invalidate others. Structure errors retain source and diagnostics.
 
-纯文本、JSON 不新增第三方运行时依赖。Markdown 仅使用 marked 和 highlight.js；可见且已支持语言的代码块才加载高亮核心和该语言，未知语言、关闭高亮或超过预算时保留完整普通代码。
+| Budget           | Default   |
+| ---------------- | --------- |
+| maxDepth         | 256       |
+| maxNodes         | 200,000   |
+| maxRecords       | 1,000,000 |
+| maxCachedRecords | 3         |
+| maxCachedNodes   | 200,000   |
 
-HTML 片段渲染只在解析结果含真实 HTML token 时加载；行内代码或代码块中的标签不会触发该模块。HTML 图片复用资源解析与懒加载，链接和图片遵循相同的协议及生命周期约束。
+initialMode: 'source' defers structure scanning. Source lines longer than 65,536 UTF-16 code units skip coloring while preserving readable content.
 
-安装标准预设会安装其全部格式依赖；运行时懒加载不等于 npm 按未来打开的文件安装包。只需要原文或 JSON 时可以仅安装对应格式包。
+## Markdown
 
-`@fivo/text/reader` 提供不访问 DOM 的 readText、行索引和查找能力；`@fivo/text/view` 是独立原文视图入口。格式样式随视图持有租约，也可以由宿主显式加载对应 styles.css 后使用 external 样式模式。
+Reading, outlines and code highlighting are enabled by default. Supported content includes headings, lists, GFM tables, tasks, strikethrough, quotes, code and source. Tables fill the reading area, code blocks scroll horizontally, and tasks do not duplicate bullets or raw [ ] markers.
 
-## 资源与生命周期
+Controlled HTML includes br, table, a, img, headings, inline formatting and details. Tags, attributes and local styles are restricted; scripts, event handlers, global styles and embedded pages are excluded. HTML headings and custom anchors participate in navigation. Tags inside code remain literal. Math, Mermaid and editing are not included.
 
-Markdown 相对链接和图片使用远端文档地址或显式 baseUrl；本机文件不猜测磁盘目录，可通过 resolveResource 回调指定地址。链接和图片仍执行协议检查，图片在可见时请求。
+Relative resources resolve against the remote document URL or explicit baseUrl. A local File cannot automatically read neighboring files; provide resolveResource mappings. Images load when visible and follow protocol and lifecycle constraints.
 
-worker 可设置 auto、always、never，也可指定 workerFactory。Worker 在真实任务开始时创建，取消和销毁使旧结果失效；主线程模式不承诺同步第三方解析可在执行中抢占。
+Existing marked and highlight.js dependencies provide parsing and highlighting. Visible code blocks load only the necessary language; maxHighlightChars defaults to 65,536. Unknown, disabled or oversized code stays plain. HTML rendering loads only for real HTML tokens.
 
-新格式的 Worker 使用 ESM 动态分块。Vite 宿主需要设置 `worker: { format: 'es' }`；手动部署 Worker 时要同时发布 `worker.js` 与它引用的 `worker-chunks` 目录，保留相对路径。
+## CSV / TSV
 
-原文窗口化和结构树窗口化控制 DOM 数量，不意味着读取或解析内存无限。宿主应通过 resourcePolicy 限制输入，结构与高亮另有相应处理预算。
+The first row is a header by default. TSV uses Tab; CSV detects comma, semicolon, Tab or pipe. Delimiter changes, resizable columns, rectangular selection and complete TSV copy are supported. Values remain readonly strings; formulas do not execute. Rows and columns are windowed, and parsing diagnostics retain source.
 
-## 新增格式与公共入口
+| Budget             | Default   |
+| ------------------ | --------- |
+| maxRows            | 1,000,000 |
+| maxColumns         | 4,096     |
+| maxCachedCells     | 20,000    |
+| cellCacheBytes     | 4 MiB     |
+| maxCellDetailChars | 65,536    |
 
-新增独立包为 `@fivo/csv`、`@fivo/xml`、`@fivo/code`，JSONC、JSONL、NDJSON 由 `@fivo/json` 处理。标准预设共九个插件，各格式之间没有反向依赖 Text 包。
+Detail truncation does not truncate the original field copied to the clipboard.
 
-CSV/TSV 默认首行表头，支持分隔符切换、列宽调整、矩形选择和完整 TSV 复制；按行列窗口化。默认最多 1,000,000 行、4,096 列，字段缓存最多 20,000 项且估算不超过 4 MiB，详情显示最多 65,536 字符，复制仍使用完整字段。解析失败保留原文。
+## XML
 
-JSONC 允许注释和尾逗号，JSON 仍严格校验，不支持 JSON5。JSONL 按非空物理行独立校验，左侧记录列表、右侧结构/原文详情，整文件原文单独显示。默认最多 1,000,000 条记录，详情 LRU 最多 3 条且合计 200,000 节点，坏行不影响其他记录。
+XML handles explicitly identified XML, not SVG. Source and structure start equally split and are resizable. Namespaces, attributes, mixed text, CDATA, comments and processing instructions are represented; whitespace-only text is hidden by default. Names, values and annotations use distinct colors. Attribute and text values remain strings.
 
-XML 只接管明确 XML，不接管 SVG。原文和结构默认各半，可拖动调整；支持命名空间、属性、混合文本、CDATA、注释和处理指令，空白文本默认隐藏。结构限制深度 256、节点 200,000；DOCTYPE 返回诊断，不请求外部实体。编码声明仅取前 4 KiB，优先级低于 BOM 和来源 charset。 结构区的名称、值和辅助标记分色，与 JSON 共用结构主题色；选中时保留语义颜色。属性值及正文始终按字符串展示，不根据数字或布尔外观转换类型，长值可定位原文查看。
+Defaults are initialMode: 'tree', maxDepth: 256 and maxNodes: 200000. DOCTYPE produces a diagnostic without fetching external entities. Source-only mode defers structural parsing.
 
-Code 支持 JS/JSX、TS/TSX、HTML/CSS、LESS/SCSS/Sass、Shell、Python、SQL、Java、C/C++、C#、Go、Rust；.h 默认 C，可手动切换 C++。默认显示行号、换行开启；行号可从更多菜单关闭，HTML 显示原文。LESS/SCSS 按需使用现有语法模块，Sass 使用包内轻量着色规则；只预览源码，不编译或应用样式。独立 Worker 才加载现有 highlight.js 与必要语法，默认 262,144 字符、100,000 装饰区间、5,000ms 超时；关闭 Worker、超预算、不可用或失败时继续显示可查找、复制的原文，不在主线程同步高亮。
+## Code
 
-新增格式查找最多保留 10,000 个结果；字节、解码原文、索引和结构可能同时占内存，宿主仍须通过 resourcePolicy 限制输入。
+| Category                  | Files                                                                                    |
+| ------------------------- | ---------------------------------------------------------------------------------------- |
+| Web                       | JS/JSX, TS/TSX, HTML, CSS, LESS, SCSS, Sass                                              |
+| Languages                 | Shell, Python, SQL, Java, C/C++, C#, Go, Rust, PHP, Ruby, Kotlin, Swift, Lua             |
+| Configuration and scripts | YAML/YML, TOML, .env/.env.\*, PowerShell, BAT/CMD                                        |
+| Build and protocols       | Dockerfile, Makefile/GNUmakefile, CMakeLists.txt, .mk/.cmake, GraphQL, Proto, Diff/Patch |
 
-新代码从 `@fivo/core/text` 使用解码、行索引、查找、TextContent 和任务协议，从 `@fivo/dom/text` 按需加载原文视图。文案、高亮装饰、拖柄分别使用 DOM 的 text-messages、text-highlight、split 子入口；旧 `@fivo/text/reader` 和 `@fivo/text/view` 保留兼容导出。公共解码优先级为手动选择、BOM、来源 charset、格式提示、内容推断。
+All these formats belong to @filumo/code. Filename and extension rules also determine the default language; .h defaults to C and can switch to C++. Mixed Vue/Svelte syntax remains future work. Source is never executed, Sass is not compiled, and styles are not applied. Dedicated suffixes such as JSON/XML keep their own format ownership.
 
-external 模式须加载 `@fivo/dom/styles.css` 和实际使用格式的 styles.css；旧 Text/view 也使用 DOM 原文样式。部署 Worker 时保留各包 worker.js 与 worker-chunks。新增包只复用已有 saxes、highlight.js，不增加第三方库种类。
+Highlighting runs only in a dedicated Worker with language-specific highlight.js imports; Sass uses lightweight local rules. Defaults are 262,144 characters, 100,000 decoration ranges and 5,000ms. Disabled/unavailable Workers, failures, timeouts and budget limits retain searchable plain source instead of synchronous main-thread highlighting.
 
+## Deployment and resource budgets
 
-## Code 的常用开发文件
+New integrations use decoding, TextContent, line indexes, search and tasks from @filumo/core/text, and source views from @filumo/dom/text. DOM also exposes text-messages, text-highlight, outline and split. Legacy Text reader/view entries retain compatibility exports.
 
-这些格式统一注册在 `@fivo/code`，提供带高亮的只读源码预览，不新增格式包或第三方库：
+External mode loads DOM and active-format CSS, without additional Text styles for JSON/XML source views. Manual Worker deployment preserves each package's worker.js and worker-chunks; Vite uses worker: { format: 'es' }. Code's Worker-only highlighting differs from Office's automatic parsing fallback.
 
-| 类别 | 文件范围 |
-| --- | --- |
-| 配置 | `.yaml`、`.yml`、`.toml`、`.env`、`.env.*` |
-| Windows 脚本 | `.ps1`、`.psm1`、`.psd1`、`.bat`、`.cmd` |
-| 常用语言 | `.php`、`.rb`、`.rake`、`.kt`、`.kts`、`.swift`、`.lua` |
-| 构建 | `Dockerfile`、`Dockerfile.*`、`*.dockerfile`、`Makefile`、`GNUmakefile`、`.mk`、`CMakeLists.txt`、`.cmake` |
-| 接口定义 | `.graphql`、`.gql`、`.proto` |
-| 补丁 | `.diff`、`.patch` |
-
-文件身份按明确文件名和后缀共同识别，描述符和默认语法共用同一规则。普通 TXT、INI、CONF、CFG、Properties 继续由 Text 处理；CMakeLists.txt 等明确构建/环境文件名为 Code 留出常规识别机会。未注册 Code 时可使用 Text 的内容兜底，或显式选择 Text。专用格式后缀保持原归属，例如 `.env.json` 由 JSON 处理、`Dockerfile.xml` 由 XML 处理。
-
-语言菜单沿用纯菜单交互，用分隔线按类别整理；默认行号开启、换行开启。TOML 复用现有 INI 语法，Dockerfile 加载 Shell，YAML 加载上游声明需要的 Ruby；PHP 同时支持裸代码与带标签的 HTML 模板。`.env` 的变量引用和命令片段只展示，不展开或执行。Diff 的新增和删除使用明暗主题下的不同颜色。
-
-公共样本保留原始基本文件名，烟测不会把 `Makefile`、`CMakeLists.txt`、`.env.production` 重新拼成其他文件名。Vue/Svelte 的混合语法适配仍属后续增强范围。
+Search retains at most 10,000 matches. Windowing bounds DOM work, not total decoded-source, index and structure memory. Set resourcePolicy.maxFileBytes and format budgets, then validate representative files.

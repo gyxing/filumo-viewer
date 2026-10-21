@@ -5,7 +5,7 @@ import test from 'node:test';
 import { createDocument } from './helpers/reading-dom.mjs';
 const result = await build({
   entryPoints: ['packages/pdf/src/view/PdfOutline.ts'],
-  alias: { '@fivo/dom/outline': resolve('packages/dom/src/outline.ts') },
+  alias: { '@filumo/dom/outline': resolve('packages/dom/src/outline.ts') },
   loader: { '.less': 'empty' },
   bundle: true,
   write: false,

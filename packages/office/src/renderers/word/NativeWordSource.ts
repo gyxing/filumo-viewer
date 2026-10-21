@@ -1,4 +1,4 @@
-import { abortError, notify, throwIfAborted } from '@fivo/core';
+import { abortError, notify, throwIfAborted } from '@filumo/core';
 import type { WordRevisionMode } from '../../engine/annotations/types';
 import type { DocWordPreviewSummary } from '../../engine/doc/DocWordPageSource';
 import {

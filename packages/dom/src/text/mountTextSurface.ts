@@ -1,6 +1,6 @@
 import { useStyles as acquireStyles } from '../styles';
-import { findTextMatches } from '@fivo/core/text';
-import type { TextDocument, TextMatch } from '@fivo/core/text';
+import { findTextMatches } from '@filumo/core/text';
+import type { TextDocument, TextMatch } from '@filumo/core/text';
 import { TextFindBar } from './TextFindBar';
 import { TextViewport } from './TextViewport';
 import '../text.less';
@@ -15,9 +15,9 @@ export function mountTextSurface(
   const document = container.ownerDocument;
   const release = acquireStyles('dom', document, initialOptions.stylePolicy);
   const scope = document.createElement('div');
-  scope.className = 'fivo-text-scope';
+  scope.className = 'filumo-text-scope';
   const host = document.createElement('section');
-  host.className = 'fivo-text-surface';
+  host.className = 'filumo-text-surface';
   scope.append(host);
   container.append(scope);
   let model = initial,
@@ -88,7 +88,7 @@ export function mountTextSurface(
     }
   }
   const watermark = document.createElement('div');
-  watermark.className = 'fivo-text-watermark';
+  watermark.className = 'filumo-text-watermark';
   watermark.textContent = options.watermark ?? '';
   watermark.setAttribute('aria-hidden', 'true');
   host.append(bar.element, viewport.element, watermark);

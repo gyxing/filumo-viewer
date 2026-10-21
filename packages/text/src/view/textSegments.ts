@@ -1,1 +1,1 @@
-export { textSegments, type TextHit, type TextSegment } from '@fivo/dom/text';
+export { textSegments, type TextHit, type TextSegment } from '@filumo/dom/text';

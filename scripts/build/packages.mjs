@@ -18,7 +18,7 @@ import {
 import { resolveBuildOrder } from './build-order.mjs';
 import { createBuildManifest } from './manifest.mjs';
 import { preparePackageMetadata, readPackageMetadata } from './metadata.mjs';
-import { copyPdfAssets } from './pdf-assets.mjs';
+import { copyPdfAssets, pdfEntryAssetsPlugin } from './pdf-assets.mjs';
 import { serializeStyles } from './style-order.mjs';
 import { stylePlugin } from './styles.mjs';
 import { buildFormatWorker, buildOfficeWorker } from './worker.mjs';
@@ -103,7 +103,10 @@ for (const name of names) {
     packages: 'external',
     chunkNames: 'chunks/[name]-[hash]',
     metafile: true,
-    plugins: [stylePlugin(metadata, styles, ROOT)],
+    plugins: [
+      stylePlugin(metadata, styles, ROOT),
+      ...(name === 'pdf' ? [pdfEntryAssetsPlugin(directory)] : []),
+    ],
     logLevel: 'warning',
   });
   // 实现检查仍覆盖全部 Office 及 Worker；声明只从共享公开合同生成。
@@ -142,7 +145,7 @@ for (const name of names) {
       : undefined;
   await writeFile(
     join(output, 'styles.css'),
-    ':root { --fivo-style-' +
+    ':root { --filumo-style-' +
       name +
       ': ' +
       metadata.version +

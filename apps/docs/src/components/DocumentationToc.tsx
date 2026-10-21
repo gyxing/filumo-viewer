@@ -1,5 +1,4 @@
-import { useRouteMeta } from 'dumi';
-import Toc from 'dumi/theme/slots/Toc';
+import { useLocation } from 'dumi';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { DocumentationNav } from './DocumentationNav';
 import { getWebsiteContent, type WebsiteLocale } from './home-content';
@@ -16,10 +15,8 @@ const MOBILE_TOC_QUERY = '(max-width: 900px)';
 
 /** 渲染桌面吸顶目录，并在窄屏复用为可访问的左侧抽屉。 */
 export function DocumentationToc({ locale }: DocumentationTocProps) {
-  const { toc } = useRouteMeta();
+  const { pathname } = useLocation();
   const content = getWebsiteContent(locale);
-  const visibleItems = toc.filter((item) => item.depth > 1 && item.depth < 4);
-  const hasVisibleItems = visibleItems.length > 0;
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const drawerRef = useRef<HTMLElement>(null);
@@ -32,10 +29,8 @@ export function DocumentationToc({ locale }: DocumentationTocProps) {
   }, []);
 
   useEffect(() => {
-    if (!hasVisibleItems) {
-      setOpen(false);
-    }
-  }, [hasVisibleItems]);
+    setOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia(MOBILE_TOC_QUERY);
@@ -50,7 +45,7 @@ export function DocumentationToc({ locale }: DocumentationTocProps) {
   }, []);
 
   useEffect(() => {
-    if (!open || !hasVisibleItems) {
+    if (!open) {
       return;
     }
 
@@ -58,7 +53,7 @@ export function DocumentationToc({ locale }: DocumentationTocProps) {
     const handleKeyDown = (event: KeyboardEvent) => {
       const focusable = Array.from(
         drawerRef.current?.querySelectorAll<HTMLElement>(
-          'button:not([disabled]), a[href]',
+          'button:not([disabled]), a[href], input:not([disabled]), [tabindex]:not([tabindex="-1"])',
         ) ?? [],
       ).filter((element) => element.offsetParent !== null);
 
@@ -86,11 +81,7 @@ export function DocumentationToc({ locale }: DocumentationTocProps) {
       document.body.style.overflow = previousOverflow;
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [closeDrawer, hasVisibleItems, open]);
-
-  if (!hasVisibleItems) {
-    return null;
-  }
+  }, [closeDrawer, open]);
 
   const tocClassName = open
     ? 'office-viewer-docs__toc is-open'
@@ -118,11 +109,6 @@ export function DocumentationToc({ locale }: DocumentationTocProps) {
         aria-label={content.documentation.tocTitle}
         role={open ? 'dialog' : undefined}
         aria-modal={open ? true : undefined}
-        onClickCapture={(event) => {
-          if ((event.target as Element).closest('a')) {
-            closeDrawer();
-          }
-        }}
       >
         <div className="office-viewer-docs__toc-heading">
           <strong>{content.documentation.tocTitle}</strong>
@@ -137,8 +123,20 @@ export function DocumentationToc({ locale }: DocumentationTocProps) {
             </button>
           )}
         </div>
-        <DocumentationNav locale={locale} />
-        <Toc />
+        <DocumentationNav
+          locale={locale}
+          drawerOpen={open}
+          onNavigate={() => {
+            if (!open) return;
+            closeDrawer(false);
+            // 关闭抽屉后把键盘焦点交回正文，不能留在已隐藏的树链接上。
+            window.requestAnimationFrame(() =>
+              document
+                .querySelector<HTMLElement>('.office-viewer-docs__article')
+                ?.focus({ preventScroll: true }),
+            );
+          }}
+        />
       </aside>
       <button
         type="button"

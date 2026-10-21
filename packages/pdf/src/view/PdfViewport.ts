@@ -1,5 +1,5 @@
-import { throwIfAborted } from '@fivo/core';
-import type { ViewContext, ViewOptions } from '@fivo/dom';
+import { throwIfAborted } from '@filumo/core';
+import type { ViewContext, ViewOptions } from '@filumo/dom';
 import { PDF_DEFAULTS } from '../options';
 import type { PdfSession } from '../runtime/PdfSession';
 import type {
@@ -53,10 +53,10 @@ export class PdfViewport {
     const document = host.ownerDocument;
     this.options = context.options;
     this.element = document.createElement('div');
-    this.element.className = 'fivo-pdf-viewport';
+    this.element.className = 'filumo-pdf-viewport';
     this.element.tabIndex = 0;
     this.canvas = document.createElement('div');
-    this.canvas.className = 'fivo-pdf-pages';
+    this.canvas.className = 'filumo-pdf-pages';
     this.element.append(this.canvas);
     host.append(this.element);
     this.layout = new PdfPageLayout(backend.pageCount, first);

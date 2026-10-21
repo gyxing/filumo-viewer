@@ -1,5 +1,5 @@
-import { SplitHandle } from '@fivo/dom/split';
-import type { StylePolicy } from '@fivo/dom';
+import { SplitHandle } from '@filumo/dom/split';
+import type { StylePolicy } from '@filumo/dom';
 /** JSON 只适配公共分隔条的尺寸回调，模型及样式变量仍由工作区持有。 */
 export class JsonSplitHandle {
   readonly element: HTMLElement;
@@ -15,10 +15,10 @@ export class JsonSplitHandle {
       minSecond: 240,
       stylePolicy,
       onResize: (_first, second) =>
-        panes.style.setProperty('--fivo-json-tree-width', second + 'px'),
+        panes.style.setProperty('--filumo-json-tree-width', second + 'px'),
     });
     this.element = this.handle.element;
-    this.element.classList.add('fivo-json-split-handle');
+    this.element.classList.add('filumo-json-split-handle');
   }
   update(width: number, visible: boolean, en: boolean) {
     this.handle.update(width, visible, en ? 'en-US' : 'zh-CN');

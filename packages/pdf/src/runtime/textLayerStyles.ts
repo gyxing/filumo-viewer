@@ -1,5 +1,5 @@
-import { abortError, throwIfAborted } from '@fivo/core';
-import { registerStyle } from '@fivo/dom';
+import { abortError, throwIfAborted } from '@filumo/core';
+import { registerStyle } from '@filumo/dom';
 import { PACKAGE_VERSION, STYLE_SCOPE } from '../generated/package';
 interface StyleRequest {
   promise: Promise<void>;
@@ -30,10 +30,19 @@ export async function ensureTextLayerStyles(
       complete: false,
     };
     owned.promise = (async () => {
-      const response = await fetch(url, { signal: owned.abort.signal });
-      if (!response.ok)
-        throw new Error('PDF 文字层样式加载失败：' + response.status);
-      const css = await response.text();
+      let css: string;
+      if (url.startsWith('filumo-pdf://bundled/')) {
+        const { loadBundledPdfTextLayerCss } = await import(
+          '@filumo/pdf/assets'
+        );
+        css = await loadBundledPdfTextLayerCss();
+      } else {
+        const response = await fetch(url, { signal: owned.abort.signal });
+        if (!response.ok)
+          throw new Error('PDF 文字层样式加载失败：' + response.status);
+        css = await response.text();
+      }
+      throwIfAborted(owned.abort.signal);
       if (!css.includes('.' + STYLE_SCOPE) || !css.includes('.textLayer'))
         throw new Error('PDF 文字层样式版本不一致');
       registerStyle(

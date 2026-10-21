@@ -1,5 +1,5 @@
-import type { ViewContext, ViewHandle } from '@fivo/dom';
-import { createReadingFrame } from '@fivo/dom';
+import type { ViewContext, ViewHandle } from '@filumo/dom';
+import { createReadingFrame } from '@filumo/dom';
 import { STYLE_SCOPE } from '../generated/package';
 import type { PdfSession } from '../runtime/PdfSession';
 import type { PdfBackend } from '../runtime/contracts';
@@ -35,7 +35,7 @@ export async function mountPdf(context: ViewContext): Promise<ViewHandle> {
       target = viewport;
     if (!hit || !target || !search || !backend || search.signal.aborted) {
       frame.body
-        .querySelectorAll('.fivo-pdf-highlight')
+        .querySelectorAll('.filumo-pdf-highlight')
         .forEach((node) => node.remove());
       lastNavigation = -1;
       return;
@@ -43,7 +43,7 @@ export async function mountPdf(context: ViewContext): Promise<ViewHandle> {
     const navigationRevision = search.getSnapshot().navigationRevision;
     if (navigationRevision !== lastNavigation) {
       frame.body
-        .querySelectorAll('.fivo-pdf-highlight')
+        .querySelectorAll('.filumo-pdf-highlight')
         .forEach((node) => node.remove());
       lastNavigation = navigationRevision;
       await target.goTo(hit.pageIndex, search.signal);
@@ -224,8 +224,8 @@ export async function mountPdf(context: ViewContext): Promise<ViewHandle> {
     frame.body.replaceChildren();
     const workspace = document.createElement('div'),
       host = document.createElement('div');
-    workspace.className = 'fivo-pdf-workspace';
-    host.className = 'fivo-pdf-document';
+    workspace.className = 'filumo-pdf-workspace';
+    host.className = 'filumo-pdf-document';
     workspace.append(host);
     frame.body.append(workspace);
     viewport = new PdfViewport(

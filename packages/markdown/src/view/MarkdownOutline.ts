@@ -1,5 +1,5 @@
-import type { StylePolicy } from '@fivo/dom';
-import { OUTLINE_DEFAULTS, OutlineTree } from '@fivo/dom/outline';
+import type { StylePolicy } from '@filumo/dom';
+import { OUTLINE_DEFAULTS, OutlineTree } from '@filumo/dom/outline';
 import type { MarkdownHeading } from '../parser/types';
 import { OutlineResize } from './OutlineResize';
 import './outline.less';
@@ -40,20 +40,20 @@ export class MarkdownOutline {
         this.expanded.add(node.heading.id);
     this.selected = headings[0]?.id ?? '';
     this.element = document.createElement('nav');
-    this.element.className = 'fivo-markdown-outline';
+    this.element.className = 'filumo-markdown-outline';
     this.element.setAttribute('aria-label', en ? 'Outline' : '大纲');
     const header = document.createElement('header'),
       title = document.createElement('span'),
       count = document.createElement('span'),
       close = document.createElement('button');
-    header.className = 'fivo-markdown-outline-header';
-    title.className = 'fivo-markdown-outline-heading';
+    header.className = 'filumo-markdown-outline-header';
+    title.className = 'filumo-markdown-outline-heading';
     title.textContent = en ? 'Outline' : '大纲';
-    count.className = 'fivo-markdown-outline-count';
+    count.className = 'filumo-markdown-outline-count';
     count.textContent = String(headings.length);
     count.title = en ? 'Headings' : '大纲条目数';
     close.type = 'button';
-    close.className = 'fivo-markdown-outline-close';
+    close.className = 'filumo-markdown-outline-close';
     close.title = en ? 'Collapse outline' : '收起大纲';
     close.setAttribute('aria-label', close.title);
     close.onclick = onClose;

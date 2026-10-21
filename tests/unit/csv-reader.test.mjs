@@ -8,7 +8,7 @@ const result = await build({
       "export {scanCsv} from './packages/csv/src/parser/scanCsv';export {readCsvRow,csvCellText} from './packages/csv/src/parser/csvCells';",
     resolveDir: process.cwd(),
   },
-  alias: { '@fivo/core/text': resolve('packages/core/src/text.ts') },
+  alias: { '@filumo/core/text': resolve('packages/core/src/text.ts') },
   bundle: true,
   write: false,
   platform: 'node',

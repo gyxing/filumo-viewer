@@ -1,5 +1,11 @@
 ---
-title: Fivo Development and Testing
+title: Filumo Development and Testing
+description: Filumo source development, smoke workflows, production artifacts, deployment bases and GitHub Pages publication.
+keywords:
+  - Filumo
+  - file preview
+  - document viewer
+  - browser
 siteLayout: docs
 toc: content
 ---
@@ -24,7 +30,7 @@ pnpm build
 | pnpm docs:dev   | Documentation development      | Home, Playground, docs and Chinese counterparts |
 | pnpm smoke      | Private local-file smoke tests | Opens the /dev/smoke-test workbench by default  |
 | pnpm demo:js    | JavaScript example             | Real build output, no React                     |
-| pnpm demo:react | React example                  | @fivo/react integration                         |
+| pnpm demo:react | React example                  | @filumo/react integration                       |
 | pnpm demo:vue3  | Vue 3 example                  | Native Office and KeepAlive                     |
 | pnpm demo:vue2  | Vue 2 example                  | Options API                                     |
 | pnpm docs:build | Production documentation build | Writes apps/docs/dist; does not deploy          |
@@ -33,11 +39,11 @@ pnpm demo defaults to JavaScript. Port 4173 is the default. For simultaneous dem
 
 ## Hot-reload boundary
 
-docs:dev and smoke build packages once before starting. dumi page code can hot-reload; packages do not yet have a watch pipeline. Rebuild after package-source changes and restart demos. A stale page does not require duplicating CSS or introducing another bundler.
+docs:dev and smoke compile workspace package sources directly. Startup prepares metadata, public fixtures and PDF assets without building every package. dumi updates page code; the development plugin refreshes package view, style and Worker changes to release old sessions. New entries, dependencies or build configuration can still require a restart. Standalone demos consume build output and need rebuilding/restarting after package-source changes.
 
 Playground tabs select integration code, not the framework running the page. Use the separate demos to verify actual framework integration.
 
-The smoke workbench groups samples by Word, Excel and PowerPoint, with name/format search and local file selection. Resetting parameters keeps the selected Office file. Switching between Office and the DOM shell disposes the previous viewer. Timestamped event logs can be collapsed or cleared and keep at most 200 entries. The DOM shell checks generic interfaces; Office-only settings are disabled in that mode.
+The smoke workbench covers Office and additional formats, with fixture filtering, local file selection, format options and event logs. Private endpoints exist only in development smoke mode. The public Playground uses public plugins without accessing private fixture directories.
 
 ## Automated checks
 
@@ -59,11 +65,11 @@ pnpm docs:build
 pnpm test:browser docs.spec.mjs
 ```
 
-An installed Edge can be selected with FIVO_BROWSER_CHANNEL=msedge. Linux CI uses --with-deps when installing Chromium. Report the actual scope when running a subset of tests.
+An installed Edge can be selected with FILUMO_BROWSER_CHANNEL=msedge. Linux CI uses --with-deps when installing Chromium. Report the actual scope when running a subset of tests.
 
 ## Fixtures and privacy
 
-Public fixtures are generated DOCX/XLSX/PPTX and pagination samples without business data. Private files belong in ignored tests/fixtures/local and are served only by local smoke endpoints. Production builds do not register the smoke route or publish private documents.
+Public fixtures include generated Office, image, PDF, text and structured-format files without business data. Private files belong in ignored tests/fixtures/local and are served only by local smoke endpoints. Production builds do not register the smoke route or publish private documents.
 
 Keep private-file screenshots, logs and reports in local-only output directories. Browser-local input does not make a screenshot non-sensitive.
 
@@ -73,13 +79,21 @@ The default base is /. English docs use /docs, Chinese docs /zh-CN/docs, with gu
 
 ```powershell
 # Change this terminal only, not system configuration.
-$env:FIVO_DOCS_BASE = '/preview/'
+$env:FILUMO_DOCS_BASE = '/preview/'
 pnpm docs:build
 pnpm test:browser docs.spec.mjs
-Remove-Item Env:FIVO_DOCS_BASE
+Remove-Item Env:FILUMO_DOCS_BASE
 ```
 
-Build, test server and tests must share FIVO_DOCS_BASE. Rebuild after changing it instead of merely prefixing the browser URL. The Pages workflow sets its deployment directory; local routes do not require the old package-name prefix.
+Build, test server and tests must share FILUMO_DOCS_BASE. Rebuild after changing it instead of merely prefixing the browser URL. The Pages workflow sets its deployment directory; local routes do not require the old package-name prefix.
+
+## GitHub Pages publication
+
+The existing site is https://gyxing.github.io/office-file-viewer/, with FILUMO_DOCS_BASE set to /office-file-viewer/. Filumo is the product name; repository and deployment directory have not moved.
+
+.github/workflows/deploy-pages.yml listens to pushes on master and keeps a workflow_dispatch entry. Local next-branch changes do not update the public site. CI installs from the lockfile, runs pnpm run docs:build, uploads apps/docs/dist and deploys it. A manual run uses the selected ref, so select the intended version deliberately.
+
+Source edits and production builds do not publish by themselves. Git writes, pushes and workflow runs require authorization. The docs build prepares matching bundled PDF assets and excludes local smoke routes without using a public-directory copy to mask default loading failures.
 
 ## Build maintenance
 
@@ -87,7 +101,7 @@ Build, test server and tests must share FIVO_DOCS_BASE. Rebuild after changing i
 - Package manifests own versions; generated/package.ts is script-generated, not maintained manually.
 - Less becomes lazy automatic CSS; external CSS has deterministic ordering and package-version scopes.
 - Office public declarations have a separate entry while all implementation sources are type-checked.
-- `pnpm build <package>` resolves workspace prerequisites automatically; `pnpm test:consumers` consumes all seven tarballs directly and `pnpm test:consumers:hosts` checks npm/Yarn hosts.
+- `pnpm build <package>` resolves workspace prerequisites automatically; `pnpm test:consumers` validates its selected package combinations and `pnpm test:consumers:hosts` checks npm/Yarn hosts.
 - worker.js is the public Worker asset. Build manifests use metafile output instead of fixed hashed chunk names.
 - Publishing and Git history changes require explicit authorization.
 

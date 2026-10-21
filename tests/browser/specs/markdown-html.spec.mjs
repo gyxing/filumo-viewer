@@ -11,8 +11,8 @@ test.afterAll(async () => server?.close());
 async function openHtml(page) {
   await page.goto(server.url + '/text-formats.html');
   await page.getByRole('button', { name: 'Markdown HTML', exact: true }).click();
-  await expect(page.locator('.fivo-markdown-article')).toBeVisible();
-  return page.locator('.fivo-markdown-article');
+  await expect(page.locator('.filumo-markdown-article')).toBeVisible();
+  return page.locator('.filumo-markdown-article');
 }
 
 test('HTML 换行、成对链接和 Markdown 行内格式保持同一结构', async ({ page }) => {
@@ -48,7 +48,7 @@ test('HTML 表格保留合并、列宽和内部内容，宽表只在正文中滚
   await expect(table.getByRole('link', { name: '单元格链接', exact: true }))
     .toHaveAttribute('href', 'https://example.com/');
   expect(await table.evaluate((element) => element.parentElement.className))
-    .toBe('fivo-markdown-table');
+    .toBe('filumo-markdown-table');
   expect(await table.evaluate((element) => element.parentElement.scrollWidth > element.parentElement.clientWidth))
     .toBe(true);
 });
@@ -56,28 +56,28 @@ test('HTML 表格保留合并、列宽和内部内容，宽表只在正文中滚
 test('HTML 标题接入大纲，自定义锚点展开 details 并仅定位正文', async ({ page }) => {
   const article = await openHtml(page),
     details = article.locator('details'),
-    outline = page.locator('.fivo-markdown-outline');
+    outline = page.locator('.filumo-markdown-outline');
   await expect(details).not.toHaveAttribute('open');
   await expect(outline.getByRole('treeitem', { name: 'HTML 标题 强调', exact: true })).toBeVisible();
   await expect(outline.getByRole('treeitem')).toHaveCount(2);
   const jump = article.getByRole('link', { name: '跳转折叠标题', exact: true });
-  await expect(jump).toHaveAttribute('href', /#fivo-md-\d+-native-target$/);
-  const before = await page.locator('.fivo-reading-frame').evaluate((element) => element.scrollTop);
+  await expect(jump).toHaveAttribute('href', /#filumo-md-\d+-native-target$/);
+  const before = await page.locator('.filumo-reading-frame').evaluate((element) => element.scrollTop);
   await jump.click();
   await expect(details).toHaveAttribute('open', '');
-  expect(await page.locator('.fivo-reading-frame').evaluate((element) => element.scrollTop)).toBe(before);
+  expect(await page.locator('.filumo-reading-frame').evaluate((element) => element.scrollTop)).toBe(before);
   await expect(outline.getByRole('treeitem', { name: 'HTML 标题 强调', exact: true }))
     .toHaveAttribute('aria-selected', 'true');
   await expect(article.locator('a[name]')).toHaveCount(0);
   await expect(article.getByRole('link', { name: '旧式锚点', exact: true }))
-    .toHaveAttribute('href', /#fivo-md-\d+-legacy-anchor$/);
+    .toHaveAttribute('href', /#filumo-md-\d+-legacy-anchor$/);
   await details.locator('summary').click();
   await expect(details).not.toHaveAttribute('open');
-  const more = page.locator('.fivo-toolbar-more');
-  await more.locator('.fivo-toolbar-more-trigger').click();
+  const more = page.locator('.filumo-toolbar-more');
+  await more.locator('.filumo-toolbar-more-trigger').click();
   await page.getByRole('menu', { name: '更多操作', exact: true })
     .getByRole('menuitem', { name: '查找', exact: true }).click();
-  await page.locator('.fivo-markdown-find input').fill('折叠区域正文');
+  await page.locator('.filumo-markdown-find input').fill('折叠区域正文');
   await expect(details).toHaveAttribute('open', '');
 });
 
@@ -111,7 +111,7 @@ test('没有真实 HTML 的 Markdown 不加载 HTML 渲染模块', async ({ page
   page.on('request', (request) => loaded.add(new URL(request.url()).pathname));
   await page.goto(server.url + '/text-formats.html');
   await page.getByRole('button', { name: 'Markdown 纯文档', exact: true }).click();
-  await expect(page.locator('.fivo-markdown-reading')).toBeVisible();
+  await expect(page.locator('.filumo-markdown-reading')).toBeVisible();
   const inputs = [...loaded].flatMap((path) => graph[path] ?? []);
   expect(inputs.some((path) => /HtmlFragment|htmlPolicy|htmlNavigation/.test(path))).toBe(false);
 });

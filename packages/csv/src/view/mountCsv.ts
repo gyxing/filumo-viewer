@@ -1,8 +1,8 @@
-import { createReadingFrame } from '@fivo/dom';
-import type { CapabilityAction, ViewContext, ViewHandle } from '@fivo/dom';
-import type { TextEncoding } from '@fivo/core/text';
-import { formatEncodingWarning } from '@fivo/dom/text-messages';
-import type { TextSurfaceHandle } from '@fivo/dom/text';
+import { createReadingFrame } from '@filumo/dom';
+import type { CapabilityAction, ViewContext, ViewHandle } from '@filumo/dom';
+import type { TextEncoding } from '@filumo/core/text';
+import { formatEncodingWarning } from '@filumo/dom/text-messages';
+import type { TextSurfaceHandle } from '@filumo/dom/text';
 import type { CsvSession } from '../runtime/CsvSession';
 import type { CsvDelimiter, CsvIndex, CsvParseResult } from '../parser/types';
 import type { CsvGrid } from './CsvGrid';
@@ -15,7 +15,7 @@ export async function mountCsv(context: ViewContext): Promise<ViewHandle> {
     content = session.content,
     frame = createReadingFrame(context, STYLE_SCOPE!, 'csv');
   const sourceHost = context.container.ownerDocument.createElement('div');
-  sourceHost.className = 'fivo-csv-source';
+  sourceHost.className = 'filumo-csv-source';
   sourceHost.hidden = true;
   frame.body.append(sourceHost);
   let options = context.options,
@@ -244,7 +244,7 @@ export async function mountCsv(context: ViewContext): Promise<ViewHandle> {
     grid?.setActive(false);
     if (grid) grid.element.hidden = true;
     if (!source) {
-      const module = await import('@fivo/dom/text');
+      const module = await import('@filumo/dom/text');
       if (closed || !active || own !== generation) return;
       source = module.mountTextSurface(
         sourceHost,

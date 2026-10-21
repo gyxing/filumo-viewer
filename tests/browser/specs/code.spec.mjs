@@ -16,19 +16,19 @@ test('短文件行号底色铺满阅读区，换行、缩放和横向滚动保�
 }) => {
   await page.goto(server.url + '/text-expansion.html');
   await page.getByRole('button', { name: 'code-html', exact: true }).click();
-  await page.locator('.fivo-viewer').evaluate((element) => {
+  await page.locator('.filumo-viewer').evaluate((element) => {
     element.style.width = '340px';
   });
-  const viewport = page.locator('.fivo-text-viewport'),
-    canvas = viewport.locator('.fivo-text-canvas');
+  const viewport = page.locator('.filumo-text-viewport'),
+    canvas = viewport.locator('.filumo-text-canvas');
   await expect(
-    viewport.locator('.fivo-text-line-number').first(),
+    viewport.locator('.filumo-text-line-number').first(),
   ).toBeVisible();
   // 画布与视口可能一起缩短，必须同时对照外层阅读区检查顶部和底部。
   await expect
     .poll(() =>
       viewport.evaluate((element) => {
-        const body = element.closest('.fivo-reading-body');
+        const body = element.closest('.filumo-reading-body');
         if (!body) return false;
         const area = body.getBoundingClientRect(),
           view = element.getBoundingClientRect();
@@ -48,10 +48,10 @@ test('短文件行号底色铺满阅读区，换行、缩放和横向滚动保�
     )
     .toBe(true);
   // 在同一帧扩大容器并读取布局，覆盖 ResizeObserver 尚未同步脚本高度的时机。
-  const resized = await page.locator('.fivo-viewer').evaluate((element) => {
+  const resized = await page.locator('.filumo-viewer').evaluate((element) => {
     element.style.height = '760px';
-    const viewport = element.querySelector('.fivo-text-viewport'),
-      canvas = viewport.querySelector('.fivo-text-canvas');
+    const viewport = element.querySelector('.filumo-text-viewport'),
+      canvas = viewport.querySelector('.filumo-text-canvas');
     return {
       viewport: viewport.clientHeight,
       canvas: canvas.clientHeight,
@@ -84,7 +84,7 @@ test('短文件行号底色铺满阅读区，换行、缩放和横向滚动保�
   await expect
     .poll(() =>
       viewport
-        .locator('.fivo-text-row')
+        .locator('.filumo-text-row')
         .filter({ hasText: '<a href=' })
         .first()
         .evaluate(
@@ -94,12 +94,12 @@ test('短文件行号底色铺满阅读区，换行、缩放和横向滚动保�
         ),
     )
     .toBe(true);
-  await expect(viewport.locator('.fivo-text-line-number').last()).toHaveText(
+  await expect(viewport.locator('.filumo-text-line-number').last()).toHaveText(
     '5',
   );
-  await expect(viewport.locator('.fivo-text-filler-number')).toHaveCount(0);
+  await expect(viewport.locator('.filumo-text-filler-number')).toHaveCount(0);
   await page.evaluate(() =>
-    window.fivoTextExpansion.update({ zoom: 150, theme: 'dark' }),
+    window.filumoTextExpansion.update({ zoom: 150, theme: 'dark' }),
   );
   await expect
     .poll(() =>
@@ -108,7 +108,7 @@ test('短文件行号底色铺满阅读区，换行、缩放和横向滚动保�
       ),
     )
     .toBeCloseTo(width * 1.5, 0);
-  const number = viewport.locator('.fivo-text-line-number').first();
+  const number = viewport.locator('.filumo-text-line-number').first();
   expect(
     Math.abs(
       (await number.boundingBox()).width -
@@ -117,7 +117,7 @@ test('短文件行号底色铺满阅读区，换行、缩放和横向滚动保�
         )),
     ),
   ).toBeLessThan(1);
-  await page.locator('.fivo-toolbar-more-trigger').click();
+  await page.locator('.filumo-toolbar-more-trigger').click();
   await page
     .getByRole('menuitemcheckbox', { name: '自动换行', exact: true })
     .click();
@@ -141,19 +141,19 @@ test('短文件行号底色铺满阅读区，换行、缩放和横向滚动保�
     .toBeGreaterThan(0);
   const positions = await viewport.evaluate((element) => ({
     number: element
-      .querySelector('.fivo-text-line-number')
+      .querySelector('.filumo-text-line-number')
       .getBoundingClientRect().left,
     background: element
-      .querySelector('.fivo-text-canvas')
+      .querySelector('.filumo-text-canvas')
       .getBoundingClientRect().left,
   }));
   expect(Math.abs(positions.number - positions.background)).toBeLessThan(1);
-  await page.locator('.fivo-toolbar-more-trigger').click();
+  await page.locator('.filumo-toolbar-more-trigger').click();
   await page
     .getByRole('menuitemcheckbox', { name: '行号', exact: true })
     .click();
   await expect(number).toBeHidden();
-  await expect(viewport.locator('.fivo-text-gutter-fill')).toBeHidden();
+  await expect(viewport.locator('.filumo-text-gutter-fill')).toBeHidden();
   await expect
     .poll(() =>
       canvas.evaluate(
@@ -165,25 +165,25 @@ test('短文件行号底色铺满阅读区，换行、缩放和横向滚动保�
 
 test('空文件、单行文件和十三行文件默认只显示真实行号', async ({ page }) => {
   await page.goto(server.url + '/text-expansion.html');
-  const viewport = page.locator('.fivo-text-viewport');
+  const viewport = page.locator('.filumo-text-viewport');
   for (const [name, content, lines] of [
     ['empty.ts', '', 1],
     ['single.py', 'print("hello")', 1],
     ['short.css', Array(13).fill('/* line */').join('\n'), 13],
   ]) {
-    await page.locator('.fivo-viewer input[type="file"]').setInputFiles({
+    await page.locator('.filumo-viewer input[type="file"]').setInputFiles({
       name,
       mimeType: 'text/plain',
       buffer: Buffer.from(content),
     });
-    await expect(page.locator('.fivo-title')).toHaveText(name);
-    await expect(viewport.locator('.fivo-text-line-number')).toHaveCount(lines);
-    const filler = viewport.locator('.fivo-text-gutter-fill');
+    await expect(page.locator('.filumo-title')).toHaveText(name);
+    await expect(viewport.locator('.filumo-text-line-number')).toHaveCount(lines);
+    const filler = viewport.locator('.filumo-text-gutter-fill');
     await expect(filler).toBeHidden();
-    await expect(filler.locator('.fivo-text-filler-number')).toHaveCount(0);
+    await expect(filler.locator('.filumo-text-filler-number')).toHaveCount(0);
     const layout = await viewport.evaluate((element) => {
-      const canvas = element.querySelector('.fivo-text-canvas'),
-        area = element.closest('.fivo-reading-body').getBoundingClientRect(),
+      const canvas = element.querySelector('.filumo-text-canvas'),
+        area = element.closest('.filumo-reading-body').getBoundingClientRect(),
         view = element.getBoundingClientRect(),
         backdrop = getComputedStyle(canvas, '::before');
       return {
@@ -220,16 +220,16 @@ test('构建和环境文件按原始文件名进入 Code，语言菜单保持分
       .poll(() =>
         page.evaluate(
           () =>
-            window.fivoTextExpansion
+            window.filumoTextExpansion
               .getCapabilities()
               .actions?.find((action) => action.id === 'code.language')?.value,
         ),
       )
       .toBe(language);
     await expect(page.getByText(file, { exact: true })).toBeVisible();
-    await expect(page.locator('.fivo-text-line-number').first()).toBeVisible();
+    await expect(page.locator('.filumo-text-line-number').first()).toBeVisible();
   }
-  await page.locator('.fivo-toolbar-more-trigger').click();
+  await page.locator('.filumo-toolbar-more-trigger').click();
   await page.getByRole('menuitem', { name: '语言', exact: true }).click();
   const languages = page.getByRole('menu', { name: '语言', exact: true });
   expect(await languages.getByRole('separator').count()).toBeGreaterThanOrEqual(
@@ -245,13 +245,13 @@ test('构建和环境文件按原始文件名进入 Code，语言菜单保持分
     .poll(() =>
       page.evaluate(
         () =>
-          window.fivoTextExpansion
+          window.filumoTextExpansion
             .getCapabilities()
             .actions?.find((action) => action.id === 'code.language')?.value,
       ),
     )
     .toBe('yaml');
-  await expect(page.locator('.fivo-text-surface')).toContainText(
+  await expect(page.locator('.filumo-text-surface')).toContainText(
     'cmake_minimum_required',
   );
 });
@@ -265,7 +265,7 @@ test('环境配置的引号注释与变量保持原文，补丁新增和删除�
     '${BASE_URL}',
   );
   const quoted = page
-    .locator('.fivo-text-line-content')
+    .locator('.filumo-text-line-content')
     .filter({ hasText: 'APP_LABEL=' });
   await expect(quoted).toContainText('"中文 # 保留"');
   await expect(quoted.locator('.hljs-comment')).toHaveCount(0);
@@ -276,7 +276,7 @@ test('环境配置的引号注释与变量保持原文，补丁新增和删除�
   await expect(deletion).toHaveText('-old value');
   for (const theme of ['light', 'dark']) {
     await page.evaluate(
-      (value) => window.fivoTextExpansion.update({ theme: value }),
+      (value) => window.filumoTextExpansion.update({ theme: value }),
       theme,
     );
     const colors = await Promise.all(
@@ -293,19 +293,19 @@ test('Code 多行着色保持原文且 HTML 不执行', async ({ page }) => {
     .getByRole('button', { name: 'code-typescript', exact: true })
     .click();
   await expect(page.locator('.hljs-comment').first()).toBeVisible();
-  await expect(page.locator('.fivo-text-line-number').first()).toBeVisible();
-  await expect(page.locator('.fivo-text-line-number').first()).toHaveText('1');
+  await expect(page.locator('.filumo-text-line-number').first()).toBeVisible();
+  await expect(page.locator('.filumo-text-line-number').first()).toHaveText('1');
   const comment = await page
     .locator('.hljs-comment')
     .first()
     .evaluate((node) => getComputedStyle(node).color);
   const plain = await page
-    .locator('.fivo-text-surface')
+    .locator('.filumo-text-surface')
     .evaluate((node) => getComputedStyle(node).color);
   expect(comment).not.toBe(plain);
   await expect(page.locator('.hljs-string')).toContainText(['中文', '第二行']);
   await page.getByRole('button', { name: 'code-html', exact: true }).click();
-  await expect(page.locator('.fivo-text-surface')).toContainText(
+  await expect(page.locator('.filumo-text-surface')).toContainText(
     '<script>window.untrustedCode = true;</script>',
   );
   expect(await page.evaluate(() => window.untrustedCode)).toBeUndefined();
@@ -323,26 +323,26 @@ test('样式文件保留缩进，默认行号可通过更多菜单关闭', async
       await variable.evaluate((node) => getComputedStyle(node).color),
     ).not.toBe(
       await page
-        .locator('.fivo-text-surface')
+        .locator('.filumo-text-surface')
         .evaluate((node) => getComputedStyle(node).color),
     );
-    await expect(page.locator('.fivo-text-line-number').first()).toBeVisible();
+    await expect(page.locator('.filumo-text-line-number').first()).toBeVisible();
   }
   await expect(
     page
-      .locator('.fivo-text-line-content')
+      .locator('.filumo-text-line-content')
       .filter({ hasText: 'color: $tone' })
       .first(),
   ).toHaveText('  color: $tone');
-  await page.locator('.fivo-toolbar-more-trigger').click();
+  await page.locator('.filumo-toolbar-more-trigger').click();
   const lines = page.getByRole('menuitemcheckbox', {
     name: '行号',
     exact: true,
   });
   await expect(lines).toHaveAttribute('aria-checked', 'true');
   await lines.click();
-  await expect(page.locator('.fivo-text-line-number').first()).toBeHidden();
+  await expect(page.locator('.filumo-text-line-number').first()).toBeHidden();
   await page.keyboard.press('Escape');
-  await page.evaluate(() => window.fivoTextExpansion.update({ zoom: 125 }));
-  await expect(page.locator('.fivo-text-line-number').first()).toBeHidden();
+  await page.evaluate(() => window.filumoTextExpansion.update({ zoom: 125 }));
+  await expect(page.locator('.filumo-text-line-number').first()).toBeHidden();
 });

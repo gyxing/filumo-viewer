@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { normalizeDocsBase } from '../../../apps/docs/config/base-path.js';
 import { startServer } from '../helpers.mjs';
-const base = normalizeDocsBase(process.env.FIVO_DOCS_BASE);
+const base = normalizeDocsBase(process.env.FILUMO_DOCS_BASE);
 let server;
 test.beforeAll(
   async () => (server = await startServer('scripts/testing/serve-smoke.mjs')),
@@ -12,14 +12,14 @@ test('新烟测选择公开文件、配置更新、销毁重开和 DOM 探针', 
   request,
 }) => {
   const response = await request.get(
-    server.url + base + '__fivo_smoke/samples',
+    server.url + base + '__filumo_smoke/samples',
   );
   expect(response.ok()).toBe(true);
   const data = await response.json();
   expect(data.configured).toBe(false);
   const wrongPrefix = base === '/' ? '/unconfigured/' : '/';
   const outside = await request.get(
-    server.url + wrongPrefix + '__fivo_smoke/samples',
+    server.url + wrongPrefix + '__filumo_smoke/samples',
   );
   expect(outside.headers()['content-type'] ?? '').not.toContain(
     'application/json',
@@ -30,7 +30,7 @@ test('新烟测选择公开文件、配置更新、销毁重开和 DOM 探针', 
   expect(JSON.stringify(data).includes('absolute')).toBe(false);
   await page.goto(server.url + base);
   await expect(
-    page.getByRole('heading', { name: 'Fivo 本地烟测' }),
+    page.getByRole('heading', { name: 'Filumo 本地烟测' }),
   ).toBeVisible({ timeout: 60000 });
   await expect(page).toHaveURL(server.url + base + 'dev/smoke-test');
   await expect(
@@ -53,7 +53,7 @@ test('新烟测选择公开文件、配置更新、销毁重开和 DOM 探针', 
     .filter({ hasText: /^always$/ })
     .click();
   const sampleRequest = page.waitForResponse((response) =>
-    response.url().endsWith(base + '__fivo_smoke/files/basic-docx'),
+    response.url().endsWith(base + '__filumo_smoke/files/basic-docx'),
   );
   await page
     .getByRole('button', { name: 'basic-docx (DOCX)', exact: true })

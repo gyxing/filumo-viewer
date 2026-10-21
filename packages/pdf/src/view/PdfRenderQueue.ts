@@ -1,4 +1,4 @@
-import { abortError } from '@fivo/core';
+import { abortError } from '@filumo/core';
 interface Work {
   key: string;
   page: number;

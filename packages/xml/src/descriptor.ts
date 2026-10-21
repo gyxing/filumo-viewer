@@ -8,7 +8,7 @@ export const xml: XmlFactory = (options = {}) => {
       (() =>
         new Worker(new URL('./worker.js', import.meta.url), {
           type: 'module',
-          name: 'fivo-xml',
+          name: 'filumo-xml',
         })),
   };
   return {

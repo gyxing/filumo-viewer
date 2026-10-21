@@ -3,7 +3,7 @@ import React from 'react';
 import type { PlaygroundConfig } from './playground-config';
 import type { PlaygroundContent } from './playground-content';
 
-/** 分组配置只暴露当前 Fivo 已支持的参数，不复活旧版专属属性。 */
+/** 分组配置只暴露当前 Filumo 已支持的参数，不复活旧版专属属性。 */
 export function PlaygroundControlPanel({
   config,
   content,
@@ -19,10 +19,10 @@ export function PlaygroundControlPanel({
     onChange({ ...config, viewer: { ...config.viewer, ...next } });
   return (
     <aside
-      className="fivo-playground-controls"
+      className="filumo-playground-controls"
       aria-labelledby="playground-controls-title"
     >
-      <div className="fivo-playground-card-heading">
+      <div className="filumo-playground-card-heading">
         <h2 id="playground-controls-title">{content.controls}</h2>
         <button type="button" onClick={onReset}>
           {content.reset}
@@ -30,7 +30,7 @@ export function PlaygroundControlPanel({
       </div>
       <fieldset>
         <legend>{content.appearance}</legend>
-        <label className="fivo-playground-field">
+        <label className="filumo-playground-field">
           <span>{content.theme}</span>
           <Select
             aria-label={content.theme}
@@ -42,7 +42,7 @@ export function PlaygroundControlPanel({
             onChange={(theme) => setView({ theme })}
           />
         </label>
-        <label className="fivo-playground-field">
+        <label className="filumo-playground-field">
           <span>{content.height}</span>
           <InputNumber
             aria-label={content.height}
@@ -54,7 +54,7 @@ export function PlaygroundControlPanel({
             onChange={(height) => setView({ height: height ?? 640 })}
           />
         </label>
-        <label className="fivo-playground-field">
+        <label className="filumo-playground-field">
           <span>{content.language}</span>
           <Select
             aria-label={content.language}
@@ -69,19 +69,19 @@ export function PlaygroundControlPanel({
       </fieldset>
       <fieldset>
         <legend>{content.viewing}</legend>
-        <label className="fivo-playground-field">
+        <label className="filumo-playground-field">
           <span>{content.zoom}</span>
           <InputNumber
             aria-label={content.zoom}
             min={25}
-            max={300}
+            max={200}
             step={25}
             value={config.viewer.zoom}
             addonAfter="%"
             onChange={(zoom) => setView({ zoom: zoom ?? 100 })}
           />
         </label>
-        <label className="fivo-playground-field">
+        <label className="filumo-playground-field">
           <span>{content.toolbar}</span>
           <Select
             aria-label={content.toolbar}
@@ -93,13 +93,13 @@ export function PlaygroundControlPanel({
             onChange={(mode) => setView({ toolbar: mode === 'default' })}
           />
         </label>
-        <label className="fivo-playground-toggle">
+        <label className="filumo-playground-toggle">
           <Switch
             size="small"
             aria-label={content.watermark}
             checked={Boolean(config.viewer.watermark)}
             onChange={(enabled) =>
-              setView({ watermark: enabled ? 'Fivo' : undefined })
+              setView({ watermark: enabled ? 'Filumo' : undefined })
             }
           />
           <span>{content.watermark}</span>
@@ -109,14 +109,14 @@ export function PlaygroundControlPanel({
             aria-label={content.watermarkText}
             maxLength={80}
             value={config.viewer.watermark}
-            placeholder="Fivo"
+            placeholder="Filumo"
             onChange={(event) => setView({ watermark: event.target.value })}
           />
         )}
       </fieldset>
       <fieldset>
         <legend>{content.resources}</legend>
-        <label className="fivo-playground-field">
+        <label className="filumo-playground-field">
           <span>{content.worker}</span>
           <Select
             aria-label={content.worker}
@@ -131,7 +131,7 @@ export function PlaygroundControlPanel({
             }
           />
         </label>
-        <label className="fivo-playground-toggle">
+        <label className="filumo-playground-toggle">
           <Switch
             size="small"
             aria-label={content.media}
@@ -145,7 +145,7 @@ export function PlaygroundControlPanel({
           />
           <span>{content.media}</span>
         </label>
-        <p className="fivo-playground-help">{content.resourceHint}</p>
+        <p className="filumo-playground-help">{content.resourceHint}</p>
       </fieldset>
     </aside>
   );

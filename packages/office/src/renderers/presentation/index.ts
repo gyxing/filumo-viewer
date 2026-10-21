@@ -1,4 +1,4 @@
-import type { ViewContext, ViewHandle } from '@fivo/dom';
+import type { ViewContext, ViewHandle } from '@filumo/dom';
 import { PresentationAnnotationSource } from '../../engine/presentation/PresentationAnnotationSource';
 import { getPresentationSource } from '../../engine/presentation/presentationSourceRegistry';
 import { normalizePresentationTransitionDuration } from '../../engine/presentation/transitionTypes';

@@ -36,7 +36,7 @@ jobs:
         env:
           HUSKY: '0'
 
-      - name: Validate Fivo workspace and documentation
+      - name: Validate Filumo workspace and documentation
         run: pnpm run check
 
       - name: Validate contracts
@@ -52,17 +52,17 @@ jobs:
         env:
           HUSKY: '0'
 
-      - name: Install browser for public Fivo regression
+      - name: Install browser for public Filumo regression
         run: pnpm exec playwright install --with-deps chromium
 
-      - name: Validate public Fivo browser fixtures
+      - name: Validate public Filumo browser fixtures
         run: pnpm run test:browser
 
-      - name: Save public Fivo browser evidence
+      - name: Save public Filumo browser evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: fivo-public-browser
+          name: filumo-public-browser
           path: tmp/testing/public/
           if-no-files-found: ignore
           retention-days: 7

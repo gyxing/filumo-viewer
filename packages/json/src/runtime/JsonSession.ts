@@ -1,4 +1,4 @@
-import { TextContent } from '@fivo/core/text';
+import { TextContent } from '@filumo/core/text';
 import type { JsonOptions } from '../options';
 import type { JsonParseResult } from '../parser/types';
 /** 结构解析按内容版本缓存，原文模式不触发扫描器加载。 */

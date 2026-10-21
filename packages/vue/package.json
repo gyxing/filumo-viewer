@@ -1,8 +1,44 @@
 {
-  "name": "@fivo/vue",
-  "version": "0.1.0-next.0",
-  "description": "Fivo vue",
+  "name": "@filumo/vue",
+  "version": "0.1.0",
+  "description": "Vue 3 document viewer adapter for Filumo, with typed component methods, plugin-based formats and KeepAlive lifecycle support.",
+  "keywords": [
+    "filumo",
+    "vue",
+    "vue3",
+    "vue-component",
+    "vue-document-viewer",
+    "vue-file-viewer",
+    "vue-file-preview",
+    "document-viewer",
+    "file-preview",
+    "composition-api",
+    "keep-alive",
+    "typescript",
+    "esm",
+    "plugin-system",
+    "lazy-loading",
+    "readonly",
+    "vue文件预览",
+    "vue文档预览"
+  ],
+  "homepage": "https://github.com/gyxing/office-file-viewer/tree/master/packages/vue#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gyxing/office-file-viewer.git",
+    "directory": "packages/vue"
+  },
+  "bugs": {
+    "url": "https://github.com/gyxing/office-file-viewer/issues"
+  },
+  "author": {
+    "name": "gyxing",
+    "url": "https://github.com/gyxing"
+  },
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "sideEffects": [
     "**/styles/**",
     "**/*.css"
@@ -22,8 +58,8 @@
     "dist"
   ],
   "dependencies": {
-    "@fivo/core": "workspace:^",
-    "@fivo/dom": "workspace:^"
+    "@filumo/core": "workspace:^",
+    "@filumo/dom": "workspace:^"
   },
   "devDependencies": {
     "vue": "3.5.43"

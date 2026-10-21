@@ -61,7 +61,7 @@ test('阅读浮窗去重、自动关闭、悬停暂停、停用暂停及销毁�
     tick(1);
     assert.equal(notice.element.hidden, true);
     notice.update(3, '第三次失败');
-    notice.element.querySelector('.fivo-reading-notice-close').onclick();
+    notice.element.querySelector('.filumo-reading-notice-close').onclick();
     notice.update(3, '第三次失败');
     assert.equal(notice.element.hidden, true);
     notice.update(4, '第四次失败');

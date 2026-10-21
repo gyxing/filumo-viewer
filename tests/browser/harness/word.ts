@@ -76,7 +76,7 @@ document.getElementById('run')!.onclick = async () => {
       '隐藏测量树释放',
     );
     await viewer.destroy();
-    check(!stage.querySelector('.fivo-viewer'), '原生 Word 销毁');
+    check(!stage.querySelector('.filumo-viewer'), '原生 Word 销毁');
     document.body.dataset.verification = 'passed';
     out.textContent = lines.join('\n');
   } catch (error) {

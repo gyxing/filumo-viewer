@@ -149,13 +149,13 @@ export function createToolbarMenu(
         const button = document.createElement('button');
         button.type = 'button';
         button.tabIndex = -1;
-        button.className = 'fivo-toolbar-menu-item';
+        button.className = 'filumo-toolbar-menu-item';
         const label = document.createElement('span');
-        label.className = 'fivo-menu-label';
+        label.className = 'filumo-menu-label';
         const value = document.createElement('span');
-        value.className = 'fivo-menu-value';
+        value.className = 'filumo-menu-value';
         const indicator = document.createElement('span');
-        indicator.className = 'fivo-menu-indicator';
+        indicator.className = 'filumo-menu-indicator';
         indicator.setAttribute('aria-hidden', 'true');
         button.append(label, value, indicator);
         row = { item, button, label, value, indicator };
@@ -178,7 +178,7 @@ export function createToolbarMenu(
       }
       row.item = item;
       row.button.dataset.icon = item.icon ?? '';
-      row.button.dataset.fivoMenuAction = item.id;
+      row.button.dataset.filumoMenuAction = item.id;
       row.button.setAttribute('role', item.kind ? 'menuitem' + item.kind : 'menuitem');
       row.button.setAttribute('aria-label', item.label);
       row.button.disabled = Boolean(item.disabled);
@@ -231,8 +231,8 @@ export function createToolbarMenu(
   };
   const makeLevel = (parent?: MenuRow): MenuLevel => {
     const element = document.createElement('div');
-    element.className = 'fivo-toolbar-menu';
-    element.id = 'fivo-toolbar-menu-' + ++sequence;
+    element.className = 'filumo-toolbar-menu';
+    element.id = 'filumo-toolbar-menu-' + ++sequence;
     element.setAttribute('role', 'menu');
     element.tabIndex = -1;
     element.hidden = true;
@@ -328,7 +328,7 @@ export function createToolbarMenu(
     }
   };
   const outside = (event: Event) => {
-    if (!owner.closest('[data-fivo-moving]') && !owner.contains(event.target as Node)) close();
+    if (!owner.closest('[data-filumo-moving]') && !owner.contains(event.target as Node)) close();
   };
   trigger.onclick = (event) => {
     if (opened) close();

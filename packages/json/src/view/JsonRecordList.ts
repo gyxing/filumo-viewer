@@ -31,11 +31,11 @@ export class JsonRecordList {
     private choose: (index: number) => void,
   ) {
     this.element = document.createElement('div');
-    this.element.className = 'fivo-json-record-list';
+    this.element.className = 'filumo-json-record-list';
     this.element.setAttribute('role', 'listbox');
     this.element.tabIndex = 0;
     this.canvas = document.createElement('div');
-    this.canvas.className = 'fivo-json-record-canvas';
+    this.canvas.className = 'filumo-json-record-canvas';
     this.element.append(this.canvas);
     this.element.addEventListener('scroll', this.schedule, { passive: true });
     this.element.addEventListener('keydown', this.key);
@@ -75,7 +75,7 @@ export class JsonRecordList {
     this.canvas.replaceChildren();
     for (let i = begin; i < end; i++) {
       const row = this.document.createElement('div');
-      row.className = 'fivo-json-record';
+      row.className = 'filumo-json-record';
       row.style.top =
         i * this.height - logicalTop + this.element.scrollTop + 'px';
       row.style.height = this.height + 'px';

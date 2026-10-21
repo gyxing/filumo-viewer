@@ -28,7 +28,7 @@ function rc4(key, input) {
   return output;
 }
 function serialize(objects, trailer = '') {
-  const chunks = [Buffer.from('%PDF-1.4\n%Fivo fixture\n')],
+  const chunks = [Buffer.from('%PDF-1.4\n%Filumo fixture\n')],
     offsets = [0];
   let length = chunks[0].length;
   objects.forEach((body, index) => {
@@ -65,7 +65,7 @@ function stream(bytes, attributes = '') {
 
 /** 密码固定为 fixture；文件不含业务数据，用于真实 PDF.js 密码恢复测试。 */
 export function createPasswordPdfFixture() {
-  const id = md5(Buffer.from('Fivo password fixture')),
+  const id = md5(Buffer.from('Filumo password fixture')),
     permissions = Buffer.alloc(4);
   permissions.writeInt32LE(-4);
   const owner = rc4(md5(pad('fixture-owner')).subarray(0, 5), pad('fixture'));
@@ -78,7 +78,7 @@ export function createPasswordPdfFixture() {
   ).subarray(0, 10);
   const content = rc4(
     objectKey,
-    Buffer.from('BT /F1 18 Tf 40 700 Td (Unlocked Fivo fixture) Tj ET'),
+    Buffer.from('BT /F1 18 Tf 40 700 Td (Unlocked Filumo fixture) Tj ET'),
   );
   return serialize(
     [

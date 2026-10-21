@@ -1,4 +1,4 @@
-import { abortError, throwIfAborted } from '@fivo/core';
+import { abortError, throwIfAborted } from '@filumo/core';
 import { ManagedOfficeResourceStore } from '../engine/resource-store/OfficeResourceStore';
 import type {
   OfficeResourceSource,

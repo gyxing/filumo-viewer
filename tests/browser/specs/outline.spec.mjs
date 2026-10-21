@@ -12,10 +12,10 @@ test('子级竖线从父节点横线末端垂下，叶子横线保持文字间�
   const a = tree.locator('[data-outline-id="a"]'),
     b = tree.locator('[data-outline-id="b"]');
   const parent = await a.evaluate((row) => {
-    const branch = row.querySelector('.fivo-outline-branch'),
+    const branch = row.querySelector('.filumo-outline-branch'),
       line = branch.getBoundingClientRect();
     const connector = row
-      .querySelector('.fivo-outline-child-connector')
+      .querySelector('.filumo-outline-child-connector')
       .getBoundingClientRect();
     return {
       end: line.left + parseFloat(getComputedStyle(branch, '::after').width),
@@ -26,9 +26,9 @@ test('子级竖线从父节点横线末端垂下，叶子横线保持文字间�
     };
   });
   const child = await b.evaluate((row) => {
-    const branch = row.querySelector('.fivo-outline-branch'),
+    const branch = row.querySelector('.filumo-outline-branch'),
       icon = row
-        .querySelector('.fivo-outline-switcher > span')
+        .querySelector('.filumo-outline-switcher > span')
         .getBoundingClientRect();
     return {
       x: branch.getBoundingClientRect().left,
@@ -45,8 +45,8 @@ test('子级竖线从父节点横线末端垂下，叶子横线保持文字间�
   expect(Math.abs(parent.x - child.icon)).toBeLessThanOrEqual(1);
   const leaf = tree.locator('[data-outline-id="c"]');
   const leafGap = await leaf.evaluate((row) => {
-    const branch = row.querySelector('.fivo-outline-branch');
-    const label = row.querySelector('.fivo-outline-label');
+    const branch = row.querySelector('.filumo-outline-branch');
+    const label = row.querySelector('.filumo-outline-label');
     return (
       label.getBoundingClientRect().left +
       parseFloat(getComputedStyle(label).paddingLeft) -
@@ -57,23 +57,23 @@ test('子级竖线从父节点横线末端垂下，叶子横线保持文字间�
   expect(leafGap).toBe(4);
   expect(
     await b
-      .locator('.fivo-outline-child-connector')
+      .locator('.filumo-outline-child-connector')
       .evaluate((el) => getComputedStyle(el).height),
   ).toBe('14px');
   expect(
     await leaf
-      .locator('.fivo-outline-branch')
+      .locator('.filumo-outline-branch')
       .evaluate((el) => getComputedStyle(el, '::before').height),
   ).toBe('14px');
-  await expect(leaf.locator('.fivo-outline-child-connector')).toHaveCount(0);
+  await expect(leaf.locator('.filumo-outline-child-connector')).toHaveCount(0);
   await page
-    .locator('.fivo-native-word-outline')
+    .locator('.filumo-native-word-outline')
     .screenshot({ path: 'tmp/outline-refined-light.png' });
   await page.locator('#preview').evaluate((el) => {
     el.dataset.officeTheme = 'dark';
   });
   await page
-    .locator('.fivo-native-word-outline')
+    .locator('.filumo-native-word-outline')
     .screenshot({ path: 'tmp/outline-refined-dark.png' });
 });
 
@@ -96,7 +96,7 @@ test('一级目录都有树线，首尾收口且不增加标题缩进', async ({
   await page.goto(server.url + '/outline.html?complete=1');
   const tree = page.getByRole('tree'),
     first = tree.locator('[data-outline-id="a"]');
-  const firstBranch = first.locator('.fivo-outline-branch');
+  const firstBranch = first.locator('.filumo-outline-branch');
   await expect(firstBranch).toHaveAttribute('data-root', 'true');
   await expect(firstBranch).toHaveAttribute('data-first', 'true');
   expect(
@@ -111,14 +111,14 @@ test('一级目录都有树线，首尾收口且不增加标题缩进', async ({
   ).toBe('14px');
   await first.press('End');
   const last = tree.locator('[data-outline-id="n99"]'),
-    branch = last.locator('.fivo-outline-branch');
+    branch = last.locator('.filumo-outline-branch');
   await expect(branch).toHaveAttribute('data-root', 'true');
   await expect(branch).toHaveAttribute('data-continues', 'false');
   await expect(last).toHaveCSS('padding-left', '0px');
-  await expect(last.locator('.fivo-outline-switcher')).toHaveCount(0);
+  await expect(last.locator('.filumo-outline-switcher')).toHaveCount(0);
   const geometry = await last.evaluate((row) => {
-    const line = row.querySelector('.fivo-outline-branch'),
-      label = row.querySelector('.fivo-outline-label');
+    const line = row.querySelector('.filumo-outline-branch'),
+      label = row.querySelector('.filumo-outline-label');
     return {
       top: getComputedStyle(line, '::before').top,
       height: getComputedStyle(line, '::before').height,
@@ -131,7 +131,7 @@ test('一级目录都有树线，首尾收口且不增加标题缩进', async ({
   });
   expect(geometry).toEqual({ top: '0px', height: '14px', gap: 4 });
   await expect(
-    tree.getByRole('treeitem').first().locator('.fivo-outline-branch'),
+    tree.getByRole('treeitem').first().locator('.filumo-outline-branch'),
   ).toHaveAttribute('data-first', 'false');
 });
 
@@ -141,9 +141,9 @@ test('一级和子级图标均位于本级竖线上，折叠恢复不改变对�
   const assertAligned = async (id) => {
     const row = tree.locator('[data-outline-id="' + id + '"]');
     const geometry = await row.evaluate((node) => {
-      const line = node.querySelector('.fivo-outline-branch'),
+      const line = node.querySelector('.filumo-outline-branch'),
         icon = node
-          .querySelector('.fivo-outline-switcher > span')
+          .querySelector('.filumo-outline-switcher > span')
           .getBoundingClientRect();
       const axis =
         line.getBoundingClientRect().left +
@@ -180,18 +180,18 @@ test('原生大纲恢复树线、紧凑间距、键盘、滚动同步和渐进�
   expect(
     await b.evaluate((el) => parseFloat(getComputedStyle(el).paddingLeft)),
   ).toBe(16);
-  await expect(b.locator('.fivo-outline-branch')).toHaveAttribute(
+  await expect(b.locator('.filumo-outline-branch')).toHaveAttribute(
     'data-continues',
     'true',
   );
   expect(
     await b
-      .locator('.fivo-outline-branch')
+      .locator('.filumo-outline-branch')
       .evaluate((el) => getComputedStyle(el, '::after').width),
   ).toBe('16px');
   expect(
     await a
-      .locator('.fivo-outline-switcher > span')
+      .locator('.filumo-outline-switcher > span')
       .evaluate((el) => getComputedStyle(el).borderTopWidth),
   ).toBe('1px');
   await a.press('ArrowRight');
@@ -199,9 +199,9 @@ test('原生大纲恢复树线、紧凑间距、键盘、滚动同步和渐进�
   await b.press('ArrowRight');
   const c = tree.locator('[data-outline-id="c"]');
   await expect(c).toHaveAttribute('aria-level', '3');
-  await expect(c.locator('.fivo-outline-guide')).toHaveCount(2);
+  await expect(c.locator('.filumo-outline-guide')).toHaveCount(2);
   await expect(
-    tree.locator('[data-outline-id="d"] .fivo-outline-branch'),
+    tree.locator('[data-outline-id="d"] .filumo-outline-branch'),
   ).toHaveAttribute('data-continues', 'false');
   await b.press('ArrowRight');
   await expect(c).toBeFocused();
@@ -228,15 +228,15 @@ test('原生大纲恢复树线、紧凑间距、键盘、滚动同步和渐进�
   await expect(tree.locator('[data-outline-id="late"]')).toBeVisible();
   await last.press('Home');
   await expect(a).toBeFocused();
-  await expect(a.locator('.fivo-outline-label')).toHaveCSS('font-size', '14px');
+  await expect(a.locator('.filumo-outline-label')).toHaveCSS('font-size', '14px');
   await expect(
     page.getByRole('button', { name: '收起大纲', exact: true }),
   ).toBeVisible();
   await page
-    .locator('.fivo-native-word-outline')
+    .locator('.filumo-native-word-outline')
     .screenshot({ path: 'tmp/outline-restored.png' });
   await info.attach('outline-restored', {
-    body: await page.locator('.fivo-native-word-outline').screenshot(),
+    body: await page.locator('.filumo-native-word-outline').screenshot(),
     contentType: 'image/png',
   });
   await page.locator('#preview').evaluate((el) => {
@@ -244,7 +244,7 @@ test('原生大纲恢复树线、紧凑间距、键盘、滚动同步和渐进�
   });
   await expect(a).toHaveAttribute('aria-level', '1');
   await page
-    .locator('.fivo-native-word-outline')
+    .locator('.filumo-native-word-outline')
     .screenshot({ path: 'tmp/outline-restored-dark.png' });
   await page.getByRole('button', { name: '销毁大纲', exact: true }).click();
   await expect(tree).toHaveCount(0);

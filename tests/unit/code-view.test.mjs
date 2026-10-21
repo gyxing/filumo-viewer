@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import test from 'node:test';
 const result = await build({
   entryPoints: ['packages/code/src/runtime/CodeSession.ts'],
-  alias: { '@fivo/core/text': resolve('packages/core/src/text.ts') },
+  alias: { '@filumo/core/text': resolve('packages/core/src/text.ts') },
   bundle: true,
   write: false,
   platform: 'node',

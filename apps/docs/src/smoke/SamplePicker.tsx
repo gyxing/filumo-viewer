@@ -2,7 +2,7 @@ import { Alert, Button, Empty, Input, Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { docsPath } from '../site-path';
 import type { Sample } from './types';
-import { code } from '@fivo/code';
+import { code } from '@filumo/code';
 
 // 按实际解析族展示本机和公开样本，WPS 随 Word 分组。
 const groups = [
@@ -50,7 +50,7 @@ export function SamplePicker({
     const controller = new AbortController();
     setLoading(true);
     setError(false);
-    fetch(docsPath('__fivo_smoke/samples'), { signal: controller.signal })
+    fetch(docsPath('__filumo_smoke/samples'), { signal: controller.signal })
       .then((response) => {
         if (!response.ok) throw Error('样本接口不可用，请通过 pnpm smoke 启动');
         return response.json();

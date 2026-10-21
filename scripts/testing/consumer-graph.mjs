@@ -88,7 +88,7 @@ export function auditConsumerGraph(bundle, officeRoot, manifest) {
 /** Vite 单独构建 Worker，从真实入口身份获取输出，不匹配 worker-* 文件名。 */
 export function trackWorkerOutput(workerEntry, records) {
   return {
-    name: 'fivo-worker-output-audit',
+    name: 'filumo-worker-output-audit',
     generateBundle(_options, bundle) {
       for (const item of Object.values(bundle)) {
         if (

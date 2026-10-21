@@ -31,8 +31,8 @@ test('共享原文样式的两个实例保留 nonce，最后一个卸载才释�
   };
   registerStyle(
     'text-lease-fixture',
-    'text-lease-fixture:0.1.0-next.0:1111111111111111',
-    '.fivo-text-scope{height:100%}',
+    'text-lease-fixture:0.1.0:1111111111111111',
+    '.filumo-text-scope{height:100%}',
   );
   const first = useStyles('text-lease-fixture', document, {
     nonce: 'fixture-nonce',

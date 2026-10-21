@@ -1,5 +1,5 @@
-import type { TextTaskScope } from '@fivo/core/text';
-import { decodeTextTask, serveTextTasks } from '@fivo/core/text';
+import type { TextTaskScope } from '@filumo/core/text';
+import { decodeTextTask, serveTextTasks } from '@filumo/core/text';
 // Worker 入口保留格式任务的动态边界，原文模式只运行 decode。
 serveTextTasks(globalThis as unknown as TextTaskScope, {
   decode: decodeTextTask,

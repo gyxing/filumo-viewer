@@ -1,1 +1,1 @@
-export { indexLines, textLineAt } from '@fivo/core/text';
+export { indexLines, textLineAt } from '@filumo/core/text';

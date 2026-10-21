@@ -1,4 +1,4 @@
-import { throwIfAborted } from '@fivo/core';
+import { throwIfAborted } from '@filumo/core';
 import { readJsonToken } from './jsonLexer';
 import type { JsonToken } from './jsonLexer';
 import type {

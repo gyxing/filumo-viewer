@@ -1,5 +1,5 @@
-import { abortError, notify, throwIfAborted } from '@fivo/core';
-import { useStyles } from '@fivo/dom';
+import { abortError, notify, throwIfAborted } from '@filumo/core';
+import { useStyles } from '@filumo/dom';
 import { STYLE_SCOPE } from '../generated/package';
 import './image.less';
 import { calculateImageFitScale } from './imageTransform';
@@ -25,11 +25,11 @@ export async function mountImageSurface(
     initialOptions.stylePolicy,
   );
   const scope = document.createElement('div');
-  scope.className = STYLE_SCOPE! + ' fivo-image-scope';
+  scope.className = STYLE_SCOPE! + ' filumo-image-scope';
   const viewport = document.createElement('div'),
     image = document.createElement('img'),
     status = document.createElement('div');
-  viewport.className = 'fivo-image-surface';
+  viewport.className = 'filumo-image-surface';
   viewport.tabIndex = 0;
   image.alt = model.alt ?? '';
   image.decoding = 'async';

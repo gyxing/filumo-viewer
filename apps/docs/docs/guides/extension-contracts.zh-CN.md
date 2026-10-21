@@ -1,12 +1,18 @@
 ---
-title: Fivo 插件与后续编辑扩展
+title: Filumo 插件与后续编辑扩展
+description: Filumo 的 DocumentPlugin、ViewerPlugin、共享文本与 DOM 视图、会话资源及只读扩展协议。
+keywords:
+  - Filumo
+  - file preview
+  - document viewer
+  - 文件预览
 siteLayout: docs
 toc: content
 ---
 
 # 插件与后续编辑扩展
 
-当前工作区已实现 Office、纯文本、JSON、Markdown、图片和 PDF 只读插件。本页说明共用的扩展协议，以及尚未提供的编辑保存边界；这些包仍处于工作区预览阶段。
+当前 0.1.0 工作区包含 Office、Text、JSON、Markdown、Image、PDF、CSV、XML、Code 九类只读插件，尚未发布。本页说明现有扩展协议及尚未提供的编辑保存能力。
 
 ## 分层职责
 
@@ -17,11 +23,13 @@ toc: content
 | 格式插件 | 识别、解析、资源与格式视图             | 管理宿主框架生命周期         |
 | 框架适配 | props、事件、挂载/卸载、KeepAlive      | 重新解析一份文档或复制工具栏 |
 
-未来格式包可以采用独立 @fivo/\* 命名，但只有实际需要时才创建。宿主显式注册插件；新增包不会自动进入标准预设或其他宿主的依赖。
+未来格式包可以采用独立 @filumo/\* 命名，但只有实际需要时才创建。宿主显式注册插件；新增包不会自动进入标准预设或其他宿主的依赖。
+
+公共文本处理来自 @filumo/core/text；原文、大纲与分栏来自 DOM 子入口，格式包不通过 Text 包反向复用公共视图。完整包关系见[包总览](./packages)。
 
 ## DocumentPlugin
 
-| 字段                         | 合同                                          |
+| 字段                         | 接口约定                                      |
 | ---------------------------- | --------------------------------------------- |
 | id                           | 稳定且唯一的插件 ID                           |
 | protocolVersion              | 当前为 1                                      |
@@ -40,8 +48,8 @@ ViewerPlugin 包含 document 和 loadView()。loadView 返回含 mount(context) 
 一个最小的自定义 .note 插件示例，仅用于说明协议：
 
 ```ts | pure
-import { createSession } from '@fivo/core';
-import type { ViewerPlugin } from '@fivo/dom';
+import { createSession } from '@filumo/core';
+import type { ViewerPlugin } from '@filumo/dom';
 
 export const notePlugin: ViewerPlugin = {
   document: {
@@ -134,7 +142,7 @@ context.setCapabilities({
 
 当前没有 editor、save、applyChanges 或 undo API。不要把内部模型直接当可变编辑状态，也不要将只读修订投影当成修改原文件。
 
-原件导出 exportOriginal 仅返回原始字节副本。未来编辑后保存需格式 writer、导出校验和宿主持久化接口，不能用原件下载冒充。待确定真实编辑需求后再增加包与合同，不预发空壳编辑包。
+原件导出 exportOriginal 仅返回原始字节副本。未来编辑后保存需格式 writer、导出校验和宿主持久化接口，不能用原件下载冒充。待确定真实编辑需求后再增加包与接口，不预发空壳编辑包。
 
 ## 发布边界
 

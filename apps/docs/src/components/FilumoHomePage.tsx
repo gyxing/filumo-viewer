@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import './FivoHomePage.less';
+import './FilumoHomePage.less';
 import { HomeHeader, type HomeSectionId } from './HomeHeader';
 import { HomeHero } from './HomeHero';
 import {
@@ -20,7 +20,7 @@ import {
   useSiteCopyFeedback as useCopyFeedback,
 } from './site-copy';
 
-type FivoHomePageProps = {
+type FilumoHomePageProps = {
   /** 当前公开官网使用的语言。 */
   locale: WebsiteLocale;
 };
@@ -82,8 +82,8 @@ function useActiveSection(): HomeSectionId {
   return activeSection;
 }
 
-/** 渲染默认英文、可切换中文的 Fivo 产品官网。 */
-export function FivoHomePage({ locale }: FivoHomePageProps) {
+/** 渲染默认英文、可切换中文的 Filumo 产品官网。 */
+export function FilumoHomePage({ locale }: FilumoHomePageProps) {
   const content = getWebsiteContent(locale);
   const activeSection = useActiveSection();
   const [packageManager, setPackageManager] = useState<PackageManager>('npm');

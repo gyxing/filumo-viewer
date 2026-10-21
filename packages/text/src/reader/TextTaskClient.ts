@@ -1,1 +1,1 @@
-export { TextTaskClient } from '@fivo/core/text';
+export { TextTaskClient } from '@filumo/core/text';

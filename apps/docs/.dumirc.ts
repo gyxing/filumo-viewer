@@ -1,13 +1,13 @@
 import { defineConfig } from 'dumi';
 import { normalizeDocsBase } from './config/base-path.js';
 import { getDocsRoutes } from './config/routes';
-const docsBase = normalizeDocsBase(process.env.FIVO_DOCS_BASE);
+const docsBase = normalizeDocsBase(process.env.FILUMO_DOCS_BASE);
 const production = process.env.NODE_ENV === 'production';
-const smoke = !production && process.env.FIVO_SMOKE === '1';
+const smoke = !production && process.env.FILUMO_SMOKE === '1';
 export default defineConfig({
   base: docsBase,
   publicPath: docsBase,
-  define: { 'process.env.FIVO_DOCS_BASE': docsBase },
+  define: { 'process.env.FILUMO_DOCS_BASE': docsBase },
   outputPath: 'dist',
   locales: [
     { id: 'en-US', name: 'English' },
@@ -19,7 +19,7 @@ export default defineConfig({
     ...(smoke ? ['./server/smoke-plugin.ts'] : []),
   ],
   themeConfig: {
-    name: 'Fivo',
+    name: 'Filumo',
     logo: false,
     prefersColor: { default: 'light', switch: false },
     nav: {

@@ -1,4 +1,4 @@
-import { FivoError, throwIfAborted } from '../errors';
+import { FilumoError, throwIfAborted } from '../errors';
 import { waitForSource } from '../guardSource';
 import type { DocumentRangeReader } from './types';
 
@@ -9,7 +9,7 @@ export function validateRange(offset: number, length: number): void {
     offset < 0 ||
     length < 0
   )
-    throw new FivoError('INVALID_RANGE', '来源读取范围无效');
+    throw new FilumoError('INVALID_RANGE', '来源读取范围无效');
 }
 
 /** 为 Blob 提供切片读取，不为建立 Reader 提前分配全文字节。 */

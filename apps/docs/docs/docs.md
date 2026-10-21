@@ -1,15 +1,20 @@
 ---
-title: Fivo Developer Documentation
-description: Framework integration, public APIs, resource deployment and development guides for Fivo Office preview.
+title: Filumo Developer Documentation
+description: Filumo 0.1.0 file previews with fifteen packages, nine format plugins, React and Vue adapters, public APIs and asset deployment.
+keywords:
+  - Filumo
+  - file preview
+  - document viewer
+  - browser
 siteLayout: docs
 toc: content
 ---
 
-# Fivo developer documentation
+# Filumo developer documentation
 
-Fivo is a browser-based, cross-framework Office preview library. Parsing, images, charts and rendering run in the browser without a document-conversion service. React, Vue 3, Vue 2 and JavaScript hosts share the native DOM renderer.
+Filumo is a browser-based, cross-framework file preview library. Parsing, images, charts and rendering run in the browser without a document-conversion service. React, Vue 3, Vue 2 and JavaScript hosts share the native DOM renderer.
 
-> The current workspace version is **0.1.0-next.0** and has not been published to npm. The workspace implements read-only Office, text, Markdown, JSON, image and PDF plugins. Editing and saving edited files are future extensions. Do not install unrelated packages with similar names or use the previous package entry points.
+> The current workspace version is **0.1.0** and has not been published to npm. The workspace implements nine readonly plugins: Office, PDF, image, text, JSON, Markdown, CSV, XML and code. Editing and saving edited files are future extensions. Do not install unrelated packages with similar names or use the previous package entry points.
 
 <nav className="office-viewer-docs__quick-links" aria-label="Documentation shortcuts">
   <a href="#quick-start">Quick start</a>
@@ -21,24 +26,30 @@ Fivo is a browser-based, cross-framework Office preview library. Parsing, images
 
 ## Packages and lazy loading
 
-| Package      | Responsibility                                                    | Use when                                 |
-| ------------ | ----------------------------------------------------------------- | ---------------------------------------- |
-| @fivo/core   | Sources, plugin protocol, sessions, cancellation, original export | Building document flows or plugins       |
-| @fivo/dom    | Native viewer shell, styles and generic capabilities              | Using JavaScript or a custom host        |
-| @fivo/office | Office descriptor, drivers and native renderers                   | Previewing Word, Excel and PowerPoint    |
-| @fivo/text | 纯文本及未知文本兜底 | 文本原文预览 |
-| @fivo/json | JSON 结构与原文 | JSON 文件 |
-| @fivo/markdown | Markdown 阅读与原文 | Markdown 文件 |
-| @fivo/image | 图片及公共图片交互 | 独立图片与 Office 弹层 |
-| @fivo/pdf | PDF 连续阅读 | 部署同版 Worker 及辅助资产 |
-| @fivo/react  | React 18/19 adapter                                               | Using React                              |
-| @fivo/vue    | Vue 3 adapter                                                     | Using Vue 3                              |
-| @fivo/vue2   | Vue 2.6/2.7 adapter                                               | Using Vue 2                              |
-| @fivo/viewer | Lightweight standard preset for six format families               | Reusing the stable standardPlugins array |
+| Package                                                            | Responsibility                                                | Source and details                                                                          |
+| ------------------------------------------------------------------ | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| [@filumo/core](https://www.npmjs.com/package/@filumo/core)         | Sources, plugin protocol, sessions and shared text processing | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/core#readme)     |
+| [@filumo/dom](https://www.npmjs.com/package/@filumo/dom)           | DOM shell, toolbar, outline and shared source views           | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/dom#readme)      |
+| [@filumo/viewer](https://www.npmjs.com/package/@filumo/viewer)     | Lightweight standard preset for nine format plugins           | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/viewer#readme)   |
+| [@filumo/office](https://www.npmjs.com/package/@filumo/office)     | Word, Excel, PowerPoint and supported WPS documents           | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/office#readme)   |
+| [@filumo/pdf](https://www.npmjs.com/package/@filumo/pdf)           | Continuous PDF reading, thumbnails, outlines and search       | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/pdf#readme)      |
+| [@filumo/image](https://www.npmjs.com/package/@filumo/image)       | Standalone images and shared image overlay interactions       | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/image#readme)    |
+| [@filumo/text](https://www.npmjs.com/package/@filumo/text)         | Plain text, logs and readable-content fallback                | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/text#readme)     |
+| [@filumo/json](https://www.npmjs.com/package/@filumo/json)         | JSON, JSONC, JSONL and NDJSON                                 | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/json#readme)     |
+| [@filumo/markdown](https://www.npmjs.com/package/@filumo/markdown) | Markdown reading, source, outlines and controlled HTML        | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/markdown#readme) |
+| [@filumo/csv](https://www.npmjs.com/package/@filumo/csv)           | Readonly CSV and TSV tables                                   | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/csv#readme)      |
+| [@filumo/xml](https://www.npmjs.com/package/@filumo/xml)           | Split XML source and structure views                          | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/xml#readme)      |
+| [@filumo/code](https://www.npmjs.com/package/@filumo/code)         | Common source, configuration, script and build files          | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/code#readme)     |
+| [@filumo/react](https://www.npmjs.com/package/@filumo/react)       | React 18/19 adapter                                           | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/react#readme)    |
+| [@filumo/vue](https://www.npmjs.com/package/@filumo/vue)           | Vue >=3.3 <4 adapter                                          | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/vue#readme)      |
+| [@filumo/vue2](https://www.npmjs.com/package/@filumo/vue2)         | Vue 2.6/2.7 adapter                                           | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/vue2#readme)     |
 
 Install only your framework adapter. JavaScript and Vue hosts do not acquire React through the Office package.
 
 `office()` creates a lightweight descriptor. Drivers and the appropriate format view load when a document opens. Image and PDF deployment is described in the [image and PDF guide](./guides/image-pdf). Unregistered plugins do not load implicitly.
+
+See the [package overview](./guides/packages) for all fifteen packages and installation combinations.\
+The standard preset is a frozen readonly array of nine descriptors. It exports no framework component, createViewer or standalone styles.css. Installing it installs every format dependency; engines still load on demand.
 
 ## Installation and workspace use
 
@@ -50,7 +61,7 @@ pnpm build
 pnpm demo:react
 ```
 
-After publication, select your adapter and @fivo/office. Before publication, use the workspace or locally built and packed packages; see Framework integration in the navigation for the exact process. Packages are ESM, and the host provides a compatible React or Vue runtime.
+After publication, select your framework adapter and required format packages, or use the @filumo/viewer standard preset. Before publication, use the workspace or locally built and packed packages; see Framework integration in the navigation for the exact process. Packages are ESM, and the host provides a compatible React or Vue runtime.
 
 **Normal integration requires neither a CSS import nor a Less loader.**
 
@@ -60,9 +71,9 @@ After publication, select your adapter and @fivo/office. Before publication, use
 
 ```tsx | pure
 import { useRef } from 'react';
-import { DocumentViewer } from '@fivo/react';
-import { office } from '@fivo/office';
-import type { ViewerHandle } from '@fivo/dom';
+import { DocumentViewer } from '@filumo/react';
+import { office } from '@filumo/office';
+import type { ViewerHandle } from '@filumo/react';
 
 const plugins = [office()];
 export function Preview({ file }: { file?: File }) {
@@ -84,13 +95,13 @@ Omitting source displays the file picker. Keep the plugin array at module scope 
 
 ## Vue 3, Vue 2 and JavaScript
 
-Vue 3 uses @fivo/vue with template refs, Composition API and KeepAlive. Vue 2 uses @fivo/vue2 with Options API, $refs and KeepAlive. Do not copy a Vue 3 script-setup example into Vue 2.6.
+Vue 3 uses @filumo/vue with template refs, Composition API and KeepAlive. Vue 2 uses @filumo/vue2 with Options API, $refs and KeepAlive. Do not copy a Vue 3 script-setup example into Vue 2.6.
 
 Both adapters receive source, plugins and options, and emit ready, error, stateChange and capabilitiesChange. SFC templates can use @state-change and @capabilities-change. Keep runtime handles outside deep reactive business state. Framework integration provides separate complete examples.
 
 ```ts | pure
-import { createViewer } from '@fivo/dom';
-import { office } from '@fivo/office';
+import { createViewer } from '@filumo/dom';
+import { office } from '@filumo/office';
 
 const viewer = createViewer(container, {
   plugins: [office()],
@@ -236,17 +247,25 @@ The zoom combobox combines percentage presets and fit modes. Spreadsheets offer 
 
 ### Office actions
 
-| id                 | run argument / behavior                                    | Scope                                      |
-| ------------------ | ---------------------------------------------------------- | ------------------------------------------ |
-| office.zoomMode    | percentage, fit-width, fit-page                            | fit-page is not available for spreadsheets |
-| office.search      | Toggle find panel                                          | Office                                     |
-| office.outline     | Toggle outline                                             | Word                                       |
-| office.revision    | final, markup, original                                    | Word; read-only projection                 |
-| office.review      | Toggle comments                                            | Excel, PowerPoint                          |
-| office.sheet       | Worksheet ID from options                                  | Excel                                      |
-| office.sheetMode   | source, reading                                            | Excel                                      |
-| office.notes       | Toggle speaker notes                                       | PowerPoint                                 |
-| office.transitions | Toggle source slide transitions; hidden in default toolbar | PowerPoint                                 |
+| id                 | run argument / behavior                                    | Scope                                                                           |
+| ------------------ | ---------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| office.zoomMode    | percentage, fit-width, fit-page                            | fit-page is not available for spreadsheets                                      |
+| office.search      | Toggle find panel                                          | Office                                                                          |
+| office.outline     | Toggle outline                                             | Word                                                                            |
+| office.revision    | final, markup, original                                    | Word; read-only projection                                                      |
+| office.review      | Toggle comments                                            | Excel, PowerPoint                                                               |
+| office.sheet       | Worksheet ID from options                                  | Excel                                                                           |
+| office.sheetMode   | source, reading                                            | Excel                                                                           |
+| office.notes       | Toggle speaker notes                                       | PowerPoint                                                                      |
+| office.transitions | Toggle source slide transitions; hidden in default toolbar | PowerPoint                                                                      |
+| PDF                | PDF                                                        | Continuous scrolling, outlines, thumbnails, search, rotation and text selection |
+| Images             | PNG, JPEG, GIF, WebP, BMP, SVG, AVIF                       | Zoom, pan, rotation and reset; decoding depends on the browser                  |
+| Text               | TXT, LOG, INI, CONF, CFG, PROPERTIES, OUT                  | Encoding, source, line numbers, wrapping and readable fallback                  |
+| JSON               | JSON, JSONC, JSONL, NDJSON                                 | Structure/source, duplicate keys and record diagnostics                         |
+| Markdown           | MD, MARKDOWN                                               | Reading/source, outlines, tasks, tables and controlled HTML                     |
+| CSV                | CSV, TSV                                                   | Windowed tables, delimiters, column widths and selection copy                   |
+| XML                | XML                                                        | Split source/structure, namespaces and source mapping                           |
+| Code               | Common languages, scripts, configuration and build files   | Source highlighting, languages, line numbers and search                         |
 
 Find an action by id and check enabled. Read choices from options; display names are not worksheet IDs. Navigation, zoom modes and revisions never modify the original bytes.
 
@@ -255,7 +274,7 @@ Find an action by id and check enabled. Read choices from options; display names
 ## Office plugin options
 
 ```ts | pure
-import { office } from '@fivo/office';
+import { office } from '@filumo/office';
 const plugins = [
   office({
     worker: 'auto',
@@ -280,14 +299,14 @@ Office resourcePolicy supports maxFileBytes, timeoutMs, maxArchiveEntries, maxAr
 
 ## Worker deployment
 
-The default Worker is published as @fivo/office/worker.js and referenced with new URL/import.meta.url. The host bundler must emit that asset. A package path is not necessarily a publicly served URL.
+The default Worker is published as @filumo/office/worker.js and referenced with new URL/import.meta.url. The host bundler must emit that asset. A package path is not necessarily a publicly served URL.
 
 ```ts | pure
 const plugins = [
   office({
     worker: 'always',
     workerFactory: () =>
-      new Worker('/assets/fivo-office-worker.js', { type: 'module' }),
+      new Worker('/assets/filumo-office-worker.js', { type: 'module' }),
   }),
 ];
 ```
@@ -309,8 +328,9 @@ stylePolicy.mode defaults to auto. Shell and view styles load on demand and are 
 Explicit external mode is the exception requiring CSS imports:
 
 ```ts | pure
-import '@fivo/dom/styles.css';
-import '@fivo/office/styles.css';
+import '@filumo/dom/styles.css';
+import '@filumo/image/styles.css';
+import '@filumo/office/styles.css';
 const viewer = createViewer(container, {
   plugins: [office()],
   stylePolicy: { mode: 'external' },
@@ -336,7 +356,7 @@ CSS must match the package versions. Missing or conflicting group markers fail e
 ## Original export and future editing
 
 ```ts | pure
-import { exportOriginal } from '@fivo/core';
+import { exportOriginal } from '@filumo/core';
 const session = viewer.getSnapshot().session;
 if (session) {
   const result = await exportOriginal(session.source, session.signal);
@@ -367,22 +387,22 @@ Not every Error has a code. Parser, resource and browser errors originate in dif
 
 ## Local development
 
-| Command                         | Purpose                                                          |
-| ------------------------------- | ---------------------------------------------------------------- |
-| pnpm docs:dev                   | dumi docs and public Playground; builds packages before starting |
-| pnpm smoke                      | React-based private sample runner at /dev/smoke-test             |
-| pnpm demo:js                    | Native JavaScript build-output example                           |
-| pnpm demo:react                 | React example                                                    |
-| pnpm demo:vue3 / pnpm demo:vue2 | Separate Vue examples                                            |
-| pnpm build                      | Build component packages                                         |
-| pnpm docs:build                 | Build the public documentation site                              |
+| Command                         | Purpose                                                   |
+| ------------------------------- | --------------------------------------------------------- |
+| pnpm docs:dev                   | dumi docs and public Playground; compiles package sources |
+| pnpm smoke                      | React-based private sample runner at /dev/smoke-test      |
+| pnpm demo:js                    | Native JavaScript build-output example                    |
+| pnpm demo:react                 | React example                                             |
+| pnpm demo:vue3 / pnpm demo:vue2 | Separate Vue examples                                     |
+| pnpm build                      | Build component packages                                  |
+| pnpm docs:build                 | Build the public documentation site                       |
 
-Package sources do not yet have a watch pipeline. Rebuild after changes to packages and restart demo servers; a browser refresh alone cannot rebundle them. The demo port defaults to 4173 and accepts --port 4174. See Development & testing for commands, private fixtures and deployment prefixes.
+docs:dev and smoke compile package sources directly with development aliases and source-change propagation. Startup prepares package metadata, public fixtures and PDF assets without building all packages. Standalone demos consume build output: rebuild and restart them after package-source changes. See the development guide for commands and privacy boundaries.
 
 ## Compatibility, limitations and migration
 
-Verified combinations include React 18.3.1/19.2.0, Vue 3.5.43, Vue 2.6.14/2.7.16, Vite 5.4.21 and real browsers. Vue 2 support is not a promise of IE11 or every Webpack 4 default configuration.
+Declared peers are React >=18 <20, Vue >=3.3 <4 and Vue 2.6/2.7. Historical checks covered React 18.3.1/19.2.0, Vue 3.5.43, Vue 2.6.14/2.7.16 and Vite 5.4.21; they do not certify all renamed 0.1.0 formats. Vue 2 support is not a promise of IE11 or every Webpack 4 default configuration.
 
 Browser typography, complex binary documents, charts and media codecs have limits. Pixel-identical Microsoft Office/WPS output is not guaranteed. First preview of a windowed/progressive document does not imply all pages are finished.
 
-The old uri, parseOptions, defaultViewState and deep layout entry points are not Fivo APIs. Follow Migration to Fivo instead of adding compatibility wrappers. All navigation guides have English and Chinese versions. Private files and internal implementation plans stay outside the public site.
+The old uri, parseOptions, defaultViewState and deep layout entry points are not Filumo APIs. Follow Migration to Filumo instead of adding compatibility wrappers. All navigation guides have English and Chinese versions. Private files and internal implementation plans stay outside the public site.

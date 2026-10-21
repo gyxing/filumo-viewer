@@ -76,43 +76,43 @@ importers:
 
   apps/docs:
     dependencies:
-      '@fivo/code':
+      '@filumo/code':
         specifier: workspace:^
         version: link:../../packages/code
-      '@fivo/core':
+      '@filumo/core':
         specifier: workspace:^
         version: link:../../packages/core
-      '@fivo/csv':
+      '@filumo/csv':
         specifier: workspace:^
         version: link:../../packages/csv
-      '@fivo/dom':
+      '@filumo/dom':
         specifier: workspace:^
         version: link:../../packages/dom
-      '@fivo/image':
+      '@filumo/image':
         specifier: workspace:^
         version: link:../../packages/image
-      '@fivo/json':
+      '@filumo/json':
         specifier: workspace:^
         version: link:../../packages/json
-      '@fivo/markdown':
+      '@filumo/markdown':
         specifier: workspace:^
         version: link:../../packages/markdown
-      '@fivo/office':
+      '@filumo/office':
         specifier: workspace:^
         version: link:../../packages/office
-      '@fivo/pdf':
+      '@filumo/pdf':
         specifier: workspace:^
         version: link:../../packages/pdf
-      '@fivo/react':
+      '@filumo/react':
         specifier: workspace:^
         version: link:../../packages/react
-      '@fivo/text':
+      '@filumo/text':
         specifier: workspace:^
         version: link:../../packages/text
-      '@fivo/viewer':
+      '@filumo/viewer':
         specifier: workspace:^
         version: link:../../packages/viewer
-      '@fivo/xml':
+      '@filumo/xml':
         specifier: workspace:^
         version: link:../../packages/xml
       antd:
@@ -137,10 +137,10 @@ importers:
 
   packages/code:
     dependencies:
-      '@fivo/core':
+      '@filumo/core':
         specifier: workspace:^
         version: link:../core
-      '@fivo/dom':
+      '@filumo/dom':
         specifier: workspace:^
         version: link:../dom
       highlight.js:
@@ -151,43 +151,43 @@ importers:
 
   packages/csv:
     dependencies:
-      '@fivo/core':
+      '@filumo/core':
         specifier: workspace:^
         version: link:../core
-      '@fivo/dom':
+      '@filumo/dom':
         specifier: workspace:^
         version: link:../dom
 
   packages/dom:
     dependencies:
-      '@fivo/core':
+      '@filumo/core':
         specifier: workspace:^
         version: link:../core
 
   packages/image:
     dependencies:
-      '@fivo/core':
+      '@filumo/core':
         specifier: workspace:^
         version: link:../core
-      '@fivo/dom':
+      '@filumo/dom':
         specifier: workspace:^
         version: link:../dom
 
   packages/json:
     dependencies:
-      '@fivo/core':
+      '@filumo/core':
         specifier: workspace:^
         version: link:../core
-      '@fivo/dom':
+      '@filumo/dom':
         specifier: workspace:^
         version: link:../dom
 
   packages/markdown:
     dependencies:
-      '@fivo/core':
+      '@filumo/core':
         specifier: workspace:^
         version: link:../core
-      '@fivo/dom':
+      '@filumo/dom':
         specifier: workspace:^
         version: link:../dom
       highlight.js:
@@ -199,13 +199,13 @@ importers:
 
   packages/office:
     dependencies:
-      '@fivo/core':
+      '@filumo/core':
         specifier: workspace:^
         version: link:../core
-      '@fivo/dom':
+      '@filumo/dom':
         specifier: workspace:^
         version: link:../dom
-      '@fivo/image':
+      '@filumo/image':
         specifier: workspace:^
         version: link:../image
       '@zip.js/zip.js':
@@ -223,10 +223,10 @@ importers:
 
   packages/pdf:
     dependencies:
-      '@fivo/core':
+      '@filumo/core':
         specifier: workspace:^
         version: link:../core
-      '@fivo/dom':
+      '@filumo/dom':
         specifier: workspace:^
         version: link:../dom
       pdfjs-dist:
@@ -235,10 +235,10 @@ importers:
 
   packages/react:
     dependencies:
-      '@fivo/core':
+      '@filumo/core':
         specifier: workspace:^
         version: link:../core
-      '@fivo/dom':
+      '@filumo/dom':
         specifier: workspace:^
         version: link:../dom
     devDependencies:
@@ -251,49 +251,49 @@ importers:
 
   packages/text:
     dependencies:
-      '@fivo/core':
+      '@filumo/core':
         specifier: workspace:^
         version: link:../core
-      '@fivo/dom':
+      '@filumo/dom':
         specifier: workspace:^
         version: link:../dom
 
   packages/viewer:
     dependencies:
-      '@fivo/code':
+      '@filumo/code':
         specifier: workspace:^
         version: link:../code
-      '@fivo/csv':
+      '@filumo/csv':
         specifier: workspace:^
         version: link:../csv
-      '@fivo/image':
+      '@filumo/image':
         specifier: workspace:^
         version: link:../image
-      '@fivo/json':
+      '@filumo/json':
         specifier: workspace:^
         version: link:../json
-      '@fivo/markdown':
+      '@filumo/markdown':
         specifier: workspace:^
         version: link:../markdown
-      '@fivo/office':
+      '@filumo/office':
         specifier: workspace:^
         version: link:../office
-      '@fivo/pdf':
+      '@filumo/pdf':
         specifier: workspace:^
         version: link:../pdf
-      '@fivo/text':
+      '@filumo/text':
         specifier: workspace:^
         version: link:../text
-      '@fivo/xml':
+      '@filumo/xml':
         specifier: workspace:^
         version: link:../xml
 
   packages/vue:
     dependencies:
-      '@fivo/core':
+      '@filumo/core':
         specifier: workspace:^
         version: link:../core
-      '@fivo/dom':
+      '@filumo/dom':
         specifier: workspace:^
         version: link:../dom
     devDependencies:
@@ -303,10 +303,10 @@ importers:
 
   packages/vue2:
     dependencies:
-      '@fivo/core':
+      '@filumo/core':
         specifier: workspace:^
         version: link:../core
-      '@fivo/dom':
+      '@filumo/dom':
         specifier: workspace:^
         version: link:../dom
     devDependencies:
@@ -316,10 +316,10 @@ importers:
 
   packages/xml:
     dependencies:
-      '@fivo/core':
+      '@filumo/core':
         specifier: workspace:^
         version: link:../core
-      '@fivo/dom':
+      '@filumo/dom':
         specifier: workspace:^
         version: link:../dom
       saxes:

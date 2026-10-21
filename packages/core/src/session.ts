@@ -24,7 +24,7 @@ export function createSession<T>(
   options: SessionOptions<T>,
 ): MutableDocumentSession<T> {
   const id =
-    options.id ?? options.sessionId ?? 'fivo-' + Date.now() + '-' + ++sequence;
+    options.id ?? options.sessionId ?? 'filumo-' + Date.now() + '-' + ++sequence;
   const controller = new AbortController();
   const listeners = new Set<() => void>();
   let disposing: Promise<void> | undefined;

@@ -22,8 +22,8 @@ export function resolveBuildOrder(names, manifests) {
     const dependencies = manifests[name].dependencies ?? {};
     for (const [dependency, range] of Object.entries(dependencies)) {
       if (!/^workspace:/.test(String(range))) continue;
-      if (!dependency.startsWith('@fivo/')) continue;
-      visit(dependency.slice('@fivo/'.length), [...chain, name]);
+      if (!dependency.startsWith('@filumo/')) continue;
+      visit(dependency.slice('@filumo/'.length), [...chain, name]);
     }
     state.set(name, 'done');
     result.push(name);

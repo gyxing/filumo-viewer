@@ -1,4 +1,4 @@
-import type { TextEncoding } from '@fivo/core/text';
+import type { TextEncoding } from '@filumo/core/text';
 import { Input, InputNumber, Select, Switch } from 'antd';
 import React from 'react';
 import { changeView } from './config';

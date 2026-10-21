@@ -19,7 +19,7 @@ test('更多位于所有工具栏操作之后，视觉位置与键盘顺序一�
   const more = toolbar.getByRole('button', { name: '更多操作', exact: true });
   await expect(more).toBeVisible();
   expect(await toolbar.evaluate((element) =>
-    element.lastElementChild.classList.contains('fivo-toolbar-more'))).toBe(true);
+    element.lastElementChild.classList.contains('filumo-toolbar-more'))).toBe(true);
   const bounds = await more.boundingBox();
   const fullscreen = toolbar.getByRole('button', { name: '全屏', exact: true });
   const previous = await fullscreen.boundingBox();
@@ -53,7 +53,7 @@ test('更多使用纯菜单和单选子菜单，刷新后保留展开状态', as
   await page.getByRole('button', { name: '异步刷新', exact: true }).dispatchEvent('click');
   await expect(submenu).toBeVisible();
   const bounds = await submenu.boundingBox();
-  const root = await page.locator('.fivo-viewer').boundingBox();
+  const root = await page.locator('.filumo-viewer').boundingBox();
   expect(bounds.x).toBeGreaterThanOrEqual(root.x);
   expect(bounds.x + bounds.width).toBeLessThanOrEqual(root.x + root.width);
   await submenu.getByRole('menuitemradio', { name: '阅读模式', exact: true }).click();
@@ -143,7 +143,7 @@ for (const theme of ['light', 'dark']) {
     await page.getByRole('option', { name: '阅读模式', exact: true }).click();
     expect((await state(page)).sheetMode).toBe('reading');
     const zoom = bar.getByRole('combobox', { name: '缩放比例', exact: true });
-    const field = bar.locator('.fivo-zoom-field');
+    const field = bar.locator('.filumo-zoom-field');
     const normalZoomBorder = await field.evaluate(
       (el) => getComputedStyle(el).borderColor,
     );
@@ -261,7 +261,7 @@ test('更多级联菜单支持悬停进入、外部关闭和主题继承', async
 });
 
 // 本机二进制样本仅在本地模式读取，截图与报告不会进入公开 CI 目录。
-if (process.env.FIVO_LOCAL_SAMPLES === '1') {
+if (process.env.FILUMO_LOCAL_SAMPLES === '1') {
   for (const [format, sample] of [
     ['doc', 'binary-word'],
     ['xls', 'binary-sheet'],
@@ -282,11 +282,11 @@ if (process.env.FIVO_LOCAL_SAMPLES === '1') {
         bar.getByRole('combobox', { name: '缩放比例', exact: true }),
       ).toBeVisible();
       await expect(
-        bar.locator('[data-fivo-action="office.sheet"]'),
+        bar.locator('[data-filumo-action="office.sheet"]'),
       ).toHaveCount(0);
       if (format !== 'doc')
         await expect(
-          bar.locator('[data-fivo-action="office.outline"]'),
+          bar.locator('[data-filumo-action="office.outline"]'),
         ).toHaveCount(0);
       if (format !== 'ppt')
         await expect(
@@ -323,46 +323,46 @@ test('格式工具栏按内容和顺序展示，切换后不残留旧操作', as
 }, info) => {
   await fixture(page);
   const bar = page.getByRole('toolbar');
-  await expect(bar.locator('[data-fivo-action="office.outline"]')).toHaveCount(
+  await expect(bar.locator('[data-filumo-action="office.outline"]')).toHaveCount(
     0,
   );
-  await expect(bar.locator('[data-fivo-action="office.revision"]')).toHaveCount(
+  await expect(bar.locator('[data-filumo-action="office.revision"]')).toHaveCount(
     0,
   );
   await expect(bar.getByRole('spinbutton', { name: '页码' })).toHaveCount(0);
   await page.getByRole('button', { name: '内容', exact: true }).click();
   await expect(
-    bar.locator('.fivo-controls-main [data-fivo-action]'),
+    bar.locator('.filumo-controls-main [data-filumo-action]'),
   ).toHaveCount(3);
   expect(
     await bar
-      .locator('.fivo-controls-main [data-fivo-action]')
-      .evaluateAll((els) => els.map((el) => el.dataset.fivoAction)),
+      .locator('.filumo-controls-main [data-filumo-action]')
+      .evaluateAll((els) => els.map((el) => el.dataset.filumoAction)),
   ).toEqual(['office.outline', 'office.revision', 'office.search']);
   await bar.screenshot({ path: 'tmp/toolbar-word.png' });
   await page.getByRole('button', { name: 'Excel', exact: true }).click();
-  await expect(bar.locator('[data-fivo-action="office.outline"]')).toHaveCount(
+  await expect(bar.locator('[data-filumo-action="office.outline"]')).toHaveCount(
     0,
   );
-  await expect(bar.locator('[data-fivo-action="office.sheet"]')).toHaveCount(0);
-  await expect(bar.locator('[data-fivo-action="office.review"]')).toHaveCount(
+  await expect(bar.locator('[data-filumo-action="office.sheet"]')).toHaveCount(0);
+  await expect(bar.locator('[data-filumo-action="office.review"]')).toHaveCount(
     0,
   );
   await page.getByRole('button', { name: '内容', exact: true }).click();
   expect(
     await bar
-      .locator('.fivo-controls-main [data-fivo-action]')
-      .evaluateAll((els) => els.map((el) => el.dataset.fivoAction)),
+      .locator('.filumo-controls-main [data-filumo-action]')
+      .evaluateAll((els) => els.map((el) => el.dataset.filumoAction)),
   ).toEqual(['office.sheetMode', 'office.search', 'office.review']);
   await expect(
     bar.locator(
-      '[data-fivo-action="office.sheetMode"] > .fivo-capability-label',
+      '[data-filumo-action="office.sheetMode"] > .filumo-capability-label',
     ),
   ).toBeHidden();
   await bar.screenshot({ path: 'tmp/toolbar-excel.png' });
   await page.getByRole('button', { name: 'PPT', exact: true }).click();
   await expect(
-    bar.locator('[data-fivo-action="office.transitions"]'),
+    bar.locator('[data-filumo-action="office.transitions"]'),
   ).toHaveCount(0);
   const previous = bar.getByRole('button', {
     name: '上一张幻灯片',

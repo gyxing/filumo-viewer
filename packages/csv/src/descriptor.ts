@@ -8,7 +8,7 @@ export const csv: CsvFactory = (options = {}) => {
       (() =>
         new Worker(new URL('./worker.js', import.meta.url), {
           type: 'module',
-          name: 'fivo-csv',
+          name: 'filumo-csv',
         })),
   };
   return {

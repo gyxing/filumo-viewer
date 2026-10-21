@@ -1,5 +1,5 @@
-import type { DocumentSession } from '@fivo/core';
-import { abortError, notify } from '@fivo/core';
+import type { DocumentSession } from '@filumo/core';
+import { abortError, notify } from '@filumo/core';
 import type {
   SpreadsheetSource,
   SpreadsheetSourceSnapshot,

@@ -33,7 +33,7 @@ for (const entry of ['outline/OutlineTree', 'outline']) {
       treeShaking: true,
       minify: true,
       plugins: [
-        stylePlugin({ group: 'dom', version: '0.1.0-next.0' }, styles, root),
+        stylePlugin({ group: 'dom', version: '0.1.0' }, styles, root),
       ],
     });
     const { OutlineTree } = await import(
@@ -61,14 +61,14 @@ for (const entry of ['outline/OutlineTree', 'outline']) {
       assert.equal(sheet.nonce, 'outline-style-regression');
       assert.match(
         sheet.textContent,
-        /\.fivo-outline-row\s*\{[^}]*position:\s*absolute/,
+        /\.filumo-outline-row\s*\{[^}]*position:\s*absolute/,
       );
       assert.match(
         sheet.textContent,
-        /\.fivo-outline-label\s*\{[^}]*font-size:\s*14px/,
+        /\.filumo-outline-label\s*\{[^}]*font-size:\s*14px/,
       );
-      assert.match(sheet.textContent, /\.fivo-outline-switcher\s*>\s*span/);
-      assert.match(sheet.textContent, /\.fivo-outline-branch::after/);
+      assert.match(sheet.textContent, /\.filumo-outline-switcher\s*>\s*span/);
+      assert.match(sheet.textContent, /\.filumo-outline-branch::after/);
     } finally {
       tree.dispose();
     }

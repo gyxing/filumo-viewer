@@ -1,4 +1,4 @@
-import type { StylePolicy } from '@fivo/dom';
+import type { StylePolicy } from '@filumo/dom';
 /** 图片资源只交付本次显示的地址及释放权，不暴露格式包内部资源类型。 */
 export interface ImageLease {
   readonly url: string;

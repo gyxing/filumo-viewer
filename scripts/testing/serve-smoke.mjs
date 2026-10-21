@@ -7,7 +7,7 @@ import {
   withDocsBase,
 } from '../../apps/docs/config/base-path.js';
 import './generate-samples.mjs';
-const base = normalizeDocsBase(process.env.FIVO_DOCS_BASE);
+const base = normalizeDocsBase(process.env.FILUMO_DOCS_BASE);
 const probe = createServer();
 await new Promise((r) => probe.listen(0, '127.0.0.1', r));
 const port = probe.address().port;
@@ -21,9 +21,9 @@ const child = spawn(
       ...process.env,
       PORT: String(port),
       HOST: '127.0.0.1',
-      FIVO_SMOKE: '1',
-      FIVO_PUBLIC_SAMPLES_ONLY:
-        process.env.FIVO_LOCAL_SAMPLES === '1' ? '0' : '1',
+      FILUMO_SMOKE: '1',
+      FILUMO_PUBLIC_SAMPLES_ONLY:
+        process.env.FILUMO_LOCAL_SAMPLES === '1' ? '0' : '1',
       NODE_ENV: 'development',
       BROWSER: 'none',
     },
@@ -39,7 +39,7 @@ for (let i = 0; i < 180; i++) {
   if (child.exitCode !== null) throw Error(log);
   try {
     const r = await fetch(
-      'http://127.0.0.1:' + port + withDocsBase(base, '__fivo_smoke/samples'),
+      'http://127.0.0.1:' + port + withDocsBase(base, '__filumo_smoke/samples'),
     );
     if (r.ok && r.headers.get('content-type')?.includes('application/json')) {
       ready = true;

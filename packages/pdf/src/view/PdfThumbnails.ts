@@ -26,7 +26,7 @@ export class PdfThumbnails {
     private navigate: (index: number) => void,
   ) {
     this.element = document.createElement('div');
-    this.element.className = 'fivo-pdf-thumbnails';
+    this.element.className = 'filumo-pdf-thumbnails';
     this.canvas = document.createElement('div');
     this.canvas.style.height = count * 176 + 'px';
     this.element.append(this.canvas);
@@ -80,7 +80,7 @@ export class PdfThumbnails {
       const host = this.element.ownerDocument.createElement('button');
       host.type = 'button';
       host.setAttribute('role', 'option');
-      host.className = 'fivo-pdf-thumbnail';
+      host.className = 'filumo-pdf-thumbnail';
       host.style.top = index * 176 + 'px';
       host.textContent = String(index + 1);
       host.onclick = () => this.navigate(index);

@@ -1,4 +1,4 @@
-import { DocumentViewer } from '@fivo/react';
+import { DocumentViewer } from '@filumo/react';
 import React from 'react';
 import type { useSmokeController } from './useSmokeController';
 /** 主预览只有一个会话 owner，卸载由适配器清理。 */

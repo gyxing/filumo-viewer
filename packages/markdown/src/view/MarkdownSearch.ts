@@ -1,5 +1,5 @@
-import type { TextMatch } from '@fivo/core/text';
-import { findTextMatches } from '@fivo/core/text';
+import type { TextMatch } from '@filumo/core/text';
+import { findTextMatches } from '@filumo/core/text';
 
 /** 查找维护查询和文字范围，定位操作交给阅读导航，避免耦合内容构建。 */
 export class MarkdownSearch {
@@ -18,7 +18,7 @@ export class MarkdownSearch {
   ) {
     const document = article.ownerDocument;
     this.element = document.createElement('div');
-    this.element.className = 'fivo-markdown-find';
+    this.element.className = 'filumo-markdown-find';
     this.element.hidden = true;
     this.query = document.createElement('input');
     this.query.type = 'search';

@@ -8,7 +8,7 @@ import {
   resolveSampleFile,
 } from '../../scripts/testing/local-samples.js';
 test('本机样本缺配置可理解，越界和未知 ID 明确拒绝', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'fivo-sample-test-'));
+  const root = await mkdtemp(join(tmpdir(), 'filumo-sample-test-'));
   assert.equal((await loadLocalCatalog(root)).configured, false);
   await mkdir(join(root, 'tests/fixtures/local/files'), { recursive: true });
   const catalog = {

@@ -8,7 +8,7 @@ export function highlightPdfRange(
   metrics: { width: number; height: number },
   rotation: number,
 ): void {
-  page.querySelectorAll('.fivo-pdf-highlight').forEach((node) => node.remove());
+  page.querySelectorAll('.filumo-pdf-highlight').forEach((node) => node.remove());
   const layer = page.querySelector('.textLayer');
   if (layer) {
     const walker = page.ownerDocument.createTreeWalker(layer, 5),
@@ -31,7 +31,7 @@ export function highlightPdfRange(
       const origin = page.getBoundingClientRect();
       for (const rect of Array.from(range.getClientRects()).slice(0, 512)) {
         const mark = page.ownerDocument.createElement('div');
-        mark.className = 'fivo-pdf-highlight';
+        mark.className = 'filumo-pdf-highlight';
         mark.style.left = rect.left - origin.left + 'px';
         mark.style.top = rect.top - origin.top + 'px';
         mark.style.width = rect.width + 'px';
@@ -61,7 +61,7 @@ export function highlightPdfRange(
       [left, top, w, h] = [top, 1 - left - w, h, w];
     }
     const mark = page.ownerDocument.createElement('div');
-    mark.className = 'fivo-pdf-highlight';
+    mark.className = 'filumo-pdf-highlight';
     mark.style.left = left * width + 'px';
     mark.style.top = top * height + 'px';
     mark.style.width = Math.max(1, w * width) + 'px';

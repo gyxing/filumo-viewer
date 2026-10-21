@@ -56,7 +56,7 @@ export function createShellIcon(document: Document, name: ShellIcon) {
   svg.setAttribute('stroke-linejoin', 'round');
   svg.setAttribute('aria-hidden', 'true');
   svg.setAttribute('focusable', 'false');
-  svg.classList.add('fivo-icon');
+  svg.classList.add('filumo-icon');
   const path = document.createElementNS(svg.namespaceURI, 'path');
   path.setAttribute('d', paths[name]);
   svg.append(path);
@@ -72,11 +72,11 @@ export function labelShellButton(
 ) {
   button.setAttribute('aria-label', label);
   button.title = label;
-  button.classList.toggle('fivo-icon-button', iconOnly && Boolean(icon));
-  let text = button.querySelector<HTMLElement>('.fivo-button-label');
+  button.classList.toggle('filumo-icon-button', iconOnly && Boolean(icon));
+  let text = button.querySelector<HTMLElement>('.filumo-button-label');
   if (!text) {
     text = button.ownerDocument.createElement('span');
-    text.className = 'fivo-button-label';
+    text.className = 'filumo-button-label';
     button.replaceChildren(text);
   }
   text.textContent = label;

@@ -1,4 +1,4 @@
-import { FivoError } from '@fivo/core';
+import { FilumoError } from '@filumo/core';
 interface Entry {
   canvas: HTMLCanvasElement;
   bytes: number;
@@ -22,7 +22,7 @@ export class PdfCanvasCache {
       const bytes = Math.ceil(width) * Math.ceil(height) * 4;
       this.evict(bytes);
       if (this.bytes + bytes > this.maxBytes)
-        throw new FivoError('PDF_CANVAS_BUDGET', '正在等待页面画布预算');
+        throw new FilumoError('PDF_CANVAS_BUDGET', '正在等待页面画布预算');
       const canvas = this.document.createElement('canvas');
       canvas.width = Math.ceil(width);
       canvas.height = Math.ceil(height);

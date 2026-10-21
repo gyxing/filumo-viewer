@@ -38,8 +38,8 @@ test('Text 读取与视图子入口具有独立产物和声明', async () => {
 
 test('独立消费者脚本直接覆盖 core 和 viewer 入口', async () => {
   const source = await readFile('scripts/testing/check-consumers.mjs', 'utf8');
-  assert.match(source, /@fivo\/core/);
-  assert.match(source, /@fivo\/viewer/);
+  assert.match(source, /@filumo\/core/);
+  assert.match(source, /@filumo\/viewer/);
 });
 
 test('图片公共视图与 PDF 资产子入口具有独立产物', async () => {

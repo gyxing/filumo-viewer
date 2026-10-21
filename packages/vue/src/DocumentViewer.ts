@@ -1,12 +1,12 @@
-import type { DocumentInput, DocumentOpenOptions } from '@fivo/core';
-import { notify } from '@fivo/core';
+import type { DocumentInput, DocumentOpenOptions } from '@filumo/core';
+import { notify } from '@filumo/core';
 import type {
   ViewOptions,
   ViewerConfiguration,
   ViewerHandle,
   ViewerPlugin,
-} from '@fivo/dom';
-import { createViewer } from '@fivo/dom';
+} from '@filumo/dom';
+import { createViewer } from '@filumo/dom';
 import type { PropType } from 'vue';
 import {
   defineComponent,
@@ -21,7 +21,7 @@ import {
 
 /** 使用 Composition API 与渲染函数提供薄适配，不要求宿主添加 SFC 编译插件。 */
 export const DocumentViewer = defineComponent({
-  name: 'FivoDocumentViewer',
+  name: 'FilumoDocumentViewer',
   props: {
     source: { type: null as unknown as PropType<DocumentInput> },
     plugins: {

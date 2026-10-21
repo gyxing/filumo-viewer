@@ -1,10 +1,10 @@
-import type { DocumentInput, DocumentOpenOptions } from '@fivo/core';
+import type { DocumentInput, DocumentOpenOptions } from '@filumo/core';
 import {
   abortError,
   createDocumentController,
   exportOriginal,
   notify,
-} from '@fivo/core';
+} from '@filumo/core';
 import type { ViewerCapabilities } from './capabilities/types';
 import type {
   ViewHandle,
@@ -33,18 +33,18 @@ export function createViewer(
   });
   const releaseStyles = acquireStyles('dom', document, options.stylePolicy);
   const root = document.createElement('section');
-  root.className = 'fivo-viewer';
+  root.className = 'filumo-viewer';
   const toolbar = document.createElement('div');
-  toolbar.className = 'fivo-toolbar';
+  toolbar.className = 'filumo-toolbar';
   toolbar.setAttribute('role', 'toolbar');
   const fileTitle = document.createElement('div');
-  fileTitle.className = 'fivo-file-title';
+  fileTitle.className = 'filumo-file-title';
   const fileIcon = document.createElement('span');
-  fileIcon.className = 'fivo-file-icon';
+  fileIcon.className = 'filumo-file-icon';
   fileIcon.setAttribute('aria-hidden', 'true');
   const openButton = document.createElement('button');
   openButton.type = 'button';
-  openButton.className = 'fivo-open-file';
+  openButton.className = 'filumo-open-file';
   const fileInput = document.createElement('input');
   fileInput.type = 'file';
   // 存在内容兜底时允许选择未知后缀，实际格式与可读性仍由控制器和插件确认。
@@ -61,26 +61,26 @@ export function createViewer(
   };
   openButton.onclick = pickFile;
   const title = document.createElement('span');
-  title.className = 'fivo-title';
+  title.className = 'filumo-title';
   fileTitle.append(fileIcon, title);
   const controls = document.createElement('div');
-  controls.className = 'fivo-controls';
+  controls.className = 'filumo-controls';
   const download = document.createElement('button');
   download.type = 'button';
   const fullscreen = document.createElement('button');
   fullscreen.type = 'button';
   const status = document.createElement('div');
-  status.className = 'fivo-status';
+  status.className = 'filumo-status';
   status.setAttribute('role', 'status');
   const progressBox = document.createElement('div');
-  progressBox.className = 'fivo-progress';
+  progressBox.className = 'filumo-progress';
   progressBox.setAttribute('role', 'status');
   const progressHeading = document.createElement('div');
-  progressHeading.className = 'fivo-progress-heading';
+  progressHeading.className = 'filumo-progress-heading';
   const progressLabel = document.createElement('span');
-  progressLabel.className = 'fivo-progress-label';
+  progressLabel.className = 'filumo-progress-label';
   const progressValue = document.createElement('span');
-  progressValue.className = 'fivo-progress-value';
+  progressValue.className = 'filumo-progress-value';
   const progressBar = document.createElement('progress');
   progressBar.max = 100;
   progressHeading.append(progressLabel, progressValue);
@@ -89,10 +89,10 @@ export function createViewer(
   retry.type = 'button';
   const renderStatus = createViewerStatus(status, retry, pickFile);
   const viewport = document.createElement('div');
-  viewport.className = 'fivo-viewport';
+  viewport.className = 'filumo-viewport';
   // 内容区始终占据剩余空间，进度浮层显隐不参与文档视口的高度计算。
   const body = document.createElement('div');
-  body.className = 'fivo-viewer-body';
+  body.className = 'filumo-viewer-body';
   body.append(status, viewport, progressBox);
   // 更多入口稍后由能力绑定追加在全局操作之后，不能夹在缩放与下载之间。
   toolbar.append(fileTitle, openButton, controls, download, fullscreen);
@@ -272,7 +272,7 @@ export function createViewer(
         if (generation !== task || disposed || abort.signal.aborted)
           throw abort.signal.reason ?? abortError();
         const mount = document.createElement('div');
-        mount.className = 'fivo-document-mount';
+        mount.className = 'filumo-document-mount';
         viewport.replaceChildren(mount);
         const mounted = await waitForView(
           () => factory.mount({

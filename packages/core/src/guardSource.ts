@@ -1,4 +1,4 @@
-import { abortError, FivoError, throwIfAborted } from './errors';
+import { abortError, FilumoError, throwIfAborted } from './errors';
 import type { DocumentSource, ResourcePolicy } from './types';
 const owners = new WeakMap<DocumentSource, number>();
 
@@ -27,7 +27,7 @@ export function guardSource(
     typeof raw.readAll !== 'function' ||
     typeof raw.dispose !== 'function'
   )
-    throw new FivoError(
+    throw new FilumoError(
       'INVALID_SOURCE',
       '来源工厂没有返回合法 DocumentSource',
     );
@@ -37,13 +37,13 @@ export function guardSource(
   const lifetime = new AbortController();
   const check = (size: number | undefined) => {
     if (size !== undefined && (!Number.isFinite(size) || size < 0))
-      throw new FivoError('INVALID_SOURCE_SIZE', '来源长度无效');
+      throw new FilumoError('INVALID_SOURCE_SIZE', '来源长度无效');
     if (
       size !== undefined &&
       policy?.maxFileBytes !== undefined &&
       size > policy.maxFileBytes
     )
-      throw new FivoError(
+      throw new FilumoError(
         'FILE_SIZE_LIMIT_EXCEEDED',
         '文件超过宿主配置的大小限制',
       );
@@ -52,7 +52,7 @@ export function guardSource(
     signal: AbortSignal,
     operation: (signal: AbortSignal) => Promise<T>,
   ): Promise<T> => {
-    if (closed) throw new FivoError('SOURCE_DISPOSED', '文件来源已释放');
+    if (closed) throw new FilumoError('SOURCE_DISPOSED', '文件来源已释放');
     throwIfAborted(signal);
     check(raw.size);
     const abort = new AbortController();
@@ -84,7 +84,7 @@ export function guardSource(
           range.some((value) => value < 0) ||
           !Number.isSafeInteger(range[0] + range[1]))
       )
-        throw new FivoError('INVALID_RANGE', '来源读取范围无效');
+        throw new FilumoError('INVALID_RANGE', '来源读取范围无效');
       if (cached)
         return range ? cached.slice(range[0], range[0] + range[1]) : cached;
       if (range && raw.readRange) {
@@ -99,7 +99,7 @@ export function guardSource(
         const bytes = await raw.readRange(offset, length, readingSignal);
         check(bytes.byteLength);
         if (bytes.byteLength > length)
-          throw new FivoError('INVALID_RANGE', '来源返回了超出请求范围的数据');
+          throw new FilumoError('INVALID_RANGE', '来源返回了超出请求范围的数据');
         return bytes;
       }
       const bytes = await raw.readAll(readingSignal);
@@ -129,7 +129,7 @@ export function guardSource(
             if (!reader) return undefined;
             check(reader.length);
             if (!Number.isSafeInteger(reader.length))
-              throw new FivoError('INVALID_SOURCE_SIZE', '来源长度无效');
+              throw new FilumoError('INVALID_SOURCE_SIZE', '来源长度无效');
             return {
               length: reader.length,
               read: (offset: number, length: number, current: AbortSignal) =>
@@ -141,7 +141,7 @@ export function guardSource(
                     offset < 0 ||
                     length < 0
                   )
-                    throw new FivoError('INVALID_RANGE', '来源读取范围无效');
+                    throw new FilumoError('INVALID_RANGE', '来源读取范围无效');
                   const count = Math.min(
                     length,
                     Math.max(0, reader.length - offset),
@@ -149,7 +149,7 @@ export function guardSource(
                   const bytes = await reader.read(offset, count, rangeSignal);
                   check(bytes.length);
                   if (bytes.length !== count)
-                    throw new FivoError('INVALID_RANGE', '来源区间数据不完整');
+                    throw new FilumoError('INVALID_RANGE', '来源区间数据不完整');
                   return bytes;
                 }),
             };

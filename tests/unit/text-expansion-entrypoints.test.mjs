@@ -11,9 +11,9 @@ test('新增格式依赖公共层且描述符不提前加载引擎或视图', as
     const metadata = JSON.parse(
       await readFile(`packages/${name}/package.json`, 'utf8'),
     );
-    assert.equal(metadata.dependencies['@fivo/text'], undefined);
-    assert.equal(metadata.dependencies['@fivo/core'], 'workspace:^');
-    assert.equal(metadata.dependencies['@fivo/dom'], 'workspace:^');
+    assert.equal(metadata.dependencies['@filumo/text'], undefined);
+    assert.equal(metadata.dependencies['@filumo/core'], 'workspace:^');
+    assert.equal(metadata.dependencies['@filumo/dom'], 'workspace:^');
     const result = await build({
       entryPoints: [`packages/${name}/src/index.ts`],
       bundle: true,

@@ -1,4 +1,4 @@
-import { createViewer } from '@fivo/dom';
+import { createViewer } from '@filumo/dom';
 import { events, options, plugins, setupDemo } from '../../shared/demo';
 const viewer = createViewer(document.getElementById('viewer')!, {
   plugins,

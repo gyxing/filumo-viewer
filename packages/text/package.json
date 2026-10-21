@@ -1,8 +1,51 @@
 {
-  "name": "@fivo/text",
-  "version": "0.1.0-next.0",
-  "description": "Fivo text 只读预览插件",
+  "name": "@filumo/text",
+  "version": "0.1.0",
+  "description": "Read-only plain text and log viewer for Filumo, with encoding detection, line numbers, search and readable-text fallback.",
+  "keywords": [
+    "filumo",
+    "text",
+    "text-viewer",
+    "text-preview",
+    "plain-text",
+    "log-viewer",
+    "txt",
+    "log",
+    "ini",
+    "config-viewer",
+    "encoding-detection",
+    "utf-8",
+    "utf-16",
+    "gbk",
+    "gb18030",
+    "line-numbers",
+    "word-wrap",
+    "text-search",
+    "virtual-scroll",
+    "readonly",
+    "typescript",
+    "esm",
+    "文本预览",
+    "日志预览",
+    "编码识别"
+  ],
+  "homepage": "https://github.com/gyxing/office-file-viewer/tree/master/packages/text#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gyxing/office-file-viewer.git",
+    "directory": "packages/text"
+  },
+  "bugs": {
+    "url": "https://github.com/gyxing/office-file-viewer/issues"
+  },
+  "author": {
+    "name": "gyxing",
+    "url": "https://github.com/gyxing"
+  },
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "sideEffects": [
     "./dist/chunks/*.js",
     "**/*.css"
@@ -44,7 +87,7 @@
     "dist"
   ],
   "dependencies": {
-    "@fivo/core": "workspace:^",
-    "@fivo/dom": "workspace:^"
+    "@filumo/core": "workspace:^",
+    "@filumo/dom": "workspace:^"
   }
 }

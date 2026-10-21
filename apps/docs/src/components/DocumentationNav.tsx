@@ -1,41 +1,168 @@
-import { useLocation } from 'dumi';
-import React from 'react';
+import { Tree } from 'antd';
+import {
+  getRouteMetaById,
+  history,
+  useAppData,
+  useLocation,
+  useRouteMeta,
+  useSiteData,
+} from 'dumi';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { DOC_GUIDES } from '../../config/doc-pages';
 import { docsPath } from '../site-path';
+import {
+  buildDocumentationTree,
+  getDocumentationAncestors,
+  getDocumentationHeading,
+  getVisibleDocumentationKey,
+  type DocumentationTreeNode,
+} from './documentation-tree';
 import type { WebsiteLocale } from './home-content';
+import { useDocumentationHeading } from './useDocumentationHeading';
 
-/** 文档目录先列接入与开发指南，再由右侧/下方的页内目录定位章节。 */
-export function DocumentationNav({ locale }: { locale: WebsiteLocale }) {
-  const { pathname } = useLocation();
-  // 路由位置不带部署 base，导航 href 则必须包含它。
-  const currentPath = docsPath(pathname.replace(/^\//, '').replace(/\/$/, ''));
-  const prefix = locale === 'zh-CN' ? 'zh-CN/' : '';
-  const pages = [
-    {
-      href: docsPath(prefix + 'docs'),
-      title: locale === 'zh-CN' ? '概览与 API' : 'Overview & API',
-    },
-    ...DOC_GUIDES.map((page) => ({
-      href: docsPath(prefix + 'docs/guides/' + page.slug),
-      title: page.title[locale],
-    })),
-  ];
+/** 用原生 Tree 呈现所有文档的章节，展开分支不触发页面跳转。 */
+export function DocumentationNav({
+  locale,
+  drawerOpen = false,
+  onNavigate,
+}: {
+  locale: WebsiteLocale;
+  drawerOpen?: boolean;
+  onNavigate?(): void;
+}) {
+  const { pathname, search, hash } = useLocation();
+  const { toc } = useRouteMeta();
+  const { routes } = useAppData();
+  const { loading } = useSiteData();
+  const model = useMemo(() => {
+    const prefix = locale === 'zh-CN' ? '/zh-CN' : '';
+    const routeIds = new Map<string, string>();
+    for (const [id, route] of Object.entries(routes)) {
+      if (typeof route.path !== 'string') continue;
+      routeIds.set('/' + route.path.split('/').filter(Boolean).join('/'), id);
+    }
+    const pages = [
+      {
+        route: prefix + '/docs',
+        title: locale === 'zh-CN' ? '概览与 API' : 'Overview & API',
+      },
+      ...DOC_GUIDES.map((page) => ({
+        route: prefix + '/docs/guides/' + page.slug,
+        title: page.title[locale],
+      })),
+    ].map((page) => {
+      const id = routeIds.get(page.route);
+      // 只读同步目录元数据，不触发正文、搜索文本或示例组件的加载。
+      const metadata = id
+        ? getRouteMetaById(id, { syncOnly: true })
+        : undefined;
+      return {
+        ...page,
+        href: docsPath(page.route),
+        headings: metadata?.toc ?? [],
+      };
+    });
+    return buildDocumentationTree(pages, pathname, toc);
+  }, [locale, pathname, routes, toc]);
+  const activeHeading = useDocumentationHeading(
+    model.headings,
+    pathname,
+    loading,
+  );
+  const selectedKey = activeHeading ?? model.currentPageKey;
+  const [expandedKeys, setExpandedKeys] = useState<string[]>([
+    model.currentPageKey,
+  ]);
+  const visibleSelectedKey = getVisibleDocumentationKey(
+    model,
+    selectedKey,
+    expandedKeys,
+  );
+  const navigationRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const target = getDocumentationHeading(model, hash);
+    const ancestors = target ? getDocumentationAncestors(model, target) : [];
+    // 切换文档保留已展开的其他分支，只清除失效节点；滚动高亮不强制展开。
+    setExpandedKeys((previous) =>
+      Array.from(
+        new Set([
+          ...previous.filter((key) => model.byKey.has(key)),
+          model.currentPageKey,
+          ...ancestors,
+        ]),
+      ),
+    );
+  }, [hash, model]);
+
+  useEffect(() => {
+    const navigation = navigationRef.current;
+    if (
+      !navigation ||
+      window.getComputedStyle(navigation).visibility === 'hidden'
+    )
+      return;
+    // 读取 Tree 原生选中项，只在越出目录视口时调整滚动，不接管标题渲染。
+    const selected = navigation.querySelector<HTMLElement>(
+      '[role="treeitem"][aria-selected="true"]',
+    );
+    if (!selected) return;
+    const bounds = navigation.getBoundingClientRect();
+    const row = selected.getBoundingClientRect();
+    if (row.top < bounds.top + 4)
+      navigation.scrollTop += row.top - bounds.top - 4;
+    else if (row.bottom > bounds.bottom - 4)
+      navigation.scrollTop += row.bottom - bounds.bottom + 4;
+  }, [drawerOpen, expandedKeys, visibleSelectedKey]);
+
+  const activate = (node: DocumentationTreeNode) => {
+    if (node.kind === 'page') {
+      if (node.key === model.currentPageKey) {
+        if (hash) history.push(pathname + search);
+        window.scrollTo({ top: 0, behavior: 'auto' });
+      } else history.push(node.route);
+    } else {
+      if (!node.id) return;
+      const nextHash = '#' + encodeURIComponent(node.id);
+      if (node.route !== pathname.replace(/\/$/, ''))
+        history.push(node.route + nextHash);
+      else if (hash !== nextHash) history.push(pathname + search + nextHash);
+      else {
+        const target = document.getElementById(node.id);
+        if (target) {
+          const offset =
+            Number.parseFloat(
+              window.getComputedStyle(target).scrollMarginTop,
+            ) || 92;
+          window.scrollTo({
+            top: target.getBoundingClientRect().top + window.scrollY - offset,
+            behavior: 'auto',
+          });
+        }
+      }
+    }
+    onNavigate?.();
+  };
   return (
     <nav
-      className="fivo-doc-navigation"
-      aria-label={
-        locale === 'zh-CN' ? '开发文档导航' : 'Documentation navigation'
-      }
+      ref={navigationRef}
+      className="filumo-doc-navigation"
+      aria-label={locale === 'zh-CN' ? '文档目录' : 'Documentation'}
     >
-      {pages.map((page) => (
-        <a
-          key={page.href}
-          href={page.href}
-          aria-current={currentPath === page.href ? 'page' : undefined}
-        >
-          {page.title}
-        </a>
-      ))}
+      <Tree
+        showLine
+        blockNode
+        virtual={false}
+        treeData={model.nodes}
+        expandedKeys={expandedKeys}
+        selectedKeys={[visibleSelectedKey]}
+        autoExpandParent={false}
+        onExpand={(keys) => setExpandedKeys(keys.map(String))}
+        onSelect={(_, info) => {
+          const node = model.byKey.get(String(info.node.key));
+          if (node) activate(node);
+        }}
+      />
     </nav>
   );
 }

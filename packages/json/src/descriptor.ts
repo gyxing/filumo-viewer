@@ -8,7 +8,7 @@ export const json: JsonFactory = (options = {}) => {
       (() =>
         new Worker(new URL('./worker.js', import.meta.url), {
           type: 'module',
-          name: 'fivo-json',
+          name: 'filumo-json',
         })),
   };
   return {

@@ -1,4 +1,4 @@
-import { throwIfAborted } from '@fivo/core';
+import { throwIfAborted } from '@filumo/core';
 import { validateJsonRecord } from './validateJsonRecord';
 import type { JsonLinesResult } from './linesTypes';
 

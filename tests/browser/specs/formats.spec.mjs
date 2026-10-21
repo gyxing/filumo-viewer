@@ -3,7 +3,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { validateReference } from '../../../scripts/checks/reference-contract.mjs';
 import { isolateNetwork, startServer } from '../helpers.mjs';
 let server;
-const local = process.env.FIVO_LOCAL_SAMPLES === '1',
+const local = process.env.FILUMO_LOCAL_SAMPLES === '1',
   mode = local ? 'local' : 'public',
   observations = [];
 test.beforeAll(async () => {

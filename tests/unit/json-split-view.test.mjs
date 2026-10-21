@@ -87,7 +87,7 @@ test('JSON 原生词法不改大数字、字符串转义，长行不截断', () 
   );
   assert.equal(
     jsonLineDecorations('"key"\n :1', 0, 5)[0].className,
-    'fivo-json-token-key',
+    'filumo-json-token-key',
   );
   assert.deepEqual(jsonLineDecorations('1'.repeat(65537), 0, 65537), []);
   assert.equal(textSegments(0, 65537, [], []).at(-1).end, 65537);

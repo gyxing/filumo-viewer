@@ -52,23 +52,23 @@ export function fillPanelEntry(
 ) {
   const document = button.ownerDocument;
   const metadata = document.createElement('span');
-  metadata.className = 'fivo-native-result-meta';
+  metadata.className = 'filumo-native-result-meta';
   metadata.textContent = meta;
   if (author) {
     const by = document.createElement('strong');
-    by.className = 'fivo-native-result-author';
+    by.className = 'filumo-native-result-author';
     by.textContent = author;
     button.append(by);
   }
   const content = document.createElement('span');
-  content.className = 'fivo-native-result-text';
+  content.className = 'filumo-native-result-text';
   let offset = 0;
   for (const hit of highlight ? findSearchMatches(text, highlight) : []) {
     content.append(
       document.createTextNode(text.slice(offset, hit.startOffset)),
     );
     const mark = document.createElement('mark');
-    mark.className = 'fivo-native-search-hit';
+    mark.className = 'filumo-native-search-hit';
     mark.textContent = text.slice(hit.startOffset, hit.endOffset);
     content.append(mark);
     offset = hit.endOffset;
@@ -87,23 +87,23 @@ export function fillReviewEntry(
 ) {
   const document = button.ownerDocument;
   const heading = document.createElement('span');
-  heading.className = 'fivo-native-review-heading';
+  heading.className = 'filumo-native-review-heading';
   const author = document.createElement('strong');
-  author.className = 'fivo-native-result-author';
+  author.className = 'filumo-native-result-author';
   author.textContent = annotation?.author?.trim() || labels.unknownAuthor;
   const location = document.createElement('span');
-  location.className = 'fivo-native-result-meta';
+  location.className = 'filumo-native-result-meta';
   location.textContent = meta;
   heading.append(author, location);
   const content = document.createElement('span');
-  content.className = 'fivo-native-result-text';
+  content.className = 'filumo-native-result-text';
   content.textContent = annotation
     ? annotation.text || labels.emptyComment
     : locale === 'en-US'
     ? 'Loading'
     : '正在读取';
   const footer = document.createElement('span');
-  footer.className = 'fivo-native-review-footer';
+  footer.className = 'filumo-native-review-footer';
   if (annotation?.createdAt) {
     const time = document.createElement('time');
     const date = new Date(annotation.createdAt);
@@ -118,7 +118,7 @@ export function fillReviewEntry(
   }
   if (annotation?.resolved) {
     const resolved = document.createElement('span');
-    resolved.className = 'fivo-native-review-resolved';
+    resolved.className = 'filumo-native-review-resolved';
     resolved.textContent = labels.resolved;
     footer.append(resolved);
   }

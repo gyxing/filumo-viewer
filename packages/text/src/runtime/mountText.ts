@@ -1,5 +1,5 @@
-import type { CapabilityAction, ViewContext, ViewHandle } from '@fivo/dom';
-import { createReadingFrame } from '@fivo/dom';
+import type { CapabilityAction, ViewContext, ViewHandle } from '@filumo/dom';
+import { createReadingFrame } from '@filumo/dom';
 import { STYLE_SCOPE } from '../generated/package';
 import type { TextEncoding } from '../reader/types';
 import { formatEncodingWarning } from '../reader/formatEncodingWarning';

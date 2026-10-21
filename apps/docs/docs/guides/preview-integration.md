@@ -1,18 +1,24 @@
 ---
-title: Fivo Framework Integration
+title: Filumo Framework Integration
+description: Filumo integration for React 18/19, Vue 3, Vue 2 and JavaScript, with stable plugins and lifecycle cleanup.
+keywords:
+  - Filumo
+  - file preview
+  - document viewer
+  - browser
 siteLayout: docs
 toc: content
 ---
 
 # Framework integration
 
-React, Vue 3, Vue 2 and JavaScript adapters share the native Office renderer, toolbar and automatic styles. A framework choice changes mounting and lifecycle integration, not the document engine.
+React, Vue 3, Vue 2 and JavaScript adapters share the DOM shell, format plugins and automatic styles. A framework choice changes mounting and lifecycle integration, not the document engine.
 
 ## Before you start
 
 Packages are not yet published to npm. Run pnpm install --frozen-lockfile and pnpm build in this repository, then start demo:react, demo:vue3, demo:vue2 or demo:js.
 
-For an external project, use local packed artifacts rather than linking a package's source directory. pnpm test:consumers packs workspace dependencies and verifies isolated installations; records are stored in tmp/testing/consumers.json. It does not publish packages. After release, choose your adapter plus @fivo/office.
+For an external project, use local packed artifacts rather than linking a package's source directory. pnpm test:consumers packs workspace dependencies and verifies isolated installations; records are stored in tmp/testing/consumers.json. It does not publish packages. After release, choose your adapter and required format packages, or use the @filumo/viewer preset. See the [package overview](./packages) for all fifteen packages.
 
 No CSS import is required in normal mode. Do not install framework adapters your host does not use.
 
@@ -20,9 +26,9 @@ No CSS import is required in normal mode. Do not install framework adapters your
 
 ```tsx | pure
 import { useRef } from 'react';
-import { DocumentViewer } from '@fivo/react';
-import { office } from '@fivo/office';
-import type { ViewerHandle } from '@fivo/dom';
+import { DocumentViewer } from '@filumo/react';
+import { office } from '@filumo/office';
+import type { ViewerHandle } from '@filumo/react';
 
 const plugins = [office({ worker: 'auto' })];
 export function OfficePreview({ file }: { file?: File }) {
@@ -54,9 +60,9 @@ Memoize dynamic plugin configuration, including the options used as dependencies
 ```vue | pure
 <script setup lang="ts">
 import { shallowRef } from 'vue';
-import { DocumentViewer } from '@fivo/vue';
-import { office } from '@fivo/office';
-import type { ViewerHandle } from '@fivo/dom';
+import { DocumentViewer } from '@filumo/vue';
+import { office } from '@filumo/office';
+import type { ViewerHandle } from '@filumo/vue';
 
 defineProps<{ file?: File }>();
 const handle = shallowRef<ViewerHandle>();
@@ -86,8 +92,8 @@ Use Options API, without requiring script setup:
 
 ```vue | pure
 <script>
-import { DocumentViewer } from '@fivo/vue2';
-import { office } from '@fivo/office';
+import { DocumentViewer } from '@filumo/vue2';
+import { office } from '@filumo/office';
 const plugins = Object.freeze([office()]);
 export default {
   components: { DocumentViewer },
@@ -122,8 +128,8 @@ Keep the plugin array stable and frozen. Do not store viewer/session objects in 
 ## JavaScript and custom controls
 
 ```ts | pure
-import { createViewer } from '@fivo/dom';
-import { office } from '@fivo/office';
+import { createViewer } from '@filumo/dom';
+import { office } from '@filumo/office';
 
 export function mountPreview(
   container: HTMLElement,
@@ -163,8 +169,8 @@ The container needs a usable size. Call the returned cleanup function on host un
 ## Standard preset
 
 ```tsx | pure
-import { DocumentViewer } from '@fivo/react';
-import { standardPlugins } from '@fivo/viewer';
+import { DocumentViewer } from '@filumo/react';
+import { standardPlugins } from '@filumo/viewer';
 export function Preview({ file }: { file?: File }) {
   return (
     <DocumentViewer
@@ -176,14 +182,14 @@ export function Preview({ file }: { file?: File }) {
 }
 ```
 
-standardPlugins is a frozen array of Office, text, JSON, Markdown, image and PDF descriptors. Use your own stable plugin array for format-specific options; PDF asset deployment is described in the [image and PDF guide](./image-pdf). The preset does not import framework components or eagerly load format engines.
+standardPlugins is a frozen array of nine descriptors: Office, text, JSON, Markdown, image, PDF, CSV, XML and code. Use your own stable plugin array for format-specific options; PDF asset deployment is described in the [image and PDF guide](./image-pdf). The preset does not import framework components or eagerly load format engines.
 
 ## Custom source factories
 
 A factory returns a new DocumentSource lease, not a Response. Use it for dynamic authentication, custom caching or reads:
 
 ```ts | pure
-import type { DocumentSource } from '@fivo/core';
+import type { DocumentSource } from '@filumo/core';
 const sourceFactory = (): DocumentSource => ({
   name: 'report.docx',
   async readAll(signal) {
@@ -242,4 +248,10 @@ The host deploys licensed fonts. preventDefault blocks default navigation withou
 - Reopening a destroyed instance: create a new viewer after destroy.
 - Worker/CSP failures: provide an explicit factory/nonce where needed and test actual production asset URLs.
 
-CSV/TSV、XML、Code 可使用独立 @fivo/csv、@fivo/xml、@fivo/code 插件；JSONC/JSONL/NDJSON 由 @fivo/json 处理，标准预设均已注册。默认参数、预算、懒加载与外部样式说明见[文本格式指南](./text-formats)。
+## Multiple formats and deployment
+
+The Office examples above are minimal integrations, not an Office-only limitation. See the [package overview](./packages) for all fifteen packages and installation combinations. Register text, json, markdown, image, pdf, csv, xml and code from their packages, or build a stable array from @filumo/viewer factories.
+
+PDF uses matching bundled resources through pdf() by default. assetsBaseUrl, cMapUrl, standardFontDataUrl, wasmUrl and iccUrl are optional deployment overrides. Playground examples no longer point to this site's resource directory.
+
+Styles load automatically by default. External mode requires direct dependencies and imports for @filumo/dom/styles.css and enabled-format styles.css; Office overlays also require @filumo/image/styles.css. Adapters and the preset have no standalone styles.css. See [text and structured formats](./text-formats) and [images and PDF](./image-pdf).

@@ -1,5 +1,5 @@
-import { abortError } from '@fivo/core';
-import type { TextContent } from '@fivo/core/text';
+import { abortError } from '@filumo/core';
+import type { TextContent } from '@filumo/core/text';
 import type { JsonOptions } from '../options';
 import type { JsonLinesResult } from '../parser/linesTypes';
 import type { JsonParseResult } from '../parser/types';

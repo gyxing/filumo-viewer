@@ -19,7 +19,7 @@ export function mountChart(
   context: OfficeRenderContext,
 ) {
   const host = context.document.createElement('div');
-  host.className = 'office-file-chart fivo-chart-host';
+  host.className = 'office-file-chart filumo-chart-host';
   // 状态层独立于画布，避免 ECharts 初始化时清掉加载和错误提示。
   const canvasHost = context.document.createElement('div');
   canvasHost.className = 'office-file-chart__host';
@@ -146,7 +146,7 @@ export function mountChart(
           const geo = await response.json();
           if (closed || controller.signal.aborted || generation !== version)
             return;
-          name = 'fivo-map-' + ++sequence;
+          name = 'filumo-map-' + ++sequence;
           runtime.registerMap(name, geo);
           registeredMaps.set(url.href, name);
         }

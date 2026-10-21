@@ -15,7 +15,7 @@ const bundle = await build({
   platform: 'node',
   format: 'esm',
   alias: {
-    '@fivo/core': resolve('packages/core/src/index.ts'),
+    '@filumo/core': resolve('packages/core/src/index.ts'),
   },
 });
 const { normalizeSource, waitForView, readOfficeFile } = await import(

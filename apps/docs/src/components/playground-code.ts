@@ -1,5 +1,5 @@
-import type { WebsiteLocale } from './home-content';
 import type { PlaygroundConfig } from './playground-config';
+import { getPlaygroundPluginSource } from './playground-plugins';
 export type PlaygroundCodeTab =
   | 'react'
   | 'vue3'
@@ -11,18 +11,17 @@ export type PlaygroundCodeTab =
 export function generateExample(
   config: PlaygroundConfig,
   tab: PlaygroundCodeTab = 'react',
-  locale: WebsiteLocale = 'zh-CN',
 ) {
-  const office = JSON.stringify(config.office, null, 2);
+  const pluginSource = getPlaygroundPluginSource(config);
   const options = JSON.stringify(config.viewer, null, 2);
   if (tab === 'config') return JSON.stringify(config, null, 2);
   if (tab === 'react')
     return [
-      "import { DocumentViewer } from '@fivo/react';",
-      "import type { ViewerConfiguration } from '@fivo/dom';",
-      "import { office } from '@fivo/office';",
+      "import { DocumentViewer } from '@filumo/react';",
+      "import type { ViewerConfiguration } from '@filumo/react';",
+      pluginSource.imports,
       '',
-      'const plugins = [office(' + office + ')];',
+      pluginSource.declaration,
       'const options: ViewerConfiguration = ' + options + ';',
       '',
       'export function Preview({ file }: { file?: File }) {',
@@ -32,12 +31,12 @@ export function generateExample(
   if (tab === 'vue3')
     return [
       '<script setup lang="ts">',
-      "import { DocumentViewer } from '@fivo/vue';",
-      "import type { ViewerConfiguration } from '@fivo/dom';",
-      "import { office } from '@fivo/office';",
+      "import { DocumentViewer } from '@filumo/vue';",
+      "import type { ViewerConfiguration } from '@filumo/vue';",
+      pluginSource.imports,
       '',
       'defineProps<{ file?: File }>();',
-      'const plugins = [office(' + office + ')];',
+      pluginSource.declaration,
       'const options: ViewerConfiguration = ' + options + ';',
       '</script>',
       '',
@@ -48,10 +47,12 @@ export function generateExample(
   if (tab === 'vue2')
     return [
       '<script>',
-      "import { DocumentViewer } from '@fivo/vue2';",
-      "import { office } from '@fivo/office';",
+      "import { DocumentViewer } from '@filumo/vue2';",
+      pluginSource.imports,
       '',
-      'const plugins = Object.freeze([office(' + office + ')]);',
+      pluginSource.declaration
+        .replace('const plugins = [', 'const plugins = Object.freeze([')
+        .replace(/];$/, ']);'),
       'export default {',
       '  components: { DocumentViewer },',
       '  props: { file: { default: undefined } },',
@@ -64,19 +65,16 @@ export function generateExample(
       '</template>',
     ].join('\n');
   return [
-    "import { createViewer } from '@fivo/dom';",
-    "import { office } from '@fivo/office';",
+    "import { createViewer } from '@filumo/dom';",
+    pluginSource.imports,
     '',
-    'const plugins = [office(' + office + ')];',
+    pluginSource.declaration,
     'const options = ' + options + ';',
     '',
     'export function mountPreview(container, file) {',
     '  const viewer = createViewer(container, { ...options, plugins });',
     '  if (file) void viewer.open(file).catch(console.error);',
-    '  // ' +
-      (locale === 'zh-CN'
-        ? '宿主卸载时调用 dispose，释放文档和样式租约。'
-        : 'Call dispose when the host unmounts to release document and style leases.'),
+    '  // 宿主卸载时调用 dispose，释放文档和样式租约。',
     '  return { viewer, dispose: () => viewer.destroy() };',
     '}',
   ].join('\n');

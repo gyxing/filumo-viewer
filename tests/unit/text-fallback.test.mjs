@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createDocumentController, createSession, FivoError } from '../../packages/core/dist/index.js';
+import { createDocumentController, createSession, FilumoError } from '../../packages/core/dist/index.js';
 import { text } from '../../packages/text/dist/index.js';
 
 /** 使用真实文本驱动，探测和解码均不依赖浏览器或 Worker。 */
@@ -56,7 +56,7 @@ test('专用驱动加载或解析失败时不改用文本', async () => {
     {
       id: 'broken', protocolVersion: 1, extensions: ['.broken'], mimeTypes: [],
       detect: async () => true,
-      load: async () => ({ open: async () => { throw new FivoError('DAMAGED_DOCUMENT', '文件损坏'); } }),
+      load: async () => ({ open: async () => { throw new FilumoError('DAMAGED_DOCUMENT', '文件损坏'); } }),
     },
   ] });
   try {
@@ -207,7 +207,7 @@ test('探测遵守小文件配额，读取失败保持原始错误类型', async
     })), { code: 'FILE_SIZE_LIMIT_EXCEEDED' });
     await assert.rejects(view.open(() => ({
       name: 'failed.custom',
-      readRange: async () => { throw new FivoError('NETWORK_FAILURE', '读取失败'); },
+      readRange: async () => { throw new FilumoError('NETWORK_FAILURE', '读取失败'); },
       readAll: async () => new Uint8Array(), dispose: async () => {},
     })), { code: 'NETWORK_FAILURE' });
   } finally { await view.destroy(); }

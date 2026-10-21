@@ -3,8 +3,8 @@ import type {
   DocumentSource,
   MutableDocumentSession,
   OpenContext,
-} from '@fivo/core';
-import { abortError, createSession, throwIfAborted } from '@fivo/core';
+} from '@filumo/core';
+import { abortError, createSession, throwIfAborted } from '@filumo/core';
 import { createOfficeFileViewerParseSession } from '../engine/parsing/createParseSession';
 import type {
   OfficeFileViewerPreviewHandle,

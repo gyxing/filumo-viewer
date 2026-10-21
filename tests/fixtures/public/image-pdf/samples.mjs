@@ -23,9 +23,9 @@ export function createPdfFixture(
       stream = page + 1;
     const width = mixed && index % 3 === 1 ? 792 : 612,
       height = mixed && index % 3 === 1 ? 612 : 792;
-    const content = `BT /F1 18 Tf 40 ${height - 60} Td (Fivo PDF page ${
+    const content = `BT /F1 18 Tf 40 ${height - 60} Td (Filumo PDF page ${
       index + 1
-    }) Tj 0 -30 Td (FIVO_TARGET_${
+    }) Tj 0 -30 Td (FILUMO_TARGET_${
       index + 1
     }) Tj 0 -30 Td (Continuous scroll fixture) Tj ET`;
     objects[
@@ -102,7 +102,7 @@ export function createPdfFixture(
   ] = `<< /Type /Annot /Subtype /Link /Rect [40 650 250 690] /Border [0 0 0] /Dest [${
     4 + (pageCount - 1) * 2
   } 0 R /Fit] >>`;
-  const chunks = ['%PDF-1.7\n%Fivo fixture\n'],
+  const chunks = ['%PDF-1.7\n%Filumo fixture\n'],
     offsets = [0],
     encoder = new TextEncoder();
   let length = encoder.encode(chunks[0]).length;
@@ -126,4 +126,4 @@ export function createPdfFixture(
 }
 
 export const imageFixture =
-  '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800"><rect width="1200" height="800" fill="#eaf4ff"/><rect x="80" y="80" width="1040" height="640" rx="24" fill="#fff" stroke="#1677ff" stroke-width="4"/><text x="600" y="420" text-anchor="middle" font-family="sans-serif" font-size="56" fill="#243247">Fivo image preview</text></svg>';
+  '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800"><rect width="1200" height="800" fill="#eaf4ff"/><rect x="80" y="80" width="1040" height="640" rx="24" fill="#fff" stroke="#1677ff" stroke-width="4"/><text x="600" y="420" text-anchor="middle" font-family="sans-serif" font-size="56" fill="#243247">Filumo image preview</text></svg>';

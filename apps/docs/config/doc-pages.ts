@@ -1,6 +1,11 @@
 // 文档路由与侧栏共用白名单，避免漏掉指南，也不暴露本机烟测或业务样本。
 export const DOC_GUIDES = [
   {
+    slug: 'packages',
+    file: 'packages',
+    title: { 'en-US': 'Packages & installation', 'zh-CN': '包总览与安装' },
+  },
+  {
     slug: 'image-pdf',
     file: 'image-pdf',
     title: { 'en-US': 'Images & PDF', 'zh-CN': '图片与 PDF' },
@@ -34,7 +39,7 @@ export const DOC_GUIDES = [
   {
     slug: 'migration',
     file: 'migration-from-office-file-viewer',
-    title: { 'en-US': 'Migration to Fivo', 'zh-CN': '迁移到 Fivo' },
+    title: { 'en-US': 'Migration to Filumo', 'zh-CN': '迁移到 Filumo' },
   },
   {
     slug: 'testing',

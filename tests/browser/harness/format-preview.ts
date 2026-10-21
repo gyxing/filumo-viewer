@@ -199,7 +199,7 @@ document.getElementById('destroy')!.onclick = async () => {
   await sleep(50);
   result.textContent = JSON.stringify({
     remainingNodes: stage.children.length,
-    styles: document.querySelectorAll('style[data-fivo-style]').length,
+    styles: document.querySelectorAll('style[data-filumo-style]').length,
   });
   document.body.dataset.state = 'destroyed';
 };

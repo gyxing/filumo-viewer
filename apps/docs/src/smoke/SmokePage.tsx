@@ -26,13 +26,13 @@ export function SmokePage() {
       : c.config.viewer.height ?? '640px';
   return (
     <main
-      className="fivo-smoke"
+      className="filumo-smoke"
       style={{ '--smoke-preview-height': previewHeight } as React.CSSProperties}
     >
       <header className="smoke-heading">
         <div>
-          <span className="smoke-eyebrow">FIVO / DEVELOPMENT</span>
-          <h1>Fivo 本地烟测</h1>
+          <span className="smoke-eyebrow">FILUMO / DEVELOPMENT</span>
+          <h1>Filumo 本地烟测</h1>
           <p>样本切换、参数调试与生命周期检查</p>
         </div>
         <Tag color="blue">开发工作台</Tag>

@@ -184,7 +184,7 @@ test('Text 和 JSON 不声明 Markdown 运行时依赖', async () => {
     );
     assert.equal(manifest.dependencies.marked, undefined);
     assert.equal(manifest.dependencies['highlight.js'], undefined);
-    assert.equal(manifest.dependencies['@fivo/markdown'], undefined);
+    assert.equal(manifest.dependencies['@filumo/markdown'], undefined);
   }
 });
 

@@ -30,9 +30,9 @@ export class PdfSearchPanel {
     private locale?: 'zh-CN' | 'en-US',
   ) {
     this.element = document.createElement('section');
-    this.element.className = 'fivo-pdf-search';
+    this.element.className = 'filumo-pdf-search';
     const field = document.createElement('div');
-    field.className = 'fivo-pdf-search-field';
+    field.className = 'filumo-pdf-search-field';
     this.input = document.createElement('input');
     this.input.type = 'search';
     this.clear = document.createElement('button');
@@ -44,7 +44,7 @@ export class PdfSearchPanel {
     };
     field.append(pdfIcon(document, 'search'), this.input, this.clear);
     const navigation = document.createElement('div');
-    navigation.className = 'fivo-pdf-search-navigation';
+    navigation.className = 'filumo-pdf-search-navigation';
     this.count = document.createElement('output');
     this.count.setAttribute('role', 'status');
     this.previous = document.createElement('button');
@@ -60,14 +60,14 @@ export class PdfSearchPanel {
     };
     navigation.append(this.count, this.previous, this.next);
     this.status = document.createElement('div');
-    this.status.className = 'fivo-pdf-search-status';
+    this.status.className = 'filumo-pdf-search-status';
     this.status.setAttribute('role', 'status');
     this.list = document.createElement('div');
-    this.list.className = 'fivo-pdf-search-results';
+    this.list.className = 'filumo-pdf-search-results';
     this.list.setAttribute('role', 'listbox');
     this.list.tabIndex = 0;
     this.canvas = document.createElement('div');
-    this.canvas.className = 'fivo-pdf-search-canvas';
+    this.canvas.className = 'filumo-pdf-search-canvas';
     this.list.append(this.canvas);
     this.element.append(field, navigation, this.status, this.list);
     this.input.oninput = () => {
@@ -195,7 +195,7 @@ export class PdfSearchPanel {
         snippet = document.createElement('span'),
         mark = document.createElement('mark');
       button.type = 'button';
-      button.className = 'fivo-pdf-search-result';
+      button.className = 'filumo-pdf-search-result';
       button.style.top = index * RESULT_HEIGHT + 'px';
       button.setAttribute('role', 'option');
       button.setAttribute(
@@ -205,11 +205,11 @@ export class PdfSearchPanel {
       button.setAttribute('aria-posinset', String(index + 1));
       button.setAttribute('aria-setsize', String(state.resultCount));
       button.tabIndex = index === state.currentIndex ? 0 : -1;
-      page.className = 'fivo-pdf-search-page';
+      page.className = 'filumo-pdf-search-page';
       page.textContent = en
         ? 'Page ' + (hit.pageIndex + 1)
         : '第 ' + (hit.pageIndex + 1) + ' 页';
-      snippet.className = 'fivo-pdf-search-snippet';
+      snippet.className = 'filumo-pdf-search-snippet';
       mark.textContent = hit.preview.match;
       snippet.append(
         document.createTextNode(

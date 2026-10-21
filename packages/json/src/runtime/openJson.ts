@@ -1,6 +1,6 @@
-import type { DocumentSource, OpenContext } from '@fivo/core';
-import { createSession } from '@fivo/core';
-import { TextContent } from '@fivo/core/text';
+import type { DocumentSource, OpenContext } from '@filumo/core';
+import { createSession } from '@filumo/core';
+import { TextContent } from '@filumo/core/text';
 import type { JsonOptions } from '../options';
 import { JsonSession } from './JsonSession';
 import { resolveJsonVariant } from './jsonVariant';

@@ -19,16 +19,16 @@ export function mountNativePanels(
   let closed = false;
   let searchVisible = false;
   let reviewIndex = -1;
-  searchHost.classList.add('fivo-native-search');
-  reviewHost.classList.add('fivo-native-review');
+  searchHost.classList.add('filumo-native-search');
+  reviewHost.classList.add('filumo-native-review');
   const searchTitle = doc.createElement('button'),
     query = doc.createElement('input'),
     position = doc.createElement('span'),
     resultStatus = doc.createElement('div'),
     searchList = doc.createElement('div'),
     searchCanvas = doc.createElement('div');
-  searchList.className = 'fivo-native-list';
-  searchCanvas.className = 'fivo-native-list-canvas';
+  searchList.className = 'filumo-native-list';
+  searchCanvas.className = 'filumo-native-list-canvas';
   searchList.append(searchCanvas);
   query.type = 'search';
   query.oninput = () => services.search.actions.setQuery(query.value);
@@ -54,15 +54,15 @@ export function mountNativePanels(
   };
   const header = doc.createElement('header');
   const tabs = doc.createElement('div');
-  tabs.className = 'fivo-native-navigation-tabs';
+  tabs.className = 'filumo-native-navigation-tabs';
   const outlineTab = makeButton(tabs, () => {
     void services.state.execute({ type: 'outline', open: true });
   });
-  outlineTab.className = 'fivo-native-tab';
+  outlineTab.className = 'filumo-native-tab';
   searchTitle.type = 'button';
-  searchTitle.className = 'fivo-native-tab fivo-native-tab--active';
+  searchTitle.className = 'filumo-native-tab filumo-native-tab--active';
   searchTitle.setAttribute('aria-pressed', 'true');
-  position.className = 'fivo-native-search-position';
+  position.className = 'filumo-native-search-position';
   position.setAttribute('role', 'status');
   tabs.append(searchTitle);
   header.append(tabs);
@@ -70,9 +70,9 @@ export function mountNativePanels(
     void services.state.execute({ type: 'search', open: false });
   });
   const row = doc.createElement('div');
-  row.className = 'fivo-native-query';
+  row.className = 'filumo-native-query';
   const field = doc.createElement('div');
-  field.className = 'fivo-native-query-field';
+  field.className = 'filumo-native-query-field';
   field.append(createOfficeIcon(doc, 'search'), query);
   const clear = makeButton(field, () => {
     services.search.actions.setQuery('');
@@ -80,7 +80,7 @@ export function mountNativePanels(
   });
   row.append(field);
   const searchNavigation = doc.createElement('div');
-  searchNavigation.className = 'fivo-native-search-navigation';
+  searchNavigation.className = 'filumo-native-search-navigation';
   searchNavigation.append(position);
   const previous = makeButton(searchNavigation, () => {
     void services.search.actions.previousResult().catch(onError);
@@ -89,8 +89,8 @@ export function mountNativePanels(
     void services.search.actions.nextResult().catch(onError);
   });
   const toggles = doc.createElement('div');
-  toggles.className = 'fivo-native-query-options';
-  resultStatus.className = 'fivo-native-result-status';
+  toggles.className = 'filumo-native-query-options';
+  resultStatus.className = 'filumo-native-result-status';
   const matchLabel = doc.createElement('label'),
     wholeLabel = doc.createElement('label'),
     match = doc.createElement('input'),
@@ -105,7 +105,7 @@ export function mountNativePanels(
   toggles.append(matchLabel, wholeLabel);
   resultStatus.setAttribute('role', 'status');
   const empty = doc.createElement('div');
-  empty.className = 'fivo-native-search-empty';
+  empty.className = 'filumo-native-search-empty';
   searchHost.append(
     header,
     row,
@@ -132,11 +132,11 @@ export function mountNativePanels(
     reviewSummary = doc.createElement('div'),
     reviewEmpty = doc.createElement('div'),
     detail = doc.createElement('div');
-  reviewList.className = 'fivo-native-list fivo-native-review-list';
-  reviewCanvas.className = 'fivo-native-list-canvas';
-  detail.className = 'fivo-native-review-detail';
-  reviewSummary.className = 'fivo-native-review-summary';
-  reviewEmpty.className = 'fivo-native-review-empty';
+  reviewList.className = 'filumo-native-list filumo-native-review-list';
+  reviewCanvas.className = 'filumo-native-list-canvas';
+  detail.className = 'filumo-native-review-detail';
+  reviewSummary.className = 'filumo-native-review-summary';
+  reviewEmpty.className = 'filumo-native-review-empty';
   reviewEmpty.setAttribute('role', 'status');
   reviewList.append(reviewCanvas);
   reviewHost.append(reviewHeader, reviewSummary, reviewEmpty, reviewList, detail);
@@ -214,7 +214,7 @@ export function mountNativePanels(
       const result = state.results[index];
       const button = doc.createElement('button');
       button.type = 'button';
-      button.className = 'fivo-native-result';
+      button.className = 'filumo-native-result';
       button.style.top = index * height + 'px';
       button.style.height = height - 4 + 'px';
       const target = result.target;
@@ -290,7 +290,7 @@ export function mountNativePanels(
       const item = services.annotations.actions.getCached(index);
       const button = doc.createElement('button');
       button.type = 'button';
-      button.className = 'fivo-native-result';
+      button.className = 'filumo-native-result';
       button.style.top = index * height + 'px';
       button.style.height = height - 8 + 'px';
       const target = item?.target;

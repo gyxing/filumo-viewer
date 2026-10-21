@@ -41,14 +41,14 @@ export function bindCapabilities(
   };
   const zoomControl = createZoomControl(document, onError);
   const navGroup = document.createElement('span');
-  navGroup.className = 'fivo-capability-group fivo-navigation-control';
+  navGroup.className = 'filumo-capability-group filumo-navigation-control';
   const previous = button(),
     next = button(),
     page = document.createElement('input'),
     total = document.createElement('span');
   page.type = 'number';
   page.min = '1';
-  page.className = 'fivo-page-input';
+  page.className = 'filumo-page-input';
   navGroup.append(previous, page, total, next);
   previous.onclick = () => {
     const nav = current.navigation;
@@ -110,10 +110,10 @@ export function bindCapabilities(
               ? document.createElement('span')
               : undefined;
           const node = label ? document.createElement('label') : control;
-          node.classList.add('fivo-capability-group');
-          node.dataset.fivoAction = action.id;
+          node.classList.add('filumo-capability-group');
+          node.dataset.filumoAction = action.id;
           if (label) {
-            label.className = 'fivo-capability-label';
+            label.className = 'filumo-capability-label';
             node.append(label, selection!.element);
           }
           entry = {
@@ -140,14 +140,14 @@ export function bindCapabilities(
           entry.label.textContent = action.label;
           entry.label.hidden = !presentation.showLabel;
           entry.label.classList.toggle(
-            'fivo-capability-label--visible',
+            'filumo-capability-label--visible',
             presentation.showLabel,
           );
           if (entry.icon !== presentation.icon) {
-            entry.control.querySelector('.fivo-select-icon')?.remove();
+            entry.control.querySelector('.filumo-select-icon')?.remove();
             if (presentation.icon) {
               const icon = createShellIcon(document, presentation.icon);
-              icon.classList.add('fivo-select-icon');
+              icon.classList.add('filumo-select-icon');
               entry.control.prepend(icon);
             }
             entry.icon = presentation.icon;

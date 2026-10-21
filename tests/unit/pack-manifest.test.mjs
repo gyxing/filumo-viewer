@@ -9,10 +9,10 @@ import {
   verifyPackedFile,
 } from '../../scripts/testing/pack-packages.mjs';
 test('打包记录使用 CLI 实际 filename，拒绝错包、缺文件与哈希漂移', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'fivo-pack-'));
+  const root = await mkdtemp(join(tmpdir(), 'filumo-pack-'));
   const file = join(root, 'arbitrary-output.tgz');
   await writeFile(file, 'bytes');
-  const metadata = { name: '@fivo/demo', version: '3.1.0' };
+  const metadata = { name: '@filumo/demo', version: '3.1.0' };
   const record = await readPackedOutput(
     JSON.stringify({
       ...metadata,
@@ -26,7 +26,7 @@ test('打包记录使用 CLI 实际 filename，拒绝错包、缺文件与哈希
   await verifyPackedFile(record);
   for (const data of [
     { ...metadata, filename: join(root, 'absent.tgz') },
-    { ...metadata, name: '@fivo/other', filename: file },
+    { ...metadata, name: '@filumo/other', filename: file },
     { ...metadata, filename: join(root, '../outside.tgz') },
     [metadata],
   ])
@@ -37,17 +37,17 @@ test('打包记录使用 CLI 实际 filename，拒绝错包、缺文件与哈希
   await assert.rejects(verifyPackedFile(record), /哈希/);
 });
 test('真实 pnpm pack 禁用 prepack 脚本，记录声明版本而非固定版本', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'fivo-pack-real-'));
+  const root = await mkdtemp(join(tmpdir(), 'filumo-pack-real-'));
   await mkdir(join(root, 'packages/demo'), { recursive: true });
   await writeFile(
     join(root, 'packages/demo/package.json'),
     JSON.stringify({
-      name: '@fivo/demo',
+      name: '@filumo/demo',
       version: '3.2.1',
       scripts: { prepack: 'node -e "throw new Error(123)"' },
     }),
   );
   const records = await packPackages(root, join(root, 'out'), ['demo']);
-  assert.equal(records['@fivo/demo'].version, '3.2.1');
-  await verifyPackedFile(records['@fivo/demo']);
+  assert.equal(records['@filumo/demo'].version, '3.2.1');
+  await verifyPackedFile(records['@filumo/demo']);
 });

@@ -16,7 +16,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..'),
   current = JSON.parse(
     await readFile(join(root, 'tmp/testing/consumers.json'), 'utf8'),
   ),
-  work = await mkdtemp(join(tmpdir(), 'fivo-host-managers-'));
+  work = await mkdtemp(join(tmpdir(), 'filumo-host-managers-'));
 const results = [];
 for (const manager of ['npm', 'yarn']) {
   const directory = join(work, manager);
@@ -42,14 +42,14 @@ for (const manager of ['npm', 'yarn']) {
     'code',
     'viewer',
   ])
-    dependencies['@fivo/' + name] =
+    dependencies['@filumo/' + name] =
       'file:' +
-      (await verifyPackedFile(current.tarballs['@fivo/' + name])).replaceAll(
+      (await verifyPackedFile(current.tarballs['@filumo/' + name])).replaceAll(
         '\\',
         '/',
       );
   const manifest = {
-    name: 'fivo-' + manager + '-consumer',
+    name: 'filumo-' + manager + '-consumer',
     private: true,
     type: 'module',
     dependencies,
@@ -101,7 +101,7 @@ for (const manager of ['npm', 'yarn']) {
     pathToFileURL(join(directory, 'node_modules/vite/dist/node/index.js')).href
   );
   const pdfPackageRoot = await import('node:fs/promises').then((fs) =>
-    fs.realpath(join(directory, 'node_modules/@fivo/pdf')),
+    fs.realpath(join(directory, 'node_modules/@filumo/pdf')),
   );
   await cp(
     join(pdfPackageRoot, 'dist/assets/pdfjs'),

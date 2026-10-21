@@ -1,8 +1,8 @@
-.fivo-json-workspace {
-  --fivo-json-key: var(--fivo-structure-name, #691010);
-  --fivo-json-string: var(--fivo-structure-string, #1569b1);
-  --fivo-json-value: var(--fivo-structure-literal, #09933a);
-  --fivo-json-muted: var(--fivo-structure-muted, #888);
+.filumo-json-workspace {
+  --filumo-json-key: var(--filumo-structure-name, #691010);
+  --filumo-json-string: var(--filumo-structure-string, #1569b1);
+  --filumo-json-value: var(--filumo-structure-literal, #09933a);
+  --filumo-json-muted: var(--filumo-structure-muted, #888);
 
   display: flex;
   flex-direction: column;
@@ -10,26 +10,26 @@
   min-height: 0;
   min-width: 0;
 
-  .fivo-viewer[data-theme='dark'] & {
-    --fivo-json-key: var(--fivo-structure-name, #ecb0b0);
-    --fivo-json-string: var(--fivo-structure-string, #83bcf2);
-    --fivo-json-value: var(--fivo-structure-literal, #83d6a0);
-    --fivo-json-muted: var(--fivo-structure-muted, #a0aabd);
+  .filumo-viewer[data-theme='dark'] & {
+    --filumo-json-key: var(--filumo-structure-name, #ecb0b0);
+    --filumo-json-string: var(--filumo-structure-string, #83bcf2);
+    --filumo-json-value: var(--filumo-structure-literal, #83d6a0);
+    --filumo-json-muted: var(--filumo-structure-muted, #a0aabd);
   }
 }
 
-.fivo-json-workspace [hidden] {
+.filumo-json-workspace [hidden] {
   display: none;
 }
 
-.fivo-json-panes {
+.filumo-json-panes {
   display: flex;
   flex: 1;
   min-height: 0;
   min-width: 0;
 }
 
-.fivo-json-pane {
+.filumo-json-pane {
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -37,12 +37,12 @@
   min-height: 0;
 }
 
-.fivo-json-workspace[data-layout='split'] .fivo-json-pane--tree {
-  flex: 0 0 var(--fivo-json-tree-width, calc(50% - 3px));
+.filumo-json-workspace[data-layout='split'] .filumo-json-pane--tree {
+  flex: 0 0 var(--filumo-json-tree-width, calc(50% - 3px));
   min-width: 240px;
 }
 
-.fivo-json-split-handle {
+.filumo-json-split-handle {
   position: relative;
   flex: 0 0 6px;
   cursor: col-resize;
@@ -50,49 +50,49 @@
   user-select: none;
 }
 
-.fivo-json-split-handle::before {
+.filumo-json-split-handle::before {
   position: absolute;
   top: 0;
   bottom: 0;
   left: 50%;
   width: 1px;
   content: '';
-  background: var(--fivo-border);
+  background: var(--filumo-border);
   transform: translateX(-50%);
 }
 
-.fivo-json-split-handle:hover::before,
-.fivo-json-split-handle:focus-visible::before,
-.fivo-json-panes[data-resizing] .fivo-json-split-handle::before {
-  background: var(--fivo-primary);
+.filumo-json-split-handle:hover::before,
+.filumo-json-split-handle:focus-visible::before,
+.filumo-json-panes[data-resizing] .filumo-json-split-handle::before {
+  background: var(--filumo-primary);
 }
 
-.fivo-json-split-handle:focus-visible {
-  outline: 1px solid var(--fivo-primary);
+.filumo-json-split-handle:focus-visible {
+  outline: 1px solid var(--filumo-primary);
   outline-offset: -1px;
 }
 
-.fivo-json-panes[data-resizing] {
+.filumo-json-panes[data-resizing] {
   cursor: col-resize;
   user-select: none;
 }
 
-.fivo-json-panes[data-resizing] .fivo-json-pane {
+.filumo-json-panes[data-resizing] .filumo-json-pane {
   pointer-events: none;
 }
 
-.fivo-json-pane-header {
+.filumo-json-pane-header {
   display: flex;
   flex: 0 0 32px;
   align-items: center;
   justify-content: space-between;
   padding: 0 10px;
-  border-bottom: 1px solid var(--fivo-border);
-  color: var(--fivo-muted);
+  border-bottom: 1px solid var(--filumo-border);
+  color: var(--filumo-muted);
   font: 12px/1.5 system-ui, sans-serif;
 }
 
-.fivo-json-pane-header button {
+.filumo-json-pane-header button {
   display: inline-flex;
   flex: 0 0 auto;
   align-items: center;
@@ -102,29 +102,29 @@
   padding: 3px;
   border: 0;
   border-radius: 4px;
-  color: var(--fivo-muted);
+  color: var(--filumo-muted);
   background: transparent;
   cursor: pointer;
 }
 
-.fivo-json-pane-header > span {
+.filumo-json-pane-header > span {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.fivo-json-pane-header button:hover {
-  background: var(--fivo-hover);
-  color: var(--fivo-primary);
+.filumo-json-pane-header button:hover {
+  background: var(--filumo-hover);
+  color: var(--filumo-primary);
 }
 
-.fivo-json-pane-header button:focus-visible {
-  outline: 1px solid var(--fivo-primary);
+.filumo-json-pane-header button:focus-visible {
+  outline: 1px solid var(--filumo-primary);
   outline-offset: -1px;
 }
 
-.fivo-json-pane-header svg {
+.filumo-json-pane-header svg {
   width: 16px;
   height: 16px;
   fill: none;
@@ -134,37 +134,37 @@
   stroke-linejoin: round;
 }
 
-.fivo-json-pane-body {
+.filumo-json-pane-body {
   flex: 1;
   min-height: 0;
   min-width: 0;
   position: relative;
 }
 
-.fivo-json-tree-status {
+.filumo-json-tree-status {
   padding: 20px 12px;
-  color: var(--fivo-muted);
+  color: var(--filumo-muted);
   font: 13px/1.6 system-ui, sans-serif;
   overflow-wrap: anywhere;
 }
 
-.fivo-json-workspace-notice {
+.filumo-json-workspace-notice {
   flex: 0 0 auto;
   padding: 8px 12px;
-  border-bottom: 1px solid var(--fivo-border);
-  color: var(--fivo-muted);
+  border-bottom: 1px solid var(--filumo-border);
+  color: var(--filumo-muted);
   font: 12px/1.6 system-ui, sans-serif;
   overflow-wrap: anywhere;
 }
 
-.fivo-json-workspace-notice button,
-.fivo-json-tree-status button {
+.filumo-json-workspace-notice button,
+.filumo-json-tree-status button {
   margin-left: 8px;
   padding: 2px 6px;
-  border: 1px solid var(--fivo-border);
+  border: 1px solid var(--filumo-border);
   border-radius: 4px;
-  color: var(--fivo-primary);
-  background: var(--fivo-surface);
+  color: var(--filumo-primary);
+  background: var(--filumo-surface);
   font: inherit;
   cursor: pointer;
 }

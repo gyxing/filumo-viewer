@@ -16,7 +16,7 @@ module.exports = function sourceLessLoader(source) {
   const scope =
     group === 'dom'
       ? undefined
-      : 'fivo-' + group + '-v' + version.replace(/[^a-z0-9]/gi, '-');
+      : 'filumo-' + group + '-v' + version.replace(/[^a-z0-9]/gi, '-');
   const id =
     group +
     ':' +
@@ -33,7 +33,7 @@ module.exports = function sourceLessLoader(source) {
         const runtime =
           group === 'dom'
             ? join(root, 'packages/dom/src/styles.ts')
-            : '@fivo/dom';
+            : '@filumo/dom';
         callback(
           null,
           'import {replaceStyle} from ' +

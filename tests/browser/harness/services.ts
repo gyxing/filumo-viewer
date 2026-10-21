@@ -180,7 +180,7 @@ run.onclick = async () => {
       {
         chart: {
           type: 'column',
-          title: 'Fivo 图表',
+          title: 'Filumo 图表',
           categories: ['A', 'B'],
           series: [{ name: '数值', values: [1, 2] }],
         },
@@ -240,7 +240,7 @@ run.onclick = async () => {
       },
     );
     check(
-      container.querySelector<HTMLDetailsElement>('.fivo-office-notices')!
+      container.querySelector<HTMLDetailsElement>('.filumo-office-notices')!
         .hidden,
       '无警告时提示隐藏',
     );
@@ -253,9 +253,9 @@ run.onclick = async () => {
       candidates: ['A'],
     });
     check(
-      container.querySelector('.fivo-office-notices li')?.textContent ===
+      container.querySelector('.filumo-office-notices li')?.textContent ===
         '<script>bad()</script>' &&
-        !container.querySelector('.fivo-office-notices script'),
+        !container.querySelector('.filumo-office-notices script'),
       '警告使用安全文本',
     );
     noticeSession.update({ status: 'error', partialReady: true });

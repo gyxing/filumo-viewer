@@ -5,7 +5,7 @@ export function normalizeDocsBase(value = '/') {
     !/^\/(?:[a-zA-Z0-9._~-]+\/?)*$/.test(base) ||
     base.split('/').some((part) => part === '.' || part === '..')
   ) {
-    throw new Error('FIVO_DOCS_BASE 必须是合法站内路径，例如 / 或 /preview/');
+    throw new Error('FILUMO_DOCS_BASE 必须是合法站内路径，例如 / 或 /preview/');
   }
   return base.endsWith('/') ? base : base + '/';
 }

@@ -1,4 +1,4 @@
-import { FivoError, throwIfAborted } from '@fivo/core';
+import { FilumoError, throwIfAborted } from '@filumo/core';
 import type { PreviewKind } from '../engine/preview';
 
 /** 无名称输入只检查容器目录，不解析页面内容；目录读取结束立即释放。 */
@@ -43,7 +43,7 @@ export async function inferOfficeKind(
     );
     try {
       if (reader.hasEntry('EncryptedPackage'))
-        throw new FivoError('ENCRYPTED_FILE', '暂不支持加密 Office 文件');
+        throw new FilumoError('ENCRYPTED_FILE', '暂不支持加密 Office 文件');
       if (reader.hasEntry('WordDocument')) return 'doc';
       if (reader.hasEntry('Workbook') || reader.hasEntry('Book')) return 'xls';
       if (reader.hasEntry('PowerPoint Document')) return 'ppt';
@@ -51,5 +51,5 @@ export async function inferOfficeKind(
       await reader.close();
     }
   }
-  throw new FivoError('UNSUPPORTED_FORMAT', '容器不包含支持的 Office 文档');
+  throw new FilumoError('UNSUPPORTED_FORMAT', '容器不包含支持的 Office 文档');
 }

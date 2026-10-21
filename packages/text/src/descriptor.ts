@@ -1,4 +1,4 @@
-import type { DocumentSource } from '@fivo/core';
+import type { DocumentSource } from '@filumo/core';
 import type { TextFactory } from './factoryTypes';
 // 专用格式不由通用 text/plain 提前接管，显式 pluginId 仍可选择原文打开。
 const RESERVED =
@@ -26,7 +26,7 @@ export const text: TextFactory = (options = {}) => {
       (() =>
         new Worker(new URL('./worker.js', import.meta.url), {
           type: 'module',
-          name: 'fivo-text',
+          name: 'filumo-text',
         })),
   };
   const extensions = [

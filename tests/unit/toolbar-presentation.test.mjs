@@ -149,22 +149,22 @@ test('普通按钮与选择控件遵循 showLabel，更新时复用节点并保�
   try {
     binding.update({ actions });
     const rotate = container.children.find(
-        (node) => node.dataset.fivoAction === 'image.rotate',
+        (node) => node.dataset.filumoAction === 'image.rotate',
       ),
       outline = container.children.find(
-        (node) => node.dataset.fivoAction === 'office.outline',
+        (node) => node.dataset.filumoAction === 'office.outline',
       ),
       mode = container.children.find(
-        (node) => node.dataset.fivoAction === 'office.sheetMode',
+        (node) => node.dataset.filumoAction === 'office.sheetMode',
       );
-    const rotateLabel = rotate.querySelector('.fivo-button-label'),
+    const rotateLabel = rotate.querySelector('.filumo-button-label'),
       modeLabel = mode.children[0],
-      value = mode.querySelector('.fivo-select-value'),
-      icon = mode.querySelector('.fivo-select-icon');
-    assert.equal(rotate.classList.contains('fivo-icon-button'), true);
+      value = mode.querySelector('.filumo-select-value'),
+      icon = mode.querySelector('.filumo-select-icon');
+    assert.equal(rotate.classList.contains('filumo-icon-button'), true);
     assert.equal(rotate.getAttribute('aria-label'), '旋转');
     assert.equal(rotate.title, '旋转');
-    assert.equal(outline.classList.contains('fivo-icon-button'), false);
+    assert.equal(outline.classList.contains('filumo-icon-button'), false);
     assert.equal(outline.getAttribute('aria-pressed'), 'true');
     assert.equal(modeLabel.hidden, true);
     assert.equal(value.textContent, '原始布局');
@@ -176,18 +176,18 @@ test('普通按钮与选择控件遵循 showLabel，更新时复用节点并保�
       })),
     });
     assert.equal(container.children[0], rotate);
-    assert.equal(rotate.querySelector('.fivo-button-label'), rotateLabel);
-    assert.equal(rotate.classList.contains('fivo-icon-button'), false);
+    assert.equal(rotate.querySelector('.filumo-button-label'), rotateLabel);
+    assert.equal(rotate.classList.contains('filumo-icon-button'), false);
     assert.equal(modeLabel.hidden, false);
-    assert.equal(mode.querySelector('.fivo-select-value'), value);
-    assert.equal(mode.querySelector('.fivo-select-icon'), icon);
+    assert.equal(mode.querySelector('.filumo-select-value'), value);
+    assert.equal(mode.querySelector('.filumo-select-icon'), icon);
     binding.update({
       actions: actions.map((action) => ({
         ...action,
         toolbar: { showLabel: false },
       })),
     });
-    assert.equal(outline.classList.contains('fivo-icon-button'), true);
+    assert.equal(outline.classList.contains('filumo-icon-button'), true);
     assert.equal(modeLabel.hidden, true);
     assert.equal(value.textContent, '原始布局');
   } finally {

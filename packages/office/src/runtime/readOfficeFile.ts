@@ -1,5 +1,5 @@
-import type { DocumentSource } from '@fivo/core';
-import { throwIfAborted } from '@fivo/core';
+import type { DocumentSource } from '@filumo/core';
+import { throwIfAborted } from '@filumo/core';
 import {
   OFFICE_FORMAT_METADATA,
   SUPPORTED_OFFICE_EXTENSIONS,

@@ -1,4 +1,4 @@
-import { abortError, FivoError, throwIfAborted } from './errors';
+import { abortError, FilumoError, throwIfAborted } from './errors';
 import { guardSource, waitForSource } from './guardSource';
 import { createBlobRangeReader } from './range/BlobRangeReader';
 import {
@@ -12,7 +12,7 @@ import type { DocumentInput, DocumentSource, ResourcePolicy } from './types';
 export function validatePolicy(policy?: ResourcePolicy): void {
   for (const value of [policy?.maxFileBytes, policy?.timeoutMs])
     if (value !== undefined && (!Number.isFinite(value) || value <= 0))
-      throw new FivoError(
+      throw new FilumoError(
         'INVALID_RESOURCE_POLICY',
         '资源限制必须是大于零的有限数',
       );
@@ -52,10 +52,10 @@ export async function normalizeSource(
   } else {
     const remote = typeof input === 'string' ? { url: input } : input;
     if (!remote || typeof remote !== 'object' || !('url' in remote))
-      throw new FivoError('INVALID_INPUT', '不支持的文档输入');
+      throw new FilumoError('INVALID_INPUT', '不支持的文档输入');
     const parsed = new URL(remote.url, options.baseUrl);
     if (!['http:', 'https:', 'blob:'].includes(parsed.protocol))
-      throw new FivoError('INVALID_SOURCE_URL', '不支持此来源协议');
+      throw new FilumoError('INVALID_SOURCE_URL', '不支持此来源协议');
     url = parsed.href;
     request = remote.request;
     mimeType = remote.mimeType;
@@ -79,13 +79,13 @@ export async function normalizeSource(
       options.resourcePolicy?.maxFileBytes !== undefined &&
       actual > options.resourcePolicy.maxFileBytes
     )
-      throw new FivoError(
+      throw new FilumoError(
         'FILE_SIZE_LIMIT_EXCEEDED',
         '文件超过宿主配置的大小限制',
       );
   };
   const read = async (signal: AbortSignal): Promise<Uint8Array> => {
-    if (disposed) throw new FivoError('SOURCE_DISPOSED', '文件来源已释放');
+    if (disposed) throw new FilumoError('SOURCE_DISPOSED', '文件来源已释放');
     throwIfAborted(signal);
     throwIfAborted(localAbort.signal);
     if (size !== undefined) checkSize(size);
@@ -107,7 +107,7 @@ export async function normalizeSource(
               }));
             fallbackResponse = undefined;
             if (!response.ok)
-              throw new FivoError(
+              throw new FilumoError(
                 'DOWNLOAD_FAILED',
                 '文件下载失败：' + response.status,
               );
@@ -179,7 +179,7 @@ export async function normalizeSource(
     },
     readAll: read,
     async getRangeReader(signal): Promise<DocumentRangeReader | undefined> {
-      if (disposed) throw new FivoError('SOURCE_DISPOSED', '文件来源已释放');
+      if (disposed) throw new FilumoError('SOURCE_DISPOSED', '文件来源已释放');
       throwIfAborted(signal);
       throwIfAborted(localAbort.signal);
       if (size !== undefined) checkSize(size);
@@ -196,7 +196,7 @@ export async function normalizeSource(
               offset < 0 ||
               length < 0
             )
-              throw new FivoError('INVALID_RANGE', '来源读取范围无效');
+              throw new FilumoError('INVALID_RANGE', '来源读取范围无效');
             return bytes!.slice(offset, offset + length);
           },
         };
@@ -228,14 +228,14 @@ export async function normalizeSource(
       return (await waitForSource(rangeSetup, signal)).reader;
     },
     async readBlob(signal) {
-      if (disposed) throw new FivoError('SOURCE_DISPOSED', '文件来源已释放');
+      if (disposed) throw new FilumoError('SOURCE_DISPOSED', '文件来源已释放');
       throwIfAborted(signal);
       throwIfAborted(localAbort.signal);
       if (size !== undefined) checkSize(size);
       return blob;
     },
     async readRange(offset, length, signal) {
-      if (disposed) throw new FivoError('SOURCE_DISPOSED', '文件来源已释放');
+      if (disposed) throw new FilumoError('SOURCE_DISPOSED', '文件来源已释放');
       throwIfAborted(signal);
       throwIfAborted(localAbort.signal);
       if (
@@ -243,7 +243,7 @@ export async function normalizeSource(
         offset < 0 ||
         length < 0
       )
-        throw new FivoError('INVALID_RANGE', '来源读取范围无效');
+        throw new FilumoError('INVALID_RANGE', '来源读取范围无效');
       if (size !== undefined) checkSize(size);
       // 本地前缀探测只读切片；远程仍共享全文缓存，避免另起一次下载。
       if (!blob) return (await read(signal)).slice(offset, offset + length);

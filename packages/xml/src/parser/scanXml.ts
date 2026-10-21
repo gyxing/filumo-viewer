@@ -1,4 +1,4 @@
-import { throwIfAborted } from '@fivo/core';
+import { throwIfAborted } from '@filumo/core';
 import { SaxesParser } from 'saxes';
 import { sourceSpans } from './sourceSpans';
 import type { XmlNode, XmlParseResult, XmlSourceToken } from './types';

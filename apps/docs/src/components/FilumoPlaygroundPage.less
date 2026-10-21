@@ -3,18 +3,18 @@
 @import './home-base.less';
 @import './playground-controls.less';
 
-.fivo-playground-main {
+.filumo-playground-main {
   width: calc(100% - 48px);
   max-width: 1440px;
   margin: 0 auto;
   padding: 48px 0 56px;
 }
 
-.fivo-playground-intro {
+.filumo-playground-intro {
   margin-bottom: 36px;
 }
 
-.fivo-playground-intro h1 {
+.filumo-playground-intro h1 {
   max-width: 1100px;
   margin: 18px 0 16px;
   color: var(--site-text);
@@ -25,7 +25,7 @@
   text-wrap: balance;
 }
 
-.fivo-playground-intro > p {
+.filumo-playground-intro > p {
   max-width: 880px;
   margin: 0;
   color: var(--site-text-soft);
@@ -33,7 +33,7 @@
   line-height: 1.75;
 }
 
-.fivo-playground-privacy {
+.filumo-playground-privacy {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -43,7 +43,7 @@
   font-weight: 600;
 }
 
-.fivo-playground-privacy > span {
+.filumo-playground-privacy > span {
   width: 8px;
   height: 8px;
   flex: 0 0 8px;
@@ -52,21 +52,21 @@
   box-shadow: 0 0 0 4px rgba(34, 197, 94, 10%);
 }
 
-.fivo-playground-workspace {
+.filumo-playground-workspace {
   display: grid;
   grid-template-columns: 292px minmax(0, 1fr);
   align-items: start;
   gap: 24px;
 }
 
-.fivo-playground-result {
+.filumo-playground-result {
   display: grid;
   gap: 24px;
   min-width: 0;
 }
 
-.fivo-playground-preview-card,
-.fivo-playground-code {
+.filumo-playground-preview-card,
+.filumo-playground-code {
   min-width: 0;
   overflow: hidden;
   background: var(--site-surface);
@@ -75,7 +75,7 @@
   box-shadow: var(--site-shadow-soft);
 }
 
-.fivo-playground-preview-heading {
+.filumo-playground-preview-heading {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -83,8 +83,8 @@
   padding: 20px 22px 12px;
 }
 
-.fivo-playground-preview-heading h2,
-.fivo-playground-card-heading h2 {
+.filumo-playground-preview-heading h2,
+.filumo-playground-card-heading h2 {
   margin: 0;
   font-size: 16px;
   line-height: 1.4;
@@ -92,14 +92,14 @@
   color: var(--site-text);
 }
 
-.fivo-playground-preview-heading p {
+.filumo-playground-preview-heading p {
   margin: 6px 0 0;
   font-size: 12px;
   line-height: 1.6;
   color: var(--site-text-muted);
 }
 
-.fivo-playground-file {
+.filumo-playground-file {
   position: relative;
   display: inline-flex;
   flex: 0 0 auto;
@@ -115,7 +115,7 @@
   cursor: pointer;
 }
 
-.fivo-playground-file input {
+.filumo-playground-file input {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -124,12 +124,12 @@
   cursor: pointer;
 }
 
-.fivo-playground-file:focus-within {
+.filumo-playground-file:focus-within {
   outline: 2px solid var(--site-primary);
   outline-offset: 2px;
 }
 
-.fivo-playground-file-info {
+.filumo-playground-file-info {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -139,23 +139,23 @@
   font-size: 11px;
 }
 
-.fivo-playground-file-info > span:first-child {
+.filumo-playground-file-info > span:first-child {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.fivo-playground-preview-surface {
+.filumo-playground-preview-surface {
   padding: 8px;
   border-top: 1px solid var(--site-border);
   background: var(--site-surface-soft);
 }
 
-.fivo-playground-code > .fivo-playground-card-heading {
+.filumo-playground-code > .filumo-playground-card-heading {
   padding: 18px 20px 8px;
 }
 
-.fivo-playground-code-hint {
+.filumo-playground-code-hint {
   margin: 0;
   padding: 0 20px 14px;
   color: var(--site-text-muted);
@@ -163,7 +163,7 @@
   line-height: 1.6;
 }
 
-.fivo-playground-code-tabs {
+.filumo-playground-code-tabs {
   display: flex;
   padding: 0 16px;
   gap: 4px;
@@ -171,7 +171,7 @@
   border-bottom: 1px solid var(--site-border);
 }
 
-.fivo-playground-code-tabs > button {
+.filumo-playground-code-tabs > button {
   flex: 0 0 auto;
   padding: 10px 12px;
   border: 0;
@@ -183,13 +183,13 @@
   cursor: pointer;
 }
 
-.fivo-playground-code-tabs > button[aria-selected='true'] {
+.filumo-playground-code-tabs > button[aria-selected='true'] {
   border-bottom-color: var(--site-primary);
   color: var(--site-primary);
   font-weight: 700;
 }
 
-.fivo-playground-code .fivo-doc-code {
+.filumo-playground-code .filumo-doc-code {
   margin: 0;
   min-height: 180px;
   max-height: 480px;
@@ -201,60 +201,60 @@
   tab-size: 2;
 }
 
-.fivo-playground-guide {
+.filumo-playground-guide {
   justify-self: end;
   color: var(--site-primary) !important;
   font-size: 13px;
   font-weight: 600;
 }
 @media (max-width: 1100px) {
-  .fivo-playground-workspace {
+  .filumo-playground-workspace {
     grid-template-columns: 260px minmax(0, 1fr);
     gap: 20px;
   }
 
-  .fivo-playground-preview-heading {
+  .filumo-playground-preview-heading {
     flex-direction: column;
   }
 }
 @media (max-width: 900px) {
-  .fivo-playground-main {
+  .filumo-playground-main {
     width: calc(100% - 32px);
     padding-top: 32px;
   }
 
-  .fivo-playground-workspace {
+  .filumo-playground-workspace {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .fivo-playground-intro {
+  .filumo-playground-intro {
     margin-bottom: 24px;
   }
 
-  .fivo-playground-preview-heading {
+  .filumo-playground-preview-heading {
     flex-direction: row;
   }
 }
 @media (max-width: 540px) {
-  .fivo-playground-preview-heading {
+  .filumo-playground-preview-heading {
     flex-direction: column;
     padding: 16px;
   }
 
-  .fivo-playground-file-info {
+  .filumo-playground-file-info {
     padding-inline: 16px;
   }
 
-  .fivo-playground-intro > p {
+  .filumo-playground-intro > p {
     font-size: 14px;
   }
 
-  .fivo-playground-privacy {
+  .filumo-playground-privacy {
     align-items: flex-start;
     line-height: 1.6;
   }
 
-  .fivo-playground-privacy > span {
+  .filumo-playground-privacy > span {
     margin-top: 6px;
   }
 }

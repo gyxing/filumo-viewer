@@ -1,4 +1,4 @@
-import { throwIfAborted } from '@fivo/core';
+import { throwIfAborted } from '@filumo/core';
 import type { CsvIndex, CsvParseResult } from './types';
 
 /** 按逻辑记录扫描，引用状态跨块保留，探测只采集完整记录。 */

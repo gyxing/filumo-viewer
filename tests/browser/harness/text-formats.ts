@@ -1,8 +1,8 @@
-import type { ViewerHandle, ViewOptions } from '@fivo/dom';
-import { createViewer } from '@fivo/dom';
-import { json } from '@fivo/json';
-import { markdown } from '@fivo/markdown';
-import { text } from '@fivo/text';
+import type { ViewerHandle, ViewOptions } from '@filumo/dom';
+import { createViewer } from '@filumo/dom';
+import { json } from '@filumo/json';
+import { markdown } from '@filumo/markdown';
+import { text } from '@filumo/text';
 
 // 资源样本使用本页 Blob，不向外网请求图片。
 const assets = new Map([
@@ -39,7 +39,7 @@ const samples = {
   encodingMarkdown: encodingFixture('# 编码恢复测试\n\n' + '## 章节\n\n正文保留\n\n'.repeat(35), 'encoding.md'),
   unreadableText: new File([Uint8Array.of(0xff)], 'unreadable.txt'),
   unknownText: new File([
-    '未知后缀文本\n<script>window.fivoFallbackExecuted = true</script>\n配置项=中文',
+    '未知后缀文本\n<script>window.filumoFallbackExecuted = true</script>\n配置项=中文',
   ], 'settings.custom'),
   unknownBinary: new File([Uint8Array.of(137, 80, 78, 71, 13, 10, 26, 10)], 'image.custom'),
   mixedBinary: new File([
@@ -163,7 +163,7 @@ const samples = {
     '',
     '<div style="text-align:center"><span style="color:rgb(128,0,0);font-weight:bold;position:fixed;background-image:url(https://invalid.example/style.png)">居中格式文字</span> <span style="font-size:14px">定号文字</span></div>',
     '',
-    '<!--fivo-md-slot-1:0-->',
+    '<!--filumo-md-slot-1:0-->',
     '',
     '<center><font color="#800000" face="SimSun" size="+1"><strike>旧式排版</strike></font></center>',
     '',
@@ -246,7 +246,7 @@ for (const [label, kind, source] of [
   document.body.prepend(button);
 }
 Object.assign(window, {
-  fivoTextFormats: {
+  filumoTextFormats: {
     open,
     update: (options: ViewOptions) => viewer?.update(options),
     setActive: (active: boolean) => viewer?.setActive(active),

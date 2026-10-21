@@ -1,1 +1,1 @@
-export { TextViewport } from '@fivo/dom/text';
+export { TextViewport } from '@filumo/dom/text';

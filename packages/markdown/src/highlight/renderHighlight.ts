@@ -1,7 +1,7 @@
 import {
   highlightToDecorations,
   renderHighlightedText,
-} from '@fivo/dom/text-highlight';
+} from '@filumo/dom/text-highlight';
 
 /** 高亮仅增强样式；公共转换校验原文，禁止任意 HTML 注入。 */
 export function renderHighlight(

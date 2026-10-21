@@ -15,16 +15,16 @@ export class MarkdownImage {
     private present: (update: () => void) => void,
   ) {
     this.container = document.createElement('span');
-    this.container.className = 'fivo-markdown-image-holder';
+    this.container.className = 'filumo-markdown-image-holder';
     this.container.dataset.state = 'pending';
     this.element = document.createElement('img');
-    this.element.className = 'fivo-markdown-image';
+    this.element.className = 'filumo-markdown-image';
     this.element.alt = caption;
     this.element.title = title;
     this.element.decoding = 'async';
     this.element.hidden = true;
     this.status = document.createElement('span');
-    this.status.className = 'fivo-markdown-image-status';
+    this.status.className = 'filumo-markdown-image-status';
     // 占位和错误提示不属于文档正文，避免被查找命中。
     this.status.dataset.searchExclude = 'true';
     this.status.setAttribute('role', 'status');

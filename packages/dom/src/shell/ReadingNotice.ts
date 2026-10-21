@@ -6,16 +6,16 @@ const NOTICE_DURATION = 6000;
 /** 阅读区内的单条非阻塞提示，按事件编号去重并独立管理计时资源。 */
 export function createReadingNotice(document: Document, returnFocus: () => void) {
   const element = document.createElement('div');
-  element.className = 'fivo-reading-notice';
+  element.className = 'filumo-reading-notice';
   element.hidden = true;
   element.setAttribute('role', 'status');
   element.setAttribute('aria-live', 'polite');
   element.setAttribute('aria-atomic', 'true');
   const message = document.createElement('span');
-  message.className = 'fivo-reading-notice-message';
+  message.className = 'filumo-reading-notice-message';
   const close = document.createElement('button');
   close.type = 'button';
-  close.className = 'fivo-reading-notice-close';
+  close.className = 'filumo-reading-notice-close';
   element.append(createShellIcon(document, 'error'), message, close);
   let timer: ReturnType<typeof setTimeout> | undefined;
   let shown: number | undefined;

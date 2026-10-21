@@ -1,5 +1,5 @@
 import type { StylePolicy } from '../contracts';
-import type { TextDocument } from '@fivo/core/text';
+import type { TextDocument } from '@filumo/core/text';
 export interface TextDecoration {
   start: number;
   end: number;

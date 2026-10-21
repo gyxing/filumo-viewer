@@ -1,4 +1,4 @@
-import type { ViewContext, ViewHandle } from '@fivo/dom';
+import type { ViewContext, ViewHandle } from '@filumo/dom';
 import { createMemoryOfficeAnnotationSource } from '../../engine/annotations/AnnotationSource';
 import { getSpreadsheetSource } from '../../engine/spreadsheet/spreadsheetSourceRegistry';
 import { enUS } from '../../locale/en-US';

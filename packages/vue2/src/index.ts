@@ -1,4 +1,4 @@
-export type { DocumentInput } from '@fivo/core';
+export type { DocumentInput } from '@filumo/core';
 export type {
   ViewOptions,
   ViewerCapabilities,
@@ -6,5 +6,5 @@ export type {
   ViewerHandle,
   ViewerOptions,
   ViewerPlugin,
-} from '@fivo/dom';
+} from '@filumo/dom';
 export { DocumentViewer } from './DocumentViewer';

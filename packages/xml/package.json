@@ -1,8 +1,48 @@
 {
-  "name": "@fivo/xml",
-  "version": "0.1.0-next.0",
-  "description": "Fivo xml 只读预览插件",
+  "name": "@filumo/xml",
+  "version": "0.1.0",
+  "description": "Read-only XML viewer for Filumo, with a resizable source/tree layout, namespace-aware colored labels and source-range navigation.",
+  "keywords": [
+    "filumo",
+    "xml",
+    "xml-viewer",
+    "xml-preview",
+    "xml-tree",
+    "xml-source",
+    "xml-namespaces",
+    "cdata",
+    "structured-data",
+    "split-view",
+    "syntax-highlighting",
+    "source-navigation",
+    "text-search",
+    "line-numbers",
+    "virtual-scroll",
+    "web-worker",
+    "readonly",
+    "typescript",
+    "esm",
+    "xml预览",
+    "xml查看器",
+    "结构树"
+  ],
+  "homepage": "https://github.com/gyxing/office-file-viewer/tree/master/packages/xml#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gyxing/office-file-viewer.git",
+    "directory": "packages/xml"
+  },
+  "bugs": {
+    "url": "https://github.com/gyxing/office-file-viewer/issues"
+  },
+  "author": {
+    "name": "gyxing",
+    "url": "https://github.com/gyxing"
+  },
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "sideEffects": [
     "**/*.css",
     "./dist/chunks/*.js"
@@ -24,8 +64,8 @@
     "dist"
   ],
   "dependencies": {
-    "@fivo/core": "workspace:^",
-    "@fivo/dom": "workspace:^",
+    "@filumo/core": "workspace:^",
+    "@filumo/dom": "workspace:^",
     "saxes": "6.0.0"
   }
 }

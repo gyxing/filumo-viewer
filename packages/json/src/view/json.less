@@ -1,4 +1,4 @@
-.fivo-json-tree {
+.filumo-json-tree {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -6,11 +6,11 @@
   font-family: Consolas, 'Courier New', monospace;
 }
 
-.fivo-json-tree [hidden] {
+.filumo-json-tree [hidden] {
   display: none;
 }
 
-.fivo-json-scroll {
+.filumo-json-scroll {
   flex: 1;
   position: relative;
   min-height: 0;
@@ -19,11 +19,11 @@
   padding-block: 6px;
 }
 
-.fivo-json-canvas {
+.filumo-json-canvas {
   position: relative;
 }
 
-.fivo-json-row {
+.filumo-json-row {
   position: absolute;
   display: flex;
   align-items: center;
@@ -35,24 +35,24 @@
   white-space: nowrap;
 }
 
-.fivo-json-row:hover {
-  .fivo-json-title {
-    background: var(--fivo-hover);
+.filumo-json-row:hover {
+  .filumo-json-title {
+    background: var(--filumo-hover);
   }
 }
 
-.fivo-json-row[aria-selected='true'] {
-  .fivo-json-title {
-    background: var(--fivo-selected);
+.filumo-json-row[aria-selected='true'] {
+  .filumo-json-title {
+    background: var(--filumo-selected);
   }
 }
 
-.fivo-json-row:focus-visible {
-  outline: 1px solid var(--fivo-primary);
+.filumo-json-row:focus-visible {
+  outline: 1px solid var(--filumo-primary);
   outline-offset: -1px;
 }
 
-.fivo-json-toggle {
+.filumo-json-toggle {
   flex: 0 0 16px;
   width: 16px;
   height: 16px;
@@ -60,7 +60,7 @@
   cursor: pointer;
 }
 
-.fivo-json-title {
+.filumo-json-title {
   display: inline-flex;
   align-items: center;
   min-width: 0;
@@ -69,142 +69,142 @@
   user-select: text;
 }
 
-.fivo-json-separator {
+.filumo-json-separator {
   margin: 0 6px 0 3px;
-  color: var(--fivo-json-muted, var(--fivo-structure-muted, #888));
+  color: var(--filumo-json-muted, var(--filumo-structure-muted, #888));
 }
 
-.fivo-json-guide {
+.filumo-json-guide {
   position: relative;
   align-self: stretch;
   flex: 0 0 16px;
 }
 
-.fivo-json-guide[data-continued='true']::before,
-.fivo-json-guide[data-branch='true'][data-continued='false']::before {
+.filumo-json-guide[data-continued='true']::before,
+.filumo-json-guide[data-branch='true'][data-continued='false']::before {
   content: '';
   position: absolute;
   top: 0;
   left: 7px;
   bottom: 0;
-  border-left: 1px dashed var(--fivo-border);
+  border-left: 1px dashed var(--filumo-border);
 }
 
-.fivo-json-guide[data-branch='true'][data-continued='false']::before {
+.filumo-json-guide[data-branch='true'][data-continued='false']::before {
   bottom: 50%;
 }
 
-.fivo-json-guide[data-branch='true']::after {
+.filumo-json-guide[data-branch='true']::after {
   content: '';
   position: absolute;
   top: 50%;
   left: 7px;
   right: 0;
-  border-top: 1px dashed var(--fivo-border);
+  border-top: 1px dashed var(--filumo-border);
 }
 
-.fivo-json-toggle[data-branch='true']::before {
+.filumo-json-toggle[data-branch='true']::before {
   content: '';
   position: absolute;
   top: 2px;
   left: 2px;
   width: 10px;
   height: 10px;
-  border: 1px solid var(--fivo-muted);
+  border: 1px solid var(--filumo-muted);
   border-radius: 1px;
-  background: var(--fivo-surface);
+  background: var(--filumo-surface);
 }
 
-.fivo-json-toggle[data-branch='true']::after {
+.filumo-json-toggle[data-branch='true']::after {
   content: '';
   position: absolute;
   top: 7px;
   left: 5px;
   width: 5px;
-  border-top: 1px solid var(--fivo-muted);
+  border-top: 1px solid var(--filumo-muted);
 }
 
-.fivo-json-toggle[data-branch='true'][data-open='false']::before {
-  background: linear-gradient(var(--fivo-muted), var(--fivo-muted)) center / 1px
-    5px no-repeat var(--fivo-surface);
+.filumo-json-toggle[data-branch='true'][data-open='false']::before {
+  background: linear-gradient(var(--filumo-muted), var(--filumo-muted)) center / 1px
+    5px no-repeat var(--filumo-surface);
 }
 
-.fivo-json-key {
+.filumo-json-key {
   flex: 0 1 auto;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: var(--fivo-json-key, var(--fivo-structure-name, #691010));
+  color: var(--filumo-json-key, var(--filumo-structure-name, #691010));
 }
 
-.fivo-json-value {
+.filumo-json-value {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.fivo-json-value--string {
-  color: var(--fivo-json-string, var(--fivo-structure-string, #1569b1));
+.filumo-json-value--string {
+  color: var(--filumo-json-string, var(--filumo-structure-string, #1569b1));
 }
 
-.fivo-json-value--number {
-  color: var(--fivo-json-value, var(--fivo-structure-literal, #09933a));
+.filumo-json-value--number {
+  color: var(--filumo-json-value, var(--filumo-structure-literal, #09933a));
 }
 
-.fivo-json-value--boolean {
-  color: var(--fivo-json-value, var(--fivo-structure-literal, #09933a));
+.filumo-json-value--boolean {
+  color: var(--filumo-json-value, var(--filumo-structure-literal, #09933a));
 }
 
-.fivo-json-value--null,
-.fivo-json-value--array,
-.fivo-json-value--object {
-  color: var(--fivo-json-muted, var(--fivo-structure-muted, #888));
+.filumo-json-value--null,
+.filumo-json-value--array,
+.filumo-json-value--object {
+  color: var(--filumo-json-muted, var(--filumo-structure-muted, #888));
 }
 
-.fivo-json-path {
+.filumo-json-path {
   display: block;
   flex: 0 0 auto;
   padding: 6px 12px;
-  border-top: 1px solid var(--fivo-border);
+  border-top: 1px solid var(--filumo-border);
   font: 12px/1.5 system-ui, sans-serif;
-  color: var(--fivo-muted);
+  color: var(--filumo-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.fivo-json-find {
+.filumo-json-find {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 6px;
   padding: 8px;
-  border-bottom: 1px solid var(--fivo-border);
+  border-bottom: 1px solid var(--filumo-border);
   font: 12px/1.5 system-ui, sans-serif;
 }
 
-.fivo-json-find input,
-.fivo-json-find button {
+.filumo-json-find input,
+.filumo-json-find button {
   height: 30px;
-  border: 1px solid var(--fivo-border);
+  border: 1px solid var(--filumo-border);
   border-radius: 5px;
-  background: var(--fivo-surface);
+  background: var(--filumo-surface);
   color: inherit;
   font: inherit;
   padding: 2px 8px;
   box-sizing: border-box;
 }
 
-.fivo-json-find input {
+.filumo-json-find input {
   min-width: 100px;
   flex: 1;
 }
 
-.fivo-json-find button {
+.filumo-json-find button {
   cursor: pointer;
 }
 
-.fivo-json-find :focus-visible {
-  outline: 1px solid var(--fivo-primary);
+.filumo-json-find :focus-visible {
+  outline: 1px solid var(--filumo-primary);
   outline-offset: -1px;
 }

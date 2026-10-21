@@ -1,4 +1,4 @@
-import { useStyles } from '@fivo/dom';
+import { useStyles } from '@filumo/dom';
 import { STYLE_SCOPE } from '../generated/package';
 import { mountImageSurface } from './ImageSurface';
 import { getImageFileName } from './imageName';
@@ -36,11 +36,11 @@ export async function mountImageOverlay(
     title = document.createElement('strong'),
     controls = document.createElement('div'),
     body = document.createElement('div');
-  overlay.className = 'fivo-image-preview';
-  toolbar.className = 'fivo-image-preview-toolbar';
-  title.className = 'fivo-image-preview-title';
-  controls.className = 'fivo-image-preview-controls';
-  body.className = 'fivo-image-preview-viewport';
+  overlay.className = 'filumo-image-preview';
+  toolbar.className = 'filumo-image-preview-toolbar';
+  title.className = 'filumo-image-preview-title';
+  controls.className = 'filumo-image-preview-controls';
+  body.className = 'filumo-image-preview-viewport';
   overlay.setAttribute('role', 'dialog');
   overlay.setAttribute('aria-modal', 'true');
   toolbar.setAttribute('role', 'toolbar');
@@ -48,8 +48,8 @@ export async function mountImageOverlay(
     extension = fileName.match(/\.[a-z0-9]{2,6}$/i)?.[0] ?? '';
   const name = document.createElement('span'),
     suffix = document.createElement('span');
-  name.className = 'fivo-image-preview-title-name';
-  suffix.className = 'fivo-image-preview-title-extension';
+  name.className = 'filumo-image-preview-title-name';
+  suffix.className = 'filumo-image-preview-title-extension';
   name.textContent = extension
     ? fileName.slice(0, -extension.length)
     : fileName;
@@ -172,7 +172,7 @@ export async function mountImageOverlay(
   }
   const retry = document.createElement('button');
   retry.type = 'button';
-  retry.className = 'fivo-image-preview-retry';
+  retry.className = 'filumo-image-preview-retry';
   retry.textContent = options.locale === 'en-US' ? 'Retry' : '重试';
   retry.hidden = true;
   retry.onclick = () => {
@@ -204,7 +204,7 @@ export async function mountImageOverlay(
     target === body ||
     (!!target &&
       body.contains(target as Node) &&
-      !!(target as Element).classList?.contains('fivo-image-surface'));
+      !!(target as Element).classList?.contains('filumo-image-surface'));
   const startPointer = (event: PointerEvent) => {
     gesture = undefined;
     if (closed || overlay.hidden || event.button !== 0 || !event.isPrimary)

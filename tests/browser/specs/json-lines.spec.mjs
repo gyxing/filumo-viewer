@@ -20,7 +20,7 @@ test('JSONL 坏行隔离并能继续选择 null 记录', async ({ page }) => {
     'aria-selected',
     'true',
   );
-  await expect(page.locator('.fivo-text-scope:visible')).toContainText(
+  await expect(page.locator('.filumo-text-scope:visible')).toContainText(
     'invalid',
   );
   await list.getByRole('option').nth(2).click();
@@ -28,5 +28,5 @@ test('JSONL 坏行隔离并能继续选择 null 记录', async ({ page }) => {
     'aria-selected',
     'true',
   );
-  await expect(page.locator('.fivo-json-lines-detail')).toContainText('null');
+  await expect(page.locator('.filumo-json-lines-detail')).toContainText('null');
 });

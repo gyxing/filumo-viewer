@@ -1,5 +1,5 @@
-import { TextTaskClient } from '@fivo/core/text';
-import type { TaskWorker } from '@fivo/core/text';
+import { TextTaskClient } from '@filumo/core/text';
+import type { TaskWorker } from '@filumo/core/text';
 import type {
   CodeHighlightResult,
   HighlightPayload,

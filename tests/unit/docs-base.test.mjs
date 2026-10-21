@@ -16,8 +16,8 @@ test('站点默认根路径，部署前缀只由显式配置决定', () => {
     '/preview/dev/smoke-test',
   );
   assert.equal(
-    withDocsBase('/preview/', '__fivo_smoke/files/basic-docx'),
-    '/preview/__fivo_smoke/files/basic-docx',
+    withDocsBase('/preview/', '__filumo_smoke/files/basic-docx'),
+    '/preview/__filumo_smoke/files/basic-docx',
   );
 });
 
@@ -34,7 +34,7 @@ test('非法站点前缀必须失败，不产生站外资源请求或目录穿�
     '/%2e%2e/',
     '/a\\b',
   ]) {
-    assert.throws(() => normalizeDocsBase(value), /FIVO_DOCS_BASE/);
+    assert.throws(() => normalizeDocsBase(value), /FILUMO_DOCS_BASE/);
   }
 });
 
@@ -47,7 +47,7 @@ test('浏览器站内地址使用构建注入值，嵌套路由不改变资源�
       write: false,
       format: 'esm',
       platform: 'browser',
-      define: { 'process.env.FIVO_DOCS_BASE': JSON.stringify(base) },
+      define: { 'process.env.FILUMO_DOCS_BASE': JSON.stringify(base) },
     });
     const app = await import(
       'data:text/javascript;base64,' +
@@ -55,8 +55,8 @@ test('浏览器站内地址使用构建注入值，嵌套路由不改变资源�
     );
     assert.equal(app.DOCS_BASE, base);
     assert.equal(
-      app.docsPath('__fivo_smoke/samples'),
-      base + '__fivo_smoke/samples',
+      app.docsPath('__filumo_smoke/samples'),
+      base + '__filumo_smoke/samples',
     );
     assert.equal(
       app.docsPath('assets/example.svg'),

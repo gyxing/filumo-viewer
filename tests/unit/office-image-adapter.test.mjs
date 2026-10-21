@@ -11,7 +11,7 @@ const bundle = await build({
     {
       name: 'public-image-overlay',
       setup(builder) {
-        builder.onResolve({ filter: /^@fivo\/image\/view$/ }, () => ({
+        builder.onResolve({ filter: /^@filumo\/image\/view$/ }, () => ({
           path: 'overlay',
           namespace: 'fixture',
         }));

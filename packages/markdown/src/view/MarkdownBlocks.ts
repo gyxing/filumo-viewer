@@ -1,4 +1,4 @@
-import type { ViewContext } from '@fivo/dom';
+import type { ViewContext } from '@filumo/dom';
 import type { MarkdownOptions } from '../options';
 import { buildOutline } from '../parser/buildOutline';
 import { markdownInlineText } from '../parser/inlineText';
@@ -29,7 +29,7 @@ export class MarkdownBlocks {
   private lifetime = new AbortController();
   private active = true;
   private deferred: Array<() => void> = [];
-  private prefix = 'fivo-md-' + ++sequence + '-';
+  private prefix = 'filumo-md-' + ++sequence + '-';
   private en: boolean;
   constructor(
     private model: MarkdownDocument,
@@ -47,16 +47,16 @@ export class MarkdownBlocks {
       headings: buildOutline(model.tokens, (value) => this.entities(value)),
     };
     this.element = document.createElement('div');
-    this.element.className = 'fivo-markdown-reading';
+    this.element.className = 'filumo-markdown-reading';
     const workspace = document.createElement('div');
-    workspace.className = 'fivo-markdown-workspace';
+    workspace.className = 'filumo-markdown-workspace';
     this.scroll = document.createElement('div');
-    this.scroll.className = 'fivo-markdown-scroll';
+    this.scroll.className = 'filumo-markdown-scroll';
     this.scroll.tabIndex = 0;
     this.article = document.createElement('article');
-    this.article.className = 'fivo-markdown-article';
+    this.article.className = 'filumo-markdown-article';
     this.article.style.fontSize = (16 * zoom) / 100 + 'px';
-    this.article.style.setProperty('--fivo-md-text-scale', String(zoom / 100));
+    this.article.style.setProperty('--filumo-md-text-scale', String(zoom / 100));
     if (Html)
       this.html = new Html({
         document,
@@ -187,7 +187,7 @@ export class MarkdownBlocks {
       }
       if (token.type === 'table') {
         const wrapper = document.createElement('div');
-        wrapper.className = 'fivo-markdown-table';
+        wrapper.className = 'filumo-markdown-table';
         const table = document.createElement('table');
         const row = (
           cells: NonNullable<MarkdownToken['header']>,
@@ -265,7 +265,7 @@ export class MarkdownBlocks {
         continue;
       }
       if (token.type === 'list_item' && token.task) {
-        element.className = 'fivo-markdown-task-item';
+        element.className = 'filumo-markdown-task-item';
       }
       if (
         token.type === 'paragraph' &&
@@ -274,7 +274,7 @@ export class MarkdownBlocks {
           item.type === 'image' || (item.type === 'text' && !item.text?.trim()),
         )
       )
-        element.className = 'fivo-markdown-image-paragraph';
+        element.className = 'filumo-markdown-image-paragraph';
       // 行内代码中的实体和空白都是代码本身，不经过普通文字的实体解码。
       if (token.type === 'codespan') element.textContent = token.text ?? '';
       else if (token.items) this.appendTokens(token.items, element);
@@ -290,7 +290,7 @@ export class MarkdownBlocks {
     const checkbox = this.context.container.ownerDocument.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.className = task
-      ? 'fivo-markdown-task-checkbox' : 'fivo-markdown-html-checkbox';
+      ? 'filumo-markdown-task-checkbox' : 'filumo-markdown-html-checkbox';
     checkbox.checked = checked;
     checkbox.disabled = true;
     checkbox.setAttribute('aria-label', this.en
@@ -370,7 +370,7 @@ export class MarkdownBlocks {
     link.setAttribute('aria-disabled', 'true');
     link.title = [link.title, message].filter(Boolean).join('\n');
     const status = link.ownerDocument.createElement('span');
-    status.className = 'fivo-markdown-link-status';
+    status.className = 'filumo-markdown-link-status';
     status.dataset.searchExclude = 'true';
     status.textContent = this.en ? ` (${message})` : `（${message}）`;
     link.append(status);
@@ -426,7 +426,7 @@ export class MarkdownBlocks {
   /** 阅读字号不会缩放工具栏和控件。 */
   setZoom(zoom: number) {
     this.article.style.fontSize = (16 * zoom) / 100 + 'px';
-    this.article.style.setProperty('--fivo-md-text-scale', String(zoom / 100));
+    this.article.style.setProperty('--filumo-md-text-scale', String(zoom / 100));
     this.invalidateOutline();
   }
   /** 阅读模式和原文模式分别保存滚动位置。 */

@@ -1,4 +1,4 @@
-import type { CapabilityOption } from '@fivo/dom';
+import type { CapabilityOption } from '@filumo/dom';
 import type { CodeLanguage } from '../options';
 import { codeLanguages } from '../fileTypes';
 

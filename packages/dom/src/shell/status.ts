@@ -8,19 +8,19 @@ export function createViewerStatus(
 ) {
   const document = host.ownerDocument;
   const icon = document.createElement('div');
-  icon.className = 'fivo-status-icon';
+  icon.className = 'filumo-status-icon';
   const heading = document.createElement('strong');
-  heading.className = 'fivo-status-heading';
+  heading.className = 'filumo-status-heading';
   const description = document.createElement('div');
-  description.className = 'fivo-status-description';
+  description.className = 'filumo-status-description';
   const actions = document.createElement('div');
-  actions.className = 'fivo-status-actions';
+  actions.className = 'filumo-status-actions';
   const choose = document.createElement('button');
   choose.type = 'button';
   choose.onclick = open;
   actions.append(choose, retry);
   const details = document.createElement('details');
-  details.className = 'fivo-status-details';
+  details.className = 'filumo-status-details';
   const summary = document.createElement('summary');
   const technical = document.createElement('pre');
   details.append(summary, technical);
@@ -43,7 +43,7 @@ export function createViewerStatus(
       icon.replaceChildren(createShellIcon(document, name));
       iconKind = name;
     }
-    host.classList.toggle('fivo-status--centered', !inline);
+    host.classList.toggle('filumo-status--centered', !inline);
     host.dataset.kind = kind;
     host.setAttribute('role', failed ? 'alert' : 'status');
     heading.textContent = unsupported

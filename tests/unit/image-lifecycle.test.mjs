@@ -16,7 +16,7 @@ const bundle = await build({
     {
       name: 'image-owned-styles',
       setup(builder) {
-        builder.onResolve({ filter: /^@fivo\/dom$/ }, () => ({
+        builder.onResolve({ filter: /^@filumo\/dom$/ }, () => ({
           path: 'styles',
           namespace: 'fixture',
         }));
@@ -28,7 +28,7 @@ const bundle = await build({
           loader: 'js',
           contents:
             path === 'metadata'
-              ? `export const STYLE_SCOPE='fivo-image-fixture';`
+              ? `export const STYLE_SCOPE='filumo-image-fixture';`
               : `export function useStyles(){globalThis.imageFixtureStyles++;let closed=false;return()=>{if(!closed){closed=true;globalThis.imageFixtureStyles--;}};}`,
         }));
       },
@@ -54,7 +54,7 @@ async function overlayGestureFixture() {
   );
   const overlay = host.children[0].children[0],
     body = overlay.children[1];
-  const blank = body.querySelector('.fivo-image-surface'),
+  const blank = body.querySelector('.filumo-image-surface'),
     image = blank.children[0];
   blank.classList = {
     contains: (name) => blank.className.split(' ').includes(name),

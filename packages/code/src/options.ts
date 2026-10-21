@@ -1,4 +1,4 @@
-import type { TaskWorker, TextEncoding } from '@fivo/core/text';
+import type { TaskWorker, TextEncoding } from '@filumo/core/text';
 export type CodeLanguage =
   | 'javascript'
   | 'typescript'

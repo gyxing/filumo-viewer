@@ -1,8 +1,49 @@
 {
-  "name": "@fivo/pdf",
-  "version": "0.1.0-next.0",
-  "description": "Fivo PDF 连续阅读插件",
+  "name": "@filumo/pdf",
+  "version": "0.1.0",
+  "description": "Continuous-scroll PDF viewer plugin for Filumo, with virtualized pages, outlines, thumbnails, text search and bounded canvas caches.",
+  "keywords": [
+    "filumo",
+    "pdf",
+    "pdf-viewer",
+    "pdf-preview",
+    "document-viewer",
+    "file-preview",
+    "pdfjs",
+    "pdfjs-dist",
+    "continuous-scroll",
+    "virtual-scroll",
+    "thumbnails",
+    "outline",
+    "text-search",
+    "text-layer",
+    "canvas",
+    "web-worker",
+    "lazy-loading",
+    "readonly",
+    "typescript",
+    "esm",
+    "pdf预览",
+    "pdf阅读器",
+    "文档预览"
+  ],
+  "homepage": "https://github.com/gyxing/office-file-viewer/tree/master/packages/pdf#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gyxing/office-file-viewer.git",
+    "directory": "packages/pdf"
+  },
+  "bugs": {
+    "url": "https://github.com/gyxing/office-file-viewer/issues"
+  },
+  "author": {
+    "name": "gyxing",
+    "url": "https://github.com/gyxing"
+  },
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "sideEffects": [
     "**/*.css",
     "./dist/chunks/*.js"
@@ -30,8 +71,8 @@
     "dist"
   ],
   "dependencies": {
-    "@fivo/core": "workspace:^",
-    "@fivo/dom": "workspace:^",
+    "@filumo/core": "workspace:^",
+    "@filumo/dom": "workspace:^",
     "pdfjs-dist": "6.4.299"
   }
 }

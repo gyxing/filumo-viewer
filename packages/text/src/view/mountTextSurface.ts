@@ -1,1 +1,1 @@
-export { mountTextSurface } from '@fivo/dom/text';
+export { mountTextSurface } from '@filumo/dom/text';

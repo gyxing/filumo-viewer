@@ -11,11 +11,11 @@ export function createZoomControl(
   onError: (error: unknown) => void,
 ) {
   const element = document.createElement('span');
-  element.className = 'fivo-capability-group fivo-zoom-control';
+  element.className = 'filumo-capability-group filumo-zoom-control';
   const field = document.createElement('span');
-  field.className = 'fivo-zoom-field';
+  field.className = 'filumo-zoom-field';
   const input = document.createElement('input');
-  input.className = 'fivo-zoom-input';
+  input.className = 'filumo-zoom-input';
   const unit = document.createElement('span');
   unit.textContent = '%';
   unit.setAttribute('aria-hidden', 'true');
@@ -42,7 +42,7 @@ export function createZoomControl(
     { width: 180, align: 'end' },
   );
   const list = popup.element;
-  list.classList.add('fivo-zoom-options');
+  list.classList.add('filumo-zoom-options');
   const modeActive = () =>
     Boolean(
       current?.mode?.options.some(
@@ -160,7 +160,7 @@ export function createZoomControl(
     if (!rich) submit();
   };
   input.onblur = () => {
-    if (element.closest('[data-fivo-moving]')) return;
+    if (element.closest('[data-filumo-moving]')) return;
     submit();
     close();
   };

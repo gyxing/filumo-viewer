@@ -24,7 +24,7 @@ async function preview(page, format = 'docx', extra = '') {
 
 /** 宽屏编辑主栏组合框，窄屏通过纯菜单选择同一缩放能力。 */
 async function chooseToolbarZoom(page, choice, en = false) {
-  const toolbar = page.locator('.fivo-toolbar');
+  const toolbar = page.locator('.filumo-toolbar');
   const input = toolbar.getByRole('combobox', {
     name: en ? 'Zoom percentage' : '缩放比例',
     exact: true,
@@ -57,7 +57,7 @@ async function chooseToolbarZoom(page, choice, en = false) {
   if (typeof choice === 'number')
     await expect(
       toolbar.locator(
-        '[data-fivo-menu-action="toolbar.zoom"] .fivo-menu-value',
+        '[data-filumo-menu-action="toolbar.zoom"] .filumo-menu-value',
       ),
     ).toHaveText(choice + '%');
 }
@@ -65,7 +65,7 @@ async function chooseToolbarZoom(page, choice, en = false) {
 /** 查找可能位于主栏或收纳菜单，两种入口都必须把焦点交给正文。 */
 async function openToolbarSearch(page, en = false) {
   const search = page.locator(
-    '.fivo-controls-main [data-fivo-action="office.search"]',
+    '.filumo-controls-main [data-filumo-action="office.search"]',
   );
   if (await search.isVisible()) return search.click();
   const more = page.getByRole('button', {
@@ -113,7 +113,7 @@ for (const width of [320, 760, 1100])
     'UI 对齐：工具栏 ' + width + 'px 保持紧凑且支持缩放操作',
     async ({ page }, info) => {
       await preview(page, 'docx', '&width=' + width);
-      const toolbar = page.locator('.fivo-toolbar');
+      const toolbar = page.locator('.filumo-toolbar');
       expect((await toolbar.boundingBox()).height).toBeLessThanOrEqual(56);
       await expect(toolbar).toHaveAttribute('role', 'toolbar');
       expect(
@@ -152,55 +152,55 @@ for (const width of [320, 760, 1100])
 
 test('UI 对齐：查找面板排版、高亮、选项与大纲切换', async ({ page }, info) => {
   await preview(page);
-  await page.locator('[data-fivo-action="office.search"]').click();
-  const query = page.locator('.fivo-native-query input[type="search"]');
-  const panel = page.locator('.fivo-native-panel').filter({ has: query });
-  await expect(panel.locator('.fivo-native-search-empty')).toHaveText(
+  await page.locator('[data-filumo-action="office.search"]').click();
+  const query = page.locator('.filumo-native-query input[type="search"]');
+  const panel = page.locator('.filumo-native-panel').filter({ has: query });
+  await expect(panel.locator('.filumo-native-search-empty')).toHaveText(
     '输入文字以查找当前文档',
   );
-  const field = panel.locator('.fivo-native-query-field');
+  const field = panel.locator('.filumo-native-query-field');
   expect((await field.boundingBox()).height).toBe(36);
   expect((await field.boundingBox()).width).toBeGreaterThan(
     (await panel.boundingBox()).width - 32,
   );
   expect((await query.boundingBox()).width).toBeGreaterThanOrEqual(120);
-  await query.fill('Fivo');
-  await expect(page.locator('.fivo-native-result')).toHaveCount(2);
-  await expect(panel.locator('.fivo-native-search-position')).toHaveText(
+  await query.fill('Filumo');
+  await expect(page.locator('.filumo-native-result')).toHaveCount(2);
+  await expect(panel.locator('.filumo-native-search-position')).toHaveText(
     '2 个结果',
   );
-  await expect(panel.locator('header .fivo-native-count')).toHaveCount(0);
-  await expect(panel.locator('.fivo-native-result mark')).toHaveCount(2);
+  await expect(panel.locator('header .filumo-native-count')).toHaveCount(0);
+  await expect(panel.locator('.filumo-native-result mark')).toHaveCount(2);
   expect(
-    (await panel.locator('.fivo-native-result').first().boundingBox()).height,
+    (await panel.locator('.filumo-native-result').first().boundingBox()).height,
   ).toBe(68);
-  await expect(page.locator('.fivo-native-result').first()).toContainText(
+  await expect(page.locator('.filumo-native-result').first()).toContainText(
     '第 1 页',
   );
   await query.press('Enter');
-  await expect(panel.locator('.fivo-native-search-position')).toHaveText(
+  await expect(panel.locator('.filumo-native-search-position')).toHaveText(
     '1 / 2',
   );
   await query.press('Shift+Enter');
-  await expect(panel.locator('.fivo-native-search-position')).toHaveText(
+  await expect(panel.locator('.filumo-native-search-position')).toHaveText(
     '2 / 2',
   );
   await panel.screenshot({ path: 'tmp/search-refined-light.png' });
-  await query.fill('fivo');
+  await query.fill('filumo');
   await panel.getByLabel('区分大小写', { exact: true }).check();
-  await expect(panel.locator('.fivo-native-search-empty')).toHaveText(
+  await expect(panel.locator('.filumo-native-search-empty')).toHaveText(
     '未找到匹配内容',
   );
   await panel.getByLabel('区分大小写', { exact: true }).uncheck();
-  await expect(panel.locator('.fivo-native-result')).toHaveCount(2);
+  await expect(panel.locator('.filumo-native-result')).toHaveCount(2);
   await query.fill('Fiv');
   await panel.getByLabel('全字匹配', { exact: true }).check();
-  await expect(panel.locator('.fivo-native-search-empty')).toHaveText(
+  await expect(panel.locator('.filumo-native-search-empty')).toHaveText(
     '未找到匹配内容',
   );
   await panel.getByLabel('全字匹配', { exact: true }).uncheck();
-  await query.fill('Fivo');
-  await expect(panel.locator('.fivo-native-result')).toHaveCount(2);
+  await query.fill('Filumo');
+  await expect(panel.locator('.filumo-native-result')).toHaveCount(2);
   await panel.evaluate((el) => {
     el.style.flexBasis = '190px';
   });
@@ -216,31 +216,31 @@ test('UI 对齐：查找面板排版、高亮、选项与大纲切换', async ({
     contentType: 'image/png',
   });
   await page
-    .locator('.fivo-native-panel')
+    .locator('.filumo-native-panel')
     .filter({ has: query })
     .getByRole('button', { name: '大纲', exact: true })
     .click();
-  await expect(page.locator('.fivo-native-word-outline')).toBeVisible();
+  await expect(page.locator('.filumo-native-word-outline')).toBeVisible();
   await expect(page.getByRole('treeitem').first()).toContainText(
-    'Fivo heading',
+    'Filumo heading',
   );
 });
 
 test('UI 对齐：短表格补满网格且批注按钮不挤压', async ({ page }, info) => {
   await preview(page, 'xlsx');
   await page
-    .locator('.fivo-toolbar')
+    .locator('.filumo-toolbar')
     .screenshot({ path: 'tmp/toolbar-excel-real.png' });
   expect(
     await page.locator('[data-office-spreadsheet-cell="H10"]').count(),
   ).toBe(1);
-  await page.locator('[data-fivo-action="office.review"]').click();
-  const review = page.locator('.fivo-native-panel').filter({
+  await page.locator('[data-filumo-action="office.review"]').click();
+  const review = page.locator('.filumo-native-panel').filter({
     has: page.getByRole('button', { name: '上一条批注', exact: true }),
   });
   await expect(review).toBeVisible();
   expect(await review.locator('header svg').count()).toBe(3);
-  await expect(review.locator('.fivo-native-result').first()).toContainText(
+  await expect(review.locator('.filumo-native-result').first()).toContainText(
     'A1',
   );
   await info.attach('spreadsheet-review', {
@@ -252,7 +252,7 @@ test('UI 对齐：短表格补满网格且批注按钮不挤压', async ({ page 
 test('UI 对齐：幻灯片缩略图卡片与备注把手', async ({ page }, info) => {
   await preview(page, 'pptx');
   await page
-    .locator('.fivo-toolbar')
+    .locator('.filumo-toolbar')
     .screenshot({ path: 'tmp/toolbar-ppt-real.png' });
   const cards = page.locator('.office-file-pptx-viewer__thumbnail-button');
   await expect(cards).toHaveCount(2);
@@ -261,9 +261,9 @@ test('UI 对齐：幻灯片缩略图卡片与备注把手', async ({ page }, inf
     .evaluate((el) => getComputedStyle(el).borderTopWidth);
   expect(parseFloat(border)).toBeGreaterThan(0);
   await expect(cards.nth(1)).toContainText('第 2 页');
-  await page.locator('[data-fivo-action="office.notes"]').click();
+  await page.locator('[data-filumo-action="office.notes"]').click();
   await expect(
-    page.getByText('Fivo speaker notes', { exact: true }),
+    page.getByText('Filumo speaker notes', { exact: true }),
   ).toBeVisible();
   await info.attach('presentation-notes', {
     body: await page.locator('#preview').screenshot(),
@@ -273,10 +273,10 @@ test('UI 对齐：幻灯片缩略图卡片与备注把手', async ({ page }, inf
 
 test('UI 对齐：空态提供文件入口，错误保留中文引导', async ({ page }, info) => {
   await preview(page, 'docx', '&empty=1&theme=dark');
-  await expect(page.locator('.fivo-status')).toContainText(
+  await expect(page.locator('.filumo-status')).toContainText(
     '请选择文档进行预览',
   );
-  expect(await page.locator('.fivo-status svg').count()).toBeGreaterThan(0);
+  expect(await page.locator('.filumo-status svg').count()).toBeGreaterThan(0);
   await info.attach('empty-dark', {
     body: await page.locator('#preview').screenshot(),
     contentType: 'image/png',
@@ -286,8 +286,8 @@ test('UI 对齐：空态提供文件入口，错误保留中文引导', async ({
     mimeType: 'application/octet-stream',
     buffer: Buffer.from('invalid-office-file'),
   });
-  await expect(page.locator('.fivo-status')).toContainText('预览失败');
-  await expect(page.locator('.fivo-status')).toContainText(
+  await expect(page.locator('.filumo-status')).toContainText('预览失败');
+  await expect(page.locator('.filumo-status')).toContainText(
     '请确认文件格式正确且文件未损坏',
   );
 });
@@ -327,17 +327,17 @@ async function imageDocument() {
   replace(
     'word/_rels/document.xml.rels',
     '</Relationships>',
-    '<Relationship Id="fivoImage" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/fivo.svg"/></Relationships>',
+    '<Relationship Id="filumoImage" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/filumo.svg"/></Relationships>',
   );
   replace(
     'word/document.xml',
     '<w:sectPr>',
-    '<w:p><w:r><w:drawing xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><wp:inline><wp:extent cx="2286000" cy="1143000"/><wp:docPr id="8" name="Fivo test picture"/><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic><pic:nvPicPr><pic:cNvPr id="8" name="Fivo test picture"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="fivoImage"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="2286000" cy="1143000"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p><w:sectPr>',
+    '<w:p><w:r><w:drawing xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><wp:inline><wp:extent cx="2286000" cy="1143000"/><wp:docPr id="8" name="Filumo test picture"/><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic><pic:nvPicPr><pic:cNvPr id="8" name="Filumo test picture"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="filumoImage"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="2286000" cy="1143000"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p><w:sectPr>',
   );
   entries.set(
-    'word/media/fivo.svg',
+    'word/media/filumo.svg',
     Buffer.from(
-      '<svg xmlns="http://www.w3.org/2000/svg" width="240" height="120"><rect width="240" height="120" rx="12" fill="#dbeafe"/><circle cx="50" cy="60" r="28" fill="#1677ff"/><text x="96" y="68" font-family="Arial" font-size="22" fill="#243247">Fivo image</text></svg>',
+      '<svg xmlns="http://www.w3.org/2000/svg" width="240" height="120"><rect width="240" height="120" rx="12" fill="#dbeafe"/><circle cx="50" cy="60" r="28" fill="#1677ff"/><text x="96" y="68" font-family="Arial" font-size="22" fill="#243247">Filumo image</text></svg>',
     ),
   );
   const output = new ZipWriter(new Uint8ArrayWriter(), {
@@ -350,7 +350,7 @@ async function imageDocument() {
 
 /** 源码和真实构建共用弹层断言，样式必须实际匹配，不能只验证 DOM 存在。 */
 async function checkImagePreview(page, info, name) {
-  const viewer = page.locator('.fivo-viewer');
+  const viewer = page.locator('.filumo-viewer');
   await viewer.locator('input[type="file"]').setInputFiles({
     name: 'image.docx',
     mimeType:
@@ -362,14 +362,14 @@ async function checkImagePreview(page, info, name) {
     .first();
   await expect(image).toBeVisible();
   const childrenBefore = await viewer.locator(':scope > *').count();
-  const stylesBefore = await page.locator('style[data-fivo-style]').count();
+  const stylesBefore = await page.locator('style[data-filumo-style]').count();
   await image.dblclick();
-  const overlay = viewer.locator('.fivo-image-preview');
+  const overlay = viewer.locator('.filumo-image-preview');
   await expect(overlay).toBeVisible();
   await expect(overlay).toHaveCSS('position', 'absolute', { timeout: 3000 });
   await expect(overlay).toHaveCSS('display', 'flex');
   await expect(overlay).toHaveCSS('background-color', 'rgba(32, 34, 38, 0.78)');
-  const controls = overlay.locator('.fivo-image-preview-controls');
+  const controls = overlay.locator('.filumo-image-preview-controls');
   await expect(controls).toHaveCSS('display', 'flex');
   await expect(
     controls.getByRole('button', { name: '关闭', exact: true }),
@@ -379,14 +379,14 @@ async function checkImagePreview(page, info, name) {
   expect(Math.abs(root.height - rect.height)).toBeLessThanOrEqual(2);
   expect(Math.abs(root.width - rect.width)).toBeLessThanOrEqual(2);
   expect(Math.abs(root.y - rect.y)).toBeLessThanOrEqual(1);
-  await expect(overlay.locator('.fivo-image-preview-title')).toHaveText(
-    'Fivo test picture.png',
+  await expect(overlay.locator('.filumo-image-preview-title')).toHaveText(
+    'Filumo test picture.png',
   );
   expect(await overlay.locator('button svg').count()).toBeGreaterThanOrEqual(6);
   await expect(
     overlay.getByRole('button', { name: '关闭', exact: true }),
   ).toBeFocused();
-  const previewImage = overlay.locator('.fivo-image-surface > img');
+  const previewImage = overlay.locator('.filumo-image-surface > img');
   await expect(previewImage).toBeVisible();
   await previewImage.click();
   await expect(overlay).toBeVisible();
@@ -408,7 +408,7 @@ async function checkImagePreview(page, info, name) {
     .poll(() => previewImage.getAttribute('style'))
     .not.toBe(beforeDrag);
   // 空白区域也允许平移；移出后返回起点，松手产生的 click 仍不能关闭弹层。
-  const viewport = overlay.locator('.fivo-image-preview-viewport');
+  const viewport = overlay.locator('.filumo-image-preview-viewport');
   const area = await viewport.boundingBox();
   await page.mouse.move(area.x + 6, area.y + 6);
   await page.mouse.down();
@@ -433,13 +433,13 @@ async function checkImagePreview(page, info, name) {
   await expect(overlay).toHaveCount(0);
   // 正常点击空白仍能关闭，避免通过禁用蒙层交互掩盖拖动误关闭。
   await image.dblclick();
-  await expect(overlay.locator('.fivo-image-surface > img')).toBeVisible();
+  await expect(overlay.locator('.filumo-image-surface > img')).toBeVisible();
   await overlay
-    .locator('.fivo-image-preview-viewport')
+    .locator('.filumo-image-preview-viewport')
     .click({ position: { x: 6, y: 6 } });
   await expect(overlay).toHaveCount(0);
   await expect(viewer.locator(':scope > *')).toHaveCount(childrenBefore);
-  await expect(page.locator('style[data-fivo-style]')).toHaveCount(
+  await expect(page.locator('style[data-filumo-style]')).toHaveCount(
     stylesBefore,
   );
 }
@@ -464,14 +464,14 @@ test('UI 对齐：空白补齐不额外产生滚动条', async ({ page }) => {
 
 test('UI 对齐：深色英文查找、缩放边界及销毁', async ({ page }, info) => {
   await preview(page, 'docx', '&theme=dark&locale=en-US&width=760');
-  const toolbar = page.locator('.fivo-toolbar');
+  const toolbar = page.locator('.filumo-toolbar');
   const zoom = toolbar.getByRole('combobox', {
     name: 'Zoom percentage',
     exact: true,
   });
   await chooseToolbarZoom(page, 'Fit width', true);
   await page
-    .locator('.fivo-viewer')
+    .locator('.filumo-viewer')
     .screenshot({ path: 'tmp/toolbar-zoom-dark-real.png' });
   if (await zoom.isVisible()) {
     await zoom.fill('0');
@@ -482,13 +482,13 @@ test('UI 对齐：深色英文查找、缩放边界及销毁', async ({ page }, 
   await openToolbarSearch(page, true);
   await page.keyboard.press('Escape');
   // 关闭更多面板后重新打开查找，确保 Escape 没有意外丢失控件状态。
-  if (!(await page.locator('.fivo-native-query').isVisible()))
+  if (!(await page.locator('.filumo-native-query').isVisible()))
     await openToolbarSearch(page, true);
-  const input = page.locator('.fivo-native-query input');
-  await input.fill('Fivo');
-  await expect(page.locator('.fivo-native-result')).toHaveCount(2);
+  const input = page.locator('.filumo-native-query input');
+  await input.fill('Filumo');
+  await expect(page.locator('.filumo-native-result')).toHaveCount(2);
   await page
-    .locator('.fivo-native-panel')
+    .locator('.filumo-native-panel')
     .filter({ has: input })
     .screenshot({ path: 'tmp/search-refined-dark.png' });
   await info.attach('search-dark', {
@@ -499,7 +499,7 @@ test('UI 对齐：深色英文查找、缩放边界及销毁', async ({ page }, 
   await expect(input).toHaveValue('');
   await page.locator('#destroy').click();
   await expect(page.locator('body')).toHaveAttribute('data-state', 'destroyed');
-  await expect(page.locator('.fivo-viewer')).toHaveCount(0);
+  await expect(page.locator('.filumo-viewer')).toHaveCount(0);
 });
 
 for (const framework of ['vanilla', 'react', 'vue3', 'vue2'])
@@ -524,10 +524,10 @@ for (const framework of ['vanilla', 'react', 'vue3', 'vue2'])
         expect((await toolbar.boundingBox()).height).toBeLessThanOrEqual(56);
         expect(await toolbar.locator('svg').count()).toBeGreaterThan(3);
         expect(
-          await page.locator('style[data-fivo-style]').count(),
+          await page.locator('style[data-filumo-style]').count(),
         ).toBeGreaterThan(0);
         await info.attach(framework + '-built-ui', {
-          body: await page.locator('.fivo-viewer').screenshot(),
+          body: await page.locator('.filumo-viewer').screenshot(),
           contentType: 'image/png',
         });
         await checkImagePreview(page, info, framework + '-built-image-preview');
@@ -541,8 +541,8 @@ for (const framework of ['vanilla', 'react', 'vue3', 'vue2'])
           'data-verification',
           'passed',
         );
-        await expect(page.locator('.fivo-image-preview')).toHaveCount(0);
-        await expect(page.locator('style[data-fivo-style]')).toHaveCount(0);
+        await expect(page.locator('.filumo-image-preview')).toHaveCount(0);
+        await expect(page.locator('style[data-filumo-style]')).toHaveCount(0);
       } finally {
         await demo.close();
       }

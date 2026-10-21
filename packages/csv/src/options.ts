@@ -1,4 +1,4 @@
-import type { TaskWorker, TextEncoding } from '@fivo/core/text';
+import type { TaskWorker, TextEncoding } from '@filumo/core/text';
 /** 分隔符是工厂配置的一部分，公开声明不跟随内部解析模型。 */
 export type CsvDelimiter = 'auto' | ',' | ';' | '\t' | '|';
 export interface CsvOptions {

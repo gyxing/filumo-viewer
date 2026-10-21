@@ -1,4 +1,4 @@
-import { abortError, throwIfAborted } from '@fivo/core';
+import { abortError, throwIfAborted } from '@filumo/core';
 import type { PdfAssetLocations } from '../assets';
 import type {
   PdfBackend,
@@ -52,7 +52,7 @@ export function waitPdf<T>(
   });
 }
 
-/** 将 PDF.js 对象封装在包内；页面视图只消费稳定的 Fivo 内部合同。 */
+/** 将 PDF.js 对象封装在包内；页面视图只消费稳定的 Filumo 内部合同。 */
 export function createPdfBackend(
   document: EngineDocument,
   engine: PdfEngine,
@@ -218,9 +218,9 @@ export function createPdfBackend(
       const root = host.ownerDocument.createElement('div'),
         text = host.ownerDocument.createElement('div'),
         links = host.ownerDocument.createElement('div');
-      root.className = 'fivo-pdf-layers';
+      root.className = 'filumo-pdf-layers';
       text.className = 'textLayer';
-      links.className = 'fivo-pdf-links';
+      links.className = 'filumo-pdf-links';
       root.append(text, links);
       host.append(root);
       const viewport = item.getViewport({
@@ -262,7 +262,7 @@ export function createPdfBackend(
           if (annotation.subtype !== 'Link' || !annotation.rect) continue;
           const rect = viewportRectangle(viewport, annotation.rect);
           const anchor = host.ownerDocument.createElement('a');
-          anchor.className = 'fivo-pdf-link';
+          anchor.className = 'filumo-pdf-link';
           anchor.style.left = Math.min(rect[0], rect[2]) + 'px';
           anchor.style.top = Math.min(rect[1], rect[3]) + 'px';
           anchor.style.width = Math.abs(rect[2] - rect[0]) + 'px';

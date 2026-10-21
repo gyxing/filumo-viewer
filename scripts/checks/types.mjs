@@ -19,7 +19,7 @@ for (const { name } of WORKSPACE_PACKAGES)
     ],
     { cwd: root, stdio: 'inherit' },
   );
-runPnpm(['--filter', 'fivo-docs', 'run', 'setup'], {
+runPnpm(['--filter', 'filumo-docs', 'run', 'setup'], {
   cwd: root,
   stdio: 'inherit',
 });

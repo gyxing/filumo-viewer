@@ -1,4 +1,4 @@
-import type { StylePolicy } from '@fivo/dom';
+import type { StylePolicy } from '@filumo/dom';
 import type { OfficeFileViewerWarning } from '../engine/previewWarnings';
 import type { LayoutScheduler } from '../layout/LayoutScheduler';
 import type { OfficeInteractionPort } from '../runtime/interactionTypes';

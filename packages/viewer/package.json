@@ -1,8 +1,59 @@
 {
-  "name": "@fivo/viewer",
-  "version": "0.1.0-next.0",
-  "description": "Fivo viewer",
+  "name": "@filumo/viewer",
+  "version": "0.1.0",
+  "description": "Standard lazy-loaded Filumo plugin preset for Office, PDF, images, text, Markdown, JSON, CSV, XML and source code previews.",
+  "keywords": [
+    "filumo",
+    "file-viewer",
+    "file-preview",
+    "document-viewer",
+    "document-preview",
+    "multi-format",
+    "office-viewer",
+    "pdf-viewer",
+    "image-viewer",
+    "text-viewer",
+    "markdown-viewer",
+    "json-viewer",
+    "csv-viewer",
+    "xml-viewer",
+    "code-viewer",
+    "docx",
+    "xlsx",
+    "pptx",
+    "pdf",
+    "jsonc",
+    "jsonl",
+    "ndjson",
+    "csv",
+    "tsv",
+    "markdown",
+    "typescript",
+    "lazy-loading",
+    "framework-agnostic",
+    "readonly",
+    "esm",
+    "文件预览",
+    "文档预览",
+    "多格式预览"
+  ],
+  "homepage": "https://github.com/gyxing/office-file-viewer/tree/master/packages/viewer#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gyxing/office-file-viewer.git",
+    "directory": "packages/viewer"
+  },
+  "bugs": {
+    "url": "https://github.com/gyxing/office-file-viewer/issues"
+  },
+  "author": {
+    "name": "gyxing",
+    "url": "https://github.com/gyxing"
+  },
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "sideEffects": [
     "**/styles/**",
     "**/*.css"
@@ -22,15 +73,15 @@
     "dist"
   ],
   "dependencies": {
-    "@fivo/image": "workspace:^",
-    "@fivo/json": "workspace:^",
-    "@fivo/markdown": "workspace:^",
-    "@fivo/office": "workspace:^",
-    "@fivo/pdf": "workspace:^",
-    "@fivo/text": "workspace:^",
-    "@fivo/csv": "workspace:^",
-    "@fivo/xml": "workspace:^",
-    "@fivo/code": "workspace:^"
+    "@filumo/image": "workspace:^",
+    "@filumo/json": "workspace:^",
+    "@filumo/markdown": "workspace:^",
+    "@filumo/office": "workspace:^",
+    "@filumo/pdf": "workspace:^",
+    "@filumo/text": "workspace:^",
+    "@filumo/csv": "workspace:^",
+    "@filumo/xml": "workspace:^",
+    "@filumo/code": "workspace:^"
   },
   "peerDependencies": {}
 }

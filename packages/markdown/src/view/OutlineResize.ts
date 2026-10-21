@@ -15,7 +15,7 @@ export class OutlineResize {
   private drag?: { id: number; x: number; width: number };
   constructor(private panel: HTMLElement, en: boolean) {
     this.element = panel.ownerDocument.createElement('div');
-    this.element.className = 'fivo-markdown-outline-resize';
+    this.element.className = 'filumo-markdown-outline-resize';
     this.element.tabIndex = 0;
     this.element.setAttribute('role', 'separator');
     this.element.setAttribute('aria-orientation', 'vertical');

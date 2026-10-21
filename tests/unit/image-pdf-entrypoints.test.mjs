@@ -41,8 +41,8 @@ test('十五包声明依赖保持 image 与 Office 单向，PDF 仅增加必要�
     ),
     pdf = JSON.parse(await readFile('packages/pdf/package.json', 'utf8')),
     office = JSON.parse(await readFile('packages/office/package.json', 'utf8'));
-  assert.equal(image.dependencies['@fivo/office'], undefined);
-  assert.equal(office.dependencies['@fivo/image'], 'workspace:^');
+  assert.equal(image.dependencies['@filumo/office'], undefined);
+  assert.equal(office.dependencies['@filumo/image'], 'workspace:^');
   assert.equal(pdf.dependencies['pdfjs-dist'], '6.4.299');
   assert.equal(
     Object.keys(pdf.dependencies).some((name) => /react|vue/.test(name)),
@@ -82,7 +82,7 @@ test('公共大纲只进入相关懒加载视图，根入口和其他格式不�
         {
           name: 'exact-workspace-entries',
           setup(builder) {
-            builder.onResolve({ filter: /^@fivo\// }, ({ path }) => {
+            builder.onResolve({ filter: /^@filumo\// }, ({ path }) => {
               const [, packageName, entry = 'index'] = path.split('/');
               const definition = WORKSPACE_PACKAGES.find(
                 (item) => item.name === packageName,

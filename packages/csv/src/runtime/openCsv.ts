@@ -1,7 +1,7 @@
-import { createSession } from '@fivo/core';
-import type { DocumentSource, OpenContext } from '@fivo/core';
-import { TextContent } from '@fivo/core/text';
-import type { TaskWorker } from '@fivo/core/text';
+import { createSession } from '@filumo/core';
+import type { DocumentSource, OpenContext } from '@filumo/core';
+import { TextContent } from '@filumo/core/text';
+import type { TaskWorker } from '@filumo/core/text';
 import type { CsvOptions } from '../options';
 import { CsvSession } from './CsvSession';
 

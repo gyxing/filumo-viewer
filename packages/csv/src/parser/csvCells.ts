@@ -1,4 +1,4 @@
-import { throwIfAborted } from '@fivo/core';
+import { throwIfAborted } from '@filumo/core';
 import type { CsvCell, CsvIndex } from './types';
 
 /** 可见行才解析字段范围；超长逻辑行分段让出执行权。 */

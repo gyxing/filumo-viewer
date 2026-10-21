@@ -8,15 +8,15 @@ export function createSelectControl(
   onError: (error: unknown) => void,
 ) {
   const element = document.createElement('span');
-  element.className = 'fivo-select';
+  element.className = 'filumo-select';
   const control = document.createElement('button');
   control.type = 'button';
-  control.className = 'fivo-select-trigger';
+  control.className = 'filumo-select-trigger';
   control.setAttribute('role', 'combobox');
   control.setAttribute('aria-haspopup', 'listbox');
   control.setAttribute('aria-expanded', 'false');
   const value = document.createElement('span');
-  value.className = 'fivo-select-value';
+  value.className = 'filumo-select-value';
   control.append(value, createShellIcon(document, 'chevronDown'));
   element.append(control);
   let current: CapabilityAction | undefined;
@@ -111,7 +111,7 @@ export function createSelectControl(
     else open();
   };
   control.onblur = () => {
-    if (!element.closest('[data-fivo-moving]')) popup.close();
+    if (!element.closest('[data-filumo-moving]')) popup.close();
   };
   control.onkeydown = (event) => {
     if (control.disabled || disposed) return;

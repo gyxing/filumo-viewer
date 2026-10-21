@@ -1,4 +1,4 @@
-import { throwIfAborted } from '@fivo/core';
+import { throwIfAborted } from '@filumo/core';
 import { buildOutline } from './buildOutline';
 import type { MarkdownDocument, MarkdownToken } from './types';
 

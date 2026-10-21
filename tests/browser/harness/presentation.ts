@@ -48,7 +48,7 @@ run.onclick = async () => {
           paragraphs: [
             {
               runs: [
-                { text: 'Fivo 原生文本 ', style: { bold: true } },
+                { text: 'Filumo 原生文本 ', style: { bold: true } },
                 { text: '第二段', style: { italic: true, underline: true } },
               ],
               bullet: { char: '•' },
@@ -199,7 +199,7 @@ run.onclick = async () => {
     await services.layout.flush();
     check(
       [
-        'Fivo 原生文本',
+        'Filumo 原生文本',
         '第二段',
         '段落保留',
         'A1',
@@ -271,8 +271,8 @@ run.onclick = async () => {
           items: [
             {
               id: 'hit',
-              matchText: 'Fivo',
-              previewText: 'Fivo',
+              matchText: 'Filumo',
+              previewText: 'Filumo',
               target: {
                 kind: 'presentation',
                 slideIndex: 0,
@@ -288,7 +288,7 @@ run.onclick = async () => {
           complete: true,
         }),
     });
-    await interactions.execute({ type: 'search', query: 'Fivo', open: true });
+    await interactions.execute({ type: 'search', query: 'Filumo', open: true });
     await new Promise((r) => setTimeout(r, 150));
     scene.refreshText();
     await services.layout.flush();

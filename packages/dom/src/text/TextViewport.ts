@@ -1,5 +1,5 @@
-import { textLineAt } from '@fivo/core/text';
-import type { TextDocument, TextMatch } from '@fivo/core/text';
+import { textLineAt } from '@filumo/core/text';
+import type { TextDocument, TextMatch } from '@filumo/core/text';
 import { textSegments, type TextHit } from './textSegments';
 import { textViewportFlags } from './internalFlags';
 import type { TextSurfaceOptions, TextSurfacePosition } from './types';
@@ -62,16 +62,16 @@ export class TextViewport {
     private document: Document,
   ) {
     this.element = document.createElement('div');
-    this.element.className = 'fivo-text-viewport';
+    this.element.className = 'filumo-text-viewport';
     this.element.tabIndex = 0;
     this.element.setAttribute(
       'aria-label',
       options.locale === 'en-US' ? 'Text content' : '文本内容',
     );
     this.canvas = document.createElement('div');
-    this.canvas.className = 'fivo-text-canvas';
+    this.canvas.className = 'filumo-text-canvas';
     this.gutterFill = document.createElement('div');
-    this.gutterFill.className = 'fivo-text-gutter-fill';
+    this.gutterFill.className = 'filumo-text-gutter-fill';
     // 延续数字只作视觉装饰，不创建内容行，也不进入复制、检索和可访问文本。
     this.gutterFill.setAttribute('aria-hidden', 'true');
     this.element.append(this.canvas, this.gutterFill);
@@ -146,7 +146,7 @@ export class TextViewport {
     const count = this.fillLineCount();
     for (let index = 0; index < count; index++) {
       const number = this.document.createElement('span');
-      number.className = 'fivo-text-filler-number';
+      number.className = 'filumo-text-filler-number';
       number.textContent = String(this.model.lineStarts.length + index + 1);
       number.style.height = this.rowHeight() + 'px';
       this.gutterFill.append(number);
@@ -195,25 +195,25 @@ export class TextViewport {
       this.model.lineStarts.length + this.fillLineCount(),
     ).length;
     this.element.style.setProperty(
-      '--fivo-text-gutter-width',
+      '--filumo-text-gutter-width',
       `max(${56 * scale}px, calc(${digits}ch + ${20 * scale + 1}px))`,
     );
     this.element.style.setProperty(
-      '--fivo-text-gutter-padding',
+      '--filumo-text-gutter-padding',
       10 * scale + 'px',
     );
     for (let line = start; line < end; line++) {
       const row = this.document.createElement('div');
-      row.className = 'fivo-text-row';
+      row.className = 'filumo-text-row';
       row.dataset.line = String(line);
       row.style.top = this.heights.sum(line) + 'px';
       const number = this.document.createElement('span');
-      number.className = 'fivo-text-line-number';
+      number.className = 'filumo-text-line-number';
       number.textContent = String(line + 1);
       number.hidden = this.options.lineNumbers !== true;
       number.setAttribute('aria-hidden', 'true');
       const text = this.document.createElement('span');
-      text.className = 'fivo-text-line-content';
+      text.className = 'filumo-text-line-content';
       const offset = this.model.lineStarts[line];
       const value = this.model.text
         .slice(
@@ -259,10 +259,10 @@ export class TextViewport {
           );
           mark.className =
             segment.emphasis === 'current'
-              ? 'fivo-text-hit-current'
+              ? 'filumo-text-hit-current'
               : segment.emphasis === 'reveal'
-              ? 'fivo-text-reveal'
-              : 'fivo-text-hit';
+              ? 'filumo-text-reveal'
+              : 'filumo-text-hit';
           mark.append(content);
           content = mark;
         }

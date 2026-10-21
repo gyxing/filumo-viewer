@@ -1,4 +1,4 @@
-import { abortError, throwIfAborted } from '@fivo/core';
+import { abortError, throwIfAborted } from '@filumo/core';
 import { resolveOfficeFont } from '../engine/fonts/OfficeFontResolver';
 import { createOfficeFontDiagnostics } from '../engine/fonts/fontDiagnostics';
 import { createOfficeFontSourceSession } from '../engine/fonts/loadOfficeFontSources';

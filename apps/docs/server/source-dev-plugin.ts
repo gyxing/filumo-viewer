@@ -23,6 +23,13 @@ export default (api: IApi) => {
   const styleSources = WORKSPACE_PACKAGES.filter(
     (item) => item.name === 'dom' || item.scopedStyles,
   ).map((item) => resolve(root, 'packages', item.name, 'src'));
+  const pdfGenerated = resolve(root, 'packages/pdf/src/generated');
+  // 第三方发行资源不能注入 React 运行时，目录边界也不能误伤同名前缀的源码。
+  const pdfGeneratedPattern = new RegExp(
+    '^' +
+      pdfGenerated.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') +
+      '(?:[\\\\/]|$)',
+  );
   const clients = new Set<ServerResponse>();
   let pendingReload = false;
 
@@ -34,7 +41,7 @@ export default (api: IApi) => {
       ...Object.fromEntries(
         WORKSPACE_PACKAGES.flatMap((item) =>
           Object.entries(item.entries).map(([entry, file]) => [
-            '@fivo/' + item.name + (entry === 'index' ? '' : '/' + entry) + '$',
+            '@filumo/' + item.name + (entry === 'index' ? '' : '/' + entry) + '$',
             resolve(root, 'packages', item.name, file),
           ]),
         ),
@@ -44,8 +51,25 @@ export default (api: IApi) => {
   }));
 
   api.chainWebpack((config, { webpack }) => {
+    // 仅跳过 Babel 转换，仍由 Webpack 解析 Worker 和静态 URL 资源依赖。
+    for (const name of ['src', 'extra-src'])
+      config.module.rule(name).exclude.add(pdfGeneratedPattern);
+    if (config.plugins.has('fastRefresh'))
+      config.plugin('fastRefresh').tap(([options = {}, ...rest]) => [
+        {
+          ...options,
+          // 显式设置 exclude 后插件不再补默认值，因此一并保留依赖目录排除。
+          exclude: [
+            ...(Array.isArray(options.exclude)
+              ? options.exclude
+              : [options.exclude ?? /node_modules/i]),
+            pdfGeneratedPattern,
+          ],
+        },
+        ...rest,
+      ]);
     // 包样式使用同一租约机制，热更新不能留下旧声明或绕过 CSP nonce。
-    const styleRule = config.module.rule('fivo-source-less');
+    const styleRule = config.module.rule('filumo-source-less');
     styleRule
       .test(/\.less$/)
       .type('javascript/auto')
@@ -55,11 +79,11 @@ export default (api: IApi) => {
       config.module.rule('less').exclude.add(source);
     }
     styleRule
-      .use('fivo-source-less')
+      .use('filumo-source-less')
       .loader(resolve(api.cwd, 'server/source-less-loader.cjs'))
       .options({ root });
     config
-      .plugin('fivo-source-worker')
+      .plugin('filumo-source-worker')
       .use(webpack.NormalModuleReplacementPlugin, [
         /^\.\/worker\.js$/,
         (resource: { context: string; request: string }) => {
@@ -84,7 +108,7 @@ export default (api: IApi) => {
 
   api.addBeforeMiddlewares(() => [
     (request: IncomingMessage, response: ServerResponse, next: () => void) => {
-      const path = withDocsBase(api.config.base, '__fivo_dev/source-events');
+      const path = withDocsBase(api.config.base, '__filumo_dev/source-events');
       if (request.url?.split('?')[0] !== path) return next();
       response.writeHead(200, {
         'Content-Type': 'text/event-stream',
@@ -109,9 +133,9 @@ export default (api: IApi) => {
     () => `
     if (typeof EventSource !== 'undefined') {
       const events = new EventSource(${JSON.stringify(
-        withDocsBase(api.config.base, '__fivo_dev/source-events'),
+        withDocsBase(api.config.base, '__filumo_dev/source-events'),
       )});
-      events.addEventListener('fivo-source-update', () => {
+      events.addEventListener('filumo-source-update', () => {
         events.close();
         window.location.reload();
       });
@@ -136,6 +160,6 @@ export default (api: IApi) => {
     if (stats.hasErrors() || !pendingReload) return;
     pendingReload = false;
     for (const client of clients)
-      client.write('event: fivo-source-update\ndata: reload\n\n');
+      client.write('event: filumo-source-update\ndata: reload\n\n');
   });
 };

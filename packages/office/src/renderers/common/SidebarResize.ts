@@ -8,7 +8,7 @@ export function mountSidebarResize(
   onResize: () => void = () => {},
 ) {
   const handle = panel.ownerDocument.createElement('div');
-  handle.className = 'fivo-native-resize fivo-native-resize--' + direction;
+  handle.className = 'filumo-native-resize filumo-native-resize--' + direction;
   handle.tabIndex = 0;
   handle.setAttribute('role', 'separator');
   handle.setAttribute('aria-orientation', 'vertical');

@@ -36,7 +36,6 @@ export function DocumentationLayout() {
   const content = getWebsiteContent(locale);
   const frontmatter = routeMeta.frontmatter;
   const siteLayout = (frontmatter as { siteLayout?: unknown }).siteLayout;
-  const hasToc = routeMeta.toc.some((item) => item.depth > 1 && item.depth < 4);
 
   useEffect(() => {
     const currentHash = hash || window.location.hash;
@@ -109,13 +108,13 @@ export function DocumentationLayout() {
       </a>
       <DocumentationHeader locale={locale} />
       <main id="main-content" className="office-viewer-docs__main">
-        <div
-          className="office-viewer-docs__grid"
-          data-has-toc={hasToc || undefined}
-        >
-          {hasToc && <DocumentationToc locale={locale} />}
+        <div className="office-viewer-docs__grid" data-has-toc="true">
+          <DocumentationToc locale={locale} />
           <section className="office-viewer-docs__content">
-            <article className="office-viewer-docs__article markdown">
+            <article
+              className="office-viewer-docs__article markdown"
+              tabIndex={-1}
+            >
               {outlet}
             </article>
             <ContentFooter />

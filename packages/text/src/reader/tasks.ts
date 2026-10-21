@@ -1,1 +1,1 @@
-export { decodeTextTask, serveTextTasks } from '@fivo/core/text';
+export { decodeTextTask, serveTextTasks } from '@filumo/core/text';

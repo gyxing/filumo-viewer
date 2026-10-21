@@ -1,4 +1,4 @@
-import type { ViewContext } from '@fivo/dom';
+import type { ViewContext } from '@filumo/dom';
 import type { OfficeFileViewerWarning } from '../engine/previewWarnings';
 import { LayoutScheduler } from '../layout/LayoutScheduler';
 import type { OfficeRuntimeData } from '../runtime/types';

@@ -1,1 +1,1 @@
-export { formatEncodingWarning } from '@fivo/dom/text-messages';
+export { formatEncodingWarning } from '@filumo/dom/text-messages';

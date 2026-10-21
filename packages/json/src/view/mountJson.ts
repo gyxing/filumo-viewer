@@ -1,7 +1,7 @@
-import type { CapabilityAction, ViewContext, ViewHandle } from '@fivo/dom';
-import { createReadingFrame } from '@fivo/dom';
-import type { TextEncoding } from '@fivo/core/text';
-import { formatEncodingWarning } from '@fivo/dom/text-messages';
+import type { CapabilityAction, ViewContext, ViewHandle } from '@filumo/dom';
+import { createReadingFrame } from '@filumo/dom';
+import type { TextEncoding } from '@filumo/core/text';
+import { formatEncodingWarning } from '@filumo/dom/text-messages';
 import { STYLE_SCOPE } from '../generated/package';
 import type { JsonSession } from '../runtime/JsonSession';
 import type { JsonWorkspace } from './JsonWorkspace';

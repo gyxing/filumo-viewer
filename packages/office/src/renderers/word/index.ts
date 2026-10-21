@@ -1,4 +1,4 @@
-import type { ViewContext, ViewHandle } from '@fivo/dom';
+import type { ViewContext, ViewHandle } from '@filumo/dom';
 import { createMemoryOfficeAnnotationSource } from '../../engine/annotations/AnnotationSource';
 import type { WordReviewDocument } from '../../engine/word/review/types';
 import type { OfficeRuntimeData } from '../../runtime/types';

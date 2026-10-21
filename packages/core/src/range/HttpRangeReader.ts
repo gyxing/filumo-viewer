@@ -1,4 +1,4 @@
-import { FivoError, throwIfAborted } from '../errors';
+import { FilumoError, throwIfAborted } from '../errors';
 import type { ResourcePolicy } from '../types';
 import { validateRange } from './BlobRangeReader';
 import { RangeCache } from './RangeCache';
@@ -36,7 +36,7 @@ async function readBlock(
   if (!response.body) {
     const bytes = new Uint8Array(await response.arrayBuffer());
     if (bytes.length !== expected)
-      throw new FivoError('INVALID_RANGE', '来源区间长度无效');
+      throw new FilumoError('INVALID_RANGE', '来源区间长度无效');
     return bytes;
   }
   const reader = response.body.getReader(),
@@ -48,12 +48,12 @@ async function readBlock(
       const item = await reader.read();
       if (item.done) break;
       if (length + item.value.length > expected)
-        throw new FivoError('INVALID_RANGE', '来源返回超出区间的数据');
+        throw new FilumoError('INVALID_RANGE', '来源返回超出区间的数据');
       result.set(item.value, length);
       length += item.value.length;
     }
     if (length !== expected)
-      throw new FivoError('INVALID_RANGE', '来源区间数据不完整');
+      throw new FilumoError('INVALID_RANGE', '来源区间数据不完整');
     return result;
   } catch (error) {
     await reader.cancel().catch(() => undefined);
@@ -134,7 +134,7 @@ export async function createHttpRangeReader(
     await response.body?.cancel().catch(() => undefined);
     initial.finish();
     if (!response.ok && response.status !== 416)
-      throw new FivoError(
+      throw new FilumoError(
         'DOWNLOAD_FAILED',
         '文件下载失败：' + response.status,
       );
@@ -146,7 +146,7 @@ export async function createHttpRangeReader(
   ) {
     await response.body?.cancel().catch(() => undefined);
     initial.finish();
-    throw new FivoError(
+    throw new FilumoError(
       'FILE_SIZE_LIMIT_EXCEEDED',
       '文件超过宿主配置的大小限制',
     );
@@ -211,7 +211,7 @@ export async function createHttpRangeReader(
                       ).toLowerCase() !== 'identity'
                     ) {
                       await next.response.body?.cancel().catch(() => undefined);
-                      throw new FivoError(
+                      throw new FilumoError(
                         'SOURCE_CHANGED',
                         '来源区间或文件版本发生变化，请重新打开文件',
                       );
@@ -231,7 +231,7 @@ export async function createHttpRangeReader(
         throwIfAborted(signal);
         const count = Math.min(bytes.length - (at - block), end - at);
         if (count <= 0)
-          throw new FivoError('INVALID_RANGE', '来源区间数据不完整');
+          throw new FilumoError('INVALID_RANGE', '来源区间数据不完整');
         result.set(bytes.subarray(at - block, at - block + count), at - offset);
         at += count;
       }

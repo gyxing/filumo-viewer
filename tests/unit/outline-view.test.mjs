@@ -68,7 +68,7 @@ test('可选富标签保留纯文本名称、键盘激活和默认大纲标签',
       loading: new Set(),
     });
     const row = tree.element.querySelector('[data-outline-id="rich"]'),
-      label = row.querySelector('.fivo-outline-label');
+      label = row.querySelector('.filumo-outline-label');
     assert.equal(row.getAttribute('aria-label'), 'rich');
     assert.equal(label.title, 'rich');
     assert.equal(
@@ -78,7 +78,7 @@ test('可选富标签保留纯文本名称、键盘激活和默认大纲标签',
     assert.equal(
       tree.element
         .querySelector('[data-outline-id="plain"]')
-        .querySelector('.fivo-outline-label').textContent,
+        .querySelector('.filumo-outline-label').textContent,
       'plain',
     );
     press(row, 'Enter');
@@ -116,7 +116,7 @@ test('树方框只展开，方向键只移动，激活一次且结构未变不�
     tree.update(snapshot);
     const row = tree.element.querySelector('[data-outline-id="a"]');
     row.children
-      .find((child) => child.className === 'fivo-outline-switcher')
+      .find((child) => child.className === 'filumo-outline-switcher')
       .onclick({ stopPropagation() {} });
     assert.deepEqual(toggles, [['a', false]]);
     assert.deepEqual(activations, []);
@@ -134,7 +134,7 @@ test('公共树多个实例分别持有样式租约，保留 nonce，external �
   registerStyle(
     'dom',
     'outline-view-fixture',
-    '.fivo-outline-tree{color:inherit}',
+    '.filumo-outline-tree{color:inherit}',
   );
   const document = fixture();
   const options = {
@@ -290,7 +290,7 @@ test('一级叶子与分支都有连接线，根主干穿过子树且首尾信�
   };
   const row = (id) =>
     tree.element.querySelector('[data-outline-id="' + id + '"]');
-  const branch = (id) => row(id).querySelector('.fivo-outline-branch');
+  const branch = (id) => row(id).querySelector('.filumo-outline-branch');
   try {
     tree.update(snapshot);
     for (const id of ['a', 'b', 'b1', 'b11', 'b2', 'c'])
@@ -306,15 +306,15 @@ test('一级叶子与分支都有连接线，根主干穿过子树且首尾信�
     ])
       assert.equal(branch(id).style.left, expected, id);
     assert.equal(
-      row('b').querySelector('.fivo-outline-child-connector').style.left,
+      row('b').querySelector('.filumo-outline-child-connector').style.left,
       branch('b1').style.left,
     );
     assert.equal(
-      row('b1').querySelector('.fivo-outline-child-connector').style.left,
+      row('b1').querySelector('.filumo-outline-child-connector').style.left,
       branch('b11').style.left,
     );
     assert.equal(
-      row('b2').querySelector('.fivo-outline-child-connector'),
+      row('b2').querySelector('.filumo-outline-child-connector'),
       undefined,
     );
     assert.equal(branch('a').dataset.root, 'true');
@@ -324,15 +324,15 @@ test('一级叶子与分支都有连接线，根主干穿过子树且首尾信�
     assert.equal(row('a').style.paddingLeft, '0px');
     assert.equal(row('b1').style.paddingLeft, '16px');
     const guides = row('b11')
-      .querySelector('.fivo-outline-guides')
-      .children.filter((child) => child.className === 'fivo-outline-guide');
+      .querySelector('.filumo-outline-guides')
+      .children.filter((child) => child.className === 'filumo-outline-guide');
     assert.equal(guides.length, 2);
     assert.equal(guides[0].dataset.root, 'true');
     assert.equal(guides[0].style.left, branch('b').style.left);
     tree.update({ ...snapshot, revision: 2, expanded: new Set() });
     assert.equal(row('b1'), undefined);
     assert.equal(
-      row('b').querySelector('.fivo-outline-child-connector'),
+      row('b').querySelector('.filumo-outline-child-connector'),
       undefined,
     );
     assert.equal(branch('c').dataset.continues, 'false');

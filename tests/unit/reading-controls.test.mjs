@@ -25,7 +25,7 @@ const bundle = await build({
   loader: { '.less': 'empty' },
   alias: {
     ...textSourceAliases,
-    '@fivo/dom/outline': resolve('packages/dom/src/outline.ts'),
+    '@filumo/dom/outline': resolve('packages/dom/src/outline.ts'),
   },
 });
 const {
@@ -230,7 +230,7 @@ test('合并分支操作同步选中状态，收起再展开保留其他分支�
     tree.toggleSelected();
     assert.deepEqual(tree.getState(), state);
   }
-  const scroll = tree.element.querySelector('.fivo-json-scroll');
+  const scroll = tree.element.querySelector('.filumo-json-scroll');
   const beforeKey = changes;
   scroll.onkeydown({ key: 'Home', preventDefault() {} });
   assert.equal(tree.getState().selected, model.rootId);
@@ -246,7 +246,7 @@ test('共享原文视图默认隐藏行号，显式开启及更新可恢复', as
     await readText(new TextEncoder().encode('one\ntwo'), { signal })
   ).document;
   const viewport = new TextViewport(model, {}, createDocument());
-  const number = () => viewport.element.querySelector('.fivo-text-line-number');
+  const number = () => viewport.element.querySelector('.filumo-text-line-number');
   assert.equal(number().hidden, true);
   viewport.update(model, { lineNumbers: true });
   assert.equal(number().hidden, false);
@@ -268,8 +268,8 @@ test('默认只显示真实行号，缩放和容器变化不启用空白区延�
       createDocument(),
     );
     try {
-      const fill = viewport.element.querySelector('.fivo-text-gutter-fill'),
-        canvas = viewport.element.querySelector('.fivo-text-canvas');
+      const fill = viewport.element.querySelector('.filumo-text-gutter-fill'),
+        canvas = viewport.element.querySelector('.filumo-text-canvas');
       assert.equal(canvas.children.length, model.lineStarts.length);
       assert.equal(fill.hidden, true);
       assert.equal(fill.children.length, 0);
@@ -294,7 +294,7 @@ test('内部开关开启后，空白区延续行号且不改变源文件', async
     { lineNumbers: true },
     createDocument(),
   );
-  const canvas = viewport.element.querySelector('.fivo-text-canvas');
+  const canvas = viewport.element.querySelector('.filumo-text-canvas');
   const previous = textViewportFlags.extendLineNumbersToViewport;
   try {
     textViewportFlags.extendLineNumbersToViewport = true;
@@ -302,7 +302,7 @@ test('内部开关开启后，空白区延续行号且不改变源文件', async
     assert.equal(canvas.style.height, '400px');
     assert.equal(viewport.element.dataset.lineNumbers, 'true');
     assert.equal(canvas.children.length, 3);
-    const fill = viewport.element.querySelector('.fivo-text-gutter-fill');
+    const fill = viewport.element.querySelector('.filumo-text-gutter-fill');
     assert.equal(fill.hidden, false);
     assert.equal(fill.getAttribute('aria-hidden'), 'true');
     assert.equal(fill.style.top, '66px');
@@ -310,7 +310,7 @@ test('内部开关开启后，空白区延续行号且不改变源文件', async
     assert.equal(fill.children[0].textContent, '4');
     assert.equal(fill.children.at(-1).textContent, '19');
     assert.equal(
-      canvas.children[2].querySelector('.fivo-text-line-number').textContent,
+      canvas.children[2].querySelector('.filumo-text-line-number').textContent,
       '3',
     );
     viewport.goTo(4);
@@ -328,7 +328,7 @@ test('内部开关开启后，空白区延续行号且不改变源文件', async
     viewport.update(model, { lineNumbers: false });
     assert.equal(viewport.element.dataset.lineNumbers, 'false');
     assert.equal(
-      viewport.element.querySelector('.fivo-text-line-number').hidden,
+      viewport.element.querySelector('.filumo-text-line-number').hidden,
       true,
     );
     assert.equal(fill.hidden, true);
@@ -355,7 +355,7 @@ test('内容超过视口时不补行号，换成短文件后重新延续', async
   try {
     textViewportFlags.extendLineNumbersToViewport = true;
     viewport.highlight([], -1);
-    const fill = viewport.element.querySelector('.fivo-text-gutter-fill');
+    const fill = viewport.element.querySelector('.filumo-text-gutter-fill');
     assert.equal(fill.hidden, true);
     assert.equal(fill.children.length, 0);
     const short = await read('one');
@@ -398,7 +398,7 @@ test('容器高度变化立即同步画布，停用后不处理已排队的尺�
   const viewport = new TextViewport(model, { lineNumbers: true }, document);
   try {
     frames.shift()();
-    const canvas = viewport.element.querySelector('.fivo-text-canvas');
+    const canvas = viewport.element.querySelector('.filumo-text-canvas');
     assert.equal(canvas.style.height, '400px');
     viewport.element.clientHeight = 620;
     observers[1]([]);
@@ -432,7 +432,7 @@ test('Markdown 大纲折叠不跳正文，键盘导航与当前章节分别同�
     false,
     () => outline.setOpen(false),
   );
-  const canvas = outline.element.querySelector('.fivo-outline-canvas');
+  const canvas = outline.element.querySelector('.filumo-outline-canvas');
   const row = (id) =>
     canvas.children.find((item) => item.dataset.outlineId === id);
   const key = (id, value) =>
@@ -444,7 +444,7 @@ test('Markdown 大纲折叠不跳正文，键盘导航与当前章节分别同�
   assert.equal(row('a').style.paddingLeft, '0px');
   assert.equal(row('b').style.paddingLeft, '16px');
   assert.equal(
-    outline.element.querySelector('.fivo-markdown-outline-count').textContent,
+    outline.element.querySelector('.filumo-markdown-outline-count').textContent,
     '4',
   );
   key('a', 'ArrowLeft');
@@ -460,7 +460,7 @@ test('Markdown 大纲折叠不跳正文，键盘导航与当前章节分别同�
   outline.setCurrent('d');
   assert.equal(row('d').getAttribute('aria-selected'), 'true');
   assert.deepEqual(navigated, ['b']);
-  outline.element.querySelector('.fivo-markdown-outline-close').onclick();
+  outline.element.querySelector('.filumo-markdown-outline-close').onclick();
   assert.equal(outline.element.hidden, true);
   outline.setOpen(true);
   assert.equal(outline.element.hidden, false);
@@ -481,8 +481,8 @@ test('Markdown 长大纲仅生成窗口内节点，同步远处章节后仍有�
     false,
     () => {},
   );
-  const list = outline.element.querySelector('.fivo-outline-tree'),
-    canvas = outline.element.querySelector('.fivo-outline-canvas');
+  const list = outline.element.querySelector('.filumo-outline-tree'),
+    canvas = outline.element.querySelector('.filumo-outline-canvas');
   assert.ok(canvas.children.length < 40);
   outline.setCurrent('249');
   assert.ok(list.scrollTop > 0);
@@ -516,7 +516,7 @@ test('Markdown 图片的迟到状态通过阅读生命周期呈现，失败不�
   assert.equal(image.element.hidden, true);
   assert.equal(image.container.dataset.state, 'unavailable');
   assert.equal(
-    image.container.querySelector('.fivo-markdown-image-status').textContent,
+    image.container.querySelector('.filumo-markdown-image-status').textContent,
     '图片不可用：示意图',
   );
   image.dispose();

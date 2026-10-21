@@ -1,6 +1,6 @@
-import { throwIfAborted } from '@fivo/core';
-import type { StylePolicy } from '@fivo/dom';
-import { OUTLINE_DEFAULTS, OutlineTree } from '@fivo/dom/outline';
+import { throwIfAborted } from '@filumo/core';
+import type { StylePolicy } from '@filumo/dom';
+import { OUTLINE_DEFAULTS, OutlineTree } from '@filumo/dom/outline';
 import type {
   PdfBackend,
   PdfOutlineEntry,

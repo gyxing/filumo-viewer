@@ -102,7 +102,7 @@ export function ProductHighlightsSection({ content }: HomeProductSectionProps) {
   );
 }
 
-/** 按文档家族说明十三种扩展名及其对应的预览能力。 */
+/** 按九类格式插件展示代表扩展名及预览能力。 */
 export function SupportedFormatsSection({ content }: HomeProductSectionProps) {
   return (
     <section

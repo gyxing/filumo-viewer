@@ -1,4 +1,4 @@
-import type { TextContent, TaskWorker } from '@fivo/core/text';
+import type { TextContent, TaskWorker } from '@filumo/core/text';
 import type { CodeOptions, CodeLanguage } from '../options';
 import { codeLanguages } from '../fileTypes';
 import type { CodeHighlightResult } from '../highlight/highlightTask';

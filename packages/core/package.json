@@ -1,8 +1,41 @@
 {
-  "name": "@fivo/core",
-  "version": "0.1.0-next.0",
-  "description": "Fivo core",
+  "name": "@filumo/core",
+  "version": "0.1.0",
+  "description": "Headless document sessions, file sources and plugin protocols for Filumo, with DOM-free text utilities.",
+  "keywords": [
+    "filumo",
+    "document-core",
+    "document-session",
+    "document-source",
+    "file-source",
+    "headless",
+    "plugin-system",
+    "resource-policy",
+    "range-request",
+    "abort-signal",
+    "text-decoding",
+    "typescript",
+    "esm",
+    "文档会话",
+    "文件读取"
+  ],
+  "homepage": "https://github.com/gyxing/office-file-viewer/tree/master/packages/core#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gyxing/office-file-viewer.git",
+    "directory": "packages/core"
+  },
+  "bugs": {
+    "url": "https://github.com/gyxing/office-file-viewer/issues"
+  },
+  "author": {
+    "name": "gyxing",
+    "url": "https://github.com/gyxing"
+  },
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "sideEffects": [
     "**/styles/**",
     "**/*.css"

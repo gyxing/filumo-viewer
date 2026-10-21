@@ -18,14 +18,14 @@ export function createToolbarOverflow(
 ) {
   const document = container.ownerDocument;
   const window = document.defaultView;
-  const toolbar = container.closest<HTMLElement>('.fivo-toolbar')!;
+  const toolbar = container.closest<HTMLElement>('.filumo-toolbar')!;
   const main = document.createElement('div');
-  main.className = 'fivo-controls-main';
+  main.className = 'filumo-controls-main';
   const more = document.createElement('span');
-  more.className = 'fivo-toolbar-more';
+  more.className = 'filumo-toolbar-more';
   const trigger = document.createElement('button');
   trigger.type = 'button';
-  trigger.className = 'fivo-toolbar-more-trigger';
+  trigger.className = 'filumo-toolbar-more-trigger';
   more.append(trigger);
   container.append(main);
   // 全局操作已由外壳挂载；更多入口放在最后，Tab 顺序与视觉位置保持一致。
@@ -68,7 +68,7 @@ export function createToolbarOverflow(
     const focused = document.activeElement as HTMLElement | null;
     const hadMenuFocus = more.contains(focused);
     // 主栏与菜单之间的布局移动不代表用户离开控件，避免触发失焦提交。
-    toolbar.dataset.fivoMoving = 'true';
+    toolbar.dataset.filumoMoving = 'true';
     try {
       apply();
       // 缩放比与当前页优先保留，次要能力退入更多面板而非堆叠成多行。
@@ -105,12 +105,12 @@ export function createToolbarOverflow(
           const target =
             main.querySelector<HTMLElement>(
               'button:not(:disabled), input:not(:disabled)',
-            ) ?? toolbar.querySelector<HTMLElement>('.fivo-open-file');
+            ) ?? toolbar.querySelector<HTMLElement>('.filumo-open-file');
           target?.focus({ preventScroll: true });
         }
       }
     } finally {
-      delete toolbar.dataset.fivoMoving;
+      delete toolbar.dataset.filumoMoving;
     }
   };
   const schedule = () => {

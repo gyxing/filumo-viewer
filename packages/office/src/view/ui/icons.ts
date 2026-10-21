@@ -48,12 +48,12 @@ export function setOfficeIconButton(
   label: string,
   name: OfficeUiIcon,
 ) {
-  button.classList.add('fivo-office-icon-button');
+  button.classList.add('filumo-office-icon-button');
   button.setAttribute('aria-label', label);
   button.title = label;
   if (button.dataset.icon !== name) {
     const text = button.ownerDocument.createElement('span');
-    text.className = 'fivo-office-icon-label';
+    text.className = 'filumo-office-icon-label';
     text.textContent = label;
     button.replaceChildren(createOfficeIcon(button.ownerDocument, name), text);
     button.dataset.icon = name;

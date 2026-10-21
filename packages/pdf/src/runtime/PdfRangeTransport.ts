@@ -1,4 +1,4 @@
-import type { DocumentRangeReader } from '@fivo/core';
+import type { DocumentRangeReader } from '@filumo/core';
 import type { EngineRangeTransport, PdfEngine } from './pdfEngine';
 /** 引擎的区间请求只消费 Core Reader，不能绕开来源鉴权和资源限制。 */
 export function createPdfRangeTransport(

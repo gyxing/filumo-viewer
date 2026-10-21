@@ -1,4 +1,4 @@
-.fivo-markdown-outline {
+.filumo-markdown-outline {
   position: relative;
   display: flex;
   flex: 0 0 260px;
@@ -7,35 +7,35 @@
   min-width: 0;
   max-width: 45%;
   min-height: 0;
-  color: var(--fivo-text);
-  background: var(--fivo-surface);
-  border-right: 1px solid var(--fivo-border);
+  color: var(--filumo-text);
+  background: var(--filumo-surface);
+  border-right: 1px solid var(--filumo-border);
   font: 13px/1.5 system-ui, sans-serif;
 }
 
-.fivo-markdown-outline-header {
+.filumo-markdown-outline-header {
   display: flex;
   flex: 0 0 48px;
   min-height: 48px;
   align-items: center;
   gap: 8px;
   padding: 0 8px 0 12px;
-  border-bottom: 1px solid var(--fivo-border);
+  border-bottom: 1px solid var(--filumo-border);
 }
 
-.fivo-markdown-outline-heading {
+.filumo-markdown-outline-heading {
   flex: 1;
-  color: var(--fivo-primary);
+  color: var(--filumo-primary);
   font-weight: 600;
 }
 
-.fivo-markdown-outline-count {
-  color: var(--fivo-muted);
+.filumo-markdown-outline-count {
+  color: var(--filumo-muted);
   font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
 
-.fivo-markdown-outline-close {
+.filumo-markdown-outline-close {
   display: inline-flex;
   flex: 0 0 24px;
   align-items: center;
@@ -43,19 +43,19 @@
   width: 24px;
   height: 28px;
   padding: 3px;
-  color: var(--fivo-muted);
+  color: var(--filumo-muted);
   background: transparent;
   border: 0;
   border-radius: 4px;
   cursor: pointer;
 }
 
-.fivo-markdown-outline-close:hover {
-  color: var(--fivo-primary);
-  background: var(--fivo-hover);
+.filumo-markdown-outline-close:hover {
+  color: var(--filumo-primary);
+  background: var(--filumo-hover);
 }
 
-.fivo-markdown-outline-close svg {
+.filumo-markdown-outline-close svg {
   width: 16px;
   height: 16px;
   fill: none;
@@ -65,7 +65,7 @@
   stroke-linejoin: round;
 }
 
-.fivo-markdown-outline-resize {
+.filumo-markdown-outline-resize {
   position: absolute;
   top: 0;
   right: -3px;
@@ -77,21 +77,21 @@
   user-select: none;
 }
 
-.fivo-markdown-outline-resize:hover,
-.fivo-markdown-outline-resize:focus-visible,
-.fivo-markdown-outline[data-resizing] .fivo-markdown-outline-resize {
-  background: var(--fivo-selected);
+.filumo-markdown-outline-resize:hover,
+.filumo-markdown-outline-resize:focus-visible,
+.filumo-markdown-outline[data-resizing] .filumo-markdown-outline-resize {
+  background: var(--filumo-selected);
 }
 
-.fivo-markdown-outline[data-resizing] {
+.filumo-markdown-outline[data-resizing] {
   user-select: none;
 }
 
-.fivo-markdown-workspace[data-outline-resizing] {
+.filumo-markdown-workspace[data-outline-resizing] {
   cursor: col-resize;
   user-select: none;
 }
 
-.fivo-markdown-workspace[data-outline-resizing] .fivo-markdown-scroll {
+.filumo-markdown-workspace[data-outline-resizing] .filumo-markdown-scroll {
   pointer-events: none;
 }

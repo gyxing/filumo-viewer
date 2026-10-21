@@ -1,12 +1,12 @@
-import type { DocumentInput } from '@fivo/core';
-import { notify } from '@fivo/core';
+import type { DocumentInput } from '@filumo/core';
+import { notify } from '@filumo/core';
 import type {
   ViewerConfiguration,
   ViewerHandle,
   ViewerOptions,
   ViewerPlugin,
-} from '@fivo/dom';
-import { createViewer } from '@fivo/dom';
+} from '@filumo/dom';
+import { createViewer } from '@filumo/dom';
 import React, {
   forwardRef,
   useEffect,

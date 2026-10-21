@@ -1,4 +1,4 @@
-import { DocumentViewer } from '@fivo/vue';
+import { DocumentViewer } from '@filumo/vue';
 import { KeepAlive, createApp, h, nextTick, shallowRef } from 'vue';
 import {
   events,

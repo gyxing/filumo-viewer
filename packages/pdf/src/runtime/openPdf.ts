@@ -1,5 +1,5 @@
-import type { DocumentSource, OpenContext } from '@fivo/core';
-import { createSession, throwIfAborted } from '@fivo/core';
+import type { DocumentSource, OpenContext } from '@filumo/core';
+import { createSession, throwIfAborted } from '@filumo/core';
 import { PDF_DEFAULTS, type PdfOptions } from '../options';
 import { PdfSession } from './PdfSession';
 /** 交付可读或可恢复的 PDF 会话，不等待全部页面绘制。 */

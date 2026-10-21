@@ -1,1 +1,1 @@
-export { readText } from '@fivo/core/text';
+export { readText } from '@filumo/core/text';

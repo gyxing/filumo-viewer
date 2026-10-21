@@ -1,8 +1,58 @@
 {
-  "name": "@fivo/office",
-  "version": "0.1.0-next.0",
-  "description": "Fivo office",
+  "name": "@filumo/office",
+  "version": "0.1.0",
+  "description": "Lazy-loaded read-only Word, Excel and PowerPoint previews for Filumo, supporting DOCX, XLSX, PPTX and legacy Office files.",
+  "keywords": [
+    "filumo",
+    "office",
+    "office-viewer",
+    "office-preview",
+    "document-viewer",
+    "document-preview",
+    "file-viewer",
+    "file-preview",
+    "word",
+    "word-viewer",
+    "doc",
+    "docx",
+    "docm",
+    "wps",
+    "excel",
+    "excel-viewer",
+    "xls",
+    "xlsx",
+    "xlsm",
+    "powerpoint",
+    "powerpoint-viewer",
+    "ppt",
+    "pptx",
+    "pptm",
+    "browser",
+    "typescript",
+    "lazy-loading",
+    "web-worker",
+    "readonly",
+    "文档预览",
+    "文件预览",
+    "office预览"
+  ],
+  "homepage": "https://github.com/gyxing/office-file-viewer/tree/master/packages/office#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gyxing/office-file-viewer.git",
+    "directory": "packages/office"
+  },
+  "bugs": {
+    "url": "https://github.com/gyxing/office-file-viewer/issues"
+  },
+  "author": {
+    "name": "gyxing",
+    "url": "https://github.com/gyxing"
+  },
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "sideEffects": [
     "./dist/chunks/*.js",
     "**/*.css"
@@ -24,9 +74,9 @@
     "dist"
   ],
   "dependencies": {
-    "@fivo/core": "workspace:^",
-    "@fivo/dom": "workspace:^",
-    "@fivo/image": "workspace:^",
+    "@filumo/core": "workspace:^",
+    "@filumo/dom": "workspace:^",
+    "@filumo/image": "workspace:^",
     "@zip.js/zip.js": "^2.8.34",
     "echarts": "^5.6.0",
     "emf-converter": "^2.0.2",

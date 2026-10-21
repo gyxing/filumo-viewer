@@ -1,47 +1,82 @@
 ---
 title: 图片与 PDF 预览
+description: Filumo 图片预览与 PDF 连续阅读、侧栏、同版资源部署及内存预算。
+keywords:
+  - Filumo
+  - file preview
+  - document viewer
+  - 文件预览
 siteLayout: docs
 toc: content
 ---
 
 # 图片与 PDF 预览
 
-图片和 PDF 通过独立插件接入，格式包不依赖 React/Vue。当前为工作区预发布实现，新增能力需要按实际宿主完成验证。
+图片和 PDF 通过独立插件接入，格式包不依赖 React/Vue。当前工作区版本为 0.1.0，新增能力需要按实际宿主完成验证。
 
 ## 接入
 
 ```ts | pure
-import { createViewer } from '@fivo/dom';
-import { image } from '@fivo/image';
-import { pdf } from '@fivo/pdf';
+import { createViewer } from '@filumo/dom';
+import { image } from '@filumo/image';
+import { pdf } from '@filumo/pdf';
 
 const viewer = createViewer(container, {
   height: 640,
-  plugins: [
-    image(),
-    pdf({ assetsBaseUrl: '/fivo-pdf/' }),
-  ],
+  plugins: [image(), pdf()],
 });
 await viewer.open(file);
 ```
 
 React、Vue 和 Vue2 使用相同 plugins，不需要单独的图片或 PDF 框架组件。标准预设也包含两类轻量描述符；引擎、视图和资源在实际打开后加载。
 
-## PDF 静态资产部署
+## 默认资源与宿主覆盖
 
-将 `@fivo/pdf/dist/assets/pdfjs/` 的内容按原目录结构部署到站点静态目录，例如 `/fivo-pdf/`，然后传入 assetsBaseUrl。该目录包含同版本 legacy 引擎/Worker、CMap、标准字体、WASM、ICC 和文字层样式；实际打包文件以 build-manifest.json 为准。
+普通接入使用 `pdf()`。默认引擎通过模块动态导入加载，Worker 使用包内的 `new Worker(new URL(..., import.meta.url))` 入口；CMap、标准字体、WASM、ICC 和解码回退文件由同版资源清单定位，默认文字层样式来自延迟加载模块。宿主不需要为默认配置手工复制整套静态目录。
 
-直接 ESM 部署可以保留包的相对目录并使用默认地址。Vite、Webpack 等打包宿主应显式复制资产并配置部署地址，不能假定哈希 chunk 的位置与包目录相同。仓库的文档、烟测、示例和消费夹具已经接入对应复制与地址配置。
+注册插件不创建 Worker，也不下载全部辅助资源。资源进入构建输出不等于首屏全部请求，具体字体、字符映射与解码数据仍在 PDF 内容需要时读取。默认不访问公共 CDN，也不会在失败后偷偷切换 CDN。
 
-workerFactory 或 workerSrc 可以替换默认 Worker；工厂优先。引擎与 Worker 必须来自精确一致的 pdfjs-dist 6.4.299。默认不从公共 CDN 请求。资源跨域时还需满足宿主 CORS/CSP。
+| 配置项                    | 缺省行为                 | 宿主覆盖                                                                     |
+| ------------------------- | ------------------------ | ---------------------------------------------------------------------------- |
+| assetsBaseUrl             | 使用包内集成             | 指定整套同版资源根目录，保留外部引擎、Worker、辅助资源和文字层样式的部署方式 |
+| cMapUrl                   | 包内压缩 CMap            | 覆盖 CMap 目录，保持 cMapPacked: true 对应的 bcmap 格式                      |
+| standardFontDataUrl       | 包内标准字体             | 覆盖标准字体目录                                                             |
+| wasmUrl                   | 包内 WASM 与对应 JS 回退 | 覆盖解码资源目录，应包含匹配的回退脚本                                       |
+| iccUrl                    | 包内 ICC                 | 覆盖色彩配置目录                                                             |
+| workerSrc / workerFactory | 包内适配 Worker          | 自定义 Worker 地址或创建方式，工厂优先                                       |
+| useWasm                   | true                     | false 明确停用 WASM，使用可用的 JavaScript 图像解码回退                      |
 
-开发运行和发布前需安装新的 workspace 依赖并更新锁文件；编辑源码不代表已经完成安装或构建。
+资源优先级为：**单项目录 > assetsBaseUrl 对应子目录 > 包内默认资源**。不传 URL 不表示禁用；空白字符串、非法协议或非布尔 useWasm 会明确报错。相对覆盖地址按宿主页面 baseURI 解析，目录补齐末尾斜杠。
+
+```ts | pure
+const plugins = [
+  pdf({
+    cMapUrl: '/custom-pdf/cmaps/',
+    standardFontDataUrl: '/custom-pdf/fonts/',
+    wasmUrl: '/custom-pdf/wasm/',
+    iccUrl: '/custom-pdf/iccs/',
+    useWasm: true,
+  }),
+];
+```
+
+以上均为可选覆盖项。只需要修改其中一项时，其余类别继续使用默认资源。
+
+## 高级：整套外部资源部署
+
+只有宿主明确选择独立资源目录时，才将 `@filumo/pdf/dist/assets/pdfjs/` 的内容保留原结构复制到公开目录，再配置 `pdf({ assetsBaseUrl: '/filumo-pdf/' })`。不要只复制一个 Worker。目录包括引擎、Worker、CMap、字体、WASM、ICC、文字层 CSS、LICENSE 和 NOTICE。
+
+引擎、Worker、辅助文件及解码回退脚本必须与固定的 pdfjs-dist 6.4.299 一致。自定义 CDN 由宿主显式指定，须满足 CORS/CSP；跨域 Worker 还需要符合浏览器的 Worker 来源限制。目录查询参数需要本包的适配 Worker 才能正确还原。直接使用原生 PDF.js Worker 时，宿主须提供它能访问的完整普通资源目录，不能让它解析包内虚拟资源标识。
+
+文档站、烟测和默认示例使用相同的包内资源链路，不再依赖 public/filumo-assets/pdf 复制作为默认兜底。FILUMO_DOCS_BASE 继续控制站点子目录，资源最终地址由构建器处理。
+
+默认集成的实际兼容范围需以发布产物在 Vite 开发/生产、Webpack/dumi 和非根部署中的执行记录为准；本次源码改造未执行完整构建和浏览器验收，不能据此宣称所有宿主已经验证通过。
 
 ## 图片
 
 支持 PNG、JPEG/JPG、GIF、WebP、BMP、SVG，AVIF 是否能显示取决于浏览器解码能力。SVG 使用图片上下文，普通图片不先转成 Canvas。
 
-默认适应容器，小图不强制放大；原始尺寸的 100% 使用物理像素比例。支持旋转、复位、拖动和缩放。独立图片使用外壳工具栏，Office 文档中的图片仍使用弹层；两者共用 @fivo/image/view 的交互实现。
+默认适应容器，小图不强制放大；原始尺寸的 100% 使用物理像素比例。支持旋转、复位、拖动和缩放。独立图片使用外壳工具栏，Office 文档中的图片仍使用弹层；两者共用 @filumo/image/view 的交互实现。
 
 Office 继续管理资源租约、转换图和原图下载。独立安装 Office 时公共图片视图是声明过的依赖，不需要宿主反向引入 Office 内部类型。
 

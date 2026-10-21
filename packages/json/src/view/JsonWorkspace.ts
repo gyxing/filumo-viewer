@@ -1,5 +1,5 @@
-import type { ViewContext, ViewOptions } from '@fivo/dom';
-import type { TextSurfacePosition } from '@fivo/dom/text';
+import type { ViewContext, ViewOptions } from '@filumo/dom';
+import type { TextSurfacePosition } from '@filumo/dom/text';
 import type { JsonDiagnostic } from '../parser/types';
 import type { JsonSession } from '../runtime/JsonSession';
 import type { JsonSource } from './JsonSource';
@@ -58,12 +58,12 @@ export class JsonWorkspace {
     this.zoom = this.options.zoom ?? 100;
     this.revision = session.content.revision;
     this.element = document.createElement('section');
-    this.element.className = 'fivo-json-workspace';
+    this.element.className = 'filumo-json-workspace';
     this.notice = document.createElement('div');
-    this.notice.className = 'fivo-json-workspace-notice';
+    this.notice.className = 'filumo-json-workspace-notice';
     this.notice.hidden = true;
     const panes = document.createElement('div');
-    panes.className = 'fivo-json-panes';
+    panes.className = 'filumo-json-panes';
     this.sourcePane = this.pane('source', () => this.setMode('tree'));
     this.treePane = this.pane('tree', () => this.setMode('source'));
     this.split = new JsonSplitHandle(
@@ -72,7 +72,7 @@ export class JsonWorkspace {
       context.stylePolicy,
     );
     this.treeStatus = document.createElement('div');
-    this.treeStatus.className = 'fivo-json-tree-status';
+    this.treeStatus.className = 'filumo-json-tree-status';
     this.treeStatus.setAttribute('role', 'status');
     this.treePane.body.append(this.treeStatus);
     panes.append(
@@ -102,10 +102,10 @@ export class JsonWorkspace {
   private pane(kind: 'source' | 'tree', run: () => void): Pane {
     const document = this.host.ownerDocument,
       element = document.createElement('section');
-    element.className = 'fivo-json-pane fivo-json-pane--' + kind;
+    element.className = 'filumo-json-pane filumo-json-pane--' + kind;
     element.setAttribute('role', 'region');
     const header = document.createElement('div');
-    header.className = 'fivo-json-pane-header';
+    header.className = 'filumo-json-pane-header';
     const title = document.createElement('span'),
       toggle = document.createElement('button');
     toggle.type = 'button';
@@ -121,7 +121,7 @@ export class JsonWorkspace {
     svg.append(path);
     toggle.append(svg);
     const body = document.createElement('div');
-    body.className = 'fivo-json-pane-body';
+    body.className = 'filumo-json-pane-body';
     header.append(title, toggle);
     element.append(header, body);
     return { element, title, toggle, body };

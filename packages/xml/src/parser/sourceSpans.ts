@@ -1,4 +1,4 @@
-import { throwIfAborted } from '@fivo/core';
+import { throwIfAborted } from '@filumo/core';
 import type { XmlSourceAttribute, XmlSourceToken } from './types';
 
 /** 记录原始边界，语法合法性仍由 SAX 决定，避免实体展开改变定位。 */

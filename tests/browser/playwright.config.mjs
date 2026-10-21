@@ -2,7 +2,7 @@ import { defineConfig } from '@playwright/test';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
-const mode = process.env.FIVO_LOCAL_SAMPLES === '1' ? 'local' : 'public';
+const mode = process.env.FILUMO_LOCAL_SAMPLES === '1' ? 'local' : 'public';
 export default defineConfig({
   testDir: './specs',
   testIgnore:
@@ -27,9 +27,9 @@ export default defineConfig({
   ],
   use: {
     browserName: 'chromium',
-    channel: process.env.FIVO_BROWSER_CHANNEL || undefined,
+    channel: process.env.FILUMO_BROWSER_CHANNEL || undefined,
     launchOptions: {
-      executablePath: process.env.FIVO_BROWSER_EXECUTABLE || undefined,
+      executablePath: process.env.FILUMO_BROWSER_EXECUTABLE || undefined,
     },
     headless: true,
     viewport: { width: 1440, height: 1000 },

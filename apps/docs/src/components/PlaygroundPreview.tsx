@@ -1,10 +1,10 @@
-import { office } from '@fivo/office';
-import { DocumentViewer } from '@fivo/react';
+import { DocumentViewer } from '@filumo/react';
 import React, { useMemo, useState } from 'react';
 import type { PlaygroundConfig } from './playground-config';
 import type { PlaygroundContent } from './playground-content';
+import { createPlaygroundPlugins } from './playground-plugins';
 
-/** 只通过 Fivo 公开入口预览；文件状态由真实就绪事件同步，不上传文档。 */
+/** 只通过 Filumo 公开入口预览；文件状态由真实就绪事件同步，不上传文档。 */
 export function PlaygroundPreview({
   file,
   config,
@@ -16,32 +16,35 @@ export function PlaygroundPreview({
   content: PlaygroundContent;
   onFile(file?: File): void;
 }) {
-  const plugins = useMemo(() => [office(config.office)], [config.office]);
+  const { office, pdf } = config;
+  const plugins = useMemo(
+    () => createPlaygroundPlugins({ office, pdf }),
+    [office, pdf],
+  );
   const [name, setName] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'ready' | 'error'>(
     'idle',
   );
   return (
     <section
-      className="fivo-playground-preview-card"
+      className="filumo-playground-preview-card"
       aria-labelledby="playground-preview-title"
     >
-      <div className="fivo-playground-preview-heading">
+      <div className="filumo-playground-preview-heading">
         <div>
           <h2 id="playground-preview-title">{content.preview}</h2>
           <p>{content.previewHint}</p>
         </div>
-        <label className="fivo-playground-file">
+        <label className="filumo-playground-file">
           <span>{content.file}</span>
           <input
             type="file"
             aria-label={content.file}
-            accept={plugins[0].document.extensions.join(',')}
             onChange={(event) => onFile(event.target.files?.[0])}
           />
         </label>
       </div>
-      <div className="fivo-playground-file-info">
+      <div className="filumo-playground-file-info">
         <span title={name || file?.name}>
           {name || file?.name || content.noFile}
         </span>
@@ -55,7 +58,7 @@ export function PlaygroundPreview({
             : ''}
         </span>
       </div>
-      <div className="fivo-playground-preview-surface">
+      <div className="filumo-playground-preview-surface">
         <DocumentViewer
           source={file}
           plugins={plugins}

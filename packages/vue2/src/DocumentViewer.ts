@@ -1,12 +1,12 @@
-import type { DocumentInput, DocumentOpenOptions } from '@fivo/core';
-import { notify } from '@fivo/core';
+import type { DocumentInput, DocumentOpenOptions } from '@filumo/core';
+import { notify } from '@filumo/core';
 import type {
   ViewOptions,
   ViewerConfiguration,
   ViewerHandle,
   ViewerPlugin,
-} from '@fivo/dom';
-import { createViewer } from '@fivo/dom';
+} from '@filumo/dom';
+import { createViewer } from '@filumo/dom';
 import type { PropType } from 'vue';
 import Vue from 'vue';
 
@@ -37,7 +37,7 @@ function getState(instance: object): InstanceState {
 }
 /** Vue 2 使用 Options API 适配同一 DOM 查看器，兼容 2.6/2.7。 */
 export const DocumentViewer = Vue.extend({
-  name: 'FivoDocumentViewer',
+  name: 'FilumoDocumentViewer',
   props: {
     source: {
       type: null as unknown as PropType<DocumentInput>,

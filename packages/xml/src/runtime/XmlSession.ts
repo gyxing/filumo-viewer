@@ -1,4 +1,4 @@
-import type { TextContent } from '@fivo/core/text';
+import type { TextContent } from '@filumo/core/text';
 import type { XmlOptions } from '../options';
 import type { XmlParseResult } from '../parser/types';
 /** 原文模式不解析 XML，结构按成功提交的内容版本缓存。 */

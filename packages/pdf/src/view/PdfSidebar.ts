@@ -1,4 +1,4 @@
-import type { StylePolicy } from '@fivo/dom';
+import type { StylePolicy } from '@filumo/dom';
 import type {
   PdfBackend,
   PdfOutlineEntry,
@@ -49,12 +49,12 @@ export class PdfSidebar {
     stylePolicy?: StylePolicy,
     onError?: (error: unknown) => void,
   ) {
-    const id = 'fivo-pdf-navigation-' + ++sequence;
+    const id = 'filumo-pdf-navigation-' + ++sequence;
     this.element = document.createElement('nav');
-    this.element.className = 'fivo-pdf-sidebar';
+    this.element.className = 'filumo-pdf-sidebar';
     this.expandButton = document.createElement('button');
     this.expandButton.type = 'button';
-    this.expandButton.className = 'fivo-pdf-sidebar-expand';
+    this.expandButton.className = 'filumo-pdf-sidebar-expand';
     this.expandButton.append(pdfIcon(document, 'expand'));
     this.expandButton.onclick = () => {
       this.interacted = true;
@@ -64,21 +64,21 @@ export class PdfSidebar {
       this.tabs.get(this.mode)?.focus();
     };
     this.content = document.createElement('div');
-    this.content.className = 'fivo-pdf-sidebar-content';
+    this.content.className = 'filumo-pdf-sidebar-content';
     const header = document.createElement('header'),
       tabs = document.createElement('div');
-    tabs.className = 'fivo-pdf-tabs';
+    tabs.className = 'filumo-pdf-tabs';
     tabs.setAttribute('role', 'tablist');
     for (const mode of MODES) {
       const button = document.createElement('button'),
         panel = document.createElement('div');
       button.type = 'button';
-      button.className = 'fivo-pdf-tab';
+      button.className = 'filumo-pdf-tab';
       button.id = id + '-tab-' + mode;
       button.setAttribute('role', 'tab');
       button.setAttribute('aria-controls', id + '-panel-' + mode);
       panel.id = id + '-panel-' + mode;
-      panel.className = 'fivo-pdf-tab-panel';
+      panel.className = 'filumo-pdf-tab-panel';
       panel.setAttribute('role', 'tabpanel');
       panel.setAttribute('aria-labelledby', button.id);
       button.onclick = () => this.select(mode, mode === 'search');
@@ -100,17 +100,17 @@ export class PdfSidebar {
       this.tabs.get(MODES[index])?.focus();
     };
     this.count = document.createElement('span');
-    this.count.className = 'fivo-pdf-sidebar-count';
+    this.count.className = 'filumo-pdf-sidebar-count';
     this.collapseButton = document.createElement('button');
     this.collapseButton.type = 'button';
-    this.collapseButton.className = 'fivo-pdf-sidebar-collapse';
+    this.collapseButton.className = 'filumo-pdf-sidebar-collapse';
     this.collapseButton.append(pdfIcon(document, 'collapse'));
     this.collapseButton.onclick = () => this.collapse(true);
     header.append(tabs, this.count, this.collapseButton);
     this.outline = document.createElement('div');
-    this.outline.className = 'fivo-pdf-outline';
+    this.outline.className = 'filumo-pdf-outline';
     this.outlineStatus = document.createElement('div');
-    this.outlineStatus.className = 'fivo-pdf-outline-status';
+    this.outlineStatus.className = 'filumo-pdf-outline-status';
     this.outlineStatus.setAttribute('role', 'status');
     this.outlineTree = new PdfOutline(document, navigate, locale, stylePolicy, {
       backend,
@@ -194,7 +194,7 @@ export class PdfSidebar {
     this.expandButton.hidden = this.open;
     this.expandButton.setAttribute('aria-expanded', String(this.open));
     for (const [mode, button] of this.tabs) {
-      button.classList.toggle('fivo-pdf-tab--active', mode === this.mode);
+      button.classList.toggle('filumo-pdf-tab--active', mode === this.mode);
       button.setAttribute('aria-selected', String(mode === this.mode));
       button.tabIndex = mode === this.mode ? 0 : -1;
       this.panels.get(mode)!.hidden = mode !== this.mode;

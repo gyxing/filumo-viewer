@@ -1,8 +1,48 @@
 {
-  "name": "@fivo/markdown",
-  "version": "0.1.0-next.0",
-  "description": "Fivo markdown 只读预览插件",
+  "name": "@filumo/markdown",
+  "version": "0.1.0",
+  "description": "Read-only Markdown viewer for Filumo, with heading outlines, GFM tables and task lists, controlled HTML rendering and lazy code highlighting.",
+  "keywords": [
+    "filumo",
+    "markdown",
+    "markdown-viewer",
+    "markdown-preview",
+    "md",
+    "gfm",
+    "readme-viewer",
+    "heading-outline",
+    "table-of-contents",
+    "task-list",
+    "markdown-table",
+    "code-block",
+    "syntax-highlighting",
+    "html-rendering",
+    "text-search",
+    "lazy-loading",
+    "readonly",
+    "typescript",
+    "esm",
+    "markdown预览",
+    "文档阅读",
+    "目录导航"
+  ],
+  "homepage": "https://github.com/gyxing/office-file-viewer/tree/master/packages/markdown#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gyxing/office-file-viewer.git",
+    "directory": "packages/markdown"
+  },
+  "bugs": {
+    "url": "https://github.com/gyxing/office-file-viewer/issues"
+  },
+  "author": {
+    "name": "gyxing",
+    "url": "https://github.com/gyxing"
+  },
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "sideEffects": [
     "./dist/chunks/*.js",
     "**/*.css"
@@ -24,8 +64,8 @@
     "dist"
   ],
   "dependencies": {
-    "@fivo/core": "workspace:^",
-    "@fivo/dom": "workspace:^",
+    "@filumo/core": "workspace:^",
+    "@filumo/dom": "workspace:^",
     "highlight.js": "11.12.0",
     "marked": "18.1.1"
   }

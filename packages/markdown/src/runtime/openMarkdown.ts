@@ -1,6 +1,6 @@
-import type { DocumentSource, OpenContext } from '@fivo/core';
-import { createSession } from '@fivo/core';
-import { TextContent } from '@fivo/core/text';
+import type { DocumentSource, OpenContext } from '@filumo/core';
+import { createSession } from '@filumo/core';
+import { TextContent } from '@filumo/core/text';
 import type { MarkdownOptions } from '../options';
 import { MarkdownSession } from './MarkdownSession';
 /** 解码先于文档排版，原文初始模式不调用 Marked。 */

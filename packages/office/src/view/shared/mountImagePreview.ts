@@ -17,11 +17,11 @@ export async function mountImagePreview(
   trigger: HTMLElement,
   context: OfficeRenderContext,
 ) {
-  const { mountImageOverlay } = await import('@fivo/image/view');
+  const { mountImageOverlay } = await import('@filumo/image/view');
   if (context.signal.aborted) throw context.signal.reason;
   const target = { ...model, id: model.id ?? 'image' };
   const host =
-    context.container.closest<HTMLElement>('.fivo-viewer') ?? context.container;
+    context.container.closest<HTMLElement>('.filumo-viewer') ?? context.container;
   const overlay = await mountImageOverlay(
     host,
     {

@@ -13,22 +13,22 @@ test.afterAll(async () => server?.close());
 test('PDF 连续阅读、跳页和千页窗口保持有界 DOM', async ({ page }) => {
   await page.goto(server.url + '/image-pdf.html');
   await page.getByRole('button', { name: 'long', exact: true }).click();
-  const viewport = page.locator('.fivo-pdf-viewport');
+  const viewport = page.locator('.filumo-pdf-viewport');
   await expect(viewport).toBeVisible();
   await expect
-    .poll(() => page.locator('.fivo-pdf-canvas').count())
+    .poll(() => page.locator('.filumo-pdf-canvas').count())
     .toBeGreaterThan(0);
   await viewport.evaluate((node) => {
     node.scrollTop = node.scrollHeight - node.clientHeight;
   });
   await expect(page.locator('[data-pdf-page="1000"]')).toBeVisible();
-  expect(await page.locator('.fivo-pdf-page').count()).toBeLessThan(20);
+  expect(await page.locator('.filumo-pdf-page').count()).toBeLessThan(20);
   const sizes = await page
-    .locator('.fivo-pdf-canvas')
+    .locator('.filumo-pdf-canvas')
     .evaluateAll((nodes) => nodes.map((node) => node.width * node.height));
   expect(sizes.every((size) => size <= 8388608)).toBe(true);
   await page.evaluate(() =>
-    window.fivoImagePdf.getCapabilities().navigation.goTo(499),
+    window.filumoImagePdf.getCapabilities().navigation.goTo(499),
   );
   await expect(page.locator('[data-pdf-page="500"]')).toBeVisible();
 });
@@ -40,11 +40,11 @@ test('PDF 正文同页和跨页滚动更新大纲，自动展开祖先并滚入�
   await page
     .getByRole('button', { name: 'reading-outline', exact: true })
     .click();
-  const viewport = page.locator('.fivo-pdf-viewport'),
-    sidebar = page.locator('.fivo-pdf-sidebar'),
+  const viewport = page.locator('.filumo-pdf-viewport'),
+    sidebar = page.locator('.filumo-pdf-sidebar'),
     tree = sidebar.getByRole('tree');
   await expect(
-    page.locator('[data-pdf-page="1"] .fivo-pdf-canvas'),
+    page.locator('[data-pdf-page="1"] .filumo-pdf-canvas'),
   ).toBeVisible();
   const chapter = tree.getByRole('treeitem', {
     name: 'Chapter 1',
@@ -57,7 +57,7 @@ test('PDF 正文同页和跨页滚动更新大纲，自动展开祖先并滚入�
         node.dispatchEvent(new WheelEvent('wheel', { deltaY: 100 }));
         // 夹具页面等高；使用当前布局尺寸，覆盖侧栏折叠后的适应宽度缩放。
         const total = parseFloat(
-          node.querySelector('.fivo-pdf-pages').style.height,
+          node.querySelector('.filumo-pdf-pages').style.height,
         );
         const height = (total - 16 * 25) / 24;
         node.scrollTop =
@@ -77,7 +77,7 @@ test('PDF 正文同页和跨页滚动更新大纲，自动展开祖先并滚入�
   await expect
     .poll(() =>
       page.evaluate(
-        () => window.fivoImagePdf.getCapabilities().navigation.index,
+        () => window.filumoImagePdf.getCapabilities().navigation.index,
       ),
     )
     .toBe(0);
@@ -127,15 +127,15 @@ test('PDF 左侧 Tab 保留导航状态，工具栏保留大纲和查找入口',
 }) => {
   await page.goto(server.url + '/image-pdf.html');
   await page.getByRole('button', { name: 'pdf', exact: true }).click();
-  await expect(page.locator('.fivo-pdf-canvas').first()).toBeVisible();
+  await expect(page.locator('.filumo-pdf-canvas').first()).toBeVisible();
   await expect(page.locator('[data-pdf-page="1"] .textLayer')).toContainText(
-    'Fivo PDF page 1',
+    'Filumo PDF page 1',
   );
   await expect(
-    page.locator('[data-pdf-page="1"] .fivo-pdf-page-status'),
+    page.locator('[data-pdf-page="1"] .filumo-pdf-page-status'),
   ).toBeEmpty();
   const toolbar = page.getByRole('toolbar', { name: '文档工具栏' }),
-    sidebar = page.locator('.fivo-pdf-sidebar');
+    sidebar = page.locator('.filumo-pdf-sidebar');
   await expect(
     toolbar.getByRole('button', { name: '大纲', exact: true }),
   ).toBeVisible();
@@ -143,31 +143,31 @@ test('PDF 左侧 Tab 保留导航状态，工具栏保留大纲和查找入口',
     toolbar.getByRole('button', { name: '查找', exact: true }),
   ).toBeVisible();
   await expect(
-    toolbar.locator('[data-fivo-action="pdf.thumbnails"]'),
+    toolbar.locator('[data-filumo-action="pdf.thumbnails"]'),
   ).toHaveCount(0);
   for (const name of ['大纲', '缩略图', '查找'])
     await expect(sidebar.getByRole('tab', { name, exact: true })).toBeVisible();
   await page.evaluate(() =>
-    window.fivoImagePdf.getCapabilities().search.setQuery('FIVO_TARGET_12'),
+    window.filumoImagePdf.getCapabilities().search.setQuery('FILUMO_TARGET_12'),
   );
   await expect(page.locator('[data-pdf-page="12"]')).toBeVisible();
   await expect
-    .poll(() => page.locator('.fivo-pdf-highlight').count())
+    .poll(() => page.locator('.filumo-pdf-highlight').count())
     .toBeGreaterThan(0);
   await sidebar.getByRole('tab', { name: '缩略图', exact: true }).click();
-  await expect(page.locator('.fivo-pdf-thumbnails')).toBeVisible();
-  expect(await page.locator('.fivo-pdf-thumbnail').count()).toBeLessThan(10);
+  await expect(page.locator('.filumo-pdf-thumbnails')).toBeVisible();
+  expect(await page.locator('.filumo-pdf-thumbnail').count()).toBeLessThan(10);
   await page.evaluate(() =>
-    window.fivoImagePdf.getCapabilities().navigation.goTo(3),
+    window.filumoImagePdf.getCapabilities().navigation.goTo(3),
   );
   await sidebar.getByRole('tab', { name: '查找', exact: true }).click();
-  await expect(sidebar.getByLabel('查找 PDF')).toHaveValue('FIVO_TARGET_12');
+  await expect(sidebar.getByLabel('查找 PDF')).toHaveValue('FILUMO_TARGET_12');
   expect(
     await page.evaluate(
-      () => window.fivoImagePdf.getCapabilities().navigation.index,
+      () => window.filumoImagePdf.getCapabilities().navigation.index,
     ),
   ).toBe(3);
-  await sidebar.locator('.fivo-pdf-search-result').first().click();
+  await sidebar.locator('.filumo-pdf-search-result').first().click();
   await expect(page.locator('[data-pdf-page="12"]')).toBeVisible();
   await toolbar.getByRole('button', { name: '大纲', exact: true }).click();
   await expect(
@@ -186,10 +186,10 @@ test('PDF 查找上下箭头完整可辨，空查询禁用且有结果后仍可�
   await page.goto(server.url + '/image-pdf.html');
   await page.getByRole('button', { name: 'pdf', exact: true }).click();
   await page
-    .locator('.fivo-pdf-sidebar')
+    .locator('.filumo-pdf-sidebar')
     .getByRole('tab', { name: '查找', exact: true })
     .click();
-  const panel = page.locator('.fivo-pdf-search'),
+  const panel = page.locator('.filumo-pdf-search'),
     previous = panel.getByRole('button', { name: '上一项', exact: true }),
     next = panel.getByRole('button', { name: '下一项', exact: true });
   for (const button of [previous, next]) {
@@ -221,14 +221,14 @@ test('PDF 查找上下箭头完整可辨，空查询禁用且有结果后仍可�
     ).toBeGreaterThanOrEqual(0.6);
   }
   await page.evaluate(() =>
-    window.fivoImagePdf.getCapabilities().search.setQuery('FIVO_TARGET_'),
+    window.filumoImagePdf.getCapabilities().search.setQuery('FILUMO_TARGET_'),
   );
   await expect(next).toBeEnabled();
   await next.click();
   await expect
     .poll(() =>
       page.evaluate(
-        () => window.fivoImagePdf.getCapabilities().search.currentIndex,
+        () => window.filumoImagePdf.getCapabilities().search.currentIndex,
       ),
     )
     .toBe(1);
@@ -236,7 +236,7 @@ test('PDF 查找上下箭头完整可辨，空查询禁用且有结果后仍可�
   await expect
     .poll(() =>
       page.evaluate(
-        () => window.fivoImagePdf.getCapabilities().search.currentIndex,
+        () => window.filumoImagePdf.getCapabilities().search.currentIndex,
       ),
     )
     .toBe(0);
@@ -249,15 +249,15 @@ test('PDF 主栏按阅读、翻页和视图排序，窄窗口也能直接旋转'
   const toolbar = page.getByRole('toolbar', { name: '文档工具栏' }),
     rotate = toolbar.getByRole('button', { name: '旋转', exact: true });
   await expect(rotate).toBeVisible();
-  await expect(toolbar.locator('.fivo-toolbar-more')).toBeHidden();
+  await expect(toolbar.locator('.filumo-toolbar-more')).toBeHidden();
   expect(
     await toolbar
-      .locator('.fivo-controls-main > *')
+      .locator('.filumo-controls-main > *')
       .evaluateAll((nodes) =>
         nodes.map(
           (node) =>
-            node.dataset.fivoAction ??
-            (node.classList.contains('fivo-navigation-control')
+            node.dataset.filumoAction ??
+            (node.classList.contains('filumo-navigation-control')
               ? 'navigation'
               : 'zoom'),
         ),
@@ -276,7 +276,7 @@ test('PDF 主栏按阅读、翻页和视图排序，窄窗口也能直接旋转'
     .poll(() =>
       rotate.evaluate((node) => {
         const button = node.getBoundingClientRect(),
-          bounds = node.closest('.fivo-toolbar').getBoundingClientRect();
+          bounds = node.closest('.filumo-toolbar').getBoundingClientRect();
         return button.left >= bounds.left && button.right <= bounds.right;
       }),
     )
@@ -288,7 +288,7 @@ test('PDF 多级大纲使用公共树线，同页书签选择和 Tab 切换保�
 }) => {
   await page.goto(server.url + '/image-pdf.html');
   await page.getByRole('button', { name: 'outline', exact: true }).click();
-  const sidebar = page.locator('.fivo-pdf-sidebar'),
+  const sidebar = page.locator('.filumo-pdf-sidebar'),
     tree = sidebar.getByRole('tree');
   const first = tree.getByRole('treeitem', { name: 'First page', exact: true });
   const one = tree.getByRole('treeitem', {
@@ -304,13 +304,13 @@ test('PDF 多级大纲使用公共树线，同页书签选择和 Tab 切换保�
     exact: true,
   });
   await expect(nested).toHaveAttribute('aria-level', '3');
-  await expect(nested.locator('.fivo-outline-guide')).toHaveCount(2);
-  await expect(two.locator('.fivo-outline-branch')).toHaveAttribute(
+  await expect(nested.locator('.filumo-outline-guide')).toHaveCount(2);
+  await expect(two.locator('.filumo-outline-branch')).toHaveAttribute(
     'data-continues',
     'false',
   );
   await expect(first).toHaveCSS('height', '28px');
-  await expect(one.locator('.fivo-outline-label')).toHaveCSS(
+  await expect(one.locator('.filumo-outline-label')).toHaveCSS(
     'font-size',
     '14px',
   );
@@ -332,43 +332,43 @@ test('PDF 多级大纲使用公共树线，同页书签选择和 Tab 切换保�
 test('两个 PDF 共存时销毁一个仍保留另一个的公共树样式', async ({ page }) => {
   await page.goto(server.url + '/image-pdf.html');
   await page.getByRole('button', { name: 'outline', exact: true }).click();
-  await page.evaluate(() => window.fivoImagePdf.addSibling());
+  await page.evaluate(() => window.filumoImagePdf.addSibling());
   const sibling = page.locator('#image-pdf-sibling');
   const leaf = sibling.getByRole('treeitem', {
     name: 'Same page two',
     exact: true,
   });
   await expect(leaf).toBeVisible();
-  await page.evaluate(() => window.fivoImagePdf.dispose());
-  await expect(leaf.locator('.fivo-outline-label')).toHaveCSS(
+  await page.evaluate(() => window.filumoImagePdf.dispose());
+  await expect(leaf.locator('.filumo-outline-label')).toHaveCSS(
     'font-size',
     '14px',
   );
   expect(
     await leaf
-      .locator('.fivo-outline-branch')
+      .locator('.filumo-outline-branch')
       .evaluate((node) => getComputedStyle(node, '::after').height),
   ).toBe('1px');
-  await page.evaluate(() => window.fivoImagePdf.disposeSibling());
-  await expect(page.locator('.fivo-outline-tree')).toHaveCount(0);
+  await page.evaluate(() => window.filumoImagePdf.disposeSibling());
+  await expect(page.locator('.filumo-outline-tree')).toHaveCount(0);
 });
 test('PDF 混合页缩放、停用恢复及销毁释放当前页面', async ({ page }) => {
   await page.goto(server.url + '/image-pdf.html');
   await page.getByRole('button', { name: 'mixed', exact: true }).click();
-  await expect(page.locator('.fivo-pdf-canvas').first()).toBeVisible();
+  await expect(page.locator('.filumo-pdf-canvas').first()).toBeVisible();
   await page.evaluate(async () => {
-    await window.fivoImagePdf.getCapabilities().navigation.goTo(5);
-    await window.fivoImagePdf.getCapabilities().zoom.set(125);
+    await window.filumoImagePdf.getCapabilities().navigation.goTo(5);
+    await window.filumoImagePdf.getCapabilities().zoom.set(125);
   });
   await expect(page.locator('[data-pdf-page="6"]')).toBeVisible();
   await page.evaluate(() => {
-    window.fivoImagePdf.setActive(false);
-    window.fivoImagePdf.setActive(true);
+    window.filumoImagePdf.setActive(false);
+    window.filumoImagePdf.setActive(true);
   });
-  await expect(page.locator('.fivo-pdf-viewport')).toBeVisible();
-  await page.evaluate(() => window.fivoImagePdf.dispose());
-  await expect(page.locator('.fivo-viewer')).toHaveCount(0);
-  await expect(page.locator('style[data-fivo-style^="pdf:"]')).toHaveCount(0);
+  await expect(page.locator('.filumo-pdf-viewport')).toBeVisible();
+  await page.evaluate(() => window.filumoImagePdf.dispose());
+  await expect(page.locator('.filumo-viewer')).toHaveCount(0);
+  await expect(page.locator('style[data-filumo-style^="pdf:"]')).toHaveCount(0);
 });
 
 test('真实密码 PDF 在同一会话重试，纯图片页查找不产生伪结果', async ({
@@ -383,16 +383,16 @@ test('真实密码 PDF 在同一会话重试，纯图片页查找不产生伪结
   ).toBeVisible();
   await page.getByLabel('PDF 密码').fill('fixture');
   await page.getByRole('button', { name: '打开 PDF', exact: true }).click();
-  await expect(page.locator('.fivo-pdf-canvas').first()).toBeVisible();
+  await expect(page.locator('.filumo-pdf-canvas').first()).toBeVisible();
   await page.getByRole('button', { name: 'scan', exact: true }).click();
-  await expect(page.locator('.fivo-pdf-canvas').first()).toBeVisible();
+  await expect(page.locator('.filumo-pdf-canvas').first()).toBeVisible();
   await expect(
     page.getByRole('tab', { name: '缩略图', exact: true }),
   ).toHaveAttribute('aria-selected', 'true');
   await page.evaluate(() =>
-    window.fivoImagePdf.getCapabilities().search.setQuery('Fivo'),
+    window.filumoImagePdf.getCapabilities().search.setQuery('Filumo'),
   );
-  await expect(page.locator('.fivo-pdf-search output')).toHaveText('未找到');
+  await expect(page.locator('.filumo-pdf-search output')).toHaveText('未找到');
 });
 
 test('私有 PDF 保留来源鉴权并使用 206，全文服务仅消费一次 200', async ({
@@ -409,18 +409,18 @@ test('私有 PDF 保留来源鉴权并使用 206，全文服务仅消费一次 2
   });
   await page.goto(server.url + '/image-pdf.html');
   await page.getByRole('button', { name: 'private', exact: true }).click();
-  await expect(page.locator('.fivo-pdf-canvas').first()).toBeVisible();
+  await expect(page.locator('.filumo-pdf-canvas').first()).toBeVisible();
   await page.evaluate(() =>
-    window.fivoImagePdf.getCapabilities().navigation.goTo(999),
+    window.filumoImagePdf.getCapabilities().navigation.goTo(999),
   );
   expect(responses.some((item) => item.status === 206)).toBe(true);
   expect(
     responses
       .filter((item) => item.url.includes('pdf-private'))
-      .every((item) => item.headers['x-fivo-fixture'] === 'allowed'),
+      .every((item) => item.headers['x-filumo-fixture'] === 'allowed'),
   ).toBe(true);
   await page.getByRole('button', { name: 'full', exact: true }).click();
-  await expect(page.locator('.fivo-pdf-canvas').first()).toBeVisible();
+  await expect(page.locator('.filumo-pdf-canvas').first()).toBeVisible();
   expect(
     responses.filter(
       (item) => item.url.includes('pdf-full') && item.status === 200,
@@ -432,7 +432,7 @@ test('PDF 反复打开及销毁不留下实际 Worker 或视图样式', async ({
   await page.addInitScript(() => {
     const NativeWorker = window.Worker,
       live = new Set();
-    window.fivoLiveWorkers = live;
+    window.filumoLiveWorkers = live;
     window.Worker = class extends NativeWorker {
       constructor(...args) {
         super(...args);
@@ -447,9 +447,9 @@ test('PDF 反复打开及销毁不留下实际 Worker 或视图样式', async ({
   await page.goto(server.url + '/image-pdf.html');
   for (let index = 0; index < 3; index++) {
     await page.getByRole('button', { name: 'pdf', exact: true }).click();
-    await expect(page.locator('.fivo-pdf-canvas').first()).toBeVisible();
-    await page.evaluate(() => window.fivoImagePdf.dispose());
-    expect(await page.evaluate(() => window.fivoLiveWorkers.size)).toBe(0);
-    await expect(page.locator('style[data-fivo-style^="pdf:"]')).toHaveCount(0);
+    await expect(page.locator('.filumo-pdf-canvas').first()).toBeVisible();
+    await page.evaluate(() => window.filumoImagePdf.dispose());
+    expect(await page.evaluate(() => window.filumoLiveWorkers.size)).toBe(0);
+    await expect(page.locator('style[data-filumo-style^="pdf:"]')).toHaveCount(0);
   }
 });

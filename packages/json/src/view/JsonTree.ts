@@ -1,5 +1,5 @@
-import type { TextDocument, TextMatch } from '@fivo/core/text';
-import { findTextMatches } from '@fivo/core/text';
+import type { TextDocument, TextMatch } from '@filumo/core/text';
+import { findTextMatches } from '@filumo/core/text';
 import { findJsonNodeAt } from '../parser/indexJson';
 import { jsonPath } from '../parser/jsonPath';
 import type { JsonDocument, JsonNode } from '../parser/types';
@@ -42,10 +42,10 @@ export class JsonTree {
     this.selected = model.rootId;
     this.height = (24 * zoom) / 100;
     this.element = document.createElement('div');
-    this.element.className = 'fivo-json-tree';
+    this.element.className = 'filumo-json-tree';
     this.element.style.fontSize = (14 * zoom) / 100 + 'px';
     this.find = document.createElement('div');
-    this.find.className = 'fivo-json-find';
+    this.find.className = 'filumo-json-find';
     this.find.hidden = true;
     this.query = document.createElement('input');
     this.query.type = 'search';
@@ -80,15 +80,15 @@ export class JsonTree {
       }
     };
     this.scroll = document.createElement('div');
-    this.scroll.className = 'fivo-json-scroll';
+    this.scroll.className = 'filumo-json-scroll';
     this.scroll.tabIndex = 0;
     this.scroll.setAttribute('role', 'tree');
     this.scroll.setAttribute('aria-label', en ? 'JSON structure' : 'JSON 结构');
     this.canvas = document.createElement('div');
-    this.canvas.className = 'fivo-json-canvas';
+    this.canvas.className = 'filumo-json-canvas';
     this.scroll.append(this.canvas);
     this.path = document.createElement('output');
-    this.path.className = 'fivo-json-path';
+    this.path.className = 'filumo-json-path';
     this.path.textContent = '/';
     this.element.append(this.find, this.scroll, this.path);
     this.element.onkeydown = (event) => {
@@ -180,7 +180,7 @@ export class JsonTree {
       const row = this.rows[index],
         node = this.node(row.id),
         item = this.document.createElement('div');
-      item.className = 'fivo-json-row';
+      item.className = 'filumo-json-row';
       item.setAttribute('role', 'treeitem');
       item.dataset.nodeId = node.id;
       item.style.top = index * this.height + 'px';
@@ -197,19 +197,19 @@ export class JsonTree {
       const guides = jsonTreeGuides(this.model, node.id);
       guides.forEach((continued, level) => {
         const guide = this.document.createElement('span');
-        guide.className = 'fivo-json-guide';
+        guide.className = 'filumo-json-guide';
         guide.dataset.continued = String(continued);
         guide.dataset.branch = String(level === guides.length - 1);
         guide.setAttribute('aria-hidden', 'true');
         item.append(guide);
       });
       const toggle = this.document.createElement('span');
-      toggle.className = 'fivo-json-toggle';
+      toggle.className = 'filumo-json-toggle';
       toggle.dataset.open = String(this.expanded.has(node.id));
       toggle.dataset.branch = String(container);
       toggle.setAttribute('aria-hidden', 'true');
       const key = this.document.createElement('span');
-      key.className = 'fivo-json-key';
+      key.className = 'filumo-json-key';
       if (row.propertyId) key.textContent = this.node(row.propertyId).key ?? '';
       else if (
         node.parentId !== undefined &&
@@ -219,19 +219,19 @@ export class JsonTree {
           this.node(node.parentId).childIds.indexOf(node.id),
         );
       const value = this.document.createElement('span');
-      value.className = 'fivo-json-value fivo-json-value--' + node.type;
+      value.className = 'filumo-json-value filumo-json-value--' + node.type;
       value.textContent = jsonNodePreview(this.model, node);
       const title = this.document.createElement('span');
-      title.className = 'fivo-json-title';
+      title.className = 'filumo-json-title';
       if (key.textContent) {
         const separator = this.document.createElement('span');
-        separator.className = 'fivo-json-separator';
+        separator.className = 'filumo-json-separator';
         separator.textContent = ':';
         title.append(key, separator);
       } else if (row.propertyId) {
         key.textContent = '""';
         const separator = this.document.createElement('span');
-        separator.className = 'fivo-json-separator';
+        separator.className = 'filumo-json-separator';
         separator.textContent = ':';
         title.append(key, separator);
       }

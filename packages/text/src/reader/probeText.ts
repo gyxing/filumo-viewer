@@ -1,5 +1,5 @@
-import { throwIfAborted } from '@fivo/core';
-import type { DocumentSource, ResourcePolicy } from '@fivo/core';
+import { throwIfAborted } from '@filumo/core';
+import type { DocumentSource, ResourcePolicy } from '@filumo/core';
 import { isBinaryDocument } from './binarySignature';
 import { decodeTextBytes } from './detectEncoding';
 

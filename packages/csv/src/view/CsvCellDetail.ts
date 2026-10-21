@@ -3,7 +3,7 @@ export class CsvCellDetail {
   readonly element: HTMLElement;
   constructor(document: Document) {
     this.element = document.createElement('div');
-    this.element.className = 'fivo-csv-detail';
+    this.element.className = 'filumo-csv-detail';
     this.element.setAttribute('role', 'status');
   }
   update(

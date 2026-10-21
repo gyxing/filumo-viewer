@@ -24,10 +24,10 @@ export async function checkFormatConsumers(root, work, packed, overrides) {
       join(directory, 'package.json'),
       JSON.stringify(
         {
-          name: 'fivo-isolated-' + name,
+          name: 'filumo-isolated-' + name,
           private: true,
           type: 'module',
-          dependencies: { ['@fivo/' + name]: overrides['@fivo/' + name] },
+          dependencies: { ['@filumo/' + name]: overrides['@filumo/' + name] },
           devDependencies: { vite: '5.4.21' },
         },
         null,
@@ -52,18 +52,18 @@ export async function checkFormatConsumers(root, work, packed, overrides) {
       throw Error(name + ' 独立安装意外包含 XML 引擎');
     if (
       ['json', 'markdown', 'csv', 'xml', 'code'].includes(name) &&
-      installed.some((file) => /^@fivo\+text@/.test(file))
+      installed.some((file) => /^@filumo\+text@/.test(file))
     )
       throw Error(name + ' 不应反向依赖 Text 格式');
     const symbols =
       name === 'text'
-        ? `import {readText} from '@fivo/text/reader'; import {mountTextSurface} from '@fivo/text/view'; void readText; void mountTextSurface;`
+        ? `import {readText} from '@filumo/text/reader'; import {mountTextSurface} from '@filumo/text/view'; void readText; void mountTextSurface;`
         : name === 'image'
-        ? `import {mountImageSurface, mountImageOverlay} from '@fivo/image/view'; void mountImageSurface; void mountImageOverlay;`
+        ? `import {mountImageSurface, mountImageOverlay} from '@filumo/image/view'; void mountImageSurface; void mountImageOverlay;`
         : name === 'pdf'
-        ? `import {resolvePdfAssets} from '@fivo/pdf/assets'; void resolvePdfAssets;`
+        ? `import {resolvePdfAssets} from '@filumo/pdf/assets'; void resolvePdfAssets;`
         : '';
-    const source = `import {${name}} from '@fivo/${name}'; ${symbols} console.log(${name}());`;
+    const source = `import {${name}} from '@filumo/${name}'; ${symbols} console.log(${name}());`;
     await writeFile(join(directory, 'main.ts'), source);
     await writeFile(
       join(directory, 'index.html'),
@@ -106,7 +106,7 @@ export async function checkFormatConsumers(root, work, packed, overrides) {
     });
     const metadata = JSON.parse(
       await readFile(
-        join(directory, 'node_modules/@fivo', name, 'package.json'),
+        join(directory, 'node_modules/@filumo', name, 'package.json'),
         'utf8',
       ),
     );

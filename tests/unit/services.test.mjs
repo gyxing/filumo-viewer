@@ -194,7 +194,7 @@ test('批注服务切源后忽略旧读取，保留稳定 ID 与修订能力', a
   const annotation = {
     id: 'current',
     target: { kind: 'word-range', blockId: 'p', startOffset: 0, endOffset: 1 },
-    author: 'Fivo',
+    author: 'Filumo',
     text: 'comment',
   };
   service.actions.registerSource(

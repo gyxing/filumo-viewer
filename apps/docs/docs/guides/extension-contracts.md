@@ -1,12 +1,18 @@
 ---
-title: Fivo Plugins and Future Editing
+title: Filumo Plugins and Future Editing
+description: Filumo DocumentPlugin and ViewerPlugin contracts, shared text and DOM views, resource ownership and readonly boundaries.
+keywords:
+  - Filumo
+  - file preview
+  - document viewer
+  - browser
 siteLayout: docs
 toc: content
 ---
 
 # Plugins and future editing
 
-The workspace implements read-only Office, text, JSON, Markdown, image and PDF plugins. This guide describes their shared extension protocol and the future editing boundary. The packages are still a workspace preview release.
+The unpublished 0.1.0 workspace contains nine readonly plugins: Office, text, JSON, Markdown, image, PDF, CSV, XML and code. This guide describes their shared protocol and the future editing boundary.
 
 ## Layer responsibilities
 
@@ -17,7 +23,9 @@ The workspace implements read-only Office, text, JSON, Markdown, image and PDF p
 | Format plugin | Detection, parsing, resources, format views | Host framework lifecycle             |
 | Adapter       | Props/events, mounting, teardown, KeepAlive | A second parser or duplicate toolbar |
 
-Future formats can live in separate @fivo/\* packages when needed. Hosts register them explicitly. Adding a package does not silently expand the standard preset or other consumers' dependencies.
+Future formats can live in separate @filumo/\* packages when needed. Hosts register them explicitly. Adding a package does not silently expand the standard preset or other consumers' dependencies.
+
+Shared text processing comes from @filumo/core/text; source, outline and split views come from DOM subentries without a reverse dependency on Text. See the [package overview](./packages).
 
 ## DocumentPlugin
 
@@ -40,8 +48,8 @@ ViewerPlugin contains document and loadView(). The view factory mounts with a co
 This minimal custom .note plugin illustrates the protocol only:
 
 ```ts | pure
-import { createSession } from '@fivo/core';
-import type { ViewerPlugin } from '@fivo/dom';
+import { createSession } from '@filumo/core';
+import type { ViewerPlugin } from '@filumo/dom';
 export const notePlugin: ViewerPlugin = {
   document: {
     id: 'note-example',

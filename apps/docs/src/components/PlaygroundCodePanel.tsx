@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import type { WebsiteLocale } from './home-content';
 import { generateExample, type PlaygroundCodeTab } from './playground-code';
 import type { PlaygroundConfig } from './playground-config';
 import type { PlaygroundContent } from './playground-content';
@@ -17,15 +16,13 @@ const TABS: { id: PlaygroundCodeTab; label: string }[] = [
 export function PlaygroundCodePanel({
   config,
   content,
-  locale,
 }: {
   config: PlaygroundConfig;
   content: PlaygroundContent;
-  locale: WebsiteLocale;
 }) {
   const [tab, setTab] = useState<PlaygroundCodeTab>('react');
   const feedback = useSiteCopyFeedback();
-  const source = generateExample(config, tab, locale);
+  const source = generateExample(config, tab);
   const onKey = (
     event: React.KeyboardEvent<HTMLButtonElement>,
     index: number,
@@ -47,10 +44,10 @@ export function PlaygroundCodePanel({
   };
   return (
     <section
-      className="fivo-playground-code"
+      className="filumo-playground-code"
       aria-labelledby="playground-code-title"
     >
-      <div className="fivo-playground-card-heading">
+      <div className="filumo-playground-card-heading">
         <h2 id="playground-code-title">{content.code}</h2>
         <button
           type="button"
@@ -64,9 +61,9 @@ export function PlaygroundCodePanel({
           })}
         </button>
       </div>
-      <p className="fivo-playground-code-hint">{content.codeHint}</p>
+      <p className="filumo-playground-code-hint">{content.codeHint}</p>
       <div
-        className="fivo-playground-code-tabs"
+        className="filumo-playground-code-tabs"
         role="tablist"
         aria-label={content.code}
       >
@@ -87,7 +84,7 @@ export function PlaygroundCodePanel({
         ))}
       </div>
       <pre
-        className="fivo-doc-code"
+        className="filumo-doc-code"
         id="playground-code-panel"
         role="tabpanel"
         tabIndex={0}

@@ -10,19 +10,19 @@ const en = params.get('locale') === 'en-US';
 const host = document.getElementById('preview')!;
 host.style.width = (Number(params.get('width')) || 1100) + 'px';
 const root = document.createElement('section');
-root.className = 'fivo-viewer';
+root.className = 'filumo-viewer';
 root.dataset.theme = params.get('theme') || 'light';
 const toolbar = document.createElement('div');
-toolbar.className = 'fivo-toolbar';
+toolbar.className = 'filumo-toolbar';
 toolbar.setAttribute('role', 'toolbar');
 const title = document.createElement('div');
-title.className = 'fivo-file-title';
+title.className = 'filumo-file-title';
 title.textContent = '格式工具栏回归.docx';
 const open = document.createElement('button');
-open.className = 'fivo-open-file';
+open.className = 'filumo-open-file';
 labelShellButton(open, en ? 'Open file' : '打开文件', 'open');
 const controls = document.createElement('div');
-controls.className = 'fivo-controls';
+controls.className = 'filumo-controls';
 toolbar.append(title, open, controls);
 for (const [label, icon] of [
   ['下载原文件', 'download'],

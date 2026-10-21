@@ -6,7 +6,7 @@ export function createPdfPassword(
   submit: (value: string) => void,
 ): HTMLElement {
   const form = document.createElement('form');
-  form.className = 'fivo-pdf-password';
+  form.className = 'filumo-pdf-password';
   const label = document.createElement('label'),
     input = document.createElement('input'),
     button = document.createElement('button');

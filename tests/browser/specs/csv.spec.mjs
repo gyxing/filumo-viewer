@@ -16,12 +16,12 @@ test('CSV 引号与换行显示且宽表按双向窗口定位', async ({ page })
   await expect(
     page.locator('[data-csv-cell]').filter({ hasText: '第一行' }),
   ).toContainText('第二行');
-  await expect(page.locator('.fivo-csv-heading').first()).toHaveCSS(
+  await expect(page.locator('.filumo-csv-heading').first()).toHaveCSS(
     'position',
     'absolute',
   );
   await page.getByRole('button', { name: 'csv-wide', exact: true }).click();
-  const viewport = page.locator('.fivo-csv-viewport');
+  const viewport = page.locator('.filumo-csv-viewport');
   await expect(viewport).toBeVisible();
   expect(await page.locator('[data-csv-cell]').count()).toBeLessThan(600);
   await viewport.evaluate((element) => {

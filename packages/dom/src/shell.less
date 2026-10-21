@@ -1,37 +1,37 @@
 @import './shell/toolbar-menu.less';
 @import './shell/reading-notice.less';
 
-.fivo-viewer {
-  --fivo-bg: #f5f7fa;
-  --fivo-surface: #fff;
-  --fivo-text: #243247;
-  --fivo-muted: #697586;
-  --fivo-warning: #ad6800;
-  --fivo-border: #dfe5ec;
-  --fivo-hover: #f3f6fb;
-  --fivo-primary: #1677ff;
-  --fivo-code-string: #167a50;
-  --fivo-code-keyword: #a33275;
-  --fivo-code-number: #9a570a;
-  --fivo-code-deletion: #b42318;
+.filumo-viewer {
+  --filumo-bg: #f5f7fa;
+  --filumo-surface: #fff;
+  --filumo-text: #243247;
+  --filumo-muted: #697586;
+  --filumo-warning: #ad6800;
+  --filumo-border: #dfe5ec;
+  --filumo-hover: #f3f6fb;
+  --filumo-primary: #1677ff;
+  --filumo-code-string: #167a50;
+  --filumo-code-keyword: #a33275;
+  --filumo-code-number: #9a570a;
+  --filumo-code-deletion: #b42318;
   // 结构视图共用语义色，选中背景不会覆盖名称和值的类型颜色。
-  --fivo-structure-name: #691010;
-  --fivo-structure-string: #1569b1;
-  --fivo-structure-literal: #09933a;
-  --fivo-structure-muted: #888;
+  --filumo-structure-name: #691010;
+  --filumo-structure-string: #1569b1;
+  --filumo-structure-literal: #09933a;
+  --filumo-structure-muted: #888;
   // Office 侧栏和弹层继承同一组语义色，避免与外壳形成两套主题。
-  --fivo-primary-hover: #4096ff;
-  --fivo-primary-active: #0958d9;
-  --fivo-selected: #eaf4ff;
-  --fivo-disabled-text: #b8bec8;
-  --fivo-disabled-surface: #f5f5f5;
-  --fivo-focus-ring: rgb(22 119 255 / 24%);
-  --fivo-overlay-shadow: 0 8px 24px rgb(15 23 42 / 22%);
+  --filumo-primary-hover: #4096ff;
+  --filumo-primary-active: #0958d9;
+  --filumo-selected: #eaf4ff;
+  --filumo-disabled-text: #b8bec8;
+  --filumo-disabled-surface: #f5f5f5;
+  --filumo-focus-ring: rgb(22 119 255 / 24%);
+  --filumo-overlay-shadow: 0 8px 24px rgb(15 23 42 / 22%);
 
   position: relative;
-  color: var(--fivo-text);
-  background: var(--fivo-bg);
-  border: 1px solid var(--fivo-border);
+  color: var(--filumo-text);
+  background: var(--filumo-bg);
+  border: 1px solid var(--filumo-border);
   border-radius: 8px;
   box-sizing: border-box;
   display: flex;
@@ -41,40 +41,40 @@
   overflow: hidden;
 }
 
-.fivo-viewer[data-theme='dark'] {
-  --fivo-bg: #141a23;
-  --fivo-surface: #202938;
-  --fivo-text: #e3eaf3;
-  --fivo-muted: #a0aec0;
-  --fivo-warning: #ffc53d;
-  --fivo-border: #384459;
-  --fivo-hover: #2d3a4e;
-  --fivo-primary: #69a7ff;
-  --fivo-code-string: #75d6a4;
-  --fivo-code-keyword: #ed91c5;
-  --fivo-code-number: #efc27a;
-  --fivo-code-deletion: #ff9b9b;
-  --fivo-structure-name: #ecb0b0;
-  --fivo-structure-string: #83bcf2;
-  --fivo-structure-literal: #83d6a0;
-  --fivo-structure-muted: #a0aabd;
-  --fivo-primary-hover: #91caff;
-  --fivo-primary-active: #69a7ff;
-  --fivo-selected: #253e60;
-  --fivo-disabled-text: #64748b;
-  --fivo-disabled-surface: #283244;
-  --fivo-focus-ring: rgb(105 167 255 / 36%);
-  --fivo-overlay-shadow: 0 10px 28px rgb(0 0 0 / 48%);
+.filumo-viewer[data-theme='dark'] {
+  --filumo-bg: #141a23;
+  --filumo-surface: #202938;
+  --filumo-text: #e3eaf3;
+  --filumo-muted: #a0aec0;
+  --filumo-warning: #ffc53d;
+  --filumo-border: #384459;
+  --filumo-hover: #2d3a4e;
+  --filumo-primary: #69a7ff;
+  --filumo-code-string: #75d6a4;
+  --filumo-code-keyword: #ed91c5;
+  --filumo-code-number: #efc27a;
+  --filumo-code-deletion: #ff9b9b;
+  --filumo-structure-name: #ecb0b0;
+  --filumo-structure-string: #83bcf2;
+  --filumo-structure-literal: #83d6a0;
+  --filumo-structure-muted: #a0aabd;
+  --filumo-primary-hover: #91caff;
+  --filumo-primary-active: #69a7ff;
+  --filumo-selected: #253e60;
+  --filumo-disabled-text: #64748b;
+  --filumo-disabled-surface: #283244;
+  --filumo-focus-ring: rgb(105 167 255 / 36%);
+  --filumo-overlay-shadow: 0 10px 28px rgb(0 0 0 / 48%);
 }
 
 // 字体和表单重置仅覆盖外壳，不能改变正文与隐藏分页测量的字体。
-.fivo-toolbar,
-.fivo-status,
-.fivo-progress {
+.filumo-toolbar,
+.filumo-status,
+.filumo-progress {
   font: 13px/1.5 system-ui, sans-serif;
 }
 
-.fivo-toolbar {
+.filumo-toolbar {
   position: relative;
   z-index: 20;
   display: flex;
@@ -84,11 +84,11 @@
   min-height: 55px;
   padding: 8px 12px;
   box-sizing: border-box;
-  background: var(--fivo-surface);
-  border-bottom: 1px solid var(--fivo-border);
+  background: var(--filumo-surface);
+  border-bottom: 1px solid var(--filumo-border);
 }
 
-.fivo-file-title {
+.filumo-file-title {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -98,17 +98,17 @@
 }
 
 // 固定主栏的能力允许换行，保持所有操作可见，不再进入更多菜单。
-.fivo-toolbar[data-keep-actions='true'] {
+.filumo-toolbar[data-keep-actions='true'] {
   flex-wrap: wrap;
 }
-.fivo-toolbar[data-keep-actions='true'] .fivo-controls,
-.fivo-toolbar[data-keep-actions='true'] .fivo-controls-main {
+.filumo-toolbar[data-keep-actions='true'] .filumo-controls,
+.filumo-toolbar[data-keep-actions='true'] .filumo-controls-main {
   flex-shrink: 1;
   min-width: 0;
   flex-wrap: wrap;
 }
 
-.fivo-title {
+.filumo-title {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -116,13 +116,13 @@
   font-weight: 600;
 }
 
-.fivo-icon {
+.filumo-icon {
   display: inline-block;
   flex: 0 0 auto;
   vertical-align: middle;
 }
 
-.fivo-file-icon {
+.filumo-file-icon {
   position: relative;
   display: inline-flex;
   flex: 0 0 24px;
@@ -130,15 +130,15 @@
   justify-content: center;
   width: 24px;
   height: 28px;
-  color: var(--fivo-primary);
+  color: var(--filumo-primary);
 }
 
-.fivo-file-icon > svg {
+.filumo-file-icon > svg {
   width: 24px;
   height: 26px;
 }
 
-.fivo-file-icon > span {
+.filumo-file-icon > span {
   position: absolute;
   left: -2px;
   top: 8px;
@@ -151,32 +151,32 @@
   background-color: #2464b3;
 }
 
-.fivo-file-icon[data-extension^='xls'] {
+.filumo-file-icon[data-extension^='xls'] {
   color: #24824d;
 }
 
-.fivo-file-icon[data-extension^='xls'] > span {
+.filumo-file-icon[data-extension^='xls'] > span {
   background-color: #24824d;
 }
 
-.fivo-file-icon[data-extension^='ppt'] {
+.filumo-file-icon[data-extension^='ppt'] {
   color: #c65d34;
 }
 
-.fivo-file-icon[data-extension^='ppt'] > span {
+.filumo-file-icon[data-extension^='ppt'] > span {
   background-color: #c65d34;
 }
 
-.fivo-file-icon[data-extension='pdf'] {
+.filumo-file-icon[data-extension='pdf'] {
   color: #c64343;
 }
 
-.fivo-file-icon[data-extension='pdf'] > span {
+.filumo-file-icon[data-extension='pdf'] > span {
   background-color: #c64343;
   font-size: 7px;
 }
 
-:is(.fivo-toolbar, .fivo-status) button {
+:is(.filumo-toolbar, .filumo-status) button {
   display: inline-flex;
   flex: 0 0 auto;
   align-items: center;
@@ -187,37 +187,37 @@
   padding: 4px 8px;
   font: inherit;
   color: inherit;
-  background: var(--fivo-surface);
-  border: 1px solid var(--fivo-border);
+  background: var(--filumo-surface);
+  border: 1px solid var(--filumo-border);
   border-radius: 5px;
   white-space: nowrap;
   cursor: pointer;
 }
 
-:is(.fivo-toolbar, .fivo-status) button:hover:not(:disabled) {
-  background: var(--fivo-hover);
-  color: var(--fivo-primary);
+:is(.filumo-toolbar, .filumo-status) button:hover:not(:disabled) {
+  background: var(--filumo-hover);
+  color: var(--filumo-primary);
 }
 
-:is(.fivo-toolbar, .fivo-status) button:focus-visible {
-  outline: 2px solid var(--fivo-primary);
+:is(.filumo-toolbar, .filumo-status) button:focus-visible {
+  outline: 2px solid var(--filumo-primary);
   outline-offset: 2px;
 }
 
-:is(.fivo-toolbar, .fivo-status) button:disabled {
+:is(.filumo-toolbar, .filumo-status) button:disabled {
   opacity: 0.45;
   cursor: default;
 }
 
-.fivo-toolbar .fivo-icon-button {
+.filumo-toolbar .filumo-icon-button {
   width: 32px;
   padding: 4px;
 }
 
-.fivo-icon-button > .fivo-button-label,
-.fivo-controls-main
+.filumo-icon-button > .filumo-button-label,
+.filumo-controls-main
   > label
-  > span:first-child:not(.fivo-capability-label--visible) {
+  > span:first-child:not(.filumo-capability-label--visible) {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -226,9 +226,9 @@
   white-space: nowrap;
 }
 
-.fivo-controls,
-.fivo-controls-main,
-.fivo-capability-group {
+.filumo-controls,
+.filumo-controls-main,
+.filumo-capability-group {
   display: inline-flex;
   flex: 0 0 auto;
   align-items: center;
@@ -236,81 +236,81 @@
   white-space: nowrap;
 }
 
-.fivo-capability-group {
+.filumo-capability-group {
   font-size: 13px;
 }
 
 // PDF 的阅读、翻页、视图和通用操作分组；作用域随当前能力节点切换。
-.fivo-toolbar:has([data-fivo-action='pdf.rotate']) {
-  .fivo-controls-main {
+.filumo-toolbar:has([data-filumo-action='pdf.rotate']) {
+  .filumo-controls-main {
     row-gap: 8px;
   }
 
-  .fivo-controls,
-  .fivo-navigation-control:not(:first-child),
-  .fivo-zoom-control:not(:first-child) {
+  .filumo-controls,
+  .filumo-navigation-control:not(:first-child),
+  .filumo-zoom-control:not(:first-child) {
     position: relative;
     margin-inline-start: 6px;
     padding-inline-start: 12px;
   }
 
-  .fivo-controls::before,
-  .fivo-navigation-control:not(:first-child)::before,
-  .fivo-zoom-control:not(:first-child)::before,
-  .fivo-controls + button::before {
+  .filumo-controls::before,
+  .filumo-navigation-control:not(:first-child)::before,
+  .filumo-zoom-control:not(:first-child)::before,
+  .filumo-controls + button::before {
     position: absolute;
     top: 50%;
     left: 0;
     width: 1px;
     height: 18px;
-    background: var(--fivo-border);
+    background: var(--filumo-border);
     transform: translateY(-50%);
     content: '';
     pointer-events: none;
   }
 
-  .fivo-controls + button {
+  .filumo-controls + button {
     position: relative;
     margin-inline-start: 8px;
   }
 
-  .fivo-controls + button::before {
+  .filumo-controls + button::before {
     left: -9px;
   }
 }
 
-.fivo-toolbar select,
-.fivo-page-input,
-.fivo-zoom-field {
+.filumo-toolbar select,
+.filumo-page-input,
+.filumo-zoom-field {
   position: relative;
   box-sizing: border-box;
   height: 32px;
-  border: 1px solid var(--fivo-border);
+  border: 1px solid var(--filumo-border);
   border-radius: 5px;
-  background: var(--fivo-surface);
+  background: var(--filumo-surface);
   color: inherit;
   font: inherit;
 }
 
-.fivo-toolbar select {
+.filumo-toolbar select {
   max-width: 170px;
   padding: 4px 6px;
 }
 
-.fivo-page-input {
+.filumo-page-input {
   width: 42px;
   padding: 4px;
   text-align: center;
 }
 
-.fivo-zoom-field {
+.filumo-zoom-field {
   display: inline-flex;
   align-items: center;
   gap: 2px;
   padding: 0 6px;
 }
 
-.fivo-zoom-input {
+.filumo-zoom-input {
   appearance: textfield;
   box-sizing: border-box;
   width: 38px;
@@ -324,28 +324,28 @@
 }
 
 // 表单聚焦只改变已有边框，组合输入由整个容器呈现，避免内外双框。
-.fivo-toolbar select:focus,
-.fivo-toolbar input:focus {
+.filumo-toolbar select:focus,
+.filumo-toolbar input:focus {
   outline: 0;
 }
 
-.fivo-toolbar select:focus,
-.fivo-page-input:focus,
-.fivo-zoom-field:focus-within {
-  border-color: var(--fivo-primary);
+.filumo-toolbar select:focus,
+.filumo-page-input:focus,
+.filumo-zoom-field:focus-within {
+  border-color: var(--filumo-primary);
 }
 
-.fivo-toolbar input::-webkit-inner-spin-button,
-.fivo-toolbar input::-webkit-outer-spin-button {
+.filumo-toolbar input::-webkit-inner-spin-button,
+.filumo-toolbar input::-webkit-outer-spin-button {
   appearance: none;
   margin: 0;
 }
 
-.fivo-zoom-field > span {
-  color: var(--fivo-muted);
+.filumo-zoom-field > span {
+  color: var(--filumo-muted);
 }
 
-.fivo-option-popup {
+.filumo-option-popup {
   position: fixed;
   inset: auto;
   z-index: 40;
@@ -353,15 +353,15 @@
   margin: 0;
   padding: 4px;
   overflow: auto;
-  color: var(--fivo-text);
-  background: var(--fivo-surface);
-  border: 1px solid var(--fivo-border);
+  color: var(--filumo-text);
+  background: var(--filumo-surface);
+  border: 1px solid var(--filumo-border);
   border-radius: 5px;
   box-shadow: 0 8px 24px rgb(0 0 0 / 14%);
   font: 13px/1.5 system-ui, sans-serif;
 }
 
-.fivo-option-popup > button {
+.filumo-option-popup > button {
   display: block;
   width: 100%;
   height: 28px;
@@ -378,69 +378,69 @@
   text-overflow: ellipsis;
 }
 
-.fivo-option-popup > button:hover,
-.fivo-option-popup > button[aria-selected='true'],
-.fivo-option-popup > button[data-active='true'] {
-  color: var(--fivo-primary);
-  background: var(--fivo-hover);
+.filumo-option-popup > button:hover,
+.filumo-option-popup > button[aria-selected='true'],
+.filumo-option-popup > button[data-active='true'] {
+  color: var(--filumo-primary);
+  background: var(--filumo-hover);
 }
 
-.fivo-option-popup > button:focus-visible {
-  outline: 2px solid var(--fivo-primary);
+.filumo-option-popup > button:focus-visible {
+  outline: 2px solid var(--filumo-primary);
   outline-offset: -2px;
 }
 
-.fivo-select {
+.filumo-select {
   display: inline-flex;
   position: relative;
   min-width: 0;
   max-width: 100%;
 }
 
-.fivo-toolbar .fivo-select-trigger {
+.filumo-toolbar .filumo-select-trigger {
   min-width: 72px;
   max-width: 170px;
   gap: 8px;
   justify-content: space-between;
 }
 
-.fivo-select-value {
+.filumo-select-value {
   min-width: 0;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 
-.fivo-select-trigger > svg {
+.filumo-select-trigger > svg {
   flex: 0 0 14px;
   width: 14px;
   height: 14px;
-  color: var(--fivo-muted);
+  color: var(--filumo-muted);
 }
 
 // 自绘选择框仍使用单层边框，不继承普通按钮的外扩键盘焦点圈。
-.fivo-toolbar .fivo-select-trigger:focus {
+.filumo-toolbar .filumo-select-trigger:focus {
   outline: 0;
-  border-color: var(--fivo-primary);
+  border-color: var(--filumo-primary);
 }
 
-:is(.fivo-toolbar, .fivo-status) button[aria-pressed='true'] {
-  color: var(--fivo-primary);
-  border-color: var(--fivo-primary);
-  background: var(--fivo-hover);
+:is(.filumo-toolbar, .filumo-status) button[aria-pressed='true'] {
+  color: var(--filumo-primary);
+  border-color: var(--filumo-primary);
+  background: var(--filumo-hover);
 }
 
-.fivo-toolbar[data-compact='true'] .fivo-open-file {
+.filumo-toolbar[data-compact='true'] .filumo-open-file {
   padding-inline: 6px;
 }
 
-.fivo-status {
+.filumo-status {
   padding: 16px;
-  color: var(--fivo-text);
+  color: var(--filumo-text);
   overflow-wrap: anywhere;
 }
 
-.fivo-status--centered {
+.filumo-status--centered {
   display: flex;
   flex: 1;
   min-height: 0;
@@ -452,48 +452,48 @@
   padding: 32px 20px;
 }
 
-.fivo-status-icon {
-  color: var(--fivo-muted);
+.filumo-status-icon {
+  color: var(--filumo-muted);
   opacity: 0.65;
 }
 
-.fivo-status-icon > svg {
+.filumo-status-icon > svg {
   width: 56px;
   height: 56px;
   stroke-width: 1.1;
 }
 
-.fivo-status-heading {
+.filumo-status-heading {
   display: block;
   font-size: 16px;
   font-weight: 500;
 }
 
-.fivo-status-description {
+.filumo-status-description {
   max-width: 440px;
-  color: var(--fivo-muted);
+  color: var(--filumo-muted);
 }
 
-.fivo-status-actions {
+.filumo-status-actions {
   display: flex;
   gap: 8px;
   margin-top: 4px;
 }
 
-.fivo-status[data-kind='error'] .fivo-status-icon {
+.filumo-status[data-kind='error'] .filumo-status-icon {
   color: #d46b08;
 }
 
-.fivo-status[data-kind='loading'] .fivo-status-icon {
-  animation: fivo-loading-spin 1s linear infinite;
+.filumo-status[data-kind='loading'] .filumo-status-icon {
+  animation: filumo-loading-spin 1s linear infinite;
 }
-@keyframes fivo-loading-spin {
+@keyframes filumo-loading-spin {
   to {
     transform: rotate(360deg);
   }
 }
 
-.fivo-viewer-body {
+.filumo-viewer-body {
   position: relative;
   display: flex;
   flex: 1;
@@ -504,7 +504,7 @@
   isolation: isolate;
 }
 
-.fivo-viewport {
+.filumo-viewport {
   flex: 1;
   min-width: 0;
   min-height: 0;
@@ -512,30 +512,30 @@
   overflow: hidden;
 }
 
-.fivo-document-mount {
+.filumo-document-mount {
   width: 100%;
   height: 100%;
   min-height: 0;
 }
 
 // 通用状态布局只消费当前插件，不包含格式样式和解析逻辑。
-.fivo-reading-scope,
-.fivo-reading-frame,
-.fivo-reading-body {
+.filumo-reading-scope,
+.filumo-reading-frame,
+.filumo-reading-body {
   height: 100%;
   min-height: 0;
   min-width: 0;
 }
 
-.fivo-reading-frame {
+.filumo-reading-frame {
   position: relative;
   overflow: hidden;
-  background: var(--fivo-surface);
-  color: var(--fivo-text);
+  background: var(--filumo-surface);
+  color: var(--filumo-text);
   font: 14px/1.6 system-ui, sans-serif;
 }
 
-.fivo-reading-status {
+.filumo-reading-status {
   display: flex;
   height: 100%;
   box-sizing: border-box;
@@ -545,11 +545,11 @@
   padding: 20px;
   gap: 12px;
   text-align: center;
-  color: var(--fivo-muted);
+  color: var(--filumo-muted);
 }
 
 // 首次读取失败时使用完整选择控件，恢复入口不能依赖工具栏的按钮样式。
-.fivo-reading-status .fivo-select-trigger {
+.filumo-reading-status .filumo-select-trigger {
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
@@ -559,38 +559,38 @@
   min-height: 34px;
   box-sizing: border-box;
   padding: 5px 10px;
-  color: var(--fivo-text);
-  background: var(--fivo-surface);
-  border: 1px solid var(--fivo-border);
+  color: var(--filumo-text);
+  background: var(--filumo-surface);
+  border: 1px solid var(--filumo-border);
   border-radius: 5px;
   font: inherit;
   cursor: pointer;
 }
 
-.fivo-reading-status .fivo-select-trigger:hover:not(:disabled) {
-  border-color: var(--fivo-primary);
+.filumo-reading-status .filumo-select-trigger:hover:not(:disabled) {
+  border-color: var(--filumo-primary);
 }
 
-.fivo-reading-status .fivo-select-trigger:focus-visible {
-  outline: 1px solid var(--fivo-primary);
+.filumo-reading-status .filumo-select-trigger:focus-visible {
+  outline: 1px solid var(--filumo-primary);
   outline-offset: 1px;
 }
 
-.fivo-reading-status .fivo-select-trigger:disabled {
+.filumo-reading-status .filumo-select-trigger:disabled {
   opacity: 0.45;
   cursor: default;
 }
 
-.fivo-reading-body:focus {
+.filumo-reading-body:focus {
   outline: 0;
 }
 
-.fivo-reading-status[hidden],
-.fivo-reading-body[hidden] {
+.filumo-reading-status[hidden],
+.filumo-reading-body[hidden] {
   display: none;
 }
 
-.fivo-reading-watermark {
+.filumo-reading-watermark {
   position: absolute;
   inset: 0;
   display: flex;
@@ -602,11 +602,11 @@
   transform: rotate(-20deg);
 }
 
-.fivo-viewer:not([data-state='ready']) > .fivo-viewer-body > .fivo-viewport {
+.filumo-viewer:not([data-state='ready']) > .filumo-viewer-body > .filumo-viewport {
   display: none;
 }
 
-.fivo-progress {
+.filumo-progress {
   position: absolute;
   top: 8px;
   right: 12px;
@@ -618,22 +618,22 @@
   width: 280px;
   max-width: calc(100% - 24px);
   padding: 10px 12px;
-  color: var(--fivo-text);
-  background: var(--fivo-surface);
-  border: 1px solid var(--fivo-border);
+  color: var(--filumo-text);
+  background: var(--filumo-surface);
+  border: 1px solid var(--filumo-border);
   border-radius: 6px;
   box-shadow: 0 2px 8px rgb(0 0 0 / 12%);
   pointer-events: none;
 }
 
-.fivo-progress-heading {
+.filumo-progress-heading {
   display: flex;
   align-items: center;
   gap: 12px;
   min-width: 0;
 }
 
-.fivo-progress-label {
+.filumo-progress-label {
   flex: 1;
   min-width: 0;
   overflow: hidden;
@@ -641,13 +641,13 @@
   white-space: nowrap;
 }
 
-.fivo-progress-value {
+.filumo-progress-value {
   flex: 0 0 auto;
-  color: var(--fivo-muted);
+  color: var(--filumo-muted);
   font-variant-numeric: tabular-nums;
 }
 
-.fivo-progress progress {
+.filumo-progress progress {
   display: block;
   width: 100%;
   height: 3px;
@@ -655,91 +655,91 @@
   border: 0;
   border-radius: 3px;
   appearance: none;
-  background: var(--fivo-border);
-  color: var(--fivo-primary);
+  background: var(--filumo-border);
+  color: var(--filumo-primary);
 }
 
-.fivo-progress progress::-webkit-progress-bar {
+.filumo-progress progress::-webkit-progress-bar {
   background: transparent;
 }
 
-.fivo-progress progress::-webkit-progress-value {
-  background: var(--fivo-primary);
+.filumo-progress progress::-webkit-progress-value {
+  background: var(--filumo-primary);
   border-radius: 3px;
 }
 
-.fivo-progress progress::-moz-progress-bar {
-  background: var(--fivo-primary);
+.filumo-progress progress::-moz-progress-bar {
+  background: var(--filumo-primary);
   border-radius: 3px;
 }
 
 // 没有总量时以流动渐变表达处理状态，不占用额外布局空间。
-.fivo-progress progress:indeterminate {
+.filumo-progress progress:indeterminate {
   background: linear-gradient(
     90deg,
-    var(--fivo-border),
-    var(--fivo-primary),
-    var(--fivo-border)
+    var(--filumo-border),
+    var(--filumo-primary),
+    var(--filumo-border)
   );
   background-size: 200% 100%;
-  animation: fivo-progress-indeterminate 1.2s linear infinite;
+  animation: filumo-progress-indeterminate 1.2s linear infinite;
 }
 
-.fivo-progress progress:indeterminate::-moz-progress-bar {
+.filumo-progress progress:indeterminate::-moz-progress-bar {
   background: transparent;
 }
 
-@keyframes fivo-progress-indeterminate {
+@keyframes filumo-progress-indeterminate {
   to {
     background-position: -200% 0;
   }
 }
 
-.fivo-status[hidden],
-.fivo-status [hidden],
-.fivo-toolbar[hidden],
-.fivo-toolbar [hidden],
-.fivo-progress[hidden],
-.fivo-progress [hidden] {
+.filumo-status[hidden],
+.filumo-status [hidden],
+.filumo-toolbar[hidden],
+.filumo-toolbar [hidden],
+.filumo-progress[hidden],
+.filumo-progress [hidden] {
   display: none;
 }
 
 @media (pointer: coarse) {
-  :is(.fivo-toolbar, .fivo-status) button,
-  .fivo-toolbar select,
-  .fivo-zoom-field {
+  :is(.filumo-toolbar, .filumo-status) button,
+  .filumo-toolbar select,
+  .filumo-zoom-field {
     min-height: 44px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .fivo-status-icon {
+  .filumo-status-icon {
     animation: none !important;
   }
 
-  .fivo-progress progress:indeterminate {
+  .filumo-progress progress:indeterminate {
     animation: none;
   }
 }
 
 // 浏览器表单主题只作用于控件，不改变源文档内的表单或图片。
-.fivo-viewer[data-theme='dark'] > .fivo-toolbar,
-.fivo-viewer[data-theme='dark'] > .fivo-viewer-body > .fivo-status,
-.fivo-viewer[data-theme='dark'] > .fivo-viewer-body > .fivo-progress {
+.filumo-viewer[data-theme='dark'] > .filumo-toolbar,
+.filumo-viewer[data-theme='dark'] > .filumo-viewer-body > .filumo-status,
+.filumo-viewer[data-theme='dark'] > .filumo-viewer-body > .filumo-progress {
   color-scheme: dark;
 }
 
-.fivo-status-details {
+.filumo-status-details {
   max-width: 440px;
-  color: var(--fivo-muted);
+  color: var(--filumo-muted);
   font-size: 12px;
   text-align: left;
 }
 
-.fivo-status-details > summary {
+.filumo-status-details > summary {
   cursor: pointer;
 }
 
-.fivo-status-details > pre {
+.filumo-status-details > pre {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }

@@ -1,4 +1,4 @@
-import type { ViewerCapabilities } from '@fivo/dom';
+import type { ViewerCapabilities } from '@filumo/dom';
 import { Button, Input, InputNumber, Select } from 'antd';
 import React from 'react';
 /** 完全根据当前能力生成控件，不为缺省格式制造页数。 */

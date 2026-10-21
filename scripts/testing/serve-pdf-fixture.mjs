@@ -9,7 +9,7 @@ export function servePdfFixture(req, res, path) {
     );
   if (!match) return false;
   const mode = match[1];
-  if (mode === 'private' && req.headers['x-fivo-fixture'] !== 'allowed') {
+  if (mode === 'private' && req.headers['x-filumo-fixture'] !== 'allowed') {
     res.writeHead(401).end();
     return true;
   }

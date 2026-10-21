@@ -5,15 +5,15 @@ import { resolveBuildOrder } from '../../scripts/build/build-order.mjs';
 test('新格式依赖闭包复用 Text 而不依赖 Office', () => {
   const manifests = {
     core: {},
-    dom: { dependencies: { '@fivo/core': 'workspace:^' } },
+    dom: { dependencies: { '@filumo/core': 'workspace:^' } },
     text: {
-      dependencies: { '@fivo/core': 'workspace:^', '@fivo/dom': 'workspace:^' },
+      dependencies: { '@filumo/core': 'workspace:^', '@filumo/dom': 'workspace:^' },
     },
     json: {
-      dependencies: { '@fivo/text': 'workspace:^', '@fivo/dom': 'workspace:^' },
+      dependencies: { '@filumo/text': 'workspace:^', '@filumo/dom': 'workspace:^' },
     },
     markdown: {
-      dependencies: { '@fivo/text': 'workspace:^', '@fivo/dom': 'workspace:^' },
+      dependencies: { '@filumo/text': 'workspace:^', '@filumo/dom': 'workspace:^' },
     },
   };
   assert.deepEqual(resolveBuildOrder(['json'], manifests), [
@@ -31,14 +31,14 @@ test('新格式依赖闭包复用 Text 而不依赖 Office', () => {
 test('构建请求包时补齐 workspace 前置依赖并保持拓扑顺序', () => {
   const manifests = {
     core: { dependencies: {} },
-    dom: { dependencies: { '@fivo/core': 'workspace:^' } },
+    dom: { dependencies: { '@filumo/core': 'workspace:^' } },
     office: {
       dependencies: {
-        '@fivo/core': 'workspace:^',
-        '@fivo/dom': 'workspace:^',
+        '@filumo/core': 'workspace:^',
+        '@filumo/dom': 'workspace:^',
       },
     },
-    viewer: { dependencies: { '@fivo/office': 'workspace:^' } },
+    viewer: { dependencies: { '@filumo/office': 'workspace:^' } },
   };
   assert.deepEqual(resolveBuildOrder(['viewer'], manifests), [
     'core',
@@ -56,8 +56,8 @@ test('构建顺序拒绝未知包和循环依赖', () => {
   assert.throws(
     () =>
       resolveBuildOrder(['core'], {
-        core: { dependencies: { '@fivo/dom': 'workspace:^' } },
-        dom: { dependencies: { '@fivo/core': 'workspace:^' } },
+        core: { dependencies: { '@filumo/dom': 'workspace:^' } },
+        dom: { dependencies: { '@filumo/core': 'workspace:^' } },
       }),
     /循环依赖/,
   );

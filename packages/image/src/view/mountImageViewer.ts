@@ -1,4 +1,4 @@
-import type { ViewContext, ViewHandle } from '@fivo/dom';
+import type { ViewContext, ViewHandle } from '@filumo/dom';
 import type { ImageSession } from '../runtime/ImageSession';
 import { mountImageSurface } from './ImageSurface';
 

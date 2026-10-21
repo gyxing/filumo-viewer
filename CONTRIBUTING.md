@@ -1,4 +1,4 @@
-# 参与 Fivo 开发
+# 参与 Filumo 开发
 
 使用 Node 22 和 pnpm 11.10.0，固定版本见 packageManager。
 

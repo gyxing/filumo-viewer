@@ -1,1 +1,1 @@
-export { TextFindBar } from '@fivo/dom/text';
+export { TextFindBar } from '@filumo/dom/text';

@@ -1,5 +1,5 @@
-import type { ViewContext, ViewHandle, ViewOptions } from '@fivo/dom';
-import { useStyles as acquireStyles } from '@fivo/dom';
+import type { ViewContext, ViewHandle, ViewOptions } from '@filumo/dom';
+import { useStyles as acquireStyles } from '@filumo/dom';
 import { STYLE_SCOPE } from '../../generated/package';
 import { createOfficeCapabilities } from '../../runtime/capabilities';
 import { createOfficeViewServices } from '../../services/createOfficeViewServices';
@@ -23,7 +23,7 @@ export async function mountNativeOffice(
     releaseStyle = acquireStyles('office', document, context.stylePolicy);
   const scope = document.createElement('div');
   scope.className = STYLE_SCOPE;
-  scope.dataset.fivoOfficeRoot = 'true';
+  scope.dataset.filumoOfficeRoot = 'true';
   scope.style.height = '100%';
   const root = document.createElement('div');
   root.className = 'office-file-viewer';
@@ -42,9 +42,9 @@ export async function mountNativeOffice(
   layout.className = 'office-file-viewer__layout';
   content.className = 'office-file-viewer__content';
   workspace.className = 'office-file-viewer__workspace';
-  searchHost.className = reviewHost.className = 'fivo-native-panel';
+  searchHost.className = reviewHost.className = 'filumo-native-panel';
   stage.className = 'office-file-viewer__stage';
-  notices.className = 'fivo-office-notices';
+  notices.className = 'filumo-office-notices';
   partial.setAttribute('role', 'alert');
   notices.append(summary, warningList);
   workspace.append(searchHost, stage, reviewHost);

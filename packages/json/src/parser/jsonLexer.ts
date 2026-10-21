@@ -1,4 +1,4 @@
-import { throwIfAborted } from '@fivo/core';
+import { throwIfAborted } from '@filumo/core';
 export type JsonTokenKind =
   | 'string'
   | 'number'

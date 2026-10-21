@@ -36,7 +36,7 @@ const aliases = {
           args.path,
         ),
       }));
-    builder.onResolve({ filter: /^@fivo\// }, (args) => {
+    builder.onResolve({ filter: /^@filumo\// }, (args) => {
       const [, name, entry] = args.path.split('/');
       const item = WORKSPACE_PACKAGES.find((item) => item.name === name);
       if (
@@ -70,6 +70,28 @@ const aliases = {
           ),
         };
       },
+    );
+    builder.onResolve(
+      { filter: /^\/assets\/pdf\/generated\// },
+      ({ path }) => ({
+        path,
+        external: true,
+      }),
+    );
+    builder.onLoad(
+      { filter: /[\\/]packages[\\/]pdf[\\/]dist[\\/]assets\.js$/ },
+      async ({ path }) => ({
+        loader: 'js',
+        contents: (await readFile(path, 'utf8'))
+          .replace(
+            /(['"])\.\/worker\.js\1/g,
+            JSON.stringify('/assets/pdf/worker.js'),
+          )
+          .replace(
+            /import\((['"])\.\/generated\/pdf-text-layer\.js\1\)/g,
+            "import('/assets/pdf/generated/pdf-text-layer.js')",
+          ),
+      }),
     );
     if (framework.startsWith('vue'))
       builder.onResolve({ filter: /^vue$/ }, () => ({
@@ -111,6 +133,10 @@ const result = await build({
   logLevel: 'warning',
 });
 const files = new Map([
+  [
+    '/assets/pdf/generated/pdf-text-layer.js',
+    join(root, 'packages/pdf/dist/generated/pdf-text-layer.js'),
+  ],
   ['/shared/demo.css', join(root, 'examples/shared/demo.css')],
   ['/assets/worker.js', join(root, 'packages/office/dist/worker.js')],
 ]);
@@ -223,6 +249,6 @@ const server = http.createServer(async (req, res) => {
 });
 server.listen(port, '127.0.0.1', () =>
   console.log(
-    'Fivo ' + framework + ' 示例：http://127.0.0.1:' + server.address().port,
+    'Filumo ' + framework + ' 示例：http://127.0.0.1:' + server.address().port,
   ),
 );

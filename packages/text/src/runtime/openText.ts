@@ -1,5 +1,5 @@
-import type { DocumentSource, OpenContext } from '@fivo/core';
-import { createSession, FivoError, throwIfAborted } from '@fivo/core';
+import type { DocumentSource, OpenContext } from '@filumo/core';
+import { createSession, FilumoError, throwIfAborted } from '@filumo/core';
 import type { TextOptions } from '../options';
 import { TextContent } from '../reader/TextContent';
 import { isBinaryDocument } from '../reader/binarySignature';
@@ -19,7 +19,7 @@ export async function openText(
   const bytes = await source.readAll(context.signal);
   throwIfAborted(context.signal);
   if (fallback && isBinaryDocument(bytes))
-    throw new FivoError('UNSUPPORTED_FORMAT', '该文件无法按纯文本读取');
+    throw new FilumoError('UNSUPPORTED_FORMAT', '该文件无法按纯文本读取');
   const content = new TextContent(
     bytes,
     { ...options, mimeType: source.mimeType },
@@ -30,8 +30,8 @@ export async function openText(
     await content.setEncoding(fallback ? 'auto' : options.encoding ?? 'auto');
     throwIfAborted(context.signal);
     if (fallback && !content.document) {
-      if (content.error) throw new FivoError('TEXT_READ_FAILED', content.error);
-      throw new FivoError('UNSUPPORTED_FORMAT', '该文件无法按纯文本读取');
+      if (content.error) throw new FilumoError('TEXT_READ_FAILED', content.error);
+      throw new FilumoError('UNSUPPORTED_FORMAT', '该文件无法按纯文本读取');
     }
     context.reportProgress(undefined);
     return createSession<TextSessionData>({

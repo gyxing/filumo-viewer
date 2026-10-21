@@ -16,7 +16,7 @@ const groupVersions = new Map<string, Set<string>>([
 ]);
 const listeners = new Set<(definition: Definition) => void>();
 // 同一 Document 中的重复包副本共享租约，避免卸载一个实例时误删其他实例样式。
-const STORE = Symbol.for('fivo.style-leases.v1');
+const STORE = Symbol.for('filumo.style-leases.v1');
 type StyleDocument = Document & { [STORE]?: Map<string, StyleEntry> };
 /** 声明预编译样式，不访问 DOM；支持在 SSR 中安全导入。 */
 export function registerStyle(group: string, id: string, css: string): void {
@@ -69,7 +69,7 @@ function acquire(
     throw new Error('已有样式内容不一致');
   if (!entry) {
     const element = document.createElement('style');
-    element.dataset.fivoStyle = definition.id;
+    element.dataset.filumoStyle = definition.id;
     if (policy.nonce) element.nonce = policy.nonce;
     element.textContent = definition.css;
     (document.head ?? document.documentElement).append(element);
@@ -100,7 +100,7 @@ export function useStyles(
   if (policy.mode === 'external') {
     const marker = document.defaultView
       ?.getComputedStyle(document.documentElement)
-      .getPropertyValue('--fivo-style-' + group)
+      .getPropertyValue('--filumo-style-' + group)
       .trim();
     const versions = groupVersions.get(group);
     // external 的单值组标记无法证明多版本兼容，冲突时明确拒绝。

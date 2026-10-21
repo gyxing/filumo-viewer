@@ -1,13 +1,13 @@
-import type { ViewerHandle } from '@fivo/dom';
-import { image } from '@fivo/image';
-import { office } from '@fivo/office';
-import { pdf } from '@fivo/pdf';
-import { text } from '@fivo/text';
-import { json } from '@fivo/json';
-import { markdown } from '@fivo/markdown';
-import { csv } from '@fivo/csv';
-import { xml } from '@fivo/xml';
-import { code } from '@fivo/code';
+import type { ViewerHandle } from '@filumo/dom';
+import { image } from '@filumo/image';
+import { office } from '@filumo/office';
+import { pdf } from '@filumo/pdf';
+import { text } from '@filumo/text';
+import { json } from '@filumo/json';
+import { markdown } from '@filumo/markdown';
+import { csv } from '@filumo/csv';
+import { xml } from '@filumo/xml';
+import { code } from '@filumo/code';
 // 强制 Worker 使资源部署失败可见，正常宿主也可以采用默认 auto 回退策略。
 export const plugins = [
   office({ worker: 'always' }),
@@ -18,9 +18,7 @@ export const plugins = [
   csv(),
   xml(),
   code(),
-  pdf({
-    assetsBaseUrl: new URL('assets/pdf/assets/pdfjs/', document.baseURI).href,
-  }),
+  pdf(),
 ];
 export const options = { height: '65vh' };
 let readyCount = 0;
@@ -84,7 +82,7 @@ export function setupDemo(getViewer: () => ViewerHandle | undefined) {
         Boolean(viewer().getCapabilities().search),
         '匿名字节内容识别和默认 Worker',
       );
-      await viewer().getCapabilities().search!.setQuery('Fivo');
+      await viewer().getCapabilities().search!.setQuery('Filumo');
       for (
         let i = 0;
         i < 80 && (viewer().getCapabilities().search?.resultCount ?? 0) < 1;
@@ -143,14 +141,17 @@ export function setupDemo(getViewer: () => ViewerHandle | undefined) {
         .getCapabilities()
         .actions!.find((a) => a.id === 'office.notes')!
         .run();
-      check(document.querySelectorAll('.fivo-viewer').length === 1, '单一外壳');
+      check(
+        document.querySelectorAll('.filumo-viewer').length === 1,
+        '单一外壳',
+      );
       await viewer().destroy();
       check(
-        document.querySelectorAll('.fivo-viewer').length === 0,
+        document.querySelectorAll('.filumo-viewer').length === 0,
         '销毁清理外壳',
       );
       check(
-        document.querySelectorAll('style[data-fivo-style]').length === 0,
+        document.querySelectorAll('style[data-filumo-style]').length === 0,
         '销毁释放自动样式',
       );
       document.body.dataset.verification = 'passed';

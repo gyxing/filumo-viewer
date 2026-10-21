@@ -1,6 +1,6 @@
-import { SplitHandle } from '@fivo/dom/split';
-import type { ViewContext, ViewOptions } from '@fivo/dom';
-import type { TextDecoration, TextSurfaceHandle } from '@fivo/dom/text';
+import { SplitHandle } from '@filumo/dom/split';
+import type { ViewContext, ViewOptions } from '@filumo/dom';
+import type { TextDecoration, TextSurfaceHandle } from '@filumo/dom/text';
 import type { XmlSession } from '../runtime/XmlSession';
 import type { XmlDocument, XmlParseResult } from '../parser/types';
 import type { XmlTree } from './XmlTree';
@@ -44,15 +44,15 @@ export class XmlWorkspace {
     this.options = context.options;
     this.zoom = context.options.zoom ?? 100;
     this.element = document.createElement('section');
-    this.element.className = 'fivo-xml-workspace';
+    this.element.className = 'filumo-xml-workspace';
     const pane = (kind: string): Pane => {
       const element = document.createElement('section'),
         header = document.createElement('header'),
         label = document.createElement('span'),
         toggle = document.createElement('button'),
         body = document.createElement('div');
-      element.className = 'fivo-xml-pane fivo-xml-pane-' + kind;
-      body.className = 'fivo-xml-pane-body';
+      element.className = 'filumo-xml-pane filumo-xml-pane-' + kind;
+      body.className = 'filumo-xml-pane-body';
       toggle.type = 'button';
       header.append(label, toggle);
       element.append(header, body);
@@ -61,7 +61,7 @@ export class XmlWorkspace {
     this.sourcePane = pane('source');
     this.treePane = pane('tree');
     this.status = document.createElement('div');
-    this.status.className = 'fivo-xml-status';
+    this.status.className = 'filumo-xml-status';
     this.status.setAttribute('role', 'status');
     this.treePane.body.append(this.status);
     this.split = new SplitHandle(this.element, {
@@ -69,7 +69,7 @@ export class XmlWorkspace {
       minFirst: 280,
       minSecond: 240,
       onResize: (_first, second) =>
-        this.element.style.setProperty('--fivo-xml-tree-width', second + 'px'),
+        this.element.style.setProperty('--filumo-xml-tree-width', second + 'px'),
       stylePolicy: context.stylePolicy,
     });
     this.element.append(
@@ -139,7 +139,7 @@ export class XmlWorkspace {
   }
   private async mountSource(version: number) {
     if (!this.source) {
-      const module = await import('@fivo/dom/text');
+      const module = await import('@filumo/dom/text');
       if (!this.valid(version)) return;
       this.source = module.mountTextSurface(
         this.sourcePane.body,

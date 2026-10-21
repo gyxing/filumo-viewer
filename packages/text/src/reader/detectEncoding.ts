@@ -1,1 +1,1 @@
-export { decodeTextBytes } from '@fivo/core/text';
+export { decodeTextBytes } from '@filumo/core/text';

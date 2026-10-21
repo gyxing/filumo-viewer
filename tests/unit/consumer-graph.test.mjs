@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { resolve } from 'node:path';
 import test from 'node:test';
 import { auditConsumerGraph } from '../../scripts/testing/consumer-graph.mjs';
-const root = resolve('isolated/node_modules/@fivo/office').replaceAll(
+const root = resolve('isolated/node_modules/@filumo/office').replaceAll(
   '\\',
   '/',
 );

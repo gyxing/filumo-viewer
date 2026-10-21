@@ -1,4 +1,4 @@
-import { FivoError, throwIfAborted } from '@fivo/core';
+import { FilumoError, throwIfAborted } from '@filumo/core';
 import type { PdfOptions } from '../options';
 import { PDF_DEFAULTS } from '../options';
 import type { PdfBackend, PdfLayerLease } from '../runtime/contracts';
@@ -39,7 +39,7 @@ export class PdfPageView {
     private locale?: 'zh-CN' | 'en-US',
   ) {
     this.element = document.createElement('section');
-    this.element.className = 'fivo-pdf-page';
+    this.element.className = 'filumo-pdf-page';
     this.element.dataset.pdfPage = String(index + 1);
     this.element.setAttribute(
       'aria-label',
@@ -48,9 +48,9 @@ export class PdfPageView {
         (locale === 'en-US' ? '' : ' 页'),
     );
     this.content = document.createElement('div');
-    this.content.className = 'fivo-pdf-page-content';
+    this.content.className = 'filumo-pdf-page-content';
     this.status = document.createElement('div');
-    this.status.className = 'fivo-pdf-page-status';
+    this.status.className = 'filumo-pdf-page-status';
     this.status.setAttribute('role', 'status');
     this.showStatus('preparing');
     this.element.append(this.content, this.status);
@@ -144,7 +144,7 @@ export class PdfPageView {
         Math.ceil(h * renderScale),
       );
       this.lease = lease;
-      lease.canvas.className = 'fivo-pdf-canvas';
+      lease.canvas.className = 'filumo-pdf-canvas';
       this.content.append(lease.canvas);
       this.showStatus('rendering');
       const job = this.backend.render(this.index, lease.canvas, {
@@ -185,7 +185,7 @@ export class PdfPageView {
       if (
         !signal.aborted &&
         !this.closed &&
-        !(error instanceof FivoError && error.code === 'PDF_CANVAS_BUDGET')
+        !(error instanceof FilumoError && error.code === 'PDF_CANVAS_BUDGET')
       ) {
         this.renderedKey = key;
         this.showStatus('failed', String(error));
@@ -193,7 +193,7 @@ export class PdfPageView {
       if (
         !signal.aborted &&
         !this.closed &&
-        error instanceof FivoError &&
+        error instanceof FilumoError &&
         error.code === 'PDF_CANVAS_BUDGET'
       )
         this.showStatus('budget');

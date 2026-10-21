@@ -1,9 +1,9 @@
-import { createViewer } from '@fivo/dom';
-import type { ViewerHandle } from '@fivo/dom';
-import { csv } from '@fivo/csv';
-import { json } from '@fivo/json';
-import { xml } from '@fivo/xml';
-import { code } from '@fivo/code';
+import { createViewer } from '@filumo/dom';
+import type { ViewerHandle } from '@filumo/dom';
+import { csv } from '@filumo/csv';
+import { json } from '@filumo/json';
+import { xml } from '@filumo/xml';
+import { code } from '@filumo/code';
 import {
   expansionSamples,
   wideCsv,
@@ -58,7 +58,7 @@ window.addEventListener(
   { once: true },
 );
 Object.assign(window, {
-  fivoTextExpansion: {
+  filumoTextExpansion: {
     update: (options: Parameters<ViewerHandle['update']>[0]) =>
       viewer.update(options),
     setActive: (value: boolean) => viewer.setActive(value),

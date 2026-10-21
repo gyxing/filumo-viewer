@@ -26,12 +26,12 @@ export class SplitHandle {
     this.ratio = options.defaultRatio;
     this.release = useStyles('dom', panes.ownerDocument, options.stylePolicy);
     this.element = panes.ownerDocument.createElement('div');
-    this.element.className = 'fivo-split-handle';
+    this.element.className = 'filumo-split-handle';
     this.element.hidden = true;
     this.element.tabIndex = 0;
     this.element.setAttribute('role', 'separator');
     this.element.setAttribute('aria-orientation', 'vertical');
-    if (!source.id) source.id = 'fivo-split-source-' + ++nextHandleId;
+    if (!source.id) source.id = 'filumo-split-source-' + ++nextHandleId;
     this.element.setAttribute('aria-controls', source.id);
     this.element.addEventListener('pointerdown', this.pointerDown);
     this.element.addEventListener('pointermove', this.pointerMove);

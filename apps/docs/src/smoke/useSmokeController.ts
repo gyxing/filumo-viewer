@@ -1,15 +1,15 @@
-import { csv } from '@fivo/csv';
+import { csv } from '@filumo/csv';
 import { sampleFileName } from './sampleFileName';
-import { xml } from '@fivo/xml';
-import { code } from '@fivo/code';
-import type { ControllerSnapshot } from '@fivo/core';
-import type { ViewerCapabilities, ViewerHandle } from '@fivo/dom';
-import { image } from '@fivo/image';
-import { json } from '@fivo/json';
-import { markdown } from '@fivo/markdown';
-import { office } from '@fivo/office';
-import { pdf } from '@fivo/pdf';
-import { text } from '@fivo/text';
+import { xml } from '@filumo/xml';
+import { code } from '@filumo/code';
+import type { ControllerSnapshot } from '@filumo/core';
+import type { ViewerCapabilities, ViewerHandle } from '@filumo/dom';
+import { image } from '@filumo/image';
+import { json } from '@filumo/json';
+import { markdown } from '@filumo/markdown';
+import { office } from '@filumo/office';
+import { pdf } from '@filumo/pdf';
+import { text } from '@filumo/text';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { docsPath } from '../site-path';
 import { redact, resetSmokeConfig } from './config';
@@ -108,7 +108,7 @@ export function useSmokeController() {
     log('source', '读取样本：' + sample.label);
     try {
       const response = await fetch(
-        docsPath('__fivo_smoke/files/' + encodeURIComponent(sample.id)),
+        docsPath('__filumo_smoke/files/' + encodeURIComponent(sample.id)),
         { signal: controller.signal },
       );
       if (!response.ok)

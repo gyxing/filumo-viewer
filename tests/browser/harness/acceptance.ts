@@ -1,6 +1,6 @@
-import { createSession } from '@fivo/core';
-import { createViewer, useStyles } from '@fivo/dom';
-import { office } from '@fivo/office';
+import { createSession } from '@filumo/core';
+import { createViewer, useStyles } from '@filumo/dom';
+import { office } from '@filumo/office';
 const button = document.getElementById('run')!;
 button.onclick = async () => {
   const lines: string[] = [];
@@ -12,7 +12,7 @@ button.onclick = async () => {
   };
   try {
     const count = () =>
-      document.querySelectorAll('style[data-fivo-style]').length;
+      document.querySelectorAll('style[data-filumo-style]').length;
     let blocked = false;
     try {
       useStyles('dom', document);
@@ -20,9 +20,9 @@ button.onclick = async () => {
       blocked = true;
     }
     check(blocked && count() === 0, 'CSP 拒绝无 nonce 样式并清理');
-    const first = useStyles('dom', document, { nonce: 'fivo-test' });
+    const first = useStyles('dom', document, { nonce: 'filumo-test' });
     const before = count();
-    const second = useStyles('dom', document, { nonce: 'fivo-test' });
+    const second = useStyles('dom', document, { nonce: 'filumo-test' });
     check(before > 0 && count() === before, '同文档样式引用共享');
     first();
     check(count() === before, '释放一个实例不影响另一个');
@@ -31,9 +31,9 @@ button.onclick = async () => {
     const iframe = document.createElement('iframe');
     document.body.append(iframe);
     const frameDoc = iframe.contentDocument!;
-    const release = useStyles('dom', frameDoc, { nonce: 'fivo-test' });
+    const release = useStyles('dom', frameDoc, { nonce: 'filumo-test' });
     check(
-      frameDoc.querySelectorAll('style[data-fivo-style]').length > 0 &&
+      frameDoc.querySelectorAll('style[data-filumo-style]').length > 0 &&
         count() === 0,
       '跨 Document 独立注册',
     );
@@ -102,18 +102,18 @@ button.onclick = async () => {
     document.body.append(plainHost);
     const plain = createViewer(plainHost, {
       plugins: [plugin],
-      stylePolicy: { nonce: 'fivo-test' },
+      stylePolicy: { nonce: 'filumo-test' },
     });
     await plain.open(new File(['hello'], 'a.plain'));
     report({ phase: 'content', loaded: 2, total: 4 });
     check(
       plainHost.querySelector('progress')!.value === 50 &&
-        !plainHost.querySelector<HTMLElement>('.fivo-progress')!.hidden,
+        !plainHost.querySelector<HTMLElement>('.filumo-progress')!.hidden,
       '渐进就绪后持续显示真实进度',
     );
     report(undefined);
     check(
-      plainHost.querySelector<HTMLElement>('.fivo-progress')!.hidden,
+      plainHost.querySelector<HTMLElement>('.filumo-progress')!.hidden,
       '完成后清理进度',
     );
     await plain.destroy();

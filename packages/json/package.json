@@ -1,8 +1,51 @@
 {
-  "name": "@fivo/json",
-  "version": "0.1.0-next.0",
-  "description": "Fivo json 只读预览插件",
+  "name": "@filumo/json",
+  "version": "0.1.0",
+  "description": "Read-only JSON, JSONC and JSON Lines viewer for Filumo, with split source/tree views, duplicate-key preservation and source navigation.",
+  "keywords": [
+    "filumo",
+    "json",
+    "json-viewer",
+    "json-preview",
+    "json-tree",
+    "json-source",
+    "jsonc",
+    "jsonl",
+    "ndjson",
+    "json-lines",
+    "structured-data",
+    "duplicate-keys",
+    "source-navigation",
+    "split-view",
+    "syntax-highlighting",
+    "text-search",
+    "line-numbers",
+    "virtual-scroll",
+    "web-worker",
+    "readonly",
+    "typescript",
+    "esm",
+    "json预览",
+    "json查看器",
+    "结构化数据"
+  ],
+  "homepage": "https://github.com/gyxing/office-file-viewer/tree/master/packages/json#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gyxing/office-file-viewer.git",
+    "directory": "packages/json"
+  },
+  "bugs": {
+    "url": "https://github.com/gyxing/office-file-viewer/issues"
+  },
+  "author": {
+    "name": "gyxing",
+    "url": "https://github.com/gyxing"
+  },
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "sideEffects": [
     "./dist/chunks/*.js",
     "**/*.css"
@@ -24,7 +67,7 @@
     "dist"
   ],
   "dependencies": {
-    "@fivo/core": "workspace:^",
-    "@fivo/dom": "workspace:^"
+    "@filumo/core": "workspace:^",
+    "@filumo/dom": "workspace:^"
   }
 }

@@ -1,19 +1,19 @@
-.fivo-toolbar-more {
+.filumo-toolbar-more {
   display: inline-flex;
   flex: 0 0 auto;
 }
 
-.fivo-toolbar .fivo-toolbar-more-trigger {
+.filumo-toolbar .filumo-toolbar-more-trigger {
   width: 32px;
   padding: 4px;
 }
 
-.fivo-toolbar .fivo-toolbar-more-trigger[aria-expanded='true'] {
-  color: var(--fivo-primary);
-  background: var(--fivo-hover);
+.filumo-toolbar .filumo-toolbar-more-trigger[aria-expanded='true'] {
+  color: var(--filumo-primary);
+  background: var(--filumo-hover);
 }
 
-.fivo-toolbar-menu {
+.filumo-toolbar-menu {
   position: fixed;
   inset: auto;
   z-index: 45;
@@ -23,9 +23,9 @@
   overflow: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
-  color: var(--fivo-text);
-  background: var(--fivo-surface);
-  border: 1px solid var(--fivo-border);
+  color: var(--filumo-text);
+  background: var(--filumo-surface);
+  border: 1px solid var(--filumo-border);
   border-radius: 8px;
   box-shadow: 0 6px 20px rgb(0 0 0 / 16%);
   font: 13px/1.5 system-ui, sans-serif;
@@ -33,7 +33,7 @@
 }
 
 // 菜单行覆盖主栏按钮样式，不能继承边框、居中布局和固定输入控件尺寸。
-.fivo-toolbar .fivo-toolbar-menu > .fivo-toolbar-menu-item {
+.filumo-toolbar .filumo-toolbar-menu > .filumo-toolbar-menu-item {
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -43,7 +43,7 @@
   min-height: 34px;
   box-sizing: border-box;
   padding: 5px 10px;
-  color: var(--fivo-text);
+  color: var(--filumo-text);
   background: transparent;
   border: 0;
   border-radius: 4px;
@@ -54,33 +54,33 @@
 }
 
 // 同层存在图标时为无图标项预留一列；纯文字子菜单不增加空白缩进。
-.fivo-toolbar .fivo-toolbar-menu[data-icons='true'] > .fivo-toolbar-menu-item[data-icon=''] {
+.filumo-toolbar .filumo-toolbar-menu[data-icons='true'] > .filumo-toolbar-menu-item[data-icon=''] {
   padding-left: 32px;
 }
 
-.fivo-toolbar .fivo-toolbar-menu-item:is(:hover, [data-active='true'], [aria-expanded='true']):not(:disabled) {
-  color: var(--fivo-text);
-  background: var(--fivo-hover);
+.filumo-toolbar .filumo-toolbar-menu-item:is(:hover, [data-active='true'], [aria-expanded='true']):not(:disabled) {
+  color: var(--filumo-text);
+  background: var(--filumo-hover);
 }
 
-.fivo-toolbar .fivo-toolbar-menu-item[role='menuitemradio'][aria-checked='true']:not(:disabled) {
-  color: var(--fivo-primary);
-  background: var(--fivo-selected);
+.filumo-toolbar .filumo-toolbar-menu-item[role='menuitemradio'][aria-checked='true']:not(:disabled) {
+  color: var(--filumo-primary);
+  background: var(--filumo-selected);
 }
 
-.fivo-toolbar .fivo-toolbar-menu-item:focus-visible {
-  outline: 1px solid var(--fivo-primary);
+.filumo-toolbar .filumo-toolbar-menu-item:focus-visible {
+  outline: 1px solid var(--filumo-primary);
   outline-offset: -1px;
 }
 
-.fivo-toolbar .fivo-toolbar-menu-item:disabled {
-  color: var(--fivo-disabled-text);
+.filumo-toolbar .filumo-toolbar-menu-item:disabled {
+  color: var(--filumo-disabled-text);
   background: transparent;
   opacity: 1;
   cursor: default;
 }
 
-.fivo-menu-label {
+.filumo-menu-label {
   flex: 0 1 auto;
   min-width: 0;
   overflow: hidden;
@@ -88,18 +88,18 @@
   text-overflow: ellipsis;
 }
 
-.fivo-menu-value {
+.filumo-menu-value {
   flex: 0 1 auto;
   min-width: 0;
   margin-left: auto;
   overflow: hidden;
-  color: var(--fivo-muted);
+  color: var(--filumo-muted);
   font-size: 12px;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 
-.fivo-menu-indicator {
+.filumo-menu-indicator {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -107,31 +107,31 @@
   margin-left: auto;
 }
 
-.fivo-menu-value:not([hidden]) + .fivo-menu-indicator {
+.filumo-menu-value:not([hidden]) + .filumo-menu-indicator {
   margin-left: 0;
 }
 
-.fivo-menu-indicator > svg {
+.filumo-menu-indicator > svg {
   width: 14px;
   height: 14px;
 }
 
-.fivo-toolbar-menu-item[aria-checked='true'] > .fivo-menu-indicator {
-  color: var(--fivo-primary);
+.filumo-toolbar-menu-item[aria-checked='true'] > .filumo-menu-indicator {
+  color: var(--filumo-primary);
 }
 
-.fivo-toolbar-menu > [role='separator'] {
+.filumo-toolbar-menu > [role='separator'] {
   height: 1px;
   margin: 4px 8px;
-  background: var(--fivo-border);
+  background: var(--filumo-border);
 }
 
-.fivo-toolbar-menu[hidden] {
+.filumo-toolbar-menu[hidden] {
   display: none;
 }
 
 @media (pointer: coarse) {
-  .fivo-toolbar .fivo-toolbar-menu > .fivo-toolbar-menu-item {
+  .filumo-toolbar .filumo-toolbar-menu > .filumo-toolbar-menu-item {
     height: 44px;
     min-height: 44px;
   }

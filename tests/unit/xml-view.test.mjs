@@ -9,7 +9,7 @@ const result = await build({
       "export {XmlTree} from './packages/xml/src/view/XmlTree'; export {xmlNodeLabel, xmlNodeParts} from './packages/xml/src/view/xmlRows';",
     resolveDir: process.cwd(),
   },
-  alias: { '@fivo/dom/outline': resolve('packages/dom/src/outline.ts') },
+  alias: { '@filumo/dom/outline': resolve('packages/dom/src/outline.ts') },
   loader: { '.less': 'empty' },
   bundle: true,
   write: false,
@@ -101,10 +101,10 @@ test('XML 富标签区分名称和值，数字布尔外观仍保持字符串，�
   try {
     const row = tree.element.querySelector('[data-outline-id="3"]');
     assert.equal(
-      row.querySelector('.fivo-xml-node-name').textContent,
+      row.querySelector('.filumo-xml-node-name').textContent,
       'enabled',
     );
-    assert.equal(row.querySelector('.fivo-xml-node-value').textContent, 'true');
+    assert.equal(row.querySelector('.filumo-xml-node-value').textContent, 'true');
     assert.equal(row.getAttribute('aria-label'), '@enabled = "true"');
     row.onclick();
     assert.deepEqual(navigated, [{ start: 17, end: 31 }]);
@@ -117,19 +117,19 @@ test('XML 富标签区分名称和值，数字布尔外观仍保持字符串，�
     assert.equal(
       tree.element
         .querySelector('[data-outline-id="3"]')
-        .querySelector('.fivo-xml-node-value').textContent,
+        .querySelector('.filumo-xml-node-value').textContent,
       'true',
     );
     assert.equal(
       tree.element
         .querySelector('[data-outline-id="2"]')
-        .querySelector('.fivo-xml-node-value').textContent,
+        .querySelector('.filumo-xml-node-value').textContent,
       '001',
     );
     assert.equal(
       tree.element
         .querySelector('[data-outline-id="5"]')
-        .querySelector('.fivo-xml-node-value').textContent,
+        .querySelector('.filumo-xml-node-value').textContent,
       '<b>文本</b>',
     );
     assert.equal(xmlNodeLabel(nodes[4]), 'xmlns:p = "urn:example"');
@@ -194,7 +194,7 @@ test('XML 树缩放同时更新行高，原文查找选择不反向导航', () =
   try {
     tree.update(false, 'zh-CN', 200);
     tree.revealNode('40');
-    assert.equal(tree.element.style['--fivo-outline-row-height'], '56px');
+    assert.equal(tree.element.style['--filumo-outline-row-height'], '56px');
     assert.ok(tree.element.scrollTop > 0);
     assert.deepEqual(navigated, []);
   } finally {

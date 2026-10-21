@@ -16,7 +16,7 @@ export function SiteFooter({ content }: SiteFooterProps) {
           <i />
           <i />
         </span>
-        <span>Fivo</span>
+        <span>Filumo</span>
       </a>
       <p>{content.footer.description}</p>
       <div>

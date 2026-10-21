@@ -50,7 +50,7 @@ const samples = {
     ]),
     '_rels/.rels': rels('word/document.xml'),
     'word/document.xml':
-      '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>Fivo Office preview ready</w:t></w:r></w:p><w:p><w:r><w:t>DOCX bridge and automatic styles</w:t></w:r></w:p><w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440"/></w:sectPr></w:body></w:document>',
+      '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>Filumo Office preview ready</w:t></w:r></w:p><w:p><w:r><w:t>DOCX bridge and automatic styles</w:t></w:r></w:p><w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440"/></w:sectPr></w:body></w:document>',
   },
   xlsx: {
     '[Content_Types].xml': types([
@@ -65,11 +65,11 @@ const samples = {
     ]),
     '_rels/.rels': rels('xl/workbook.xml'),
     'xl/workbook.xml':
-      '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Fivo sheet" sheetId="1" r:id="rId1"/></sheets></workbook>',
+      '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Filumo sheet" sheetId="1" r:id="rId1"/></sheets></workbook>',
     'xl/_rels/workbook.xml.rels':
       '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>',
     'xl/worksheets/sheet1.xml':
-      '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><dimension ref="A1:B2"/><sheetData><row r="1"><c r="A1" t="inlineStr"><is><t>Fivo spreadsheet</t></is></c><c r="B1"><v>42</v></c></row><row r="2"><c r="A2" t="inlineStr"><is><t>Automatic styles</t></is></c></row></sheetData></worksheet>',
+      '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><dimension ref="A1:B2"/><sheetData><row r="1"><c r="A1" t="inlineStr"><is><t>Filumo spreadsheet</t></is></c><c r="B1"><v>42</v></c></row><row r="2"><c r="A2" t="inlineStr"><is><t>Automatic styles</t></is></c></row></sheetData></worksheet>',
   },
   pptx: {
     '[Content_Types].xml': types([
@@ -88,7 +88,7 @@ const samples = {
     'ppt/_rels/presentation.xml.rels':
       '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide" Target="slides/slide1.xml"/></Relationships>',
     'ppt/slides/slide1.xml':
-      '<p:sld xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><p:cSld><p:spTree><p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr><p:grpSpPr/><p:sp><p:nvSpPr><p:cNvPr id="2" name="Title"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr><p:spPr><a:xfrm><a:off x="914400" y="914400"/><a:ext cx="7315200" cy="914400"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></p:spPr><p:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" sz="2800"/><a:t>Fivo presentation ready</a:t></a:r></a:p></p:txBody></p:sp></p:spTree></p:cSld></p:sld>',
+      '<p:sld xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><p:cSld><p:spTree><p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr><p:grpSpPr/><p:sp><p:nvSpPr><p:cNvPr id="2" name="Title"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr><p:spPr><a:xfrm><a:off x="914400" y="914400"/><a:ext cx="7315200" cy="914400"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></p:spPr><p:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" sz="2800"/><a:t>Filumo presentation ready</a:t></a:r></a:p></p:txBody></p:sp></p:spTree></p:cSld></p:sld>',
   },
 };
 samples.docx['[Content_Types].xml'] = types([
@@ -110,9 +110,9 @@ samples.docx['word/styles.xml'] =
 samples.docx['word/_rels/document.xml.rels'] =
   '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rIdComments" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments" Target="comments.xml"/><Relationship Id="rIdStyles" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>';
 samples.docx['word/comments.xml'] =
-  '<w:comments xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:comment w:id="0" w:author="Fivo" w:date="2026-10-01T00:00:00Z"><w:p><w:r><w:t>Fivo comment fixture</w:t></w:r></w:p></w:comment></w:comments>';
+  '<w:comments xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:comment w:id="0" w:author="Filumo" w:date="2026-10-01T00:00:00Z"><w:p><w:r><w:t>Filumo comment fixture</w:t></w:r></w:p></w:comment></w:comments>';
 samples.docx['word/document.xml'] =
-  '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:pPr><w:pStyle w:val="Heading1"/></w:pPr><w:r><w:t>Fivo heading</w:t></w:r></w:p><w:p><w:r><w:t xml:space="preserve">Fivo Office preview ready. </w:t></w:r><w:ins w:id="1" w:author="Fivo" w:date="2026-10-01T00:00:00Z"><w:r><w:t xml:space="preserve">Inserted text </w:t></w:r></w:ins><w:del w:id="2" w:author="Fivo" w:date="2026-10-01T00:00:00Z"><w:r><w:delText>Deleted text</w:delText></w:r></w:del></w:p><w:p><w:commentRangeStart w:id="0"/><w:r><w:t>Commented sentence</w:t></w:r><w:commentRangeEnd w:id="0"/><w:r><w:commentReference w:id="0"/></w:r></w:p><w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440"/></w:sectPr></w:body></w:document>';
+  '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:pPr><w:pStyle w:val="Heading1"/></w:pPr><w:r><w:t>Filumo heading</w:t></w:r></w:p><w:p><w:r><w:t xml:space="preserve">Filumo Office preview ready. </w:t></w:r><w:ins w:id="1" w:author="Filumo" w:date="2026-10-01T00:00:00Z"><w:r><w:t xml:space="preserve">Inserted text </w:t></w:r></w:ins><w:del w:id="2" w:author="Filumo" w:date="2026-10-01T00:00:00Z"><w:r><w:delText>Deleted text</w:delText></w:r></w:del></w:p><w:p><w:commentRangeStart w:id="0"/><w:r><w:t>Commented sentence</w:t></w:r><w:commentRangeEnd w:id="0"/><w:r><w:commentReference w:id="0"/></w:r></w:p><w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440"/></w:sectPr></w:body></w:document>';
 samples.xlsx['[Content_Types].xml'] = samples.xlsx[
   '[Content_Types].xml'
 ].replace(
@@ -122,7 +122,7 @@ samples.xlsx['[Content_Types].xml'] = samples.xlsx[
 samples.xlsx['xl/worksheets/_rels/sheet1.xml.rels'] =
   '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rIdComment" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments" Target="../comments1.xml"/></Relationships>';
 samples.xlsx['xl/comments1.xml'] =
-  '<comments xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><authors><author>Fivo</author></authors><commentList><comment ref="A1" authorId="0"><text><t>Cell comment fixture</t></text></comment></commentList></comments>';
+  '<comments xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><authors><author>Filumo</author></authors><commentList><comment ref="A1" authorId="0"><text><t>Cell comment fixture</t></text></comment></commentList></comments>';
 samples.pptx['[Content_Types].xml'] = samples.pptx[
   '[Content_Types].xml'
 ].replace(
@@ -140,11 +140,11 @@ samples.pptx['ppt/_rels/presentation.xml.rels'] = samples.pptx[
 );
 samples.pptx['ppt/slides/slide2.xml'] = samples.pptx[
   'ppt/slides/slide1.xml'
-].replace('Fivo presentation ready', 'Fivo second slide');
+].replace('Filumo presentation ready', 'Filumo second slide');
 samples.pptx['ppt/slides/_rels/slide1.xml.rels'] =
   '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rIdNotes" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/notesSlide" Target="../notesSlides/notesSlide1.xml"/></Relationships>';
 samples.pptx['ppt/notesSlides/notesSlide1.xml'] =
-  '<p:notes xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><p:cSld><p:spTree><p:sp><p:nvSpPr><p:cNvPr id="2" name="Notes"/><p:cNvSpPr/><p:nvPr><p:ph type="body"/></p:nvPr></p:nvSpPr><p:spPr/><p:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:t>Fivo speaker notes</a:t></a:r></a:p></p:txBody></p:sp></p:spTree></p:cSld></p:notes>';
+  '<p:notes xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><p:cSld><p:spTree><p:sp><p:nvSpPr><p:cNvPr id="2" name="Notes"/><p:cNvSpPr/><p:nvPr><p:ph type="body"/></p:nvPr></p:nvSpPr><p:spPr/><p:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:t>Filumo speaker notes</a:t></a:r></a:p></p:txBody></p:sp></p:spTree></p:cSld></p:notes>';
 for (const [format, entries] of Object.entries(samples)) {
   const writer = new ZipWriter(new Uint8ArrayWriter(), {
     useWebWorkers: false,
@@ -192,13 +192,13 @@ complex['word/document.xml'] =
   '<w:sectPr><w:headerReference w:type="default" r:id="headerNative"/><w:footerReference w:type="default" r:id="footerNative"/><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="720" w:footer="720"/></w:sectPr></w:body></w:document>';
 complex['word/header1.xml'] =
   '<w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">' +
-  paragraph('固定页眉 Fivo') +
+  paragraph('固定页眉 Filumo') +
   '</w:hdr>';
 complex['word/footer1.xml'] =
   '<w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:p><w:fldSimple w:instr="PAGE"/></w:p></w:ftr>';
 complex['word/footnotes.xml'] =
   '<w:footnotes xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:footnote w:id="1">' +
-  paragraph('脚注说明 Fivo') +
+  paragraph('脚注说明 Filumo') +
   '</w:footnote></w:footnotes>';
 const relations = ['header', 'footer', 'footnotes']
   .map(

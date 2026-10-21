@@ -1,8 +1,43 @@
 {
-  "name": "@fivo/dom",
-  "version": "0.1.0-next.0",
-  "description": "Fivo dom",
+  "name": "@filumo/dom",
+  "version": "0.1.0",
+  "description": "Framework-independent DOM file viewer shell for Filumo, with toolbars, shared text surfaces, outlines and style management.",
+  "keywords": [
+    "filumo",
+    "document-viewer",
+    "file-viewer",
+    "file-preview",
+    "document-preview",
+    "dom",
+    "vanilla-javascript",
+    "framework-agnostic",
+    "toolbar",
+    "outline-tree",
+    "text-viewer",
+    "split-pane",
+    "csp",
+    "typescript",
+    "esm",
+    "文件预览",
+    "文档预览"
+  ],
+  "homepage": "https://github.com/gyxing/office-file-viewer/tree/master/packages/dom#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gyxing/office-file-viewer.git",
+    "directory": "packages/dom"
+  },
+  "bugs": {
+    "url": "https://github.com/gyxing/office-file-viewer/issues"
+  },
+  "author": {
+    "name": "gyxing",
+    "url": "https://github.com/gyxing"
+  },
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "sideEffects": [
     "./src/outline.ts",
     "./src/outline/OutlineTree.ts",
@@ -78,6 +113,6 @@
     "dist"
   ],
   "dependencies": {
-    "@fivo/core": "workspace:^"
+    "@filumo/core": "workspace:^"
   }
 }

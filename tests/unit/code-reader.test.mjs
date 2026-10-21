@@ -9,7 +9,7 @@ const result = await build({
       "export * from './packages/code/src/fileTypes'; export * from './packages/code/src/highlight/languages'; export * from './packages/code/src/runtime/CodeHighlighter'; export {codeLanguageOptions} from './packages/code/src/view/languageMenu'; export {sampleFileName} from './apps/docs/src/smoke/sampleFileName';",
     resolveDir: process.cwd(),
   },
-  alias: { '@fivo/core/text': resolve('packages/core/src/text.ts') },
+  alias: { '@filumo/core/text': resolve('packages/core/src/text.ts') },
   bundle: true,
   write: false,
   platform: 'node',

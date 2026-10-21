@@ -1,110 +1,123 @@
 ---
-title: 纯文本、JSON 与 Markdown
+title: 文本、结构化文件与代码
+description: Filumo 的文本编码、JSON/JSONC/JSONL、Markdown、CSV/TSV、XML 和代码预览能力、默认值及限制。
+keywords:
+  - Filumo
+  - file preview
+  - document viewer
+  - 文件预览
 siteLayout: docs
 toc: content
 ---
 
-# 纯文本、JSON 与 Markdown
+# 文本、结构化文件与代码
 
-三个插件共用现有 DOM 外壳和框架适配器，不需要安装新的 React/Vue 专用组件。
+六个独立插件共用 Core 的文本处理与 DOM 视图，不需要通过 Text 包复用公共逻辑，也不需要新的框架专用组件。当前版本为 0.1.0，尚未发布；安装组合见[包总览](./packages)。
 
-```ts
-import { createViewer } from '@fivo/dom';
-import { text } from '@fivo/text';
-import { json } from '@fivo/json';
-import { markdown } from '@fivo/markdown';
+```ts | pure
+import { createViewer } from '@filumo/dom';
+import { text, json, markdown, csv, xml, code } from '@filumo/viewer';
 
 const viewer = createViewer(container, {
-  plugins: [text(), json(), markdown()],
+  plugins: [text(), json(), markdown(), csv(), xml(), code()],
   resourcePolicy: { maxFileBytes: 20 * 1024 * 1024 },
 });
-await viewer.open(new File(['第一行\n第二行'], 'sample.txt'));
+await viewer.open(new File(['first line\nsecond line'], 'sample.txt'));
+// 宿主卸载时调用，释放当前会话与视图。
+async function disposePreview() {
+  await viewer.destroy();
+}
 ```
 
-普通字符串仍表示 URL；直接文本内容应使用 File、Blob 或来源工厂。下载始终保存原文件字节。
+普通字符串表示 URL；直接文本应使用 File、Blob 或 DocumentSource。下载保存原始文件字节，视图切换不改写文件。上例 20 MiB 是宿主自行选择的限制，不是格式包的统一默认上限。
 
-## 编码与原文
+## 编码识别与切换
 
-自动模式依次使用 BOM、来源 MIME 中的 charset、明显的 UTF-16 字节特征、严格 UTF-8 和 GB18030 解码，覆盖常见 GBK 文件。识别成功后直接显示正文，编码控件展示实际编码；缺少声明时属于内容推断，仍可手动纠正，非法字节或明显非文本内容保留编码选择入口。手动指定编码优先，切换或重新选择自动均从当前原始字节解码，不再次下载。
+公共解码按手动选择、BOM、来源 MIME charset、格式提示、内容推断的优先级处理。自动识别结合 UTF-16 字节特征、严格 UTF-8 与 GB18030，覆盖常见 GBK 文件；没有声明时属于内容推断，可手动纠正。XML 额外读取前 4 KiB 中的编码声明，优先级低于 BOM 与来源 charset。
 
-Text 默认接管 TXT、LOG、INI、CONF、CFG、PROPERTIES、OUT，默认显示真实行号并启用自动换行；可在插件选项中配置 extensions、lineNumbers、wrap，通过 lineNumbers: false 或更多操作菜单关闭行号。
+更多菜单直接选中实际使用的 UTF-8、UTF-16LE、UTF-16BE、GBK 或 GB18030，并提供重新自动识别操作。切换从已有原始字节重新解码，不重复下载。手动编码不兼容时保留上一次正常内容，在右上角提示失败原因和重试方式；首次打开没有可用内容时才显示编码选择空态。
 
-Text 默认还提供内容兜底：所有专用插件均未匹配后，未知后缀、无后缀或只有 text/plain 声明的文件会先检查文件头及编码特征，再完整解码并校验可读性。确认是文本后使用原文视图，HTML、XML 等标签保持文字，不额外执行或解析；无法确认时提示暂不支持该格式。专用插件已经接管后的解析错误、网络失败、超时和配额错误不转换成文本预览。
+## 默认视图与工具栏
 
-可通过 `text({ fallback: false })` 关闭自动兜底；未注册 Text 时不会隐式加载它。显式 `viewer.open(input, { pluginId: 'text' })` 仍可选择原文。兜底首次解码固定采用自动识别，不使用 `encoding` 的手动默认值绕过校验，成功打开后仍可切换编码。探测模块按需加载，区间读取不可用时可能读取完整来源，最终打开复用读取缓存并继续遵守 resourcePolicy。
+| 插件       | 初始视图                   | 原文行号         | 自动换行     |
+| ---------- | -------------------------- | ---------------- | ------------ |
+| Text       | 原文                       | 开启             | 开启         |
+| Code       | 源码                       | 开启             | 开启         |
+| JSON / XML | 结构；宽容器原文与结构各半 | 开启             | 开启         |
+| Markdown   | 阅读                       | 原文默认关闭     | 开启         |
+| CSV        | 表格，首行作为表头         | 原文模式默认关闭 | 原文模式开启 |
 
-编码、视图切换、查找、自动换行和行号按当前格式收纳到更多操作菜单。Markdown 大纲保留在主工具栏；JSON 使用同一个按钮展开或收起当前选中分支，普通值及空容器不可切换。JSON、XML 的左侧原文默认显示真实行号，可在更多菜单中切换，当前文件内缩放、视图切换和重新解码均保留选择；Markdown 的原文视图默认隐藏行号。
+行号默认只显示真实行数。编码、视图、查找、自动换行和行号按格式收纳到更多菜单，一级操作带图标。Markdown 大纲保留在主栏；JSON 分支展开/收起合并为状态按钮。JSON/XML 原文行号可从更多菜单切换，当前文件内视图切换、缩放和重新解码保留选择。
 
-JSON 支持结构和原文模式，原始数字及重复键按源范围保留。默认展开两层，maxDepth 默认 256、maxNodes 默认 200000。错误 JSON 保持可查看原文，不自动伪装成 TXT。
+## Text 与未知文件兜底
 
-JSON 默认在宽容器显示原生只读双栏，左侧是带语法颜色的原文，右侧结构树使用连接线、加减号和 Object/Array 数量摘要。点击节点可定位原文；收起结构区后原文铺满。小于 720px 的容器一次显示一个区域，原有 `initialMode: 'tree'` 配置值继续有效。结构解析失败时保留原文与诊断；单独原文只加载轻量行着色，不加载结构扫描器。单行超过 65536 个 UTF-16 代码单元时跳过着色，完整内容仍可阅读。
+Text 明确接管 TXT、LOG、INI、CONF、CFG、PROPERTIES、OUT。可配置 extensions、encoding、lineNumbers、wrap 与 fallback。所有专用插件未匹配后，未知后缀或无后缀文件才通过文件头、编码特征和完整可读性检查尝试原文预览；标签保持文本，不执行 HTML。无法确认时提示暂不支持该格式。
 
-Markdown 支持基础排版、GFM 表格、任务列表、删除线、代码高亮、大纲和原文；不包含公式、Mermaid 或编辑器。常用原生 HTML 在阅读视图中受控呈现，包括表格合并、链接、图片、文字格式、标题和 details 折叠内容；HTML 标题和自定义锚点参与正文内定位。标签、属性和局部样式经过限制，脚本、事件属性、全局样式及嵌入页面不会进入阅读视图。代码中的 HTML 保持字面内容。
+text({ fallback: false }) 禁用兜底。首次兜底固定自动识别，不用手动默认编码绕过检查；成功后仍可切换编码。专用插件的解析错误、网络失败、超时或配额错误不会转成 Text。未注册 Text 时不隐式启用。
 
-```ts
-const plugins = [
-  text({ encoding: 'auto', wrap: true }),
-  json({ initialMode: 'source' }),
-  markdown({ initialMode: 'reading', highlight: true, maxHighlightChars: 65536 }),
-];
-```
+## JSON / JSONC / JSONL / NDJSON
 
-## 按需加载与依赖
+JSON 严格校验；JSONC 允许注释及尾逗号，不支持 JSON5。默认结构与原文双栏各半，支持拖动分隔线，窄于 720px 时一次呈现一个区域。结构保留重复键及数字原文，不通过 JavaScript 数字转换丢失大整数。点击节点可定位原文，默认展开两层。
 
-注册插件只创建轻量描述符。JSON/Markdown 初始原文模式只加载读取和原文视图，进入结构/阅读模式才解析；Worker 内部同样保持动态任务边界。
+JSONL/NDJSON 按非空物理行独立校验，记录列表与详情分开窗口化，坏行不影响其他记录。结构错误保留原文和诊断，不伪装成 TXT。
 
-纯文本、JSON 不新增第三方运行时依赖。Markdown 仅使用 marked 和 highlight.js；可见且已支持语言的代码块才加载高亮核心和该语言，未知语言、关闭高亮或超过预算时保留完整普通代码。
+| 预算             | 默认值    |
+| ---------------- | --------- |
+| maxDepth         | 256       |
+| maxNodes         | 200,000   |
+| maxRecords       | 1,000,000 |
+| maxCachedRecords | 3         |
+| maxCachedNodes   | 200,000   |
 
-HTML 片段渲染只在解析结果含真实 HTML token 时加载；行内代码或代码块中的标签不会触发该模块。HTML 图片复用资源解析与懒加载，链接和图片遵循相同的协议及生命周期约束。
+initialMode: 'source' 延迟结构扫描。超长单行超过 65,536 个 UTF-16 代码单元时跳过行着色，完整原文仍可阅读。
 
-安装标准预设会安装其全部格式依赖；运行时懒加载不等于 npm 按未来打开的文件安装包。只需要原文或 JSON 时可以仅安装对应格式包。
+## Markdown
 
-`@fivo/text/reader` 提供不访问 DOM 的 readText、行索引和查找能力；`@fivo/text/view` 是独立原文视图入口。格式样式随视图持有租约，也可以由宿主显式加载对应 styles.css 后使用 external 样式模式。
+默认阅读模式，开启大纲与代码高亮。支持标题、列表、GFM 表格、任务列表、删除线、引用、代码块和原文。阅读表格铺满内容区，代码块保留横向滚动；任务列表使用独立复选框，不重复显示项目符号或原始 [ ] 标记。
 
-## 资源与生命周期
+常用 HTML 受控呈现，含 br、table、a、img、标题、文字格式和 details；标签、属性及局部样式受限制，脚本、事件属性、全局样式和嵌入页面不会进入阅读视图。HTML 标题及自定义锚点参与定位；代码中的标签始终保持字面内容。不含公式、Mermaid 或编辑器。
 
-Markdown 相对链接和图片使用远端文档地址或显式 baseUrl；本机文件不猜测磁盘目录，可通过 resolveResource 回调指定地址。链接和图片仍执行协议检查，图片在可见时请求。
+相对资源使用远端文档 URL 或显式 baseUrl；本机 File 不自动获取相邻文件。通过 resolveResource 提供受控映射。图片进入可见范围后请求，遵守协议及生命周期约束。
 
-worker 可设置 auto、always、never，也可指定 workerFactory。Worker 在真实任务开始时创建，取消和销毁使旧结果失效；主线程模式不承诺同步第三方解析可在执行中抢占。
+marked 与 highlight.js 是已有必要依赖。高亮按可见代码块和语言加载，maxHighlightChars 默认 65,536；未知语言、关闭高亮或超预算时显示普通代码。HTML 片段渲染模块只在真实 HTML token 出现时加载。
 
-新格式的 Worker 使用 ESM 动态分块。Vite 宿主需要设置 `worker: { format: 'es' }`；手动部署 Worker 时要同时发布 `worker.js` 与它引用的 `worker-chunks` 目录，保留相对路径。
+## CSV / TSV
 
-原文窗口化和结构树窗口化控制 DOM 数量，不意味着读取或解析内存无限。宿主应通过 resourcePolicy 限制输入，结构与高亮另有相应处理预算。
+默认首行表头；TSV 默认 Tab，CSV 自动识别逗号、分号、Tab 或竖线。支持分隔符切换、列宽拖动、矩形选区和完整 TSV 复制。所有字段均为只读字符串，不执行公式。表格按行列窗口化，解析失败可保留原文。
 
-## 新增格式与公共入口
+| 预算               | 默认值    |
+| ------------------ | --------- |
+| maxRows            | 1,000,000 |
+| maxColumns         | 4,096     |
+| maxCachedCells     | 20,000    |
+| cellCacheBytes     | 4 MiB     |
+| maxCellDetailChars | 65,536    |
 
-新增独立包为 `@fivo/csv`、`@fivo/xml`、`@fivo/code`，JSONC、JSONL、NDJSON 由 `@fivo/json` 处理。标准预设共九个插件，各格式之间没有反向依赖 Text 包。
+详情截断不截断复制的原始字段。
 
-CSV/TSV 默认首行表头，支持分隔符切换、列宽调整、矩形选择和完整 TSV 复制；按行列窗口化。默认最多 1,000,000 行、4,096 列，字段缓存最多 20,000 项且估算不超过 4 MiB，详情显示最多 65,536 字符，复制仍使用完整字段。解析失败保留原文。
+## XML
 
-JSONC 允许注释和尾逗号，JSON 仍严格校验，不支持 JSON5。JSONL 按非空物理行独立校验，左侧记录列表、右侧结构/原文详情，整文件原文单独显示。默认最多 1,000,000 条记录，详情 LRU 最多 3 条且合计 200,000 节点，坏行不影响其他记录。
+只接管明确 XML，不接管 SVG。原文与结构默认各半，支持拖动调整。结构呈现命名空间、属性、混合文本、CDATA、注释及处理指令；空白文本默认隐藏。名称、值和辅助标记分色，属性与正文始终视为字符串，不根据外观转为数字或布尔值。
 
-XML 只接管明确 XML，不接管 SVG。原文和结构默认各半，可拖动调整；支持命名空间、属性、混合文本、CDATA、注释和处理指令，空白文本默认隐藏。结构限制深度 256、节点 200,000；DOCTYPE 返回诊断，不请求外部实体。编码声明仅取前 4 KiB，优先级低于 BOM 和来源 charset。 结构区的名称、值和辅助标记分色，与 JSON 共用结构主题色；选中时保留语义颜色。属性值及正文始终按字符串展示，不根据数字或布尔外观转换类型，长值可定位原文查看。
+默认 initialMode: 'tree'、maxDepth: 256、maxNodes: 200000。DOCTYPE 返回诊断，不请求外部实体。单独原文模式延迟结构解析。
 
-Code 支持 JS/JSX、TS/TSX、HTML/CSS、LESS/SCSS/Sass、Shell、Python、SQL、Java、C/C++、C#、Go、Rust；.h 默认 C，可手动切换 C++。默认显示行号、换行开启；行号可从更多菜单关闭，HTML 显示原文。LESS/SCSS 按需使用现有语法模块，Sass 使用包内轻量着色规则；只预览源码，不编译或应用样式。独立 Worker 才加载现有 highlight.js 与必要语法，默认 262,144 字符、100,000 装饰区间、5,000ms 超时；关闭 Worker、超预算、不可用或失败时继续显示可查找、复制的原文，不在主线程同步高亮。
+## Code
 
-新增格式查找最多保留 10,000 个结果；字节、解码原文、索引和结构可能同时占内存，宿主仍须通过 resourcePolicy 限制输入。
+| 类别       | 文件范围                                                                                 |
+| ---------- | ---------------------------------------------------------------------------------------- |
+| Web        | JS/JSX, TS/TSX, HTML, CSS, LESS, SCSS, Sass                                              |
+| 常用语言   | Shell, Python, SQL, Java, C/C++, C#, Go, Rust, PHP, Ruby, Kotlin, Swift, Lua             |
+| 配置与脚本 | YAML/YML, TOML, .env/.env.\*, PowerShell, BAT/CMD                                        |
+| 构建与协议 | Dockerfile, Makefile/GNUmakefile, CMakeLists.txt, .mk/.cmake, GraphQL, Proto, Diff/Patch |
 
-新代码从 `@fivo/core/text` 使用解码、行索引、查找、TextContent 和任务协议，从 `@fivo/dom/text` 按需加载原文视图。文案、高亮装饰、拖柄分别使用 DOM 的 text-messages、text-highlight、split 子入口；旧 `@fivo/text/reader` 和 `@fivo/text/view` 保留兼容导出。公共解码优先级为手动选择、BOM、来源 charset、格式提示、内容推断。
+这些能力统一位于 @filumo/code。文件名、后缀和默认语言共用规则；.h 默认 C，可手动切换 C++。Vue/Svelte 混合语法适配仍为后续范围。源码只展示，不执行脚本、编译 Sass 或应用样式。明确的 JSON/XML 等后缀保持专用包归属。
 
-external 模式须加载 `@fivo/dom/styles.css` 和实际使用格式的 styles.css；旧 Text/view 也使用 DOM 原文样式。部署 Worker 时保留各包 worker.js 与 worker-chunks。新增包只复用已有 saxes、highlight.js，不增加第三方库种类。
+高亮只在独立 Worker 中运行，按语言加载已有 highlight.js；Sass 使用包内轻量规则。默认最多 262,144 字符、100,000 装饰区间、5,000ms。关闭 Worker、超预算、不可用、失败或超时时继续显示可复制、查找的原文，不转到主线程同步高亮。
 
+## 部署与资源预算
 
-## Code 的常用开发文件
+新集成使用 @filumo/core/text 的解码、TextContent、行索引、查找与任务协议，以及 @filumo/dom/text 的原文视图。DOM 的 text-messages、text-highlight、outline 和 split 是对应公共子入口；旧 Text/reader 与 Text/view 继续兼容导出。
 
-这些格式统一注册在 `@fivo/code`，提供带高亮的只读源码预览，不新增格式包或第三方库：
+external 模式加载 DOM 及实际使用格式的 styles.css，不需要为了 JSON/XML 的原文额外导入 Text 样式。Worker 手动部署需保留每个格式包的 worker.js 与 worker-chunks；Vite 使用 worker: { format: 'es' }。Code 的 Worker 策略与 Office 自动回退语义不同，不能把 Office 设置直接套用到所有格式。
 
-| 类别 | 文件范围 |
-| --- | --- |
-| 配置 | `.yaml`、`.yml`、`.toml`、`.env`、`.env.*` |
-| Windows 脚本 | `.ps1`、`.psm1`、`.psd1`、`.bat`、`.cmd` |
-| 常用语言 | `.php`、`.rb`、`.rake`、`.kt`、`.kts`、`.swift`、`.lua` |
-| 构建 | `Dockerfile`、`Dockerfile.*`、`*.dockerfile`、`Makefile`、`GNUmakefile`、`.mk`、`CMakeLists.txt`、`.cmake` |
-| 接口定义 | `.graphql`、`.gql`、`.proto` |
-| 补丁 | `.diff`、`.patch` |
-
-文件身份按明确文件名和后缀共同识别，描述符和默认语法共用同一规则。普通 TXT、INI、CONF、CFG、Properties 继续由 Text 处理；CMakeLists.txt 等明确构建/环境文件名为 Code 留出常规识别机会。未注册 Code 时可使用 Text 的内容兜底，或显式选择 Text。专用格式后缀保持原归属，例如 `.env.json` 由 JSON 处理、`Dockerfile.xml` 由 XML 处理。
-
-语言菜单沿用纯菜单交互，用分隔线按类别整理；默认行号开启、换行开启。TOML 复用现有 INI 语法，Dockerfile 加载 Shell，YAML 加载上游声明需要的 Ruby；PHP 同时支持裸代码与带标签的 HTML 模板。`.env` 的变量引用和命令片段只展示，不展开或执行。Diff 的新增和删除使用明暗主题下的不同颜色。
-
-公共样本保留原始基本文件名，烟测不会把 `Makefile`、`CMakeLists.txt`、`.env.production` 重新拼成其他文件名。Vue/Svelte 的混合语法适配仍属后续增强范围。
+查找最多保留 10,000 个匹配。窗口化控制 DOM 数量，不限制解码原文、索引及结构的总内存。使用 resourcePolicy.maxFileBytes 与格式预算控制实际输入，并针对代表性文件验证性能。

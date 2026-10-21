@@ -18,7 +18,7 @@ import './generate-samples.mjs';
 import { installFrozenConsumer } from './install-consumer.mjs';
 import { packPackages, verifyInstalledPackages } from './pack-packages.mjs';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
-const work = await mkdtemp(join(tmpdir(), 'fivo-consumers-'));
+const work = await mkdtemp(join(tmpdir(), 'filumo-consumers-'));
 const tarballs = join(work, 'tarballs');
 await mkdir(tarballs);
 const packed = await packPackages(root, tarballs);
@@ -67,8 +67,8 @@ for (const [id, example, version] of cases) {
   const metadata = JSON.parse(
     await readFile(join(root, 'examples', example, 'package.json'), 'utf8'),
   );
-  metadata.dependencies['@fivo/core'] = overrides['@fivo/core'];
-  metadata.dependencies['@fivo/viewer'] = overrides['@fivo/viewer'];
+  metadata.dependencies['@filumo/core'] = overrides['@filumo/core'];
+  metadata.dependencies['@filumo/viewer'] = overrides['@filumo/viewer'];
   for (const name of [
     'text',
     'json',
@@ -79,7 +79,7 @@ for (const [id, example, version] of cases) {
     'xml',
     'code',
   ])
-    metadata.dependencies['@fivo/' + name] = overrides['@fivo/' + name];
+    metadata.dependencies['@filumo/' + name] = overrides['@filumo/' + name];
   for (const name of Object.keys(metadata.dependencies))
     if (overrides[name]) metadata.dependencies[name] = overrides[name];
   if (example === 'react') {
@@ -108,7 +108,7 @@ for (const [id, example, version] of cases) {
     throw new Error(id + ' 意外安装框架兼容运行时：' + installed.join(','));
   await writeFile(
     join(directory, 'type-smoke.ts'),
-    "import {office,type OfficeOptions} from '@fivo/office'; import {standardPlugins} from '@fivo/viewer'; import {createSession} from '@fivo/core'; import type {ViewerHandle} from '@fivo/dom'; import {OutlineTree,type OutlineSnapshot} from '@fivo/dom/outline'; import {text} from '@fivo/text'; import {readText} from '@fivo/core/text'; import {mountTextSurface} from '@fivo/dom/text'; import {formatEncodingWarning} from '@fivo/dom/text-messages'; import {highlightToDecorations} from '@fivo/dom/text-highlight'; import {SplitHandle} from '@fivo/dom/split'; void formatEncodingWarning; void highlightToDecorations; void SplitHandle; import {json} from '@fivo/json'; import {markdown} from '@fivo/markdown'; const options:OfficeOptions={worker:'never',onWarning:warning=>console.log(warning.code)}; const plugin=office(options); let viewer:ViewerHandle|undefined; let outline:OutlineTree<{id:string}>|undefined; let outlineSnapshot:OutlineSnapshot<{id:string}>|undefined; void outline; void outlineSnapshot; void viewer; void plugin; void standardPlugins; void createSession; void text; void readText; void mountTextSurface; void json; void markdown;\n",
+    "import {office,type OfficeOptions} from '@filumo/office'; import {standardPlugins} from '@filumo/viewer'; import {createSession} from '@filumo/core'; import type {ViewerHandle} from '@filumo/dom'; import {OutlineTree,type OutlineSnapshot} from '@filumo/dom/outline'; import {text} from '@filumo/text'; import {readText} from '@filumo/core/text'; import {mountTextSurface} from '@filumo/dom/text'; import {formatEncodingWarning} from '@filumo/dom/text-messages'; import {highlightToDecorations} from '@filumo/dom/text-highlight'; import {SplitHandle} from '@filumo/dom/split'; void formatEncodingWarning; void highlightToDecorations; void SplitHandle; import {json} from '@filumo/json'; import {markdown} from '@filumo/markdown'; const options:OfficeOptions={worker:'never',onWarning:warning=>console.log(warning.code)}; const plugin=office(options); let viewer:ViewerHandle|undefined; let outline:OutlineTree<{id:string}>|undefined; let outlineSnapshot:OutlineSnapshot<{id:string}>|undefined; void outline; void outlineSnapshot; void viewer; void plugin; void standardPlugins; void createSession; void text; void readText; void mountTextSurface; void json; void markdown;\n",
   );
   await writeFile(
     join(directory, 'tsconfig-smoke.json'),
@@ -153,9 +153,9 @@ for (const [id, example, version] of cases) {
         join(directory, 'app/public/external-' + name + '.css'),
       );
   const officeRoot = await realpath(
-    join(directory, 'node_modules/@fivo/office'),
+    join(directory, 'node_modules/@filumo/office'),
   );
-  const pdfRoot = await realpath(join(directory, 'node_modules/@fivo/pdf'));
+  const pdfRoot = await realpath(join(directory, 'node_modules/@filumo/pdf'));
   await cp(
     join(pdfRoot, 'dist/assets/pdfjs'),
     join(directory, 'app/public/assets/pdf/assets/pdfjs'),
@@ -167,7 +167,7 @@ for (const [id, example, version] of cases) {
   const workerEntries = new Set();
   let graph;
   const audit = {
-    name: 'fivo-static-import-audit',
+    name: 'filumo-static-import-audit',
     generateBundle(_options, bundle) {
       graph = auditConsumerGraph(bundle, officeRoot, officeManifest);
       if (graph.violations.length) throw Error(graph.violations.join('; '));
@@ -216,7 +216,7 @@ for (const [id, example, version] of cases) {
   for (const file of workerEntries)
     await readFile(join(directory, 'dist', file));
   await writeFile(
-    join(directory, 'dist/fivo-consumer.json'),
+    join(directory, 'dist/filumo-consumer.json'),
     JSON.stringify({ graph, worker: [...workerEntries] }),
   );
   report.cases.push({

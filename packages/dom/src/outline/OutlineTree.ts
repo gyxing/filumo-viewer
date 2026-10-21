@@ -31,7 +31,7 @@ export class OutlineTree<TNode> {
   constructor(private options: OutlineTreeOptions<TNode>) {
     const document = options.document;
     this.element = document.createElement('div');
-    this.element.className = 'fivo-outline-tree';
+    this.element.className = 'filumo-outline-tree';
     this.element.setAttribute('role', 'tree');
     this.element.tabIndex = 0;
     for (const [name, value] of Object.entries({
@@ -40,9 +40,9 @@ export class OutlineTree<TNode> {
       'switcher-width': SIZE.switcherWidth,
       'icon-size': SIZE.iconSize,
     }))
-      this.element.style.setProperty('--fivo-outline-' + name, value + 'px');
+      this.element.style.setProperty('--filumo-outline-' + name, value + 'px');
     this.canvas = document.createElement('div');
-    this.canvas.className = 'fivo-outline-canvas';
+    this.canvas.className = 'filumo-outline-canvas';
     this.element.append(this.canvas);
     this.element.onscroll = this.schedule;
     // 样式策略失败时尚未注册观察器，构造失败不会留下活动资源。
@@ -151,7 +151,7 @@ export class OutlineTree<TNode> {
     for (let index = begin; index < end; index++) {
       const item = this.rows[index],
         row = document.createElement('div');
-      row.className = 'fivo-outline-row';
+      row.className = 'filumo-outline-row';
       row.dataset.outlineId = item.id;
       row.style.top = index * this.rowHeight + 'px';
       row.style.paddingLeft = item.depth * SIZE.indent + 'px';
@@ -174,19 +174,19 @@ export class OutlineTree<TNode> {
         this.options.onActivate(item.id);
       };
       const guides = document.createElement('span');
-      guides.className = 'fivo-outline-guides';
+      guides.className = 'filumo-outline-guides';
       guides.setAttribute('aria-hidden', 'true');
       // 根节点的后续兄弟也需要贯穿当前子树，不能只绘制内部祖先线。
       item.ancestorHasNextSibling.forEach((continues, level) => {
         if (!continues) return;
         const guide = document.createElement('span');
-        guide.className = 'fivo-outline-guide';
+        guide.className = 'filumo-outline-guide';
         guide.dataset.root = String(level === 0);
         guide.style.left = level * SIZE.indent + SIZE.iconSize / 2 + 'px';
         guides.append(guide);
       });
       const branch = document.createElement('span');
-      branch.className = 'fivo-outline-branch';
+      branch.className = 'filumo-outline-branch';
       branch.dataset.continues = String(item.hasNextSibling);
       branch.dataset.leaf = String(item.isLeaf);
       branch.dataset.root = String(item.depth === 0);
@@ -197,7 +197,7 @@ export class OutlineTree<TNode> {
       // 子级竖线直接从父行横线末端向下，不在首个子节点行回接父级主干。
       if (item.expanded && this.rows[index + 1]?.parentId === item.id) {
         const connector = document.createElement('span');
-        connector.className = 'fivo-outline-child-connector';
+        connector.className = 'filumo-outline-child-connector';
         connector.style.left =
           (item.depth + 1) * SIZE.indent + SIZE.iconSize / 2 + 'px';
         guides.append(connector);
@@ -205,7 +205,7 @@ export class OutlineTree<TNode> {
       row.append(guides);
       if (item.isLeaf) {
         const space = document.createElement('span');
-        space.className = 'fivo-outline-leaf';
+        space.className = 'filumo-outline-leaf';
         space.setAttribute('aria-hidden', 'true');
         row.append(space);
       } else {
@@ -213,7 +213,7 @@ export class OutlineTree<TNode> {
           icon = document.createElement('span');
         switcher.type = 'button';
         switcher.tabIndex = -1;
-        switcher.className = 'fivo-outline-switcher';
+        switcher.className = 'filumo-outline-switcher';
         switcher.dataset.expanded = String(item.expanded);
         switcher.dataset.loading = String(item.loading);
         switcher.setAttribute(
@@ -237,7 +237,7 @@ export class OutlineTree<TNode> {
         row.append(switcher);
       }
       const label = document.createElement('span');
-      label.className = 'fivo-outline-label';
+      label.className = 'filumo-outline-label';
       label.title = item.text;
       const content = this.options.renderLabel?.(item.node, document);
       if (content) label.append(content);
@@ -327,7 +327,7 @@ export class OutlineTree<TNode> {
     if (height === this.rowHeight) return;
     const anchor = this.element.scrollTop / this.rowHeight;
     this.rowHeight = height;
-    this.element.style.setProperty('--fivo-outline-row-height', height + 'px');
+    this.element.style.setProperty('--filumo-outline-row-height', height + 'px');
     this.canvas.style.height = this.rows.length * height + 'px';
     this.element.scrollTop = anchor * height;
     this.render();

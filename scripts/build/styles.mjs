@@ -6,7 +6,7 @@ import { dirname, relative, resolve } from 'node:path';
 export function stylePlugin(metadata, styles, root) {
   const { group: name, version, styleScope: scope } = metadata;
   return {
-    name: 'fivo-precompiled-styles',
+    name: 'filumo-precompiled-styles',
     setup(builder) {
       builder.onResolve({ filter: /\.less$/ }, (args) => ({
         path: resolve(args.resolveDir, args.path),
@@ -26,7 +26,7 @@ export function stylePlugin(metadata, styles, root) {
           .slice(0, 16);
         const id = name + ':' + version + ':' + hash;
         styles.set(relative(root, path).replaceAll('\\', '/'), css);
-        const runtime = name === 'dom' ? './styles' : '@fivo/dom';
+        const runtime = name === 'dom' ? './styles' : '@filumo/dom';
         return {
           loader: 'js',
           resolveDir: dirname(path),

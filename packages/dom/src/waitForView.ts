@@ -1,4 +1,4 @@
-import { abortError } from '@fivo/core';
+import { abortError } from '@filumo/core';
 
 /** 停止等待不响应取消的插件；取消后才交付的句柄由此处唯一释放。 */
 export function waitForView<T>(

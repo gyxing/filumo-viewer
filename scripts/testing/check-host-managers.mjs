@@ -112,6 +112,8 @@ for (const manager of ['npm', 'yarn']) {
     root: join(directory, 'app'),
     base: '/' + manager + '/',
     logLevel: 'warn',
+    // 格式 Worker 保留动态分块，宿主验证与其他消费者采用相同的 ESM 输出。
+    worker: { format: 'es' },
     build: {
       outDir: join(directory, 'dist'),
       emptyOutDir: false,

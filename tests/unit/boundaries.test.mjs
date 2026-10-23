@@ -24,6 +24,29 @@ test('Office 包无 React/ReactDOM/兼容运行时依赖', async () => {
   }))
     assert.ok(!/^(react|react-dom|preact|inferno)(\/|$)/.test(name));
 });
+
+test('元文件转换器发布版本与验证版本一致，浏览器构建不引入原生后端', async () => {
+  const manifest = JSON.parse(await readFile('packages/office/package.json', 'utf8'));
+  const converter = JSON.parse(
+    await readFile('packages/office/node_modules/emf-converter/package.json', 'utf8'),
+  );
+  // 根锁文件不约束宿主的新安装，发布依赖必须固定到当前验证过的浏览器版本。
+  assert.equal(manifest.dependencies['emf-converter'], converter.version);
+  const result = await build({
+    stdin: {
+      contents: "export {convertEmfToDataUrl, convertWmfToDataUrl} from 'emf-converter';",
+      resolveDir: path.resolve('packages/office'),
+    },
+    bundle: true,
+    write: false,
+    platform: 'browser',
+    format: 'esm',
+    metafile: true,
+    logLevel: 'silent',
+  });
+  for (const file of Object.keys(result.metafile.inputs))
+    assert.doesNotMatch(file.replaceAll('\\', '/'), /\/node_modules\/@napi-rs\/|\.node$/);
+});
 test('Office 生产运行时图和公开声明均无 React', async () => {
   const bundle = await build({
     entryPoints: ['packages/office/src/index.ts'],

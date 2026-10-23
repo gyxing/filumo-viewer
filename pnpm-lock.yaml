@@ -221,7 +221,7 @@ importers:
         specifier: ^5.6.0
         version: 5.6.0
       emf-converter:
-        specifier: ^2.0.2
+        specifier: 2.0.2
         version: 2.0.2
       saxes:
         specifier: ^6.0.0

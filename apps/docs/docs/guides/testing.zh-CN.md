@@ -16,7 +16,7 @@ toc: content
 
 ## 环境与首次启动
 
-仓库使用 Node.js 22 与 package.json 固定的 pnpm 11.10.0。不要改用 npm/Yarn 安装仓库依赖，也不要手工修改锁文件。
+仓库使用 Node.js 22.11 或更新的 Node 22 版本，与 package.json 固定的 pnpm 11.10.0。不要改用 npm/Yarn 安装仓库依赖，也不要手工修改锁文件。
 
 ```sh
 pnpm install --frozen-lockfile
@@ -104,6 +104,20 @@ Remove-Item Env:FILUMO_DOCS_BASE
 - `pnpm build <包名>` 会自动补齐 workspace 前置包；`pnpm test:consumers` 验证其目标包组合，`pnpm test:consumers:hosts` 验证 npm/Yarn 宿主。
 - Worker 单独输出为公开 worker.js；构建清单由 metafile 记录，不硬编码哈希 chunk 名称。
 - 只有用户明确要求才执行发布、Git 提交或推送。
+
+## npm 包独立发布
+
+十五个正式包独立管理版本；首次保留 0.1.0，正式发布分支为 master，首版采用本地手动命令。GitHub Pages 的部署与 npm 发版是两个独立操作。
+
+普通修复先运行 `pnpm changeset` 记录修改包，用 `pnpm release:status` 查看计划，再用 `pnpm release:version` 更新对应包版本、依赖、CHANGELOG、README 版本标记和锁文件。全部修改完成后统一构建、测试并审阅 Git 差异；这些命令不自动提交，也不自动构建或测试。
+
+在已验证内容提交、合入并同步 master 后，先用 `pnpm release:plan pdf` 只读预览，再明确执行 `pnpm release:publish pdf`。支持多个目录名或完整 @filumo/\* 包名；工具会指出缺少的必需依赖，不静默扩大范围。首次发布使用 `release:plan --all` 和确认后的 `release:publish --all`，不必先升级 0.1.0。
+
+`pnpm build pdf` 准备前置包产物不代表必须发布所有前置包。使用新 Core API 时要声明正确最低版本并记录相应 Changeset。发布校验会核对 dist 版本、公开入口、打包后的依赖和哈希，但这些检查不证明测试通过或源码没有变化。
+
+发布沿用维护者的 npm 认证，只向官方 registry 上传。多包中途失败先查看 `tmp/release-*/result.json`，重新预览 npm 实际状态，再重试相同目标；已存在的版本会跳过。发布命令不覆盖既有版本，不自动撤包、创建 Git 标签或推送。
+
+完整操作和环境要求见仓库 CONTRIBUTING.md 及 .changeset/README.md。Changeset 是正常版本记录，需要随代码提交；本地设计和计划文档仍不提交。
 
 ## 视觉回归建议
 

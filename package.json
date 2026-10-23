@@ -1,6 +1,7 @@
 {
   "name": "filumo-workspace",
   "private": true,
+  "packageManager": "pnpm@11.10.0",
   "description": "Filumo 跨框架文档预览工作区",
   "homepage": "https://gyxing.github.io/office-file-viewer/",
   "bugs": {
@@ -17,6 +18,11 @@
   },
   "type": "module",
   "scripts": {
+    "changeset": "changeset",
+    "release:status": "node scripts/release/cli.mjs status",
+    "release:version": "node scripts/release/cli.mjs version",
+    "release:plan": "node scripts/release/cli.mjs plan",
+    "release:publish": "node scripts/release/cli.mjs publish",
     "build": "node scripts/build/packages.mjs",
     "check": "pnpm run build && pnpm run check:types && pnpm run check:lint && pnpm run check:styles && pnpm --filter filumo-docs build",
     "check:lint": "eslint packages apps/docs/src --ext .ts,.tsx --ignore-pattern \"**/dist/**\"",
@@ -38,28 +44,16 @@
     "test:consumers:hosts": "node scripts/testing/check-host-managers.mjs"
   },
   "commitlint": {
-    "extends": [
-      "@commitlint/config-conventional"
-    ]
+    "extends": ["@commitlint/config-conventional"]
   },
   "lint-staged": {
-    "*.{md,json}": [
-      "prettier --write --no-error-on-unmatched-pattern"
-    ],
-    "*.{css,less}": [
-      "stylelint --fix",
-      "prettier --write"
-    ],
-    "*.{js,jsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.{ts,tsx}": [
-      "eslint --fix",
-      "prettier --parser=typescript --write"
-    ]
+    "*.{md,json}": ["prettier --write --no-error-on-unmatched-pattern"],
+    "*.{css,less}": ["stylelint --fix", "prettier --write"],
+    "*.{js,jsx}": ["eslint --fix", "prettier --write"],
+    "*.{ts,tsx}": ["eslint --fix", "prettier --parser=typescript --write"]
   },
   "devDependencies": {
+    "@changesets/cli": "3.0.3",
     "@commitlint/cli": "^17.1.2",
     "@commitlint/config-conventional": "^17.1.0",
     "@playwright/test": "1.63.0",
@@ -73,6 +67,7 @@
     "prettier": "^2.7.1",
     "prettier-plugin-organize-imports": "^3.0.0",
     "prettier-plugin-packagejson": "^2.2.18",
+    "semver": "7.8.5",
     "stylelint": "^14.9.1",
     "typescript": "5.4.2"
   }

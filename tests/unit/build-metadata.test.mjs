@@ -3,20 +3,23 @@ import { mkdir, mkdtemp, readFile, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
+import semver from 'semver';
 import { WORKSPACE_PACKAGES } from '../../scripts/workspace-packages.js';
 import {
   preparePackageMetadata,
   readPackageMetadata,
 } from '../../scripts/build/metadata.mjs';
 
-test('正式包统一使用 Filumo 作用域和 0.1.0，包间引用不混用旧名称', async () => {
+test('正式包使用 Filumo 作用域及各自合法版本，包间引用不混用旧名称', async () => {
   const names = new Set();
   for (const { name } of WORKSPACE_PACKAGES) {
     const manifest = JSON.parse(
       await readFile(join('packages', name, 'package.json'), 'utf8'),
     );
     assert.equal(manifest.name, '@filumo/' + name);
-    assert.equal(manifest.version, '0.1.0');
+    assert.equal(semver.valid(manifest.version), manifest.version);
+    const metadata = await readPackageMetadata(join('packages', name));
+    assert.equal(metadata.version, manifest.version);
     assert.equal(names.has(manifest.name), false);
     names.add(manifest.name);
     for (const section of [
@@ -24,7 +27,9 @@ test('正式包统一使用 Filumo 作用域和 0.1.0，包间引用不混用旧
       'peerDependencies',
       'optionalDependencies',
     ])
-      for (const [dependency, version] of Object.entries(manifest[section] ?? {}))
+      for (const [dependency, version] of Object.entries(
+        manifest[section] ?? {},
+      ))
         if (version.startsWith('workspace:'))
           assert.equal(dependency.startsWith('@filumo/'), true);
   }

@@ -25,15 +25,15 @@ pnpm build
 
 ## Everyday commands
 
-| Command         | Use                            | Notes                                           |
-| --------------- | ------------------------------ | ----------------------------------------------- |
-| pnpm docs:dev   | Documentation development      | Home, Playground, docs and Chinese counterparts |
-| pnpm smoke      | Private local-file smoke tests | Opens the /dev/smoke-test workbench by default  |
-| pnpm demo:js    | JavaScript example             | Real build output, no React                     |
-| pnpm demo:react | React example                  | @filumo/react integration                       |
-| pnpm demo:vue3  | Vue 3 example                  | Native Office and KeepAlive                     |
-| pnpm demo:vue2  | Vue 2 example                  | Options API                                     |
-| pnpm docs:build | Production documentation build | Writes apps/docs/dist; does not deploy          |
+| Command | Use | Notes |
+| --- | --- | --- |
+| pnpm docs:dev | Documentation development | Home, Playground, docs and Chinese counterparts |
+| pnpm smoke | Private local-file smoke tests | Opens the /dev/smoke-test workbench by default |
+| pnpm demo:js | JavaScript example | Real build output, no React |
+| pnpm demo:react | React example | @filumo/react integration |
+| pnpm demo:vue3 | Vue 3 example | Native Office and KeepAlive |
+| pnpm demo:vue2 | Vue 2 example | Options API |
+| pnpm docs:build | Production documentation build | Writes apps/docs/dist; does not deploy |
 
 pnpm demo defaults to JavaScript. Port 4173 is the default. For simultaneous demos, choose a different port, for example pnpm demo:vue3 --port 4174.
 
@@ -47,15 +47,15 @@ The smoke workbench covers Office and additional formats, with fixture filtering
 
 ## Automated checks
 
-| Command                             | Coverage                                                 |
-| ----------------------------------- | -------------------------------------------------------- |
-| pnpm check:types                    | Package and documentation TypeScript checks              |
-| pnpm check:lint / pnpm check:styles | TypeScript/JSX and Less rules                            |
-| pnpm test                           | Existing unit/contract tests                             |
-| pnpm test:consumers                 | Packing, isolated installs and real consumers            |
-| pnpm test:browser                   | Public fixtures and browser regressions                  |
-| pnpm test:browser:local             | Private local fixtures, isolated reports                 |
-| pnpm test:acceptance                | Audit migration evidence, not a substitute for real runs |
+| Command | Coverage |
+| --- | --- |
+| pnpm check:types | Package and documentation TypeScript checks |
+| pnpm check:lint / pnpm check:styles | TypeScript/JSX and Less rules |
+| pnpm test | Existing unit/contract tests |
+| pnpm test:consumers | Packing, isolated installs and real consumers |
+| pnpm test:browser | Public fixtures and browser regressions |
+| pnpm test:browser:local | Private local fixtures, isolated reports |
+| pnpm test:acceptance | Audit migration evidence, not a substitute for real runs |
 
 Install a browser and run the focused docs suite:
 
@@ -104,6 +104,20 @@ Source edits and production builds do not publish by themselves. Git writes, pus
 - `pnpm build <package>` resolves workspace prerequisites automatically; `pnpm test:consumers` validates its selected package combinations and `pnpm test:consumers:hosts` checks npm/Yarn hosts.
 - worker.js is the public Worker asset. Build manifests use metafile output instead of fixed hashed chunk names.
 - Publishing and Git history changes require explicit authorization.
+
+## Independent npm releases
+
+The fifteen public packages have independent versions. Keep 0.1.0 for the first release. Publish from master using local commands; npm publication is separate from GitHub Pages deployment.
+
+Use `pnpm changeset` to record affected packages, `pnpm release:status` to review the version plan, and `pnpm release:version` to apply package versions, dependency ranges, changelogs, affected README version markers and the lockfile. Finish all edits before building and validating together. These commands do not commit, build or test automatically.
+
+After committing validated changes and merging/synchronizing master, run `pnpm release:plan pdf` for a read-only preview, then explicitly run `pnpm release:publish pdf`. Multiple directory names or full @filumo/\* names are supported. Required missing dependencies are reported instead of silently added to the upload scope. For the first release use `release:plan --all`, followed by an explicitly approved `release:publish --all`; do not bump 0.1.0 just to initialize publishing.
+
+`pnpm build pdf` prepares workspace prerequisites without requiring their publication. New Core API usage must declare the appropriate minimum dependency and Changeset. Release checks verify dist identities, public entries, packed dependency ranges and archive hashes; they do not prove that source is unchanged or tests passed.
+
+Publishing uses the maintainer's npm credentials and the official registry. If a multi-package upload fails, inspect `tmp/release-*/result.json`, query the actual registry state through a new preview, then retry the same selection. Existing versions are skipped. No automatic unpublish, Git tag or push is performed.
+
+Use Node 22.11 or a newer Node 22 release and the pinned pnpm 11.10.0. See CONTRIBUTING.md and .changeset/README.md for the full workflow. Changesets are release records to commit with code; local design and implementation-plan documents remain excluded.
 
 ## Visual acceptance
 

@@ -26,7 +26,11 @@ export function stylePlugin(metadata, styles, root) {
           .slice(0, 16);
         const id = name + ':' + version + ':' + hash;
         styles.set(relative(root, path).replaceAll('\\', '/'), css);
-        const runtime = name === 'dom' ? './styles' : '@filumo/dom';
+        // Less 可位于任意子目录，DOM 自身必须定位包内运行时，避免相对路径随文件层级变化。
+        const runtime =
+          name === 'dom'
+            ? resolve(root, 'packages/dom/src/styles.ts')
+            : '@filumo/dom';
         return {
           loader: 'js',
           resolveDir: dirname(path),

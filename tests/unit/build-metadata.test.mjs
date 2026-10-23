@@ -106,3 +106,75 @@ test('相同包元数据同时驱动 CSS 作用域和注册版本，不向宿主
   assert.ok([...styles.values()][0].includes('.filumo-office-v4-2-0 p'));
   assert.ok(result.outputFiles[0].text.includes('office:4.2.0:'));
 });
+
+test('DOM 根目录和嵌套目录的样式使用同一个包内注册运行时', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'filumo-dom-style-build-'));
+  const source = join(root, 'packages/dom/src');
+  await mkdir(join(source, 'shell/nested'), { recursive: true });
+  // 最小运行时记录真实打包后的注册调用，避免只检查编译字符串而遗漏模块解析。
+  await writeFile(
+    join(source, 'styles.ts'),
+    'export const registrations = []; export function registerStyle(...args) { registrations.push(args); }',
+  );
+  await writeFile(join(source, 'sample.less'), '.root { color: red; }');
+  await writeFile(
+    join(source, 'shell/nested/sample.less'),
+    '.nested { color: blue; }',
+  );
+  await writeFile(
+    join(source, 'index.ts'),
+    "import './sample.less'; import './shell/nested/sample.less'; export { registrations } from './styles';",
+  );
+  const styles = new Map();
+  const result = await build({
+    absWorkingDir: root,
+    entryPoints: [join(source, 'index.ts')],
+    bundle: true,
+    write: false,
+    format: 'esm',
+    plugins: [stylePlugin({ group: 'dom', version: '0.1.0' }, styles, root)],
+  });
+  const { registrations } = await import(
+    'data:text/javascript;base64,' +
+      Buffer.from(result.outputFiles[0].text).toString('base64')
+  );
+  assert.equal(registrations.length, 2);
+  for (const [group, id] of registrations) {
+    assert.equal(group, 'dom');
+    assert.match(id, /^dom:0\.1\.0:/);
+  }
+  assert.deepEqual(
+    registrations.map((entry) => entry[2]).sort(),
+    [...styles.values()].sort(),
+  );
+  assert.ok(styles.has('packages/dom/src/sample.less'));
+  assert.ok(styles.has('packages/dom/src/shell/nested/sample.less'));
+});
+
+test('真实 DOM 网格入口可打包子目录提示样式且保留公共导出', async () => {
+  const root = process.cwd();
+  const styles = new Map();
+  const result = await build({
+    absWorkingDir: root,
+    entryPoints: [join(root, 'packages/dom/src/grid.ts')],
+    bundle: true,
+    write: false,
+    format: 'esm',
+    platform: 'browser',
+    packages: 'external',
+    metafile: true,
+    plugins: [
+      stylePlugin(
+        await readPackageMetadata(join(root, 'packages/dom')),
+        styles,
+        root,
+      ),
+    ],
+  });
+  assert.ok(styles.has('packages/dom/src/grid.less'));
+  assert.ok(styles.has('packages/dom/src/shell/reading-notice.less'));
+  const output = Object.values(result.metafile.outputs)[0];
+  assert.ok(output.exports.includes('GridInteractionController'));
+  assert.ok(output.exports.includes('createGridNotice'));
+  assert.equal(output.imports.length, 0);
+});

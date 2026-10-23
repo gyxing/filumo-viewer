@@ -40,7 +40,8 @@ export class MarkdownNavigation {
       this.outline.setCurrent(headingId);
     }
   }
-  openAncestors(element: HTMLElement | null) {
+  openAncestors(target: HTMLElement | null) {
+    let element = target;
     let changed = false;
     while (element && element !== this.article) {
       if (element.tagName === 'DETAILS' && !(element as HTMLDetailsElement).open) {

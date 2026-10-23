@@ -67,6 +67,11 @@
   },
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "assets": ["dist/assets.d.ts"]
+    }
+  },
   "files": [
     "dist"
   ],

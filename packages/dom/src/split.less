@@ -5,6 +5,7 @@
   touch-action: none;
   user-select: none;
 }
+
 .filumo-split-handle::before {
   position: absolute;
   inset: 0 auto 0 50%;
@@ -12,10 +13,12 @@
   content: '';
   background: var(--filumo-border, #d8e1ec);
 }
+
 .filumo-split-handle:hover::before,
 .filumo-split-handle:focus-visible::before {
   background: var(--filumo-primary, #1677ff);
 }
+
 .filumo-split-handle:focus-visible {
   outline: 1px solid var(--filumo-primary, #1677ff);
   outline-offset: -1px;

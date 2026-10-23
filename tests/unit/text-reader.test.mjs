@@ -259,12 +259,16 @@ test('取消一个 Worker 请求不取消仍在使用原内容的其他请求', 
 });
 
 test('连续切换编码以最新请求为准，迟到失败和销毁结果不覆盖当前内容', async () => {
-  const listeners = new Map(), requests = [];
+  const listeners = new Map(), requests = [], cancellations = [];
   const worker = {
     addEventListener: (type, callback) => listeners.set(type, callback),
     removeEventListener: (type) => listeners.delete(type),
     terminate() {},
-    postMessage: (request) => requests.push(request),
+    // 取消信封不属于新任务；单独记录，避免回复错位后把最新任务永久挂起。
+    postMessage: (request) => {
+      if (request.cancel) cancellations.push(request);
+      else requests.push(request);
+    },
   };
   const content = new TextContent(new TextEncoder().encode('abc'), {
     worker: 'always', workerFactory: () => worker,
@@ -278,6 +282,7 @@ test('连续切换编码以最新请求为准，迟到失败和销毁结果不�
     await initial;
     const first = content.setEncoding('utf-16le');
     const second = content.setEncoding('auto');
+    assert.deepEqual(cancellations.map((request) => request.id), [requests[1].id]);
     reply(requests[2], ready);
     await second;
     reply(requests[1], { kind: 'needs-encoding', reason: '迟到失败' });

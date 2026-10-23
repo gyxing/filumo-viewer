@@ -178,7 +178,7 @@ export async function mountCsv(context: ViewContext): Promise<ViewHandle> {
       },
     );
   };
-  const render = async () => {
+  async function render() {
     const own = ++generation;
     frame.update(options);
     if (viewRevision !== content.revision) grid?.setActive(false);
@@ -281,7 +281,7 @@ export async function mountCsv(context: ViewContext): Promise<ViewHandle> {
     source.setActive(active);
     frame.state('');
     publish();
-  };
+  }
   const run = () => {
       if (!closed && active) void render().catch(error);
     },

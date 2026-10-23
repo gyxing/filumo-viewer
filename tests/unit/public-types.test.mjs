@@ -2,8 +2,7 @@ import assert from 'node:assert/strict';
 import { resolve } from 'node:path';
 import test from 'node:test';
 import ts from 'typescript';
-import { preparePackageMetadata } from '../../scripts/build/metadata.mjs';
-await preparePackageMetadata(process.cwd());
+// 工作区资源由 run-unit 统一准备；类型用例只读取构建产物，避免并发覆盖 PDF 资源。
 
 test('公共树富标签为可选配置，原有消费者与 DOM 节点返回类型兼容', () => {
   const filename = resolve('tests/__outline_label_consumer__.ts');

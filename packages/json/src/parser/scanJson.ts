@@ -112,7 +112,7 @@ export async function scanJson(
     rootId = value(await readJsonToken(text, offset, variant, signal)).id;
     while (stack.length) {
       if (++steps % 4096 === 0) {
-        await new Promise<void>((resolve) => setTimeout(resolve, 0));
+        await new Promise<void>((resolve) => { setTimeout(resolve, 0); });
         throwIfAborted(signal);
       }
       const frame = stack[stack.length - 1],

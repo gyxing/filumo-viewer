@@ -13,7 +13,7 @@ export async function indexJsonComments(
     next = 65536;
   for (let i = 0; i < text.length; i++) {
     if (i >= next) {
-      await new Promise<void>((r) => setTimeout(r, 0));
+      await new Promise<void>((r) => { setTimeout(r, 0); });
       throwIfAborted(signal);
       next = i + 65536;
     }
@@ -38,7 +38,7 @@ export async function indexJsonComments(
     ) {
       i++;
       if (i >= next) {
-        await new Promise<void>((r) => setTimeout(r, 0));
+        await new Promise<void>((r) => { setTimeout(r, 0); });
         throwIfAborted(signal);
         next = i + 65536;
       }

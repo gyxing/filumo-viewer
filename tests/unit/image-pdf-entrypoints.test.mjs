@@ -1,7 +1,7 @@
 import { build } from 'esbuild';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import { normalize, resolve } from 'node:path';
 import test from 'node:test';
 import { collectStaticInputs } from '../../scripts/testing/consumer-graph.mjs';
 import { WORKSPACE_PACKAGES } from '../../scripts/workspace-packages.js';
@@ -49,7 +49,7 @@ test('十五包声明依赖保持 image 与 Office 单向，PDF 仅增加必要�
     false,
   );
   assert.equal(
-    resolve(image.exports['./view'].import).endsWith('dist/view.js'),
+    resolve(image.exports['./view'].import).endsWith(normalize('dist/view.js')),
     true,
   );
 });

@@ -17,7 +17,7 @@ export async function readCsvRow(
     next = start + 65536;
   for (let i = start; i < end; i++) {
     if (i >= next) {
-      await new Promise<void>((r) => setTimeout(r, 0));
+      await new Promise<void>((r) => { setTimeout(r, 0); });
       throwIfAborted(signal);
       next = i + 65536;
     }
@@ -57,7 +57,7 @@ export async function csvCellText(
     if (i >= next) {
       pieces.push(part);
       part = '';
-      await new Promise<void>((r) => setTimeout(r, 0));
+      await new Promise<void>((r) => { setTimeout(r, 0); });
       throwIfAborted(options.signal);
       next = i + 65536;
     }

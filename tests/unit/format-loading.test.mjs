@@ -133,13 +133,15 @@ test('单格式根入口与读取入口不会带入其他格式实现', async ()
         dom.outputs
           .filter(
             (output) =>
-              output.inputs.length &&
-              output.inputs.every((input) =>
-                [
-                  'src/text-messages.ts',
-                  'src/text/formatEncodingWarning.ts',
-                ].includes(input),
-              ),
+              // 纯转导出入口可能没有计入体积的输入，但仍属于消息模块的静态闭包。
+              output.entryPoint === 'src/text-messages.ts' ||
+              (output.inputs.length &&
+                output.inputs.every((input) =>
+                  [
+                    'src/text-messages.ts',
+                    'src/text/formatEncodingWarning.ts',
+                  ].includes(input),
+                )),
           )
           .map((output) => resolve('packages/dom/dist', output.file)),
       );

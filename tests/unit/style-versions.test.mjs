@@ -1,8 +1,7 @@
 import { build } from 'esbuild';
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { preparePackageMetadata } from '../../scripts/build/metadata.mjs';
-await preparePackageMetadata(process.cwd());
+// run-unit 已在启动并行测试进程前统一准备元数据和 PDF 资源，模块内不重复写共享目录。
 const result = await build({
   entryPoints: ['packages/dom/src/styles.ts'],
   bundle: true,
@@ -10,6 +9,12 @@ const result = await build({
   format: 'esm',
   platform: 'node',
 });
+
+// 必须先完成模块初始化，再注册可能在顶层 await 期间启动的测试。
+const { registerStyle, replaceStyle, useStyles } = await import(
+  'data:text/javascript;base64,' +
+    Buffer.from(result.outputFiles[0].text).toString('base64')
+);
 
 test('共享原文样式的两个实例保留 nonce，最后一个卸载才释放', () => {
   const elements = [];
@@ -47,10 +52,6 @@ test('共享原文样式的两个实例保留 nonce，最后一个卸载才释�
   second();
   assert.equal(elements.length, 0);
 });
-const { registerStyle, replaceStyle, useStyles } = await import(
-  'data:text/javascript;base64,' +
-    Buffer.from(result.outputFiles[0].text).toString('base64')
-);
 const documentWith = (value) => ({
   documentElement: {},
   defaultView: { getComputedStyle: () => ({ getPropertyValue: () => value }) },

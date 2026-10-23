@@ -6,31 +6,36 @@
   .hljs-literal {
     color: var(--filumo-code-keyword);
   }
+
   .hljs-string,
   .hljs-selector-attr,
   .hljs-regexp,
   .hljs-addition {
     color: var(--filumo-code-string);
   }
+
   .hljs-number,
   .hljs-symbol,
   .hljs-attribute,
   .hljs-attr {
     color: var(--filumo-code-number);
   }
+  // 第三方语法类名保持原样，使用等价属性选择器匹配其下划线命名。
   .hljs-title,
   .hljs-section,
   .hljs-selector-class,
   .hljs-selector-id,
   .hljs-selector-pseudo,
   .hljs-bullet,
-  .hljs-built_in {
+  [class~='hljs-built_in'] {
     color: var(--filumo-primary);
   }
+
   .hljs-tag,
   .hljs-name {
     color: var(--filumo-code-keyword);
   }
+
   .hljs-deletion {
     color: var(--filumo-code-deletion, var(--filumo-code-keyword));
   }
@@ -39,6 +44,7 @@
   .hljs-template-variable {
     color: var(--filumo-code-keyword);
   }
+
   .hljs-comment,
   .hljs-quote {
     color: var(--filumo-muted);

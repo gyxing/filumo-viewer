@@ -56,7 +56,7 @@ export async function serializeGridSelection(
       if (bytes > maxBytes) throw new Error(messages.text);
       fields.push(field);
       if (++work % 1024 === 0) {
-        await new Promise<void>((resolve) => setTimeout(resolve, 0));
+        await new Promise<void>((resolve) => { setTimeout(resolve, 0); });
         check();
       }
     }

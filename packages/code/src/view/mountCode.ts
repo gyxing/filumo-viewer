@@ -233,10 +233,10 @@ export async function mountCode(context: ViewContext): Promise<ViewHandle> {
           pendingKey = '';
       });
   };
-  const run = () => {
-      if (!closed && active) void render().catch(error);
-    },
-    stop = content.subscribe(run);
+  function run() {
+    if (!closed && active) void render().catch(error);
+  }
+  const stop = content.subscribe(run);
   try {
     await render();
   } catch (reason) {

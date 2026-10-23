@@ -203,7 +203,7 @@ export class PdfSearch {
             this.truncated || this.nextPage >= this.backend.pageCount;
           this.publish();
           if (this.completed) break;
-          await new Promise<void>((resolve) => setTimeout(resolve, 0));
+          await new Promise<void>((resolve) => { setTimeout(resolve, 0); });
         }
       })
       .catch((cause) => {

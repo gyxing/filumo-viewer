@@ -5,7 +5,7 @@ import test from 'node:test';
 const bundle = await build({
   stdin: {
     contents: `export {parseXml} from './packages/office/src/engine/ooxml/xml';
-      export {readOfficeTheme} from './packages/office/src/engine/ooxml/theme';
+      export {readTheme} from './packages/office/src/engine/pptx/readPptxPresentationParts';
       export {createDocxParseContext} from './packages/office/src/engine/docx/docxParsingContext';
       export {readDocxBlockChildren, normalizeDocxPageContents} from './packages/office/src/engine/docx/parseDocxContent';
       export {parsePptxVisualTree} from './packages/office/src/engine/pptx/parsePptxSlide';`,
@@ -13,7 +13,7 @@ const bundle = await build({
   },
   bundle: true, write: false, platform: 'node', format: 'esm',
 });
-const { parseXml, readOfficeTheme, createDocxParseContext, readDocxBlockChildren,
+const { parseXml, readTheme, createDocxParseContext, readDocxBlockChildren,
   normalizeDocxPageContents, parsePptxVisualTree } = await import(
   'data:text/javascript;base64,' + Buffer.from(bundle.outputFiles[0].text).toString('base64')
 );
@@ -68,7 +68,9 @@ test('PPTX 原视觉树入口仍应用表格条件样式、直接样式和几何
           <a:tcPr><a:noFill/></a:tcPr></a:tc></a:tr>
       </a:tbl></a:graphicData></a:graphic></p:graphicFrame></p:spTree>`;
   const packageState = { entries: new Map(), relationships: {}, mediaByPath: {}, mediaByName: {} };
-  const [table] = parsePptxVisualTree(parseXml(xml).documentElement, readOfficeTheme(),
+  // PPTX 入口使用自己的 ThemeModel，不能传入 DOCX 的 OfficeTheme 合同。
+  const [table] = parsePptxVisualTree(parseXml(xml).documentElement,
+    readTheme('<a:theme xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"/>'),
     packageState, {}, 'fixture', undefined, { test: { variants: {
       wholeTbl: { text: { fontSize: 20 }, backgroundColor: '#ff0000' },
       firstRow: { borderColor: '#0000ff' },

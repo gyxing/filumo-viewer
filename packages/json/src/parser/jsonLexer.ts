@@ -21,15 +21,16 @@ export interface JsonToken {
 /** JSON/JSONC 与逐行校验共用词法规则，end 明确阻止读取到下一条记录。 */
 export async function readJsonToken(
   text: string,
-  offset: number,
+  initialOffset: number,
   variant: 'json' | 'jsonc',
   signal: AbortSignal,
   end = text.length,
 ): Promise<JsonToken> {
-  let next = offset + 65536;
+  let offset = initialOffset,
+    next = offset + 65536;
   const check = async () => {
     if (offset >= next) {
-      await new Promise<void>((resolve) => setTimeout(resolve, 0));
+      await new Promise<void>((resolve) => { setTimeout(resolve, 0); });
       throwIfAborted(signal);
       next = offset + 65536;
     }

@@ -10,7 +10,7 @@ import { gridKeyboardTarget } from './keyboard';
 import { gridInteractiveTarget, GridPointer } from './pointer';
 import { GridTextSelection } from './textSelection';
 import { gridMessages } from './messages';
-import { useStyles } from '../styles';
+import { useStyles as acquireStyles } from '../styles';
 import '../grid.less';
 
 const GRID_SEQUENCE = Symbol.for('filumo.grid.instance-sequence');
@@ -41,7 +41,7 @@ export class GridInteractionController {
     this.selection = new GridSelection(options.state);
     this.revision = adapter.revision();
     // 每个网格拥有样式租约，独立使用子入口时也遵循 external 和 CSP 策略。
-    this.releaseStyles = useStyles(
+    this.releaseStyles = acquireStyles(
       'dom',
       host.ownerDocument,
       options.stylePolicy,

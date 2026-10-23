@@ -125,6 +125,19 @@ export function createToolbarMenu(
       .then(() => { if (!disposed) return action.run?.(); })
       .catch((error) => { if (!disposed) onError(error); });
   };
+  // 每一行持有稳定处理器，延迟任务读取最新行状态，不在循环内捕获共享计时器。
+  const pointerMove = (level: MenuLevel, row: MenuRow) => (event: PointerEvent) => {
+    if (event.pointerType === 'touch' || row.item.disabled) return;
+    if (level.active === row.item.id && timer) return;
+    cancelHover();
+    focusRow(level, row.item.id, false);
+    timer = setTimeout(() => {
+      timer = undefined;
+      if (!opened || disposed) return;
+      if (row.item.children?.length) expand(level, row, false);
+      else trim(levels.indexOf(level) + 1);
+    }, row.item.children?.length ? OPEN_DELAY : CLOSE_DELAY);
+  };
   const reconcile = (level: MenuLevel, items: readonly ToolbarMenuItem[]) => {
     // 状态勾选不会改变列宽，只有文字、当前值或图标变化时才重新测量。
     const sizeKey = JSON.stringify(items.map((item) => [item.label, item.value, item.icon]));
@@ -163,18 +176,7 @@ export function createToolbarMenu(
         const owned = row;
         button.onclick = () => activate(level, owned);
         button.onfocus = () => focusRow(level, owned.item.id, false);
-        button.onpointermove = (event) => {
-          if (event.pointerType === 'touch' || owned.item.disabled) return;
-          if (level.active === owned.item.id && timer) return;
-          cancelHover();
-          focusRow(level, owned.item.id, false);
-          timer = setTimeout(() => {
-            timer = undefined;
-            if (!opened || disposed) return;
-            if (owned.item.children?.length) expand(level, owned, false);
-            else trim(levels.indexOf(level) + 1);
-          }, owned.item.children?.length ? OPEN_DELAY : CLOSE_DELAY);
-        };
+        button.onpointermove = pointerMove(level, owned);
       }
       row.item = item;
       row.button.dataset.icon = item.icon ?? '';
@@ -291,7 +293,7 @@ export function createToolbarMenu(
     owner.append(element);
     return level;
   };
-  const expand = (level: MenuLevel, row: MenuRow, focus: boolean) => {
+  function expand(level: MenuLevel, row: MenuRow, focus: boolean) {
     cancelHover();
     if (!opened || row.item.disabled || !row.item.children?.length) return;
     const depth = levels.indexOf(level) + 1;
@@ -308,7 +310,7 @@ export function createToolbarMenu(
     }
     position();
     if (focus) focusRow(levels[depth], levels[depth].items.find((item) => !item.disabled)?.id);
-  };
+  }
   const root = makeLevel();
   levels.push(root);
   trigger.setAttribute('aria-haspopup', 'menu');

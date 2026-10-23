@@ -113,7 +113,7 @@ export async function scanXml(
         throwIfAborted(signal);
         parser.write(text.slice(start, Math.min(token.end, start + 65536)));
         if (start + 65536 < token.end)
-          await new Promise<void>((r) => setTimeout(r, 0));
+          await new Promise<void>((r) => { setTimeout(r, 0); });
       }
       if (token.kind !== 'open' && token.kind !== 'close') {
         const raw = text.slice(

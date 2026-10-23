@@ -10,6 +10,12 @@ const result = await build({
   absWorkingDir: process.cwd(),
 });
 
+// 模块准备完成后再注册用例，避免首个用例读到暂时性死区中的导出。
+const { scanXml } = await import(
+  'data:text/javascript;base64,' +
+    Buffer.from(result.outputFiles[0].text).toString('base64')
+);
+
 test('XML 深度、属性预算与预先取消不交付半棵树', async () => {
   const signal = new AbortController().signal;
   assert.equal(
@@ -39,10 +45,6 @@ test('XML 深度、属性预算与预先取消不交付半棵树', async () => {
     { name: 'AbortError' },
   );
 });
-const { scanXml } = await import(
-  'data:text/javascript;base64,' +
-    Buffer.from(result.outputFiles[0].text).toString('base64')
-);
 test('XML 命名空间、属性及实体原文范围保持一致', async () => {
   const text =
       '<r xmlns:p="urn:test"><p:x a="&amp;"><![CDATA[<原文>]]>值&amp;</p:x></r>',

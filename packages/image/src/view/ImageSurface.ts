@@ -1,5 +1,5 @@
 import { abortError, notify, throwIfAborted } from '@filumo/core';
-import { useStyles } from '@filumo/dom';
+import { useStyles as acquireStyles } from '@filumo/dom';
 import { STYLE_SCOPE } from '../generated/package';
 import './image.less';
 import { calculateImageFitScale } from './imageTransform';
@@ -19,7 +19,7 @@ export async function mountImageSurface(
 ): Promise<ImageSurfaceHandle> {
   const document = container.ownerDocument,
     window = document.defaultView;
-  const releaseStyles = useStyles(
+  const releaseStyles = acquireStyles(
     'image',
     document,
     initialOptions.stylePolicy,

@@ -8,10 +8,12 @@
   overflow-anchor: none;
   background: var(--filumo-bg);
 }
+
 .filumo-pdf-pages {
   position: relative;
   width: 100%;
 }
+
 .filumo-pdf-page {
   position: absolute;
   left: 50%;
@@ -20,15 +22,18 @@
   color: #1f2328;
   box-shadow: 0 1px 5px rgb(0 0 0 / 16%);
 }
+
 .filumo-pdf-page-content {
   position: absolute;
   inset: 0;
 }
+
 .filumo-pdf-canvas {
   display: block;
   width: 100%;
   height: 100%;
 }
+
 .filumo-pdf-page-status {
   position: absolute;
   left: 12px;
@@ -38,35 +43,44 @@
   font: 13px/1.5 system-ui, sans-serif;
   text-align: center;
 }
+
 .filumo-pdf-page-status:empty {
   display: none;
 }
+
 .filumo-pdf-layers {
   position: absolute;
   inset: 0;
 }
-.filumo-pdf-layers .textLayer[data-main-rotation='90'] {
+// PDF.js 使用固定的 textLayer 类名，属性选择器保持相同的类匹配和优先级。
+.filumo-pdf-layers [class~='textLayer'][data-main-rotation='90'] {
   transform: rotate(90deg) translateY(-100%);
 }
-.filumo-pdf-layers .textLayer[data-main-rotation='180'] {
+
+.filumo-pdf-layers [class~='textLayer'][data-main-rotation='180'] {
   transform: rotate(180deg) translate(-100%, -100%);
 }
-.filumo-pdf-layers .textLayer[data-main-rotation='270'] {
+
+.filumo-pdf-layers [class~='textLayer'][data-main-rotation='270'] {
   transform: rotate(270deg) translateX(-100%);
 }
+
 .filumo-pdf-links {
   position: absolute;
   inset: 0;
   pointer-events: none;
 }
+
 .filumo-pdf-link {
   position: absolute;
   pointer-events: auto;
 }
+
 .filumo-pdf-link:focus-visible {
   outline: 2px solid var(--filumo-primary);
   outline-offset: -2px;
 }
+
 .filumo-pdf-highlight {
   position: absolute;
   pointer-events: none;

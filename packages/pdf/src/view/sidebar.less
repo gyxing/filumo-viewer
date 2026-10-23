@@ -14,14 +14,17 @@
   border-right: 1px solid var(--filumo-border);
   font: 13px/1.5 system-ui, sans-serif;
 }
+
 .filumo-pdf-sidebar[data-collapsed='true'] {
   flex-basis: 28px;
   width: 28px;
   min-width: 28px;
 }
+
 .filumo-pdf-sidebar [hidden] {
   display: none;
 }
+
 .filumo-pdf-sidebar-content {
   display: flex;
   flex: 1;
@@ -29,6 +32,7 @@
   min-width: 0;
   min-height: 0;
 }
+
 .filumo-pdf-sidebar-content > header {
   display: flex;
   flex: 0 0 auto;
@@ -39,6 +43,7 @@
   box-sizing: border-box;
   border-bottom: 1px solid var(--filumo-border);
 }
+
 .filumo-pdf-tabs {
   display: inline-flex;
   flex: 1;
@@ -52,6 +57,7 @@
   border-radius: 6px;
   background: var(--filumo-hover);
 }
+
 .filumo-pdf-tab {
   min-width: 40px;
   min-height: 28px;
@@ -64,18 +70,21 @@
   white-space: nowrap;
   cursor: pointer;
 }
+
 .filumo-pdf-tab--active {
   color: var(--filumo-primary-active);
   background: var(--filumo-surface);
   box-shadow: 0 1px 2px rgb(15 23 42 / 12%);
   font-weight: 600;
 }
+
 .filumo-pdf-sidebar-count {
   margin-left: auto;
   color: var(--filumo-muted);
   font-size: 12px;
   white-space: nowrap;
 }
+
 .filumo-pdf-sidebar-collapse,
 .filumo-pdf-sidebar-expand {
   display: inline-flex;
@@ -91,21 +100,25 @@
   border-radius: 4px;
   cursor: pointer;
 }
+
 .filumo-pdf-sidebar-expand {
   margin: 10px 1px;
 }
+
 .filumo-pdf-sidebar-collapse:hover,
 .filumo-pdf-sidebar-expand:hover,
 .filumo-pdf-tab:hover {
   color: var(--filumo-primary);
   background: var(--filumo-selected);
 }
+
 .filumo-pdf-tab:focus-visible,
 .filumo-pdf-sidebar-collapse:focus-visible,
 .filumo-pdf-sidebar-expand:focus-visible {
   outline: 2px solid var(--filumo-primary);
   outline-offset: -2px;
 }
+
 .filumo-pdf-tab-panel {
   display: flex;
   flex: 1;
@@ -113,6 +126,7 @@
   min-height: 0;
   min-width: 0;
 }
+
 .filumo-pdf-outline {
   display: flex;
   flex-direction: column;
@@ -120,22 +134,27 @@
   min-height: 0;
   overflow: hidden;
 }
+
 .filumo-pdf-outline-status {
   padding: 16px 12px;
   color: var(--filumo-muted);
   overflow-wrap: anywhere;
 }
+
 .filumo-pdf-outline-status:empty {
   display: none;
 }
+
 .filumo-pdf-thumbnails {
   flex: 1;
   min-height: 0;
   overflow: auto;
 }
+
 .filumo-pdf-thumbnails > div {
   position: relative;
 }
+
 .filumo-pdf-thumbnail {
   position: absolute;
   left: 12px;
@@ -154,15 +173,18 @@
   border-radius: 4px;
   cursor: pointer;
 }
+
 .filumo-pdf-thumbnail > canvas {
   max-width: 120px;
   max-height: 140px;
 }
+
 .filumo-pdf-thumbnail[aria-selected='true'] {
   color: var(--filumo-primary);
   background: var(--filumo-selected);
   border-color: var(--filumo-primary);
 }
+
 .filumo-pdf-thumbnail:focus-visible {
   outline: 2px solid var(--filumo-primary);
   outline-offset: -2px;

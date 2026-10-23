@@ -35,7 +35,7 @@ export async function validateJsonRecord(
     value(await readJsonToken(text, offset, 'json', signal, end));
     while (stack.length) {
       if (++steps % 4096 === 0) {
-        await new Promise<void>((r) => setTimeout(r, 0));
+        await new Promise<void>((r) => { setTimeout(r, 0); });
         throwIfAborted(signal);
       }
       const frame = stack[stack.length - 1],

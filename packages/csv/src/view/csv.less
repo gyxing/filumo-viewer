@@ -8,6 +8,7 @@
   background: var(--filumo-surface);
   font: 14px/1.5 system-ui, sans-serif;
 }
+
 .filumo-csv-viewport {
   flex: 1;
   overflow: auto;
@@ -15,15 +16,18 @@
   min-height: 0;
   outline: none;
 }
+
 .filumo-csv-header {
   position: sticky;
   top: 0;
   z-index: 2;
   background: var(--filumo-hover);
 }
+
 .filumo-csv-canvas {
   position: relative;
 }
+
 .filumo-csv-heading,
 .filumo-csv-cell {
   position: absolute;
@@ -37,17 +41,21 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .filumo-csv-heading {
   font-weight: 600;
 }
+
 .filumo-csv-row {
   position: absolute;
   left: 0;
 }
+
 .filumo-csv-heading[data-grid-find-match='true'] {
   outline: 1px solid var(--filumo-primary);
   outline-offset: -1px;
 }
+
 .filumo-csv-column-resize {
   position: absolute;
   right: 0;
@@ -57,10 +65,12 @@
   cursor: col-resize;
   touch-action: none;
 }
+
 .filumo-csv-column-resize:focus-visible {
   outline: 1px solid var(--filumo-primary);
   outline-offset: -1px;
 }
+
 .filumo-csv-detail {
   flex: 0 0 auto;
   max-height: 120px;
@@ -71,6 +81,7 @@
   overflow-wrap: anywhere;
   color: var(--filumo-muted);
 }
+
 .filumo-csv-find {
   display: flex;
   flex: 0 0 auto;
@@ -80,9 +91,11 @@
   padding: 8px;
   border-bottom: 1px solid var(--filumo-border);
 }
+
 .filumo-csv-find[hidden] {
   display: none;
 }
+
 .filumo-csv-find input {
   min-width: 100px;
   flex: 1;
@@ -93,6 +106,7 @@
   color: inherit;
   padding: 0 8px;
 }
+
 .filumo-csv-find button {
   display: inline-flex;
   width: 28px;
@@ -106,6 +120,7 @@
   color: inherit;
   cursor: pointer;
 }
+
 .filumo-csv-find-field {
   display: flex;
   flex: 1;
@@ -116,13 +131,16 @@
   border-radius: 5px;
   color: var(--filumo-muted);
 }
+
 .filumo-csv-find-field:focus-within {
   border-color: var(--filumo-primary);
 }
+
 .filumo-csv-find button:disabled {
   cursor: default;
   opacity: 0.4;
 }
+
 .filumo-csv-find button:focus-visible {
   outline: 1px solid var(--filumo-primary);
   outline-offset: -1px;

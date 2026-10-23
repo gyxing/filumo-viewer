@@ -65,6 +65,11 @@
   },
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "view": ["dist/view/index.d.ts"]
+    }
+  },
   "files": [
     "dist"
   ],

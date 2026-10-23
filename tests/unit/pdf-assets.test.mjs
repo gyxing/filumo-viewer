@@ -3,10 +3,33 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import test from 'node:test';
+import ts from 'typescript';
 import {
   adaptPdfWorker,
   extractPdfTextLayerCss,
 } from '../../scripts/build/pdf-assets.mjs';
+
+test('PDF 类型编译从源码解析自身资源入口，不依赖既有 dist 声明', () => {
+  const configPath = resolve('packages/pdf/tsconfig.json');
+  const config = ts.readConfigFile(configPath, ts.sys.readFile);
+  assert.equal(config.error, undefined);
+  const parsed = ts.parseJsonConfigFileContent(
+    config.config,
+    ts.sys,
+    resolve('packages/pdf'),
+  );
+  assert.deepEqual(parsed.errors, []);
+  const result = ts.resolveModuleName(
+    '@filumo/pdf/assets',
+    resolve('packages/pdf/src/runtime/pdfAssets.ts'),
+    parsed.options,
+    ts.sys,
+  );
+  assert.equal(
+    resolve(result.resolvedModule.resolvedFileName),
+    resolve('packages/pdf/src/assets.ts'),
+  );
+});
 
 test('PDF 显式资源路径使用页面地址，不受打包器的源码 file URL 影响', async () => {
   const bundle = await build({
@@ -26,6 +49,11 @@ test('PDF 显式资源路径使用页面地址，不受打包器的源码 file U
             path: 'assets',
             namespace: 'fixture',
           }));
+          // 自定义命名空间没有文件系统解析基准，显式交还真实源码文件。
+          builder.onResolve(
+            { filter: /[\\/]pdf[\\/]src[\\/]assets\.ts$/, namespace: 'fixture' },
+            () => ({ path: resolve('packages/pdf/src/assets.ts') }),
+          );
           builder.onLoad({ filter: /.*/, namespace: 'fixture' }, () => ({
             loader: 'js',
             contents: `import {resolvePdfAssets as resolve, PDF_BUNDLED_ASSET_BASE} from ${JSON.stringify(
@@ -88,6 +116,14 @@ test('PDF 发行清单含引擎、Worker、辅助资源和许可', async () => {
     await readFile('packages/pdf/dist/build-manifest.json', 'utf8'),
   );
   assert.equal(manifest.pdfAssets.version, '6.4.299');
+  assert.ok(
+    manifest.outputs.some((output) =>
+      output.imports.some((entry) =>
+        entry.path === '@filumo/pdf/assets' && entry.kind === 'dynamic-import' && entry.external,
+      ),
+    ),
+    '类型源码映射不能改变运行时资源入口的独立懒加载边界',
+  );
   for (const role of ['engine', 'worker', 'auxiliary', 'style', 'license'])
     assert.ok(
       manifest.pdfAssets.assets.some((asset) => asset.role === role),

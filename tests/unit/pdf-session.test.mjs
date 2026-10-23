@@ -29,10 +29,16 @@ const result = await build({
           path: 'assets',
           namespace: 'fixture',
         }));
-        builder.onLoad({ filter: /.*/, namespace: 'fixture' }, () => ({
-          contents: `export async function getPdfAssets(){return {display:${JSON.stringify(
-            engineUrl,
-          )}}}`,
+        builder.onResolve({ filter: /^@filumo\/pdf\/assets$/ }, () => ({
+          path: 'worker',
+          namespace: 'fixture',
+        }));
+        builder.onLoad({ filter: /.*/, namespace: 'fixture' }, ({ path }) => ({
+          contents: path === 'worker'
+            ? 'export function createPdfWorker(options){return options.workerFactory();}'
+            : `export async function getPdfAssets(){return {display:${JSON.stringify(
+                engineUrl,
+              )}}}`,
           loader: 'js',
         }));
       },
@@ -57,6 +63,8 @@ function create(password = false) {
       reportProgress() {},
     },
     {
+      // 会话测试显式选择外部引擎分支，避免真正加载 PDF.js 与创建浏览器 Worker。
+      assetsBaseUrl: 'https://fixture.example/pdf/',
       workerFactory: () => ({
         terminate() {
           terminated++;

@@ -10,6 +10,16 @@ export function createDocument() {
     scrollLeft = 0;
     clientHeight = 400;
     ownerDocument = document;
+    // 样式租约需要可挂载的 style 节点；这里只模拟存在 CSSStyleSheet 的状态。
+    sheet = {};
+    classList = {
+      add: (...values) => { this.className = [...new Set([...this.classNames(), ...values])].join(' '); },
+      remove: (...values) => { this.className = [...this.classNames()].filter((value) => !values.includes(value)).join(' '); },
+      contains: (value) => this.classNames().has(value),
+    };
+    classNames() {
+      return new Set((this.className ?? '').split(/\s+/).filter(Boolean));
+    }
     listeners = new Map();
     addEventListener(type, callback) {
       this.listeners.set(type, callback);
@@ -72,5 +82,6 @@ export function createDocument() {
   document.createElement = () => new Element();
   document.createElementNS = () => new Element();
   document.createTextNode = (textContent) => ({ textContent });
+  document.head = document.createElement('head');
   return document;
 }

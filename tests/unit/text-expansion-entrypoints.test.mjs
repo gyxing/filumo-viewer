@@ -27,8 +27,11 @@ test('新增格式依赖公共层且描述符不提前加载引擎或视图', as
       loader: { '.less': 'empty' },
     });
     const output = Object.keys(result.metafile.outputs).find(
-      (file) => result.metafile.outputs[file].entryPoint,
+      // 动态分块也有 entryPoint，必须按源码身份选中真正的根入口。
+      (file) => resolve(result.metafile.outputs[file].entryPoint ?? '') ===
+        resolve(`packages/${name}/src/index.ts`),
     );
+    assert.ok(output, name + ' 缺少描述符根入口');
     const inputs = [...collectStaticInputs(result.metafile, output)];
     assert.equal(
       inputs.some((file) =>

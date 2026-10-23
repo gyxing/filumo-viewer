@@ -7,9 +7,11 @@
   color: var(--filumo-text);
   background: var(--filumo-surface);
 }
+
 .filumo-xml-workspace [hidden] {
   display: none;
 }
+
 .filumo-xml-pane {
   display: flex;
   flex: 1;
@@ -17,13 +19,16 @@
   min-width: 0;
   min-height: 0;
 }
+
 .filumo-xml-workspace[data-layout='split'] > .filumo-xml-pane-tree {
   flex: 0 0 var(--filumo-xml-tree-width, calc(50% - 3px));
   min-width: 240px;
 }
+
 .filumo-xml-workspace[data-layout='split'] > .filumo-xml-pane-source {
   min-width: 280px;
 }
+
 .filumo-xml-pane > header {
   display: flex;
   align-items: center;
@@ -34,6 +39,7 @@
   color: var(--filumo-muted);
   font: 12px/1.5 system-ui, sans-serif;
 }
+
 .filumo-xml-pane > header button {
   background: transparent;
   border: 0;
@@ -42,6 +48,7 @@
   cursor: pointer;
   font: inherit;
 }
+
 .filumo-xml-pane-body {
   display: flex;
   flex: 1;
@@ -49,22 +56,27 @@
   min-height: 0;
   min-width: 0;
 }
+
 .filumo-xml-status {
   padding: 12px;
   color: var(--filumo-muted);
 }
+
 .filumo-xml-status:empty {
   display: none;
 }
+
 .filumo-xml-tree .filumo-outline-label {
   font-family: Consolas, 'Courier New', monospace;
 }
+
 .filumo-xml-node-label {
   display: inline-flex;
   max-width: 100%;
   vertical-align: top;
   white-space: nowrap;
 }
+
 .filumo-xml-node-name,
 .filumo-xml-node-value,
 .filumo-xml-node-comment {
@@ -73,33 +85,42 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .filumo-xml-node-name {
   color: var(--filumo-structure-name, var(--filumo-text));
 }
+
 .filumo-xml-node-value {
   color: var(--filumo-structure-string, var(--filumo-primary));
 }
+
 .filumo-xml-node-marker,
 .filumo-xml-node-punctuation,
 .filumo-xml-node-comment {
   color: var(--filumo-structure-muted, var(--filumo-muted));
 }
+
 .filumo-xml-node-marker,
 .filumo-xml-node-punctuation {
   flex: 0 0 auto;
 }
+
 .filumo-xml-node-comment {
   font-style: italic;
 }
+
 .filumo-xml-tag {
   color: var(--filumo-primary);
 }
+
 .filumo-xml-attribute {
   color: var(--filumo-code-keyword, #a33275);
 }
+
 .filumo-xml-string {
   color: var(--filumo-code-string, #167a50);
 }
+
 .filumo-xml-comment {
   color: var(--filumo-muted);
   font-style: italic;

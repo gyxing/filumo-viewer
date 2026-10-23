@@ -38,7 +38,7 @@ export async function scanRecords(
   };
   for (let i = 0; i < text.length; i++) {
     if (i >= nextCheck) {
-      await new Promise<void>((r) => setTimeout(r, 0));
+      await new Promise<void>((r) => { setTimeout(r, 0); });
       throwIfAborted(signal);
       nextCheck = i + 65536;
     }

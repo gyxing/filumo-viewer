@@ -7,15 +7,18 @@
   color: var(--filumo-text);
   background: var(--filumo-surface);
 }
+
 .filumo-json-lines-workspace [hidden] {
   display: none;
 }
+
 .filumo-json-lines-panes {
   display: flex;
   flex: 1;
   min-width: 0;
   min-height: 0;
 }
+
 .filumo-json-lines-list {
   display: flex;
   flex: 0 0 260px;
@@ -24,6 +27,7 @@
   min-height: 0;
   border-right: 1px solid var(--filumo-border);
 }
+
 .filumo-json-lines-detail {
   display: flex;
   flex: 1;
@@ -31,6 +35,7 @@
   min-width: 0;
   min-height: 0;
 }
+
 .filumo-json-record-tabs,
 .filumo-json-lines-layout-tabs {
   display: flex;
@@ -41,6 +46,7 @@
   padding: 6px 8px;
   border-bottom: 1px solid var(--filumo-border);
 }
+
 .filumo-json-record-tabs button,
 .filumo-json-lines-layout-tabs button {
   padding: 4px 10px;
@@ -51,32 +57,39 @@
   cursor: pointer;
   font: inherit;
 }
+
 .filumo-json-record-tabs button[aria-selected='true'],
 .filumo-json-lines-layout-tabs button[aria-selected='true'] {
   color: var(--filumo-primary);
   background: var(--filumo-selected);
 }
+
 .filumo-json-record-body,
 .filumo-json-lines-full {
   flex: 1;
   width: 100%;
   min-height: 0;
 }
+
 .filumo-json-record-body > .filumo-text-scope,
 .filumo-json-record-body > .filumo-json-tree {
   height: 100%;
 }
+
 .filumo-json-lines-full {
   height: 100%;
 }
+
 .filumo-json-lines-status {
   padding: 8px 12px;
   color: var(--filumo-muted);
   font: 13px/1.5 system-ui, sans-serif;
 }
+
 .filumo-json-lines-status:empty {
   display: none;
 }
+
 .filumo-json-record-list {
   flex: 1;
   overflow: auto;
@@ -84,9 +97,11 @@
   outline: none;
   font: 13px/1.5 system-ui, sans-serif;
 }
+
 .filumo-json-record-canvas {
   position: relative;
 }
+
 .filumo-json-record {
   position: absolute;
   left: 0;
@@ -96,6 +111,7 @@
   cursor: pointer;
   border-bottom: 1px solid var(--filumo-border);
 }
+
 .filumo-json-record > strong,
 .filumo-json-record > span {
   display: block;
@@ -103,16 +119,20 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 .filumo-json-record > span {
   color: var(--filumo-muted);
 }
+
 .filumo-json-record[aria-selected='true'] {
   background: var(--filumo-selected);
   color: var(--filumo-primary);
 }
+
 .filumo-json-record[data-invalid='true'] > strong {
   color: var(--filumo-danger, #c43b35);
 }
+
 .filumo-json-lines-workspace[data-narrow='true'] .filumo-json-lines-list {
   flex: 1;
   max-width: none;

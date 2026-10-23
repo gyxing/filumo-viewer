@@ -1,4 +1,4 @@
-import { useStyles } from '../styles';
+import { useStyles as acquireStyles } from '../styles';
 // 将样式绑定到实际视图模块，避免转导出优化跳过入口中的副作用导入。
 import '../outline.less';
 import type {
@@ -46,7 +46,7 @@ export class OutlineTree<TNode> {
     this.element.append(this.canvas);
     this.element.onscroll = this.schedule;
     // 样式策略失败时尚未注册观察器，构造失败不会留下活动资源。
-    this.release = useStyles('dom', document, options.stylePolicy);
+    this.release = acquireStyles('dom', document, options.stylePolicy);
     const Resize = document.defaultView?.ResizeObserver;
     if (Resize) {
       this.observer = new Resize(this.schedule);

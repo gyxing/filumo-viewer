@@ -1,4 +1,4 @@
-import { useStyles } from '@filumo/dom';
+import { useStyles as acquireStyles } from '@filumo/dom';
 import { STYLE_SCOPE } from '../generated/package';
 import { mountImageSurface } from './ImageSurface';
 import { getImageFileName } from './imageName';
@@ -28,7 +28,7 @@ export async function mountImageOverlay(
   initial: ImageOverlayOptions,
 ): Promise<ImageOverlayHandle> {
   const document = host.ownerDocument,
-    releaseStyles = useStyles('image', document, initial.stylePolicy);
+    releaseStyles = acquireStyles('image', document, initial.stylePolicy);
   const scope = document.createElement('div');
   scope.className = STYLE_SCOPE!;
   const overlay = document.createElement('section'),

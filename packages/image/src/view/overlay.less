@@ -9,9 +9,11 @@
   background: rgb(32 34 38 / 78%);
   font: 13px/1.5 system-ui, sans-serif;
 }
+
 .filumo-image-preview[hidden] {
   display: none;
 }
+
 .filumo-image-preview-toolbar {
   display: flex;
   flex: 0 0 auto;
@@ -24,6 +26,7 @@
   background: rgb(32 34 38 / 22%);
   border-bottom: 1px solid rgb(255 255 255 / 14%);
 }
+
 .filumo-image-preview-title {
   display: flex;
   flex: 1;
@@ -34,25 +37,30 @@
   font-size: 14px;
   font-weight: 500;
 }
+
 .filumo-image-preview-title-name {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .filumo-image-preview-title-extension {
   flex: 0 0 auto;
 }
+
 .filumo-image-preview-controls {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 6px;
 }
+
 .filumo-image-preview-controls output {
   min-width: 48px;
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
+
 .filumo-image-preview-controls button {
   display: inline-flex;
   align-items: center;
@@ -66,27 +74,34 @@
   border-radius: 5px;
   cursor: pointer;
 }
+
 .filumo-image-preview-controls button > svg {
   width: 16px;
   height: 16px;
 }
+
 .filumo-image-preview-controls button:hover:not(:disabled) {
   background: rgb(255 255 255 / 12%);
 }
+
 .filumo-image-preview-controls button:focus-visible {
   outline: 2px solid #91caff;
   outline-offset: 2px;
 }
+
 .filumo-image-preview-controls button:disabled {
   opacity: 0.4;
   cursor: default;
 }
+
 .filumo-image-preview-controls button[hidden] {
   display: none;
 }
+
 .filumo-image-preview-controls .filumo-image-preview-retry {
   width: auto;
 }
+
 .filumo-image-preview-viewport {
   position: relative;
   flex: 1;
@@ -94,13 +109,16 @@
   width: 100%;
   overflow: hidden;
 }
+
 .filumo-image-preview-viewport .filumo-image-surface {
   background: transparent;
 }
+
 .filumo-image-preview > [role='status'] {
   text-align: center;
   padding: 8px;
 }
+
 .filumo-image-preview > [role='status']:empty {
   display: none;
 }

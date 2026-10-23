@@ -1,4 +1,4 @@
-import { useStyles } from '../styles';
+import { useStyles as acquireStyles } from '../styles';
 import type { SplitHandleOptions } from './types';
 import '../split.less';
 // 分隔条预留 6px 命中区域，两侧最小宽度保证代码和结构仍可阅读。
@@ -24,7 +24,7 @@ export class SplitHandle {
   constructor(private panes: HTMLElement, private options: SplitHandleOptions) {
     const source = options.first;
     this.ratio = options.defaultRatio;
-    this.release = useStyles('dom', panes.ownerDocument, options.stylePolicy);
+    this.release = acquireStyles('dom', panes.ownerDocument, options.stylePolicy);
     this.element = panes.ownerDocument.createElement('div');
     this.element.className = 'filumo-split-handle';
     this.element.hidden = true;

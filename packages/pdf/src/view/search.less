@@ -7,6 +7,7 @@
   color: var(--filumo-text);
   font: 13px/1.5 system-ui, sans-serif;
 }
+
 .filumo-pdf-search-field {
   display: flex;
   flex: 0 0 auto;
@@ -21,12 +22,15 @@
   border-radius: 5px;
   background: var(--filumo-surface);
 }
+
 .filumo-pdf-search-field:focus-within {
   border-color: var(--filumo-primary);
 }
+
 .filumo-pdf-search-field > svg {
   flex: 0 0 16px;
 }
+
 .filumo-pdf-search-field input {
   flex: 1;
   min-width: 0;
@@ -38,13 +42,16 @@
   background: transparent;
   font: inherit;
 }
+
 .filumo-pdf-search-field input::-webkit-search-cancel-button {
   appearance: none;
 }
+
 .filumo-pdf-search button {
   font: inherit;
   cursor: pointer;
 }
+
 .filumo-pdf-search-field button,
 .filumo-pdf-search-navigation button {
   display: inline-flex;
@@ -59,6 +66,7 @@
   border: 0;
   border-radius: 4px;
 }
+
 .filumo-pdf-search-navigation {
   display: flex;
   flex: 0 0 auto;
@@ -66,11 +74,13 @@
   gap: 4px;
   padding: 0 10px 6px;
 }
+
 .filumo-pdf-search-navigation button {
   flex-basis: 28px;
   width: 28px;
   height: 28px;
 }
+
 .filumo-pdf-search-field button > svg,
 .filumo-pdf-search-navigation button > svg {
   display: block;
@@ -78,6 +88,7 @@
   width: 16px;
   height: 16px;
 }
+
 .filumo-pdf-search-navigation output {
   flex: 1;
   min-width: 0;
@@ -85,19 +96,23 @@
   font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
+
 .filumo-pdf-search button:hover:not(:disabled) {
   color: var(--filumo-primary);
   background: var(--filumo-hover);
 }
+
 .filumo-pdf-search button:focus-visible {
   outline: 2px solid var(--filumo-primary);
   outline-offset: -2px;
 }
+
 .filumo-pdf-search button:disabled {
   // 空查询仍需看清操作含义，通过适度降低对比度表达禁用状态。
   opacity: 0.65;
   cursor: default;
 }
+
 .filumo-pdf-search-status {
   flex: 0 0 auto;
   padding: 0 12px 8px;
@@ -105,17 +120,21 @@
   font-size: 12px;
   overflow-wrap: anywhere;
 }
+
 .filumo-pdf-search-status:empty {
   display: none;
 }
+
 .filumo-pdf-search-results {
   flex: 1;
   min-height: 0;
   overflow: auto;
 }
+
 .filumo-pdf-search-canvas {
   position: relative;
 }
+
 .filumo-pdf-search-result {
   position: absolute;
   left: 8px;
@@ -133,16 +152,20 @@
   border-radius: 5px;
   text-align: left;
 }
+
 .filumo-pdf-search-result[aria-selected='true'] {
   border-color: var(--filumo-primary);
   background: var(--filumo-selected);
 }
+
 .filumo-pdf-search-page {
   color: var(--filumo-muted);
   font-size: 12px;
   line-height: 16px;
 }
+
 .filumo-pdf-search-snippet {
+  /* stylelint-disable-next-line value-no-vendor-prefix -- 两行摘要依赖旧版 WebKit 盒模型，保留既有截断效果。 */
   display: -webkit-box;
   overflow: hidden;
   overflow-wrap: anywhere;
@@ -150,6 +173,7 @@
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
+
 .filumo-pdf-search-snippet mark {
   color: inherit;
   background: rgb(255 200 0 / 32%);

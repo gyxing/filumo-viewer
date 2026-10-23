@@ -15,7 +15,6 @@ import {
   mergeTextStyle,
   positiveTwipToPx,
   readBorder,
-  readVal,
   resolveParagraphStyle,
   resolveRunStyle,
   twipToPx,

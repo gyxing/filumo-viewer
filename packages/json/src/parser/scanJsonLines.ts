@@ -20,7 +20,7 @@ export async function scanJsonLines(
       i >= next ||
       (starts.length && starts.length % 256 === 0 && i === start)
     ) {
-      await new Promise<void>((r) => setTimeout(r, 0));
+      await new Promise<void>((r) => { setTimeout(r, 0); });
       throwIfAborted(signal);
       next = i + 65536;
     }

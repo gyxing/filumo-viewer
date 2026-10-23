@@ -77,7 +77,8 @@ export class WordOutline {
       accessors: {
         getId: (node: WordOutlineTreeNode) => node.id,
         getText: (node) => node.text,
-        isLeaf: (node) => node.isLeaf,
+        // 未提供叶节点标记时仍允许读取子节点，保持延迟加载的大纲可展开。
+        isLeaf: (node) => node.isLeaf === true,
         getChildren: (node) => this.children.get(node.id) ?? node.children,
       },
       onToggle: (id, expanded) => {

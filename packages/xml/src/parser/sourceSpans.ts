@@ -10,7 +10,7 @@ export async function* sourceSpans(
   let at = 0,
     next = 65536;
   const check = async () => {
-    await new Promise<void>((r) => setTimeout(r, 0));
+    await new Promise<void>((r) => { setTimeout(r, 0); });
     throwIfAborted(signal);
     next = at + 65536;
   };
@@ -24,7 +24,7 @@ export async function* sourceSpans(
         found = text.slice(cursor, end).indexOf(needle);
       if (found >= 0) return cursor + found;
       cursor += 65536;
-      await new Promise<void>((r) => setTimeout(r, 0));
+      await new Promise<void>((r) => { setTimeout(r, 0); });
       throwIfAborted(signal);
     }
     return -1;

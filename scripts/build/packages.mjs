@@ -101,6 +101,8 @@ for (const name of names) {
     platform: 'browser',
     target: 'es2020',
     packages: 'external',
+    // PDF 自引用的源码映射只服务于类型编译，运行时保留独立资源入口与 URL 基准。
+    external: name === 'pdf' ? ['@filumo/pdf/assets'] : [],
     chunkNames: 'chunks/[name]-[hash]',
     metafile: true,
     plugins: [

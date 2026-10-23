@@ -1,20 +1,20 @@
 import type { CsvIndex } from '../parser/types';
 import type { CsvSession } from '../runtime/CsvSession';
-import { CsvSelection } from './CsvSelection';
-import { CsvColumnResize } from './CsvColumnResize';
+import { GridInteractionController, GridColumnResize } from '@filumo/dom/grid';
+import type { GridPoint, GridRange, GridState } from '@filumo/dom/grid';
+import type { StylePolicy } from '@filumo/dom';
 import { CsvCellDetail } from './CsvCellDetail';
 import { CsvFind } from './CsvFind';
 import { csvScrollMetrics } from './csvViewport';
 import './csv.less';
 export interface CsvGridOptions {
+  stylePolicy?: StylePolicy;
   locale?: 'zh-CN' | 'en-US';
   zoom: number;
 }
-export interface CsvGridState {
+export interface CsvGridState extends GridState {
   top: number;
   left: number;
-  anchor: { row: number; column: number };
-  focus: { row: number; column: number };
   widths: [number, number][];
 }
 
@@ -26,18 +26,21 @@ export class CsvGrid {
   private canvas: HTMLElement;
   private detail: CsvCellDetail;
   private find: CsvFind;
-  private selection = new CsvSelection();
+  private interaction: GridInteractionController;
+  private headerMatch?: number;
+  private pendingColumn?: { column: number; offset: number };
   private widths = new Map<number, number>();
   private offsets: number[] = [];
-  private resize: CsvColumnResize;
+  private headerNodes = new Map<number, HTMLElement>();
+  private rowNodes = new Map<number, HTMLElement>();
+  private cellNodes = new Map<string, HTMLElement>();
+  private resize: GridColumnResize;
   private observer?: ResizeObserver;
   private frame?: number;
   private rendering = new AbortController();
   private detailRequest = new AbortController();
-  private copying = new AbortController();
   private active = true;
   private closed = false;
-  private pointer?: number;
   private pendingPosition?: { top: number; left: number };
   constructor(
     private session: CsvSession,
@@ -46,6 +49,7 @@ export class CsvGrid {
     private options: CsvGridOptions,
     private onError: (error: unknown) => void,
     state?: CsvGridState,
+    private widthsChanged: () => void = () => undefined,
   ) {
     this.element = document.createElement('section');
     this.element.className = 'filumo-csv-grid';
@@ -66,43 +70,70 @@ export class CsvGrid {
       (row, column) => this.revealCell(row, column),
       onError,
       options.locale === 'en-US',
+      () => {
+        this.headerMatch = undefined;
+        this.schedule();
+        if (this.active) this.viewport.focus({ preventScroll: true });
+      },
     );
     this.viewport.append(this.header, this.canvas);
     this.element.append(this.find.element, this.viewport, this.detail.element);
-    this.selection.select(
-      {
-        row: Math.min(
-          this.firstRow,
-          Math.max(0, this.index.rowStarts.length - 1),
-        ),
-        column: 0,
-      },
-      false,
-    );
     if (state) {
       this.widths = new Map(state.widths);
-      this.selection.anchor = state.anchor;
-      this.selection.focus = state.focus;
       this.pendingPosition = { top: state.top, left: state.left };
     }
-    this.resize = new CsvColumnResize(
-      this.header,
-      (column) => this.width(column),
-      (column, width) => {
-        this.widths.set(
-          column,
-          Math.max(64, Math.min(800, width / this.scale)),
+    this.resize = new GridColumnResize({
+      host: this.header,
+      scale: () => this.scale,
+      width: (column) => this.width(column) / this.scale,
+      override: (column) => this.widths.get(column),
+      change: (column, width) => {
+        this.interaction?.clearTextSelection();
+        const at = Math.max(
+          0,
+          this.offsets.findIndex(
+            (value, index) => value > this.viewport.scrollLeft && index > 0,
+          ) - 1,
         );
+        this.pendingColumn = {
+          column: at,
+          offset: this.viewport.scrollLeft - (this.offsets[at] ?? 0),
+        };
+        if (width === undefined) this.widths.delete(column);
+        else this.widths.set(column, width);
+        this.widthsChanged();
         this.schedule();
       },
-    );
+    });
+    this.interaction = new GridInteractionController({
+      stylePolicy: options.stylePolicy,
+      locale: options.locale,
+      host: this.viewport,
+      state,
+      onTextSelectionChange: () => this.schedule(),
+      onError: this.error,
+      search: () => this.showSearch(),
+      adapter: {
+        bounds: () => this.bounds(),
+        revision: () => this.session.content.revision,
+        hitTest: (x, y, clamp) => this.hitTest(x, y, clamp),
+        rects: (range) => this.rects(range),
+        reveal: (point) => this.scrollToCell(point.row, point.column),
+        readRows: (range, signal) => this.readRows(range, signal),
+        pageRows: () =>
+          Math.max(
+            1,
+            Math.floor(
+              (this.viewport.clientHeight - this.rowHeight) / this.rowHeight,
+            ),
+          ),
+        changed: (state) => {
+          if (state.focus) void this.showDetail(state.focus);
+          else this.detail.element.textContent = '';
+        },
+      },
+    });
     this.viewport.addEventListener('scroll', this.schedule, { passive: true });
-    this.viewport.addEventListener('pointerdown', this.down);
-    this.viewport.addEventListener('pointermove', this.move);
-    this.viewport.addEventListener('pointerup', this.end);
-    this.viewport.addEventListener('pointercancel', this.end);
-    this.viewport.addEventListener('lostpointercapture', this.end);
-    this.viewport.addEventListener('keydown', this.key);
     const Resize = document.defaultView?.ResizeObserver;
     if (Resize) {
       this.observer = new Resize(this.schedule);
@@ -133,7 +164,11 @@ export class CsvGrid {
     else void this.render().catch(this.error);
   };
   private error = (error: unknown) => {
-    if (!this.closed && (error as { name?: string })?.name !== 'AbortError')
+    if (
+      !this.closed &&
+      this.active &&
+      (error as { name?: string })?.name !== 'AbortError'
+    )
       this.onError(error);
   };
   private async render() {
@@ -148,6 +183,15 @@ export class CsvGrid {
     for (let col = 0; col < count; col++)
       this.offsets.push(this.offsets[col] + this.width(col));
     const total = this.offsets[count];
+    if (this.pendingColumn) {
+      this.viewport.scrollLeft =
+        (this.offsets[this.pendingColumn.column] ?? 0) +
+        Math.min(
+          this.width(this.pendingColumn.column) - 1,
+          this.pendingColumn.offset,
+        );
+      this.pendingColumn = undefined;
+    }
     this.canvas.style.width = total + 'px';
     const scroll = csvScrollMetrics(
       rows,
@@ -183,14 +227,31 @@ export class CsvGrid {
     this.header.style.height = height + 'px';
     this.canvas.style.width = total + 'px';
     this.canvas.style.height = scroll.physicalHeight + 'px';
-    this.header.replaceChildren();
-    this.canvas.replaceChildren();
+    const reuse = this.interaction.hasTextSelection;
+    const usedRows = new Set<number>(),
+      usedCells = new Set<string>(),
+      usedHeaders = new Set<number>();
+    if (!reuse) {
+      this.header.replaceChildren();
+      this.canvas.replaceChildren();
+      this.headerNodes.clear();
+      this.rowNodes.clear();
+      this.cellNodes.clear();
+    }
     const heading =
       this.session.header && this.index.rowStarts.length
         ? await this.session.getRow(0, signal)
         : [];
     if (signal.aborted || this.closed) return;
     for (let column = colStart; column < colEnd; column++) {
+      usedHeaders.add(column);
+      const existing = reuse ? this.headerNodes.get(column) : undefined;
+      if (existing) {
+        existing.style.left = this.offsets[column] + 'px';
+        existing.style.width = this.width(column) + 'px';
+        existing.dataset.gridFindMatch = String(this.headerMatch === column);
+        continue;
+      }
       const cell = this.document.createElement('div');
       cell.className = 'filumo-csv-heading';
       cell.setAttribute('role', 'columnheader');
@@ -204,6 +265,8 @@ export class CsvGrid {
         value ||
         (this.options.locale === 'en-US' ? 'Column ' : '列 ') + (column + 1);
       cell.title = value;
+      cell.dataset.gridHeaderColumn = String(column);
+      cell.dataset.gridFindMatch = String(this.headerMatch === column);
       if (this.session.header) {
         cell.dataset.csvCell = '';
         cell.dataset.row = '0';
@@ -211,7 +274,7 @@ export class CsvGrid {
       }
       const handle = this.document.createElement('span');
       handle.dataset.resizeColumn = String(column);
-      handle.className = 'filumo-csv-column-resize';
+      handle.className = 'filumo-csv-column-resize filumo-grid-column-resize';
       handle.tabIndex = 0;
       handle.setAttribute('role', 'separator');
       handle.setAttribute('aria-orientation', 'vertical');
@@ -220,94 +283,209 @@ export class CsvGrid {
         this.options.locale === 'en-US' ? 'Resize column' : '调整列宽',
       );
       cell.append(handle);
-      this.header.append(cell);
+      const next = reuse
+        ? Array.from(this.header.children).find(
+            (node) =>
+              +(node.getAttribute('data-grid-header-column') ?? -1) > column,
+          )
+        : undefined;
+      this.header.insertBefore(cell, next ?? null);
+      this.headerNodes.set(column, cell);
     }
     for (let at = begin; at < end; at++) {
       const row = at + this.firstRow,
         fields = await this.session.getRow(row, signal);
       if (signal.aborted || this.closed) return;
-      const line = this.document.createElement('div');
-      line.className = 'filumo-csv-row';
-      line.setAttribute('role', 'row');
+      usedRows.add(row);
+      let line = reuse ? this.rowNodes.get(row) : undefined;
+      if (!line) {
+        line = this.document.createElement('div');
+        line.className = 'filumo-csv-row';
+        line.setAttribute('role', 'row');
+        line.setAttribute('aria-rowindex', String(row + 1));
+        const next = reuse
+          ? Array.from(this.canvas.children).find(
+              (node) => +(node.getAttribute('aria-rowindex') ?? 0) > row + 1,
+            )
+          : undefined;
+        this.canvas.insertBefore(line, next ?? null);
+        this.rowNodes.set(row, line);
+      }
       line.style.top =
         at * height - logicalTop + this.viewport.scrollTop + 'px';
       line.style.height = height + 'px';
       line.style.width = total + 'px';
-      this.canvas.append(line);
       for (let column = colStart; column < colEnd; column++) {
+        const key = row + ':' + column;
+        usedCells.add(key);
+        const existing = reuse ? this.cellNodes.get(key) : undefined;
+        if (existing) {
+          existing.style.left = this.offsets[column] + 'px';
+          existing.style.width = this.width(column) + 'px';
+          continue;
+        }
         const cell = this.document.createElement('div');
         cell.className = 'filumo-csv-cell';
         cell.dataset.csvCell = '';
         cell.dataset.row = String(row);
+        cell.dataset.gridRow = String(row);
+        cell.dataset.gridColumn = String(column);
         cell.dataset.column = String(column);
         cell.setAttribute('role', 'gridcell');
         cell.setAttribute('aria-colindex', String(column + 1));
         cell.style.left = this.offsets[column] + 'px';
         cell.style.width = this.width(column) + 'px';
-        cell.textContent = fields[column]
+        const text = this.document.createElement('span');
+        text.className = 'filumo-grid-text';
+        text.textContent = fields[column]
           ? await this.session.value(fields[column], 256, signal)
           : '';
         if (signal.aborted || this.closed) return;
-        line.append(cell);
+        cell.append(text);
+        const next = reuse
+          ? Array.from(line.children).find(
+              (node) => +(node.getAttribute('data-grid-column') ?? -1) > column,
+            )
+          : undefined;
+        line.insertBefore(cell, next ?? null);
+        this.cellNodes.set(key, cell);
       }
     }
-    this.paintSelection();
+    if (reuse) {
+      for (const [key, node] of this.cellNodes)
+        if (!usedCells.has(key) && !this.interaction.preservesText(node)) {
+          node.remove();
+          this.cellNodes.delete(key);
+        }
+      for (const [row, node] of this.rowNodes) {
+        if (!usedRows.has(row) && !this.interaction.preservesText(node)) {
+          node.remove();
+          this.rowNodes.delete(row);
+        } else {
+          // 超长文件采用压缩滚动轨道，保留的文字节点仍需跟随逻辑行位置。
+          node.style.top =
+            (row - this.firstRow) * height -
+            logicalTop +
+            this.viewport.scrollTop +
+            'px';
+        }
+      }
+      for (const [column, node] of this.headerNodes)
+        if (!usedHeaders.has(column) && !this.interaction.preservesText(node)) {
+          node.remove();
+          this.headerNodes.delete(column);
+        }
+    }
+    this.interaction.refresh();
+    this.resize.refresh();
   }
-  private point(event: PointerEvent) {
-    const target =
-      this.pointer === undefined
-        ? (event.target as Element)
-        : this.document.elementFromPoint(event.clientX, event.clientY);
-    const cell = target?.closest<HTMLElement>('[data-csv-cell]');
-    return cell && this.viewport.contains(cell)
-      ? { row: Number(cell.dataset.row), column: Number(cell.dataset.column) }
+  private bounds(): GridRange | undefined {
+    const endRow = this.index.rowStarts.length - 1,
+      endColumn = this.index.columnCount - 1;
+    return endRow >= this.firstRow && endColumn >= 0
+      ? { startRow: this.firstRow, endRow, startColumn: 0, endColumn }
       : undefined;
   }
-  private down = (event: PointerEvent) => {
-    if (!this.active || this.closed) return;
-    const point = this.point(event);
-    if (!point || event.button !== 0 || !event.isPrimary) return;
-    event.preventDefault();
-    this.viewport.focus({ preventScroll: true });
-    this.pointer = event.pointerId;
-    this.viewport.setPointerCapture(event.pointerId);
-    this.selection.select(point, event.shiftKey);
-    this.paintSelection();
-    void this.showDetail();
-  };
-  private move = (event: PointerEvent) => {
-    if (event.pointerId !== this.pointer) return;
-    const point = this.point(event);
-    if (point) {
-      this.selection.select(point, true);
-      this.paintSelection();
-    }
-  };
-  private end = (event: PointerEvent) => {
-    if (event.pointerId !== this.pointer) return;
-    this.pointer = undefined;
-    if (this.viewport.hasPointerCapture(event.pointerId))
-      this.viewport.releasePointerCapture(event.pointerId);
-    if (!this.closed && this.active) void this.showDetail();
-  };
-  private paintSelection() {
-    for (const cell of this.viewport.querySelectorAll<HTMLElement>(
-      '[data-csv-cell]',
-    ))
-      cell.setAttribute(
-        'aria-selected',
-        String(
-          this.selection.contains(
-            Number(cell.dataset.row),
-            Number(cell.dataset.column),
-          ),
-        ),
+  private hitTest(x: number, y: number, clamp: boolean): GridPoint | undefined {
+    const bounds = this.bounds(),
+      rect = this.viewport.getBoundingClientRect();
+    if (!bounds || this.offsets.length < 2) return undefined;
+    let left = x - rect.left,
+      top = y - rect.top - this.rowHeight;
+    const height = this.viewport.clientHeight - this.rowHeight;
+    if (
+      !clamp &&
+      (left < 0 ||
+        top < 0 ||
+        left >= this.viewport.clientWidth ||
+        top >= height)
+    )
+      return undefined;
+    left = Math.max(0, Math.min(this.viewport.clientWidth - 1, left));
+    top = Math.max(0, Math.min(Math.max(0, height - 1), top));
+    const metrics = csvScrollMetrics(
+      bounds.endRow - this.firstRow + 1,
+      this.rowHeight,
+      this.viewport.clientHeight,
+    );
+    const row =
+      this.firstRow +
+      Math.floor(
+        (this.viewport.scrollTop * metrics.ratio + top) / this.rowHeight,
       );
+    const offset = left + this.viewport.scrollLeft;
+    let low = 0,
+      high = this.index.columnCount;
+    while (low < high) {
+      const mid = (low + high) >>> 1;
+      if (this.offsets[mid + 1] <= offset) low = mid + 1;
+      else high = mid;
+    }
+    if (!clamp && (row > bounds.endRow || low > bounds.endColumn))
+      return undefined;
+    return {
+      row: Math.min(bounds.endRow, row),
+      column: Math.min(bounds.endColumn, low),
+    };
   }
-  private async showDetail() {
+  private rects(range: GridRange) {
+    const metrics = csvScrollMetrics(
+      Math.max(0, this.index.rowStarts.length - this.firstRow),
+      this.rowHeight,
+      this.viewport.clientHeight,
+    );
+    const left =
+      (this.offsets[range.startColumn] ?? 0) - this.viewport.scrollLeft;
+    const right =
+      (this.offsets[range.endColumn + 1] ?? 0) - this.viewport.scrollLeft;
+    const top =
+      this.rowHeight +
+      (range.startRow - this.firstRow) * this.rowHeight -
+      this.viewport.scrollTop * metrics.ratio;
+    const bottom = top + (range.endRow - range.startRow + 1) * this.rowHeight;
+    const x = Math.max(0, left),
+      y = Math.max(this.rowHeight, top);
+    return [
+      {
+        left: x,
+        top: y,
+        width: Math.max(0, Math.min(this.viewport.clientWidth, right) - x),
+        height: Math.max(0, Math.min(this.viewport.clientHeight, bottom) - y),
+      },
+    ];
+  }
+  private async *readRows(range: GridRange, signal: AbortSignal) {
+    for (let row = range.startRow; row <= range.endRow; row++) {
+      const cells = await this.session.getRow(row, signal),
+        values: string[] = [];
+      for (let column = range.startColumn; column <= range.endColumn; column++)
+        values.push(
+          cells[column]
+            ? await this.session.value(cells[column], undefined, signal)
+            : '',
+        );
+      yield values;
+    }
+  }
+  /** 复制入口与快捷键共用预算、完整字段和取消语义。 */
+  copy(): Promise<void> {
+    return this.interaction.copy();
+  }
+  /** 只恢复预览列宽，不修改原文或重新解析。 */
+  get hasColumnWidths(): boolean {
+    return this.widths.size > 0;
+  }
+  resetColumnWidths(): void {
+    this.resize.setActive(false);
+    this.widths.clear();
+    this.resize.setActive(this.active);
+    this.widthsChanged();
+    this.schedule();
+  }
+  private async showDetail(point: GridPoint) {
     this.detailRequest.abort();
     const own = (this.detailRequest = new AbortController()),
-      { row, column } = this.selection.focus;
+      { row, column } = point;
     try {
       const fields = await this.session.getRow(row, own.signal),
         cell = fields[column],
@@ -327,81 +505,23 @@ export class CsvGrid {
       this.error(error);
     }
   }
-  private key = (event: KeyboardEvent) => {
-    if (!this.active || this.closed) return;
-    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'f') {
-      event.preventDefault();
-      this.showSearch();
-      return;
-    }
-    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'c') {
-      event.preventDefault();
-      void this.copy().catch(this.error);
-      return;
-    }
-    const point = { ...this.selection.focus },
-      steps = Math.max(
-        1,
-        Math.floor(this.viewport.clientHeight / this.rowHeight),
-      );
-    if (event.key === 'ArrowDown') point.row++;
-    else if (event.key === 'ArrowUp') point.row--;
-    else if (event.key === 'ArrowLeft') point.column--;
-    else if (event.key === 'ArrowRight') point.column++;
-    else if (event.key === 'Home') point.column = 0;
-    else if (event.key === 'End') point.column = this.index.columnCount - 1;
-    else if (event.key === 'PageDown') point.row += steps;
-    else if (event.key === 'PageUp') point.row -= steps;
-    else return;
-    event.preventDefault();
-    this.revealCell(point.row, point.column, event.shiftKey);
-  };
-  /** 复制读取完整字段，选区转为带引号保护的 TSV。 */
-  async copy(): Promise<void> {
-    if (!this.active || this.closed) return;
-    const clipboard = this.document.defaultView?.navigator.clipboard;
-    if (!clipboard) throw new Error('当前环境无法复制');
-    this.copying.abort();
-    this.copying = new AbortController();
-    const signal = this.copying.signal,
-      a = { ...this.selection.anchor },
-      b = { ...this.selection.focus },
-      lines: string[] = [];
-    const single = a.row === b.row && a.column === b.column;
-    for (
-      let row = Math.min(a.row, b.row);
-      row <= Math.max(a.row, b.row);
-      row++
-    ) {
-      const cells = await this.session.getRow(row, signal),
-        fields: string[] = [];
-      for (
-        let column = Math.min(a.column, b.column);
-        column <= Math.max(a.column, b.column);
-        column++
-      ) {
-        const text = cells[column]
-          ? await this.session.value(cells[column], undefined, signal)
-          : '';
-        fields.push(
-          !single && /[\t\r\n"]/.test(text)
-            ? '"' + text.replace(/"/g, '""') + '"'
-            : text,
-        );
-      }
-      lines.push(fields.join('\t'));
-    }
-    if (!signal.aborted && !this.closed && this.active)
-      await clipboard.writeText(lines.join('\n'));
-  }
   /** 字符偏移查找结果可由调用方映射为真实逻辑行和列。 */
   revealCell(row: number, column: number, extend = false): void {
+    if (row < this.firstRow) {
+      this.headerMatch = column;
+      this.scrollToCell(this.firstRow, column);
+      this.schedule();
+      return;
+    }
+    this.headerMatch = undefined;
+    this.interaction.select({ row, column }, extend);
+  }
+  private scrollToCell(row: number, column: number): void {
     if (!this.index.rowStarts.length || !this.index.columnCount) return;
     const point = {
       row: Math.max(0, Math.min(this.index.rowStarts.length - 1, row)),
       column: Math.max(0, Math.min(this.index.columnCount - 1, column)),
     };
-    this.selection.select(point, extend);
     const top = Math.max(0, point.row - this.firstRow) * this.rowHeight;
     const metrics = csvScrollMetrics(
       Math.max(0, this.index.rowStarts.length - this.firstRow),
@@ -423,14 +543,13 @@ export class CsvGrid {
         this.viewport.scrollLeft + this.viewport.clientWidth
     )
       this.viewport.scrollLeft = left;
-    this.paintSelection();
     this.schedule();
-    void this.showDetail();
   }
   showSearch(): void {
     this.find.show(true);
   }
   update(options: CsvGridOptions): void {
+    this.interaction.clearTextSelection();
     this.find.updateLocale(options.locale === 'en-US');
     if (options.zoom !== this.options.zoom) {
       const rows = Math.max(0, this.index.rowStarts.length - this.firstRow),
@@ -446,6 +565,10 @@ export class CsvGrid {
       };
     }
     this.options = options;
+    this.interaction.updateLocale(options.locale);
+    for (const column of this.widths.keys())
+      if (column >= this.index.columnCount) this.widths.delete(column);
+    this.interaction.refresh();
     this.rendering.abort();
     this.schedule();
   }
@@ -453,19 +576,16 @@ export class CsvGrid {
     return {
       top: this.viewport.scrollTop,
       left: this.viewport.scrollLeft,
-      anchor: { ...this.selection.anchor },
-      focus: { ...this.selection.focus },
+      ...this.interaction.getState(),
       widths: [...this.widths],
     };
   }
   setActive(active: boolean): void {
     this.active = active;
     this.resize.setActive(active);
+    this.interaction.setActive(active);
     this.find.setActive(active);
     if (!active) {
-      if (this.pointer !== undefined)
-        this.end({ pointerId: this.pointer } as PointerEvent);
-      this.copying.abort();
       this.rendering.abort();
       this.detailRequest.abort();
       this.observer?.disconnect();
@@ -481,17 +601,13 @@ export class CsvGrid {
     if (this.closed) return;
     this.setActive(false);
     this.closed = true;
-    if (this.pointer !== undefined)
-      this.end({ pointerId: this.pointer } as PointerEvent);
     this.resize.dispose();
+    this.interaction.dispose();
+    this.headerNodes.clear();
+    this.rowNodes.clear();
+    this.cellNodes.clear();
     this.find.dispose();
     this.viewport.removeEventListener('scroll', this.schedule);
-    this.viewport.removeEventListener('pointerdown', this.down);
-    this.viewport.removeEventListener('pointermove', this.move);
-    this.viewport.removeEventListener('pointerup', this.end);
-    this.viewport.removeEventListener('pointercancel', this.end);
-    this.viewport.removeEventListener('lostpointercapture', this.end);
-    this.viewport.removeEventListener('keydown', this.key);
     this.element.remove();
   }
 }

@@ -107,7 +107,8 @@ export async function mountMarkdown(context: ViewContext): Promise<ViewHandle> {
         {
           id: 'markdown.search',
           kind: 'action',
-          toolbar: { placement: 'more', order: 30 },
+          // 大纲、查找、缩放依次排列，窄容器中优先保留内容定位入口。
+          toolbar: { placement: 'main', order: 1, priority: 110 },
           label: en ? 'Find' : '查找',
           enabled: !!content.document,
           run: () => {

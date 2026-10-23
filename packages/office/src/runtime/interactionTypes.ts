@@ -19,6 +19,7 @@ export type OfficeCommandRequest =
     }
   | { type: 'revision'; mode: OfficeRevisionMode }
   | { type: 'sheetMode'; mode: 'source' | 'reading' }
+  | { type: 'gridCopy' | 'gridResetColumns' }
   | { type: 'transitions'; enabled: boolean };
 export interface OfficeInteractionState {
   readonly family: OfficeFamily;
@@ -38,6 +39,8 @@ export interface OfficeInteractionState {
   readonly showReview: boolean;
   readonly revisionMode: OfficeRevisionMode;
   readonly sheetMode: 'source' | 'reading';
+  readonly gridReady?: boolean;
+  readonly columnWidthsChanged?: boolean;
   readonly transitions: boolean;
   readonly transitionIntent?: {
     token: number;
@@ -89,6 +92,12 @@ export interface OfficeInteractionPort {
     },
   ): void;
   bind(handlers: OfficeInteractionHandlers): () => void;
+  /** 网格操作与搜索绑定独立，切表释放不会覆盖公共处理器。 */
+  bindGrid?(handlers: {
+    copySelection(): Promise<void>;
+    resetColumns(): void;
+  }): () => void;
+  updateGrid?(info: { columnWidthsChanged: boolean }): void;
   setActive(active: boolean): void;
   dispose(): void;
 }

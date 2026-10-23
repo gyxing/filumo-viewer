@@ -1,6 +1,7 @@
 import type { OfficeSearchProvider } from '../../../search/types';
 import type { SpreadsheetAnnotation } from '../../../spreadsheet/semantics/types';
 import type { SpreadsheetPerformanceProfile } from '../../../spreadsheet/spreadsheetPerformance';
+import { SpreadsheetMergeIndex } from '../../../spreadsheet/SpreadsheetMergeIndex';
 import type {
   SpreadsheetSheetLayout,
   SpreadsheetSource,
@@ -8,6 +9,7 @@ import type {
 } from '../../../spreadsheet/SpreadsheetSource';
 import type {
   SpreadsheetRange,
+  SpreadsheetMerge,
   SpreadsheetRangeData,
   SpreadsheetSheet,
 } from '../../../spreadsheet/types';
@@ -27,6 +29,10 @@ export class WorkerSpreadsheetSource implements SpreadsheetSource {
   private profiles: Record<string, SpreadsheetPerformanceProfile>;
   private layouts: Record<string, SpreadsheetSheetLayout>;
   private disposed = false;
+  private mergeIndexes = new Map<
+    string,
+    { revision: number; index: SpreadsheetMergeIndex }
+  >();
 
   constructor(
     private readonly client: WorkerSourceClient,
@@ -80,8 +86,43 @@ export class WorkerSpreadsheetSource implements SpreadsheetSource {
     return layout;
   }
 
-  ensureSheet(sheetId: string, signal?: AbortSignal) {
-    return this.client.request<void>('ensure-sheet', { sheetId }, { signal });
+  async ensureSheet(sheetId: string, signal?: AbortSignal) {
+    await this.client.request<void>('ensure-sheet', { sheetId }, { signal });
+    if (signal?.aborted) throw signal.reason;
+    // 合并结构只在准备工作表时跨线程读取，鼠标命中直接使用本地索引。
+    while (!this.disposed) {
+      const revision = this.getSheetLayout(sheetId).revision;
+      const cached = this.mergeIndexes.get(sheetId);
+      if (cached?.revision === revision) {
+        this.mergeIndexes.delete(sheetId);
+        this.mergeIndexes.set(sheetId, cached);
+        return;
+      }
+      const merges = await this.client.request<readonly SpreadsheetMerge[]>(
+        'get-sheet-merges',
+        { sheetId },
+        { signal },
+      );
+      if (signal?.aborted) throw signal.reason;
+      if (revision !== this.getSheetLayout(sheetId).revision) continue;
+      // 只保留最近两个工作表的交互元数据，切表不累积整个工作簿的合并对象。
+      if (!this.mergeIndexes.has(sheetId) && this.mergeIndexes.size >= 2) {
+        const oldest = this.mergeIndexes.keys().next().value;
+        if (oldest !== undefined) this.mergeIndexes.delete(oldest);
+      }
+      this.mergeIndexes.set(sheetId, {
+        revision,
+        index: new SpreadsheetMergeIndex(merges),
+      });
+      return;
+    }
+  }
+
+  getMergeRanges(sheetId: string, range: SpreadsheetRange) {
+    const current = this.mergeIndexes.get(sheetId);
+    return current?.revision === this.getSheetLayout(sheetId).revision
+      ? current.index.query(range)
+      : [];
   }
 
   getMaterializedSheet(sheetId: string, signal?: AbortSignal) {
@@ -113,12 +154,14 @@ export class WorkerSpreadsheetSource implements SpreadsheetSource {
   }
 
   retrySheet(sheetId: string) {
+    this.mergeIndexes.delete(sheetId);
     void this.client.request('retry-sheet', { sheetId }).catch(() => undefined);
   }
 
   async dispose() {
     if (this.disposed) return;
     this.disposed = true;
+    this.mergeIndexes.clear();
     this.unsubscribeUpdate();
     this.unsubscribeFailure();
     this.listeners.clear();

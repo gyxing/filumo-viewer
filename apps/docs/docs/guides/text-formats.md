@@ -39,15 +39,15 @@ The More menu selects the actual UTF-8, UTF-16LE, UTF-16BE, GBK or GB18030 encod
 
 ## Default views and toolbar
 
-| Plugin     | Initial view                                               | Source line numbers | Wrap              |
-| ---------- | ---------------------------------------------------------- | ------------------- | ----------------- |
-| Text       | Source                                                     | On                  | On                |
-| Code       | Source                                                     | On                  | On                |
-| JSON / XML | Structure; equal source/structure split in wide containers | On                  | On                |
-| Markdown   | Reading                                                    | Off in source mode  | On                |
-| CSV        | Table with first row as headers                            | Off in source mode  | On in source mode |
+| Plugin | Initial view | Source line numbers | Wrap |
+| --- | --- | --- | --- |
+| Text | Source | On | On |
+| Code | Source | On | On |
+| JSON / XML | Structure; equal source/structure split in wide containers | On | On |
+| Markdown | Reading | Off in source mode | On |
+| CSV | Table with first row as headers | Off in source mode | On in source mode |
 
-Line numbers represent real lines only. Encoding, views, find, wrapping and line numbers use format-specific More menus with first-level icons. Markdown keeps its outline on the main toolbar. JSON uses one stateful expand/collapse action. JSON/XML line-number choices persist within the open file across views, zoom and decoding.
+Line numbers represent real lines only. Find appears on the main toolbar by default, while encoding, views, wrapping and line numbers use format-specific More menus with first-level icons. When space is limited, Find may move into More according to its priority. Markdown keeps its outline on the main toolbar. JSON uses one stateful expand/collapse action. JSON/XML line-number choices persist within the open file across views, zoom and decoding.
 
 ## Text and unknown-file fallback
 
@@ -85,6 +85,10 @@ Existing marked and highlight.js dependencies provide parsing and highlighting. 
 
 The first row is a header by default. TSV uses Tab; CSV detects comma, semicolon, Tab or pipe. Delimiter changes, resizable columns, rectangular selection and complete TSV copy are supported. Values remain readonly strings; formulas do not execute. Rows and columns are windowed, and parsing diagnostics retain source.
 
+CSV/TSV remain a separate package. Their grid and Office's Excel grid share lightweight interactions through @filumo/dom/grid, while keeping parsers and renderers independent. Shift selection, keyboard navigation, Ctrl/Cmd+A, Ctrl/Cmd+C, temporary column widths and reset actions follow the same rules. Successful search navigation updates the active cell; ordinary scrolling preserves selection, and Tab may leave the grid at data boundaries.
+
+Copy is limited to 100000 cells and an estimated 8 MiB of serialized UTF-16 text. Cancellation and overflow never write partial clipboard results. CSV copies full field strings; Excel copies formatted display text with empty placeholders for covered merged cells. Excel retains its own merged/frozen/hidden layout and image/chart anchors. Column overrides only affect the current preview. The shared module loads with the format view; external styles continue using @filumo/dom/styles.css.
+
 | Budget             | Default   |
 | ------------------ | --------- |
 | maxRows            | 1,000,000 |
@@ -103,12 +107,12 @@ Defaults are initialMode: 'tree', maxDepth: 256 and maxNodes: 200000. DOCTYPE pr
 
 ## Code
 
-| Category                  | Files                                                                                    |
-| ------------------------- | ---------------------------------------------------------------------------------------- |
-| Web                       | JS/JSX, TS/TSX, HTML, CSS, LESS, SCSS, Sass                                              |
-| Languages                 | Shell, Python, SQL, Java, C/C++, C#, Go, Rust, PHP, Ruby, Kotlin, Swift, Lua             |
-| Configuration and scripts | YAML/YML, TOML, .env/.env.\*, PowerShell, BAT/CMD                                        |
-| Build and protocols       | Dockerfile, Makefile/GNUmakefile, CMakeLists.txt, .mk/.cmake, GraphQL, Proto, Diff/Patch |
+| Category | Files |
+| --- | --- |
+| Web | JS/JSX, TS/TSX, HTML, CSS, LESS, SCSS, Sass |
+| Languages | Shell, Python, SQL, Java, C/C++, C#, Go, Rust, PHP, Ruby, Kotlin, Swift, Lua |
+| Configuration and scripts | YAML/YML, TOML, .env/.env.\*, PowerShell, BAT/CMD |
+| Build and protocols | Dockerfile, Makefile/GNUmakefile, CMakeLists.txt, .mk/.cmake, GraphQL, Proto, Diff/Patch |
 
 All these formats belong to @filumo/code. Filename and extension rules also determine the default language; .h defaults to C and can switch to C++. Mixed Vue/Svelte syntax remains future work. Source is never executed, Sass is not compiled, and styles are not applied. Dedicated suffixes such as JSON/XML keep their own format ownership.
 

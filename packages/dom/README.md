@@ -20,7 +20,6 @@ pnpm add @filumo/dom @filumo/office
 npm install @filumo/dom @filumo/office
 ```
 
-
 ## 最小接入
 
 ```html
@@ -48,9 +47,13 @@ try {
 document.getElementById('dispose')?.addEventListener('click', () => {
   void viewer.destroy();
 });
-window.addEventListener('pagehide', () => {
-  void viewer.destroy();
-}, { once: true });
+window.addEventListener(
+  'pagehide',
+  () => {
+    void viewer.destroy();
+  },
+  { once: true },
+);
 ```
 
 将示例 URL 换成真实可访问的文件地址，或在文件选择事件中传入 File。20 MiB 等示例限制是宿主配置，不是库默认限制；关闭时由句柄释放会话、资源与样式租约。
@@ -78,6 +81,10 @@ viewer.open(input, { pluginId }) 打开文件；update 更新视图参数；setA
 
 `@filumo/dom/outline` 提供 OutlineTree 和树线、键盘导航、可选 renderLabel；`@filumo/dom/split` 提供 SplitHandle，创建者负责 update、setActive 和 dispose。不要导入包内部 src 文件。
 
+`@filumo/dom/grid` 提供只读表格交互：GridInteractionController、GridColumnResize、GridSelection 和格式适配合同。CSV／TSV 与 Office 的 Excel 视图复用选择、键盘、复制与临时列宽，解析器和渲染器仍然独立。子入口只在格式视图加载时使用，不在注册插件时创建网格。
+
+适配器提供零基源坐标、正文边界、几何命中、显示范围和按区文本迭代；公共模块不要求完整工作簿。创建者负责 setActive/dispose，保留两种格式的数据语义。复制默认上限为 100000 单元格、8 MiB 序列化 UTF-16 文本估算，失败或取消不交付部分结果。样式沿用 auto/external 策略，external 导入已有 @filumo/dom/styles.css，无须新的网格样式包。
+
 ## 样式与 CSP
 
 默认 auto 模式随实际视图加载样式，在同一 Document 内共享租约。通常不需要手动导入 CSS。external 模式须在创建前加载 DOM 与实际格式样式，例如：
@@ -98,7 +105,6 @@ import '@filumo/image/styles.css';
 
 Image CSS 用于 Office 的共享图片弹层。外部样式须匹配各包版本；auto 模式可配置 nonce，但不能替代宿主的 CSP 配置。本包没有默认格式，未注册格式时不会隐式加载。
 
-
 ## 输入与运行环境
 
 字符串输入表示 URL，不表示文件正文；直接文本内容请使用 File/Blob。支持的来源还包括 Uint8Array、带 name/mimeType/request 的 URL 对象和自定义 DocumentSource 工厂。远程文件和辅助资源需要满足宿主的网络、CORS 与 CSP 配置。
@@ -116,6 +122,7 @@ Image CSS 用于 Office 的共享图片弹层。外部样式须匹配各包版�
 | `@filumo/dom/text-messages` | 轻量编码错误文案入口，不引入原文视图 |
 | `@filumo/dom/text-highlight` | 高亮输出到安全文本装饰的公共转换 |
 | `@filumo/dom/split` | SplitHandle 及分栏拖动合同 |
+| `@filumo/dom/grid` | 只读网格选择、键盘、复制、列宽及格式适配合同 |
 
 未列出的包内路径不是稳定公共 API。独立格式不依赖 React/Vue 适配层，宿主只安装实际需要的格式和适配包。
 
@@ -142,6 +149,7 @@ Image CSS 用于 Office 的共享图片弹层。外部样式须匹配各包版�
 | [@filumo/react](https://www.npmjs.com/package/@filumo/react) | React 18/19 适配组件 | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/react#readme) |
 | [@filumo/vue](https://www.npmjs.com/package/@filumo/vue) | Vue 3（>=3.3 <4）适配组件 | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/vue#readme) |
 | [@filumo/vue2](https://www.npmjs.com/package/@filumo/vue2) | Vue 2（^2.6.14 或 ^2.7.16）适配组件 | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/vue2#readme) |
+
 <!-- filumo-packages:end -->
 
 ## 文档与反馈

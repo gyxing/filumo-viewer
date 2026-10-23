@@ -50,6 +50,7 @@ test('新格式公开声明不跟随解析器或第三方实现，reader 无 DOM
     'dom/text-messages',
     'dom/text-highlight',
     'dom/split',
+    'dom/grid',
     'csv/index',
     'xml/index',
     'code/index',

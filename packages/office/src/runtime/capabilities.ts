@@ -40,7 +40,8 @@ export function createOfficeCapabilities(
     {
       id: 'office.search',
       menu: { kind: 'action' },
-      toolbar: { order: 30, placement: 'main' },
+      // 内容定位优先于缩放，沿用现有主栏顺序。
+      toolbar: { order: 30, placement: 'main', priority: 110 },
       label: en ? 'Find' : '查找',
       kind: 'toggle',
       enabled,
@@ -56,6 +57,7 @@ export function createOfficeCapabilities(
         visible: state.outlineCount > 0,
         order: 10,
         placement: 'main',
+        priority: 120,
       },
       label: en ? 'Outline' : '大纲',
       kind: 'toggle',
@@ -102,6 +104,24 @@ export function createOfficeCapabilities(
     });
   }
   if (state.family === 'spreadsheet') {
+    actions.push(
+      {
+        id: 'office.copy',
+        label: en ? 'Copy selection' : '复制选区',
+        kind: 'action',
+        toolbar: { placement: 'more', order: 60 },
+        enabled: enabled && !!state.gridReady,
+        run: () => port.execute({ type: 'gridCopy' }),
+      },
+      {
+        id: 'office.resetColumns',
+        label: en ? 'Reset column widths' : '恢复列宽',
+        kind: 'action',
+        toolbar: { placement: 'more', order: 70 },
+        enabled: enabled && !!state.gridReady && !!state.columnWidthsChanged,
+        run: () => port.execute({ type: 'gridResetColumns' }),
+      },
+    );
     actions.push({
       id: 'office.sheetMode',
       toolbar: { order: 10, placement: 'main', showLabel: false },
@@ -200,6 +220,8 @@ export function createOfficeCapabilities(
               visible: state.family === 'presentation',
               order: 10,
               placement: 'main',
+              // 幻灯片翻页是核心导航，窄容器中优先于查找和缩放。
+              priority: 120,
               layout: 'buttons',
               previousLabel: en ? 'Previous slide' : '上一张幻灯片',
               nextLabel: en ? 'Next slide' : '下一张幻灯片',

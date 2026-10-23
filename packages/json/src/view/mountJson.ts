@@ -117,7 +117,8 @@ export async function mountJson(context: ViewContext): Promise<ViewHandle> {
         {
           id: 'json.search',
           kind: 'action',
-          toolbar: { placement: 'more', order: 30 },
+          // 查找默认直达，窄容器中比缩放更晚收纳。
+          toolbar: { placement: 'main', order: 1, priority: 110 },
           label: en ? 'Find' : '查找',
           enabled: !!(state?.treeReady || state?.sourceReady),
           run: () => workspace?.showSearch(),

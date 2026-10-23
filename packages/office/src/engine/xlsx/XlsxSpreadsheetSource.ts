@@ -223,6 +223,12 @@ export class XlsxSpreadsheetSource implements SpreadsheetSource {
     );
   }
 
+  /** 视图交互复用结构索引，不触发整表读取。 */
+  getMergeRanges(sheetId: string, range: SpreadsheetRange) {
+    this.ensureAvailable(sheetId);
+    return this.stores.get(sheetId)?.getMergeRanges(range) ?? [];
+  }
+
   async ensureSheet(sheetId: string, signal?: AbortSignal) {
     const descriptor = this.getDescriptor(sheetId);
     throwIfSpreadsheetAborted(signal);

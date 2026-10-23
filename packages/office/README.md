@@ -20,7 +20,6 @@ pnpm add @filumo/dom @filumo/office
 npm install @filumo/dom @filumo/office
 ```
 
-
 ## 最小接入
 
 ```html
@@ -44,7 +43,7 @@ const viewer = createViewer(container, {
 });
 
 try {
-  await viewer.open("/files/example.docx");
+  await viewer.open('/files/example.docx');
 } catch (error) {
   console.error(error);
 }
@@ -52,9 +51,13 @@ try {
 document.getElementById('dispose')?.addEventListener('click', () => {
   void viewer.destroy();
 });
-window.addEventListener('pagehide', () => {
-  void viewer.destroy();
-}, { once: true });
+window.addEventListener(
+  'pagehide',
+  () => {
+    void viewer.destroy();
+  },
+  { once: true },
+);
 ```
 
 将示例 URL 换成真实可访问的文件地址，或在文件选择事件中传入 File。20 MiB 等示例限制是宿主配置，不是库默认限制；关闭时由句柄释放会话、资源与样式租约。
@@ -74,6 +77,10 @@ window.addEventListener('pagehide', () => {
 完整类型以公开声明与源码为准；没有列出的功能不能通过猜测选项名开启。
 
 ## 格式、字体和资源边界
+
+Excel 的只读网格与 CSV／TSV 共用 @filumo/dom/grid 交互，支持单元格及矩形选区、Shift 扩选、键盘导航、复制选区和临时列宽。选区覆盖完整合并区域，冻结区与正文共享逻辑位置，隐藏行列不作为键盘停留目标；不会编辑、计算公式或写回工作簿。
+
+默认复制格式化后的显示文本，合并区域只在主单元格输出值，其余位置保留空字段。单次复制最多 100000 单元格和 8 MiB UTF-16 文本估算，失败或取消不写部分结果。列宽变化同步预览中的合并、冻结、换行及图片/图表锚点；更多菜单可恢复源列宽。手动调整列宽沿用当前缩放比例并退出自动适应，避免拖动回跳。每个工作表分别保留选区、阅读位置和预览列宽，重新打开文件不继承旧会话。
 
 宏启用文件仅预览文档内容，不执行宏。复杂文档的字体、版式和对象效果取决于源文件与浏览器，不承诺与桌面 Office 像素一致。不提供编辑、保存、OCR 或服务端转换。
 
@@ -136,6 +143,7 @@ import '@filumo/image/styles.css';
 | [@filumo/react](https://www.npmjs.com/package/@filumo/react) | React 18/19 适配组件 | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/react#readme) |
 | [@filumo/vue](https://www.npmjs.com/package/@filumo/vue) | Vue 3（>=3.3 <4）适配组件 | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/vue#readme) |
 | [@filumo/vue2](https://www.npmjs.com/package/@filumo/vue2) | Vue 2（^2.6.14 或 ^2.7.16）适配组件 | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/vue2#readme) |
+
 <!-- filumo-packages:end -->
 
 ## 文档与反馈

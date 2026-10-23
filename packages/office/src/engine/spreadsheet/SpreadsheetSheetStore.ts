@@ -79,6 +79,8 @@ export interface SpreadsheetSheetStore {
   putStructure(structure: SpreadsheetSheetStructure): void;
   /** 读取指定工作表的布局信息。 */
   getLayout(): SpreadsheetSheetLayout;
+  /** 查询结构中的合并索引，不读取单元格分片。 */
+  getMergeRanges(range: SpreadsheetRange): readonly SpreadsheetMerge[];
   /** 返回当前工作表全部批注的轻量只读数组。 */
   getAnnotations(): readonly SpreadsheetAnnotation[];
   /** 读取指定工作表范围内的单元格与对象。 */
@@ -315,6 +317,10 @@ export function createSpreadsheetSheetStore(
     getAnnotations() {
       ensureAvailable();
       return structure.annotations ?? [];
+    },
+    getMergeRanges(range) {
+      ensureAvailable();
+      return mergeIndex.query(range);
     },
     async getRange(requestedRange, signal) {
       ensureAvailable();

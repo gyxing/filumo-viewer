@@ -17,6 +17,8 @@ const viewer: ViewerHandle = createViewer(host, {
   plugins: [csv(), json(), xml(), code()],
   height: '100%',
 });
+let sibling: ViewerHandle | undefined;
+let siblingHost: HTMLElement | undefined;
 for (const sample of [
   ...expansionSamples,
   { id: 'csv-wide', file: 'wide.csv', format: 'csv', text: '' },
@@ -54,11 +56,27 @@ window.addEventListener(
   'pagehide',
   () => {
     void viewer.destroy();
+    void sibling?.destroy();
   },
   { once: true },
 );
 Object.assign(window, {
   filumoTextExpansion: {
+    async addSibling() {
+      await sibling?.destroy();
+      siblingHost?.remove();
+      siblingHost = document.createElement('div');
+      siblingHost.id = 'grid-sibling';
+      document.body.append(siblingHost);
+      sibling = createViewer(siblingHost, { height: 240, plugins: [csv()] });
+      await sibling.open(new File(['id,name\n1,A\n2,B\n'], 'sibling.csv'));
+    },
+    async disposeSibling() {
+      await sibling?.destroy();
+      sibling = undefined;
+      siblingHost?.remove();
+      siblingHost = undefined;
+    },
     update: (options: Parameters<ViewerHandle['update']>[0]) =>
       viewer.update(options),
     setActive: (value: boolean) => viewer.setActive(value),

@@ -5,6 +5,7 @@ import type { SpreadsheetPerformanceProfile } from './spreadsheetPerformance';
 import type {
   SpreadsheetColumnMetric,
   SpreadsheetRange,
+  SpreadsheetMerge,
   SpreadsheetRangeData,
   SpreadsheetRowMetric,
   SpreadsheetSheet,
@@ -76,6 +77,11 @@ export interface SpreadsheetSource {
   getProfile(sheetId: string): SpreadsheetPerformanceProfile;
   /** 读取指定工作表的行列布局。 */
   getSheetLayout(sheetId: string): SpreadsheetSheetLayout;
+  /** 只查询已准备的合并元数据，选择和复制不物化工作表。 */
+  getMergeRanges?(
+    sheetId: string,
+    range: SpreadsheetRange,
+  ): readonly SpreadsheetMerge[];
   /** 确保指定工作表的结构数据已经加载。 */
   ensureSheet(sheetId: string, signal?: AbortSignal): Promise<void>;
   /** 返回已完整物化的工作表；不可用时返回空值。 */

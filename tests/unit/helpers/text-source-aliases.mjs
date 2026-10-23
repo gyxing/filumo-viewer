@@ -6,4 +6,5 @@ export const textSourceAliases = {
   '@filumo/dom/text-messages': resolve('packages/dom/src/text-messages.ts'),
   '@filumo/dom/text-highlight': resolve('packages/dom/src/text-highlight.ts'),
   '@filumo/dom/split': resolve('packages/dom/src/split.ts'),
+  '@filumo/dom/grid': resolve('packages/dom/src/grid.ts'),
 };

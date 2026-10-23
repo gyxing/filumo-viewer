@@ -20,7 +20,6 @@ pnpm add @filumo/dom @filumo/csv
 npm install @filumo/dom @filumo/csv
 ```
 
-
 ## 最小接入
 
 ```html
@@ -44,7 +43,9 @@ const viewer = createViewer(container, {
 });
 
 try {
-  await viewer.open(new File(['name,value\nFilumo,1\nexample,2'], 'example.csv'));
+  await viewer.open(
+    new File(['name,value\nFilumo,1\nexample,2'], 'example.csv'),
+  );
 } catch (error) {
   console.error(error);
 }
@@ -52,9 +53,13 @@ try {
 document.getElementById('dispose')?.addEventListener('click', () => {
   void viewer.destroy();
 });
-window.addEventListener('pagehide', () => {
-  void viewer.destroy();
-}, { once: true });
+window.addEventListener(
+  'pagehide',
+  () => {
+    void viewer.destroy();
+  },
+  { once: true },
+);
 ```
 
 将示例 URL 换成真实可访问的文件地址，或在文件选择事件中传入 File。20 MiB 等示例限制是宿主配置，不是库默认限制；关闭时由句柄释放会话、资源与样式租约。
@@ -75,6 +80,10 @@ window.addEventListener('pagehide', () => {
 完整类型以公开声明与源码为准；没有列出的功能不能通过猜测选项名开启。
 
 ## 数据语义与性能
+
+表格视图与 Excel 共用 @filumo/dom/grid 的只读交互：单击/拖动、Shift 扩选、方向键、Tab、Home/End、PageUp/PageDown、Ctrl/Cmd+A 和 Ctrl/Cmd+C。Tab 到范围首尾后允许焦点离开网格；输入框和查找框保留自己的快捷键。
+
+列宽仅影响当前预览，更多菜单提供恢复列宽。拖动中按 Escape 或取消指针会还原本次调整。查找关闭后回到网格，普通滚动不重置选区。复制使用完整字段并保护 TSV 中的分隔符、换行和引号，默认最多 100000 单元格、8 MiB UTF-16 文本估算；超限提示缩小选区或下载文件，不截断后写入剪贴板。
 
 字段始终按文本呈现，保留引号、字段换行和转义语义，不自动转换数字、日期或执行等号开头的公式。查找、选择和复制不修改来源，原文模式保留完整解码内容。
 
@@ -128,6 +137,7 @@ import '@filumo/csv/styles.css';
 | [@filumo/react](https://www.npmjs.com/package/@filumo/react) | React 18/19 适配组件 | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/react#readme) |
 | [@filumo/vue](https://www.npmjs.com/package/@filumo/vue) | Vue 3（>=3.3 <4）适配组件 | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/vue#readme) |
 | [@filumo/vue2](https://www.npmjs.com/package/@filumo/vue2) | Vue 2（^2.6.14 或 ^2.7.16）适配组件 | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/vue2#readme) |
+
 <!-- filumo-packages:end -->
 
 ## 文档与反馈

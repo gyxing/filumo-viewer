@@ -49,6 +49,9 @@ export function createOfficeInteractions(kind: string): OfficeInteractionPort {
     supportsRevisionModes: false,
   });
   let handlers: OfficeInteractionHandlers | undefined;
+  let gridHandlers:
+    | { copySelection(): Promise<void>; resetColumns(): void }
+    | undefined;
   let closed = false;
   let transitionToken = 0;
   const listeners = new Set<() => void>();
@@ -136,6 +139,14 @@ export function createOfficeInteractions(kind: string): OfficeInteractionPort {
           if (!['source', 'reading'].includes(command.mode))
             throw new FilumoError('INVALID_SHEET_MODE', '表格显示模式无效');
           update({ sheetMode: command.mode });
+          return;
+        case 'gridCopy':
+          requireFamily('spreadsheet');
+          await requireHandler(gridHandlers?.copySelection)();
+          return;
+        case 'gridResetColumns':
+          requireFamily('spreadsheet');
+          requireHandler(gridHandlers?.resetColumns)();
           return;
         case 'transitions':
           requireFamily('presentation');
@@ -272,6 +283,19 @@ export function createOfficeInteractions(kind: string): OfficeInteractionPort {
         }
       };
     },
+    bindGrid(next) {
+      gridHandlers = next;
+      update({ gridReady: true });
+      return () => {
+        if (gridHandlers === next) {
+          gridHandlers = undefined;
+          update({ gridReady: false, columnWidthsChanged: false });
+        }
+      };
+    },
+    updateGrid(info) {
+      if (gridHandlers) update(info);
+    },
     setActive(active) {
       update({ active });
     },
@@ -279,6 +303,7 @@ export function createOfficeInteractions(kind: string): OfficeInteractionPort {
       if (closed) return;
       closed = true;
       handlers = undefined;
+      gridHandlers = undefined;
       listeners.clear();
     },
   };

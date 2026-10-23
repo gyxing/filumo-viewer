@@ -2,13 +2,13 @@ import { build } from 'esbuild';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 const result = await build({
-  entryPoints: ['packages/csv/src/view/CsvSelection.ts'],
+  entryPoints: ['packages/dom/src/grid/selection.ts'],
   bundle: true,
   write: false,
   format: 'esm',
   platform: 'node',
 });
-const { CsvSelection } = await import(
+const { GridSelection: CsvSelection } = await import(
   'data:text/javascript;base64,' +
     Buffer.from(result.outputFiles[0].text).toString('base64')
 );

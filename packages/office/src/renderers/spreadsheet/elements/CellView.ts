@@ -244,7 +244,7 @@ export function createCellView(context: OfficeElementContext) {
         ? { top: '50%', transform: 'translateY(-50%)' }
         : { top: 0 }
       : undefined;
-    const highlightedValue = createDom(context.document, context.highlight, {
+    const highlightedText = createDom(context.document, context.highlight, {
       text: cell.value,
       target: {
         kind: 'spreadsheet',
@@ -253,6 +253,14 @@ export function createCellView(context: OfficeElementContext) {
         columnIndex: cell.columnIndex,
       },
     });
+    const highlightedValue = createDom(
+      context.document,
+      'span',
+      {
+        className: 'filumo-grid-text',
+      },
+      highlightedText,
+    );
     return createDom(
       context.document,
       null,

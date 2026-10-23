@@ -11,6 +11,7 @@ import {
   type NativeOfficeContext,
 } from '../common/mountNativeOffice';
 import { SpreadsheetGrid } from './SpreadsheetGrid';
+import type { SpreadsheetGridState } from './SpreadsheetGridInteraction';
 import { SpreadsheetSourceBinding } from './SpreadsheetSourceBinding';
 import { parseSpreadsheetCellReference } from './navigation';
 import './styles/document.less';
@@ -79,6 +80,12 @@ async function mountWorkbook(
     stopSearch: (() => void) | undefined,
     stopAnnotations: (() => void) | undefined,
     identity = source.identity;
+  const gridStates = new Map<string, SpreadsheetGridState>();
+  let gridIdentity = source.identity;
+  let stopGrid: (() => void) | undefined;
+  let changingGrid = false;
+  let navigationAttempt = 0;
+  let searchWasOpen = port.getState().showSearch;
   const renderTabs = () => {
     const snapshot = source.getSnapshot(),
       active = port.getState().activeSheetId;
@@ -152,6 +159,8 @@ async function mountWorkbook(
     }
   };
   const load = (id: string) => {
+    if (grid && currentId && gridIdentity === source.identity)
+      gridStates.set(currentId, grid.getState());
     const token = ++generation;
     currentId = id;
     mounted = false;
@@ -160,6 +169,10 @@ async function mountWorkbook(
     request?.abort();
     request = new AbortController();
     const signal = request.signal;
+    changingGrid = true;
+    stopGrid?.();
+    stopGrid = undefined;
+    changingGrid = false;
     grid?.dispose();
     grid = undefined;
     chart?.dispose();
@@ -208,8 +221,19 @@ async function mountWorkbook(
             port.getState().zoom,
             port.getState().sheetMode,
             cache,
+            gridStates.get(id),
           );
+          gridIdentity = source.identity;
           surface.prepend(grid.element);
+          changingGrid = true;
+          stopGrid = port.bindGrid?.({
+            copySelection: () => grid?.copy() ?? Promise.resolve(),
+            resetColumns: () => grid?.resetColumnWidths(),
+          });
+          port.updateGrid?.({
+            columnWidthsChanged: grid.getState().widths.length > 0,
+          });
+          changingGrid = false;
         }
         loading = false;
         mounted = true;
@@ -262,10 +286,13 @@ async function mountWorkbook(
       });
   };
   const sync = () => {
-    if (closed) return;
+    if (closed || changingGrid) return;
     renderTabs();
     const state = port.getState(),
       id = state.activeSheetId ?? source.getSnapshot().sheets[0]?.id;
+    if (searchWasOpen && !state.showSearch && state.active)
+      grid?.element.focus({ preventScroll: true });
+    searchWasOpen = state.showSearch;
     if (!id) {
       status.textContent =
         context.locale === 'en-US' ? 'No worksheets' : '没有可显示的工作表';
@@ -298,6 +325,8 @@ async function mountWorkbook(
       request?.abort();
       currentId = undefined;
       reading.clear();
+      gridStates.clear();
+      navigationAttempt++;
       stopSearch?.();
       stopSearch = source.searchProvider
         ? services.search.actions.registerProvider(source.searchProvider)
@@ -321,6 +350,8 @@ async function mountWorkbook(
       source.searchProvider,
     );
   const navigate = async (id: string, row: number, column: number) => {
+    const attempt = ++navigationAttempt,
+      navigatingSource = source.identity;
     if (
       !source
         .getSnapshot()
@@ -332,7 +363,13 @@ async function mountWorkbook(
       target: { kind: 'sheet', sheetId: id },
     });
     await promise;
-    if (closed || currentId !== id) return false;
+    if (
+      closed ||
+      currentId !== id ||
+      attempt !== navigationAttempt ||
+      navigatingSource !== source.identity
+    )
+      return false;
     return grid?.scrollToCell(row, column) ?? false;
   };
   stops.push(
@@ -407,11 +444,13 @@ async function mountWorkbook(
     async dispose() {
       if (closed) return;
       closed = true;
+      navigationAttempt++;
       generation++;
       request?.abort();
       stops.forEach((stop) => stop());
       stopSearch?.();
       stopAnnotations?.();
+      stopGrid?.();
       grid?.dispose();
       chart?.dispose();
       watermark.dispose();

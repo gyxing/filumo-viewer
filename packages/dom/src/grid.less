@@ -1,0 +1,53 @@
+.filumo-grid-interaction {
+  position: relative;
+  outline: none;
+}
+.filumo-grid-interaction [data-grid-row][data-grid-column] {
+  user-select: text;
+}
+.filumo-grid-text {
+  cursor: text;
+  user-select: text;
+}
+.filumo-grid-overlay-host {
+  position: relative;
+}
+.filumo-grid-interaction:focus-visible {
+  outline: 1px solid var(--filumo-primary, #1677ff);
+  outline-offset: -1px;
+}
+.filumo-grid-selection-layer {
+  position: absolute;
+  z-index: 16;
+  overflow: hidden;
+  pointer-events: none;
+}
+.filumo-grid-selection,
+.filumo-grid-active-cell {
+  position: absolute;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+.filumo-grid-selection {
+  background: rgba(22, 119, 255, 0.09);
+  border: 1px solid var(--filumo-primary, #1677ff);
+}
+.filumo-grid-active-cell {
+  border: 2px solid var(--filumo-primary, #1677ff);
+}
+.filumo-grid-interaction [data-grid-highlighted='true'] {
+  box-shadow: inset 0 -2px var(--filumo-primary, #1677ff);
+}
+.filumo-grid-column-resize {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  cursor: col-resize;
+  touch-action: none;
+}
+.filumo-grid-column-resize:focus-visible {
+  outline: 1px solid var(--filumo-primary, #1677ff);
+  outline-offset: -1px;
+}

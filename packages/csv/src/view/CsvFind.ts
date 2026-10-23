@@ -1,4 +1,5 @@
 import { findTextMatches } from '@filumo/core/text';
+import { createGridIcon } from '@filumo/dom/grid';
 import type { CsvSession } from '../runtime/CsvSession';
 import type { CsvIndex } from '../parser/types';
 
@@ -20,9 +21,11 @@ export class CsvFind {
     private reveal: (row: number, column: number) => void,
     private error: (error: unknown) => void,
     en: boolean,
+    private onClose: () => void = () => undefined,
   ) {
     this.element = document.createElement('div');
     this.element.className = 'filumo-csv-find';
+    this.element.setAttribute('role', 'search');
     this.element.hidden = true;
     this.input = document.createElement('input');
     this.input.type = 'search';
@@ -30,10 +33,17 @@ export class CsvFind {
     this.input.setAttribute('aria-label', this.input.placeholder);
     this.status = document.createElement('output');
     this.status.setAttribute('role', 'status');
-    const button = (label: string, run: () => void) => {
+    const button = (
+      label: string,
+      icon: 'previous' | 'next' | 'close',
+      run: () => void,
+    ) => {
       const node = document.createElement('button');
       node.type = 'button';
-      node.textContent = label;
+      node.setAttribute('aria-label', label);
+      node.title = label;
+      node.append(createGridIcon(document, icon));
+      node.disabled = icon !== 'close';
       node.onclick = run;
       return node;
     };
@@ -46,12 +56,15 @@ export class CsvFind {
         this.move(event.shiftKey ? -1 : 1);
       } else if (event.key === 'Escape') this.show(false);
     };
+    const field = document.createElement('div');
+    field.className = 'filumo-csv-find-field';
+    field.append(createGridIcon(document, 'search'), this.input);
     this.element.append(
-      this.input,
-      button(en ? 'Previous' : '上一项', () => this.move(-1)),
-      button(en ? 'Next' : '下一项', () => this.move(1)),
+      field,
+      button(en ? 'Previous' : '上一项', 'previous', () => this.move(-1)),
+      button(en ? 'Next' : '下一项', 'next', () => this.move(1)),
       this.status,
-      button(en ? 'Close' : '关闭', () => this.show(false)),
+      button(en ? 'Close' : '关闭', 'close', () => this.show(false)),
     );
   }
   private handleError = (error: unknown) => {
@@ -87,11 +100,16 @@ export class CsvFind {
     await this.locate(own.signal);
   }
   private async locate(signal: AbortSignal) {
-    this.status.textContent = this.matches.length
+    this.status.textContent = !this.input.value
+      ? ''
+      : this.matches.length
       ? `${this.current + 1}/${this.matches.length}${
           this.matches.length === 10000 ? '+' : ''
         }`
       : '0';
+    this.element.querySelectorAll('button').forEach((button, index) => {
+      if (index < 2) button.disabled = !this.matches.length;
+    });
     if (this.current < 0) return;
     const offset = this.matches[this.current];
     let begin = 0,
@@ -124,6 +142,7 @@ export class CsvFind {
     this.element.hidden = !open;
     this.setActive(open);
     if (open) this.input.focus();
+    else this.onClose();
   }
   /** 语言变化只更新文案，不清空查询和已找到的位置。 */
   updateLocale(en: boolean): void {
@@ -133,7 +152,8 @@ export class CsvFind {
       ? ['Previous', 'Next', 'Close']
       : ['上一项', '下一项', '关闭'];
     this.element.querySelectorAll('button').forEach((button, index) => {
-      button.textContent = labels[index];
+      button.setAttribute('aria-label', labels[index]);
+      button.title = labels[index];
     });
   }
   setActive(active: boolean): void {

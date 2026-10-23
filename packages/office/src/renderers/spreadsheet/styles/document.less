@@ -95,7 +95,7 @@
   padding: 16px;
   overflow: auto;
   background: var(--office-file-workspace-color);
-  scrollbar-gutter: stable both-edges;
+  scrollbar-gutter: stable;
 }
 
 .office-file-xlsx-sheet-grid__canvas {
@@ -122,6 +122,35 @@
 .office-file-xlsx-virtual-grid__canvas {
   background: var(--office-file-spreadsheet-canvas-color);
   box-shadow: 0 10px 24px rgba(15, 23, 42, 10%);
+}
+
+// 各绘制分区以画布为尺寸边界，合并内容不能扩大滚动范围或漏到视口外。
+.office-file-xlsx-virtual-grid__frozen-layer,
+.office-file-xlsx-virtual-grid__frozen-pane,
+.office-file-xlsx-virtual-grid__header-layer,
+.office-file-xlsx-virtual-grid__body-layer {
+  position: absolute;
+  inset: 0;
+  overflow: clip;
+  pointer-events: none;
+}
+
+.office-file-xlsx-virtual-grid__body-layer {
+  z-index: 1;
+}
+
+.office-file-xlsx-virtual-grid__frozen-layer {
+  z-index: 10;
+}
+
+.office-file-xlsx-virtual-grid__header-layer {
+  z-index: 20;
+}
+
+.office-file-xlsx-virtual-grid__frozen-pane > [role='row'],
+.office-file-xlsx-virtual-grid__body-layer > [role='row'],
+.office-file-xlsx-virtual-grid__header-layer > * {
+  pointer-events: auto;
 }
 
 .office-file-xlsx-virtual-grid__cell {

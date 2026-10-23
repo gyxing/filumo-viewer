@@ -58,6 +58,9 @@ export class SpreadsheetSourceBinding implements SpreadsheetSource {
   getSheetLayout(id: string) {
     return this.current.getSheetLayout(id);
   }
+  getMergeRanges(id: string, range: SpreadsheetRange) {
+    return this.current.getMergeRanges?.(id, range) ?? [];
+  }
   async ensureSheet(id: string, signal?: AbortSignal) {
     const source = this.current;
     await source.ensureSheet(id, signal);

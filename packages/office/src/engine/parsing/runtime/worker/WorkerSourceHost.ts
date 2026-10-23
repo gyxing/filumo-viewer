@@ -389,6 +389,18 @@ export class WorkerSourceHost {
       if (operation === 'get-sheet-annotations') {
         return source.getAnnotations(sheetId, signal);
       }
+      if (operation === 'get-sheet-merges') {
+        await source.ensureSheet(sheetId, signal);
+        const layout = source.getSheetLayout(sheetId);
+        return (
+          source.getMergeRanges?.(sheetId, {
+            startRow: 1,
+            endRow: Math.max(1, layout.rowCount),
+            startColumn: 1,
+            endColumn: Math.max(1, layout.columnCount),
+          }) ?? []
+        );
+      }
       if (operation === 'get-range') {
         return source.getRange(sheetId, args.range as SpreadsheetRange, signal);
       }

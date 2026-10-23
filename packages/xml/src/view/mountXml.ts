@@ -89,7 +89,8 @@ export async function mountXml(context: ViewContext): Promise<ViewHandle> {
           id: 'xml.search',
           label: en ? 'Find' : '查找',
           kind: 'action',
-          toolbar: { placement: 'more', order: 30 },
+          // 查找默认直达，窄容器中比缩放更晚收纳。
+          toolbar: { placement: 'main', order: 1, priority: 110 },
           enabled: !!content.document,
           run: () => workspace?.showSearch(),
         },

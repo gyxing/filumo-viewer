@@ -122,7 +122,11 @@ export async function mountCsv(context: ViewContext): Promise<ViewHandle> {
           pressed: session.header,
           run: () => {
             session.header = !session.header;
-            grid?.update({ locale: options.locale, zoom });
+            grid?.update({
+              locale: options.locale,
+              zoom,
+              stylePolicy: context.stylePolicy,
+            });
             publish();
           },
         },
@@ -130,7 +134,8 @@ export async function mountCsv(context: ViewContext): Promise<ViewHandle> {
           id: 'csv.search',
           label: en ? 'Find' : '查找',
           kind: 'action',
-          toolbar: { placement: 'more', order: 50 },
+          // 查找默认直达，窄容器中比缩放更晚收纳。
+          toolbar: { placement: 'main', order: 1, priority: 110 },
           enabled: !!content.document,
           run: () => {
             if (session.mode === 'source') source?.showSearch(true);
@@ -145,6 +150,14 @@ export async function mountCsv(context: ViewContext): Promise<ViewHandle> {
           enabled: session.mode === 'table' && !!grid,
           run: () => grid?.copy().catch(error),
         },
+        {
+          id: 'csv.resetColumns',
+          label: en ? 'Reset column widths' : '恢复列宽',
+          kind: 'action',
+          toolbar: { placement: 'more', order: 70 },
+          enabled: session.mode === 'table' && !!grid?.hasColumnWidths,
+          run: () => grid?.resetColumnWidths(),
+        },
       ],
       {
         value: zoom,
@@ -153,7 +166,11 @@ export async function mountCsv(context: ViewContext): Promise<ViewHandle> {
         step: 10,
         set: async (value) => {
           zoom = value;
-          grid?.update({ locale: options.locale, zoom });
+          grid?.update({
+            locale: options.locale,
+            zoom,
+            stylePolicy: context.stylePolicy,
+          });
           if (content.document)
             source?.update(content.document, sourceOptions());
           publish();
@@ -226,15 +243,21 @@ export async function mountCsv(context: ViewContext): Promise<ViewHandle> {
             session,
             result.index,
             context.container.ownerDocument,
-            { locale: options.locale, zoom },
+            { locale: options.locale, zoom, stylePolicy: context.stylePolicy },
             error,
+            undefined,
+            publish,
           );
           frame.body.append(grid.element);
         }
         grid.element.hidden = false;
         viewRevision = content.revision;
         grid.setActive(active);
-        grid.update({ locale: options.locale, zoom });
+        grid.update({
+          locale: options.locale,
+          zoom,
+          stylePolicy: context.stylePolicy,
+        });
         frame.state('');
         publish();
         return;

@@ -29,6 +29,7 @@ export const WORKSPACE_PACKAGES = [
             'text-messages': 'src/text-messages.ts',
             'text-highlight': 'src/text-highlight.ts',
             split: 'src/split.ts',
+            grid: 'src/grid.ts',
           }
         : name === 'image'
         ? { index: 'src/index.ts', view: 'src/view/index.ts' }

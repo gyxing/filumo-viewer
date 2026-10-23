@@ -86,6 +86,16 @@ export function createMaterializedSpreadsheetSource(
     if (!profile) throw new RangeError(`工作表不存在：${sheetId}`);
     return profile;
   };
+  const mergeIndexes = new WeakMap<SpreadsheetSheet, SpreadsheetMergeIndex>();
+  // 物化工作表在会话内不变，避免每次命中或复制重新排序全部合并区域。
+  const getMergeIndex = (sheet: SpreadsheetSheet) => {
+    let index = mergeIndexes.get(sheet);
+    if (!index) {
+      index = new SpreadsheetMergeIndex(sheet.merges);
+      mergeIndexes.set(sheet, index);
+    }
+    return index;
+  };
   const getLayout = (sheet: SpreadsheetSheet): SpreadsheetSheetLayout => ({
     revision: 1,
     rowCount: sheet.rowCount,
@@ -115,6 +125,8 @@ export function createMaterializedSpreadsheetSource(
     subscribe: () => () => undefined,
     getProfile,
     getSheetLayout: (sheetId) => getLayout(getSheet(sheetId)),
+    getMergeRanges: (sheetId, range) =>
+      getMergeIndex(getSheet(sheetId)).query(range),
     async ensureSheet(sheetId, signal) {
       throwIfSpreadsheetAborted(signal);
       getSheet(sheetId);
@@ -132,7 +144,7 @@ export function createMaterializedSpreadsheetSource(
     async getRange(sheetId, requestedRange, signal) {
       throwIfSpreadsheetAborted(signal);
       const sheet = getSheet(sheetId);
-      const mergeIndex = new SpreadsheetMergeIndex(sheet.merges);
+      const mergeIndex = getMergeIndex(sheet);
       const range = mergeIndex.expand({
         startRow: Math.max(1, requestedRange.startRow),
         endRow: Math.min(sheet.rowCount, requestedRange.endRow),

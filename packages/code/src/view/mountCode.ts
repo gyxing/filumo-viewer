@@ -115,7 +115,8 @@ export async function mountCode(context: ViewContext): Promise<ViewHandle> {
           label: en ? 'Find' : '查找',
           kind: 'action',
           enabled: !!surface,
-          toolbar: { placement: 'more', order: 30 },
+          // 查找默认直达，窄容器中比缩放更晚收纳。
+          toolbar: { placement: 'main', order: 1, priority: 110 },
           run: () => surface?.showSearch(true),
         },
         {

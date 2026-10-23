@@ -50,6 +50,8 @@
     "./dist/outline.js",
     "./dist/text.js",
     "./dist/split.js",
+    "./src/grid.ts",
+    "./dist/grid.js",
     "./dist/chunks/*.js",
     "**/*.css"
   ],
@@ -82,6 +84,11 @@
       "import": "./dist/text-highlight.js",
       "default": "./dist/text-highlight.js"
     },
+    "./grid": {
+      "types": "./dist/grid.d.ts",
+      "import": "./dist/grid.js",
+      "default": "./dist/grid.js"
+    },
     "./split": {
       "types": "./dist/split.d.ts",
       "import": "./dist/split.js",
@@ -92,26 +99,15 @@
   "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
-      "outline": [
-        "dist/outline.d.ts"
-      ],
-      "text": [
-        "dist/text.d.ts"
-      ],
-      "text-messages": [
-        "dist/text-messages.d.ts"
-      ],
-      "text-highlight": [
-        "dist/text-highlight.d.ts"
-      ],
-      "split": [
-        "dist/split.d.ts"
-      ]
+      "outline": ["dist/outline.d.ts"],
+      "text": ["dist/text.d.ts"],
+      "text-messages": ["dist/text-messages.d.ts"],
+      "text-highlight": ["dist/text-highlight.d.ts"],
+      "grid": ["dist/grid.d.ts"],
+      "split": ["dist/split.d.ts"]
     }
   },
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "dependencies": {
     "@filumo/core": "workspace:^"
   }

@@ -86,6 +86,7 @@ export async function mountPdf(context: ViewContext): Promise<ViewHandle> {
           toolbar: {
             placement: 'main',
             order: 10,
+            priority: 120,
           },
           run: () => sidebar?.show('outline'),
         },
@@ -93,7 +94,8 @@ export async function mountPdf(context: ViewContext): Promise<ViewHandle> {
           id: 'pdf.search',
           kind: 'action',
           label: en ? 'Find' : '查找',
-          toolbar: { placement: 'main', order: 20 },
+          // 核心导航之后优先保留查找，不改变旋转的主栏常驻规则。
+          toolbar: { placement: 'main', order: 20, priority: 110 },
           enabled: !!search,
           run: () => sidebar?.select('search', true),
         },
@@ -120,7 +122,7 @@ export async function mountPdf(context: ViewContext): Promise<ViewHandle> {
         ? {
             index: state.index,
             count: state.count,
-            toolbar: { order: 30 },
+            toolbar: { order: 30, priority: 120 },
             goTo: async (index) => {
               await viewport?.goTo(index);
             },

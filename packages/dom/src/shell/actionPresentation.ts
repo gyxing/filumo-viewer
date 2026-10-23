@@ -26,6 +26,7 @@ const ACTION_ICONS: Readonly<Partial<Record<string, ShellIcon>>> = {
   transitions: 'transitions',
   rotate: 'rotate',
   reset: 'reset',
+  resetColumns: 'reset',
   fit: 'fit',
   actual: 'actual',
   retry: 'reset',

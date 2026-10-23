@@ -47,7 +47,7 @@ async function disposePreview() {
 | Markdown   | 阅读                       | 原文默认关闭     | 开启         |
 | CSV        | 表格，首行作为表头         | 原文模式默认关闭 | 原文模式开启 |
 
-行号默认只显示真实行数。编码、视图、查找、自动换行和行号按格式收纳到更多菜单，一级操作带图标。Markdown 大纲保留在主栏；JSON 分支展开/收起合并为状态按钮。JSON/XML 原文行号可从更多菜单切换，当前文件内视图切换、缩放和重新解码保留选择。
+行号默认只显示真实行数。查找默认显示在主工具栏；编码、视图、自动换行和行号等设置按格式收纳到更多菜单，一级操作带图标。空间不足时，查找可按优先级自动收纳。Markdown 大纲保留在主栏；JSON 分支展开/收起合并为状态按钮。JSON/XML 原文行号可从更多菜单切换，当前文件内视图切换、缩放和重新解码保留选择。
 
 ## Text 与未知文件兜底
 
@@ -85,6 +85,10 @@ marked 与 highlight.js 是已有必要依赖。高亮按可见代码块和语�
 
 默认首行表头；TSV 默认 Tab，CSV 自动识别逗号、分号、Tab 或竖线。支持分隔符切换、列宽拖动、矩形选区和完整 TSV 复制。所有字段均为只读字符串，不执行公式。表格按行列窗口化，解析失败可保留原文。
 
+CSV／TSV 继续独立成包，与 Office 的 Excel 视图共享轻量网格交互，不共享解析器或完整渲染器。两边统一 Shift 扩选、键盘移动、Ctrl/Cmd+A、Ctrl/Cmd+C、列宽调整和恢复。查找成功定位后更新活动单元格，普通滚动不重置选择；Tab 到数据边界后允许离开网格。
+
+复制默认最多 100000 个单元格、8 MiB UTF-16 文本估算，取消或超限不复制部分内容。CSV 使用完整字段，Excel 使用格式化显示文本。临时列宽只属于当前预览；Excel 的合并、冻结、隐藏行列、图片和图表仍由 Office 自己的布局处理。公共入口为 @filumo/dom/grid，按视图懒加载，external 样式沿用 @filumo/dom/styles.css。
+
 | 预算               | 默认值    |
 | ------------------ | --------- |
 | maxRows            | 1,000,000 |
@@ -103,11 +107,11 @@ marked 与 highlight.js 是已有必要依赖。高亮按可见代码块和语�
 
 ## Code
 
-| 类别       | 文件范围                                                                                 |
-| ---------- | ---------------------------------------------------------------------------------------- |
-| Web        | JS/JSX, TS/TSX, HTML, CSS, LESS, SCSS, Sass                                              |
-| 常用语言   | Shell, Python, SQL, Java, C/C++, C#, Go, Rust, PHP, Ruby, Kotlin, Swift, Lua             |
-| 配置与脚本 | YAML/YML, TOML, .env/.env.\*, PowerShell, BAT/CMD                                        |
+| 类别 | 文件范围 |
+| --- | --- |
+| Web | JS/JSX, TS/TSX, HTML, CSS, LESS, SCSS, Sass |
+| 常用语言 | Shell, Python, SQL, Java, C/C++, C#, Go, Rust, PHP, Ruby, Kotlin, Swift, Lua |
+| 配置与脚本 | YAML/YML, TOML, .env/.env.\*, PowerShell, BAT/CMD |
 | 构建与协议 | Dockerfile, Makefile/GNUmakefile, CMakeLists.txt, .mk/.cmake, GraphQL, Proto, Diff/Patch |
 
 这些能力统一位于 @filumo/code。文件名、后缀和默认语言共用规则；.h 默认 C，可手动切换 C++。Vue/Svelte 混合语法适配仍为后续范围。源码只展示，不执行脚本、编译 Sass 或应用样式。明确的 JSON/XML 等后缀保持专用包归属。

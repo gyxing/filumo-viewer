@@ -145,7 +145,8 @@ run.onclick = async () => {
       container.querySelectorAll<HTMLButtonElement>('[role=dialog] button'),
     );
     buttons.find((button) => button.getAttribute('aria-label') === '旋转')!.click();
-    await services.layout.flush();
+    // 公共图片模块独立按帧布局，不再由 Office 布局队列提交变换。
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
     check(
       container
         .querySelector<HTMLImageElement>('[role=dialog] img')!
@@ -153,12 +154,12 @@ run.onclick = async () => {
       '原生图片旋转',
     );
     buttons.find((button) => button.getAttribute('aria-label') === '复位')!.click();
-    await services.layout.flush();
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
     check(
       container.querySelector('[role=dialog] output')!.textContent === '100%',
       '原生图片复位',
     );
-    dialog.dispose();
+    await dialog.dispose();
     check(
       container.querySelectorAll('[role=dialog]').length === 0,
       '弹层关闭清理并恢复焦点',

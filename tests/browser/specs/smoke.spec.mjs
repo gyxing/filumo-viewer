@@ -40,7 +40,7 @@ test('新烟测选择公开文件、配置更新、销毁重开和 DOM 探针', 
     page.getByRole('heading', { name: 'Word', exact: true }),
   ).toBeVisible();
   const sidebar = page.getByRole('complementary', { name: '烟测样本列表' });
-  const preview = page.getByRole('region', { name: '文档预览' });
+  const preview = page.getByRole('region', { name: '文档预览', exact: true });
   const sideBounds = await sidebar.boundingBox();
   const previewBounds = await preview.boundingBox();
   expect(previewBounds.x).toBeGreaterThan(sideBounds.x + sideBounds.width);

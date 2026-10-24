@@ -151,6 +151,8 @@ document.getElementById('run')!.onclick = async () => {
     const bytes = await (await fetch('/samples/' + id)).arrayBuffer();
     const file = new File([bytes], id + '.' + format);
     await viewer.open(file);
+    // 几何参考固定使用 100%，避免演示文稿默认适应容器后把正确缩放误判为排版漂移。
+    if (!ui) await viewer.getCapabilities().zoom?.set(100);
     let previous = '',
       stable = 0;
     for (let i = 0; i < 1200; i++) {

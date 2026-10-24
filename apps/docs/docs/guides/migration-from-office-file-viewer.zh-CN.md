@@ -82,4 +82,4 @@ React/Vue 由适配器管理卸载，原生宿主调用 destroy。Vue KeepAlive 
 
 所有公共包使用 `@filumo/*` 和 `0.1.0`；样式前缀为 `filumo-`，公共错误名称为 `FilumoError`，项目环境变量使用 `FILUMO_*`。自定义工具栏、CSP 配置和部署脚本中的旧标识需要同步迁移。不要手动修改 generated/package.ts 或复制旧构建缓存。
 
-当前仓库与 Pages 地址仍保留 office-file-viewer 路径，这不是旧包 API。GitHub Pages 前缀继续使用 /office-file-viewer/；产品改名不代表仓库地址已迁移。完整包清单见[包总览](./packages)。
+GitHub 仓库已迁移为 [gyxing/filumo-viewer](https://github.com/gyxing/filumo-viewer)，GitHub Pages 前缀使用 /filumo-viewer/；npm 包名继续使用 @filumo/*。完整包清单见[包总览](./packages)。

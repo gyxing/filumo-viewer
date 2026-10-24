@@ -22,14 +22,14 @@
     "react文件预览",
     "react文档预览"
   ],
-  "homepage": "https://github.com/gyxing/office-file-viewer/tree/master/packages/react#readme",
+  "homepage": "https://github.com/gyxing/filumo-viewer/tree/master/packages/react#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gyxing/office-file-viewer.git",
+    "url": "git+https://github.com/gyxing/filumo-viewer.git",
     "directory": "packages/react"
   },
   "bugs": {
-    "url": "https://github.com/gyxing/office-file-viewer/issues"
+    "url": "https://github.com/gyxing/filumo-viewer/issues"
   },
   "author": {
     "name": "gyxing",

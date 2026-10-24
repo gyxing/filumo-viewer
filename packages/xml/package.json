@@ -26,14 +26,14 @@
     "xml查看器",
     "结构树"
   ],
-  "homepage": "https://github.com/gyxing/office-file-viewer/tree/master/packages/xml#readme",
+  "homepage": "https://github.com/gyxing/filumo-viewer/tree/master/packages/xml#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gyxing/office-file-viewer.git",
+    "url": "git+https://github.com/gyxing/filumo-viewer.git",
     "directory": "packages/xml"
   },
   "bugs": {
-    "url": "https://github.com/gyxing/office-file-viewer/issues"
+    "url": "https://github.com/gyxing/filumo-viewer/issues"
   },
   "author": {
     "name": "gyxing",

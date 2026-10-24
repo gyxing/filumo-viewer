@@ -45,7 +45,7 @@ jobs:
         run: pnpm run docs:build
         env:
           # 现有 Pages 部署目录只在此指定，本地开发默认使用根路径。
-          FILUMO_DOCS_BASE: /office-file-viewer/
+          FILUMO_DOCS_BASE: /filumo-viewer/
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4

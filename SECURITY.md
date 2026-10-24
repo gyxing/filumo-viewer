@@ -2,7 +2,7 @@
 
 ## Scope
 
-`office-file-viewer` parses and renders Office files in the browser. It does not load or execute macros. Embedded external media is blocked by default, and remote resources remain subject to browser CORS and Content Security Policy rules.
+`Filumo` parses and renders Office files in the browser. It does not load or execute macros. Embedded external media is blocked by default, and remote resources remain subject to browser CORS and Content Security Policy rules.
 
 The viewer is read-only. Hosts should still apply their own authentication, authorization, upload limits, Content Security Policy, and remote URL validation before passing untrusted resources to the component.
 

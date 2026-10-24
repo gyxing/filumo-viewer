@@ -82,4 +82,4 @@ Validate production bundling, sources, Workers, image overlays, search, teardown
 
 Public packages use `@filumo/*` at `0.1.0`, CSS uses `filumo-` prefixes, the public error is `FilumoError`, and project environment variables use `FILUMO_*`. Update old identifiers in custom controls, CSP configuration and deployment scripts. Do not edit generated/package.ts or copy old build caches.
 
-Repository and Pages URLs still retain office-file-viewer; this is not an old package API. The Pages base remains /office-file-viewer/ until the actual repository or site address changes. See the [package overview](./packages).
+The GitHub repository is now [gyxing/filumo-viewer](https://github.com/gyxing/filumo-viewer), and the Pages base is /filumo-viewer/. npm package names remain @filumo/*. See the [package overview](./packages).

@@ -3,7 +3,7 @@ export type WebsiteLocale = 'en-US' | 'zh-CN';
 export type PackageManager = 'npm' | 'yarn';
 
 export const SITE_ROOT = DOCS_BASE;
-export const GITHUB_URL = 'https://github.com/gyxing/office-file-viewer';
+export const GITHUB_URL = 'https://github.com/gyxing/filumo-viewer';
 export const NPM_URL = 'https://www.npmjs.com/org/filumo';
 
 type ProductFactContent = {

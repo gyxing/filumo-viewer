@@ -18,21 +18,21 @@ All fifteen public packages use **0.1.0**. This version is not yet published. np
 
 | Package                                                            | Responsibility                                                | Source and details                                                                          |
 | ------------------------------------------------------------------ | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| [@filumo/core](https://www.npmjs.com/package/@filumo/core)         | Sources, plugin protocol, sessions and shared text processing | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/core#readme)     |
-| [@filumo/dom](https://www.npmjs.com/package/@filumo/dom)           | DOM shell, toolbar, outline and shared source views           | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/dom#readme)      |
-| [@filumo/viewer](https://www.npmjs.com/package/@filumo/viewer)     | Lightweight standard preset for nine format plugins           | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/viewer#readme)   |
-| [@filumo/office](https://www.npmjs.com/package/@filumo/office)     | Word, Excel, PowerPoint and supported WPS documents           | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/office#readme)   |
-| [@filumo/pdf](https://www.npmjs.com/package/@filumo/pdf)           | Continuous PDF reading, thumbnails, outlines and search       | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/pdf#readme)      |
-| [@filumo/image](https://www.npmjs.com/package/@filumo/image)       | Standalone images and shared image overlay interactions       | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/image#readme)    |
-| [@filumo/text](https://www.npmjs.com/package/@filumo/text)         | Plain text, logs and readable-content fallback                | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/text#readme)     |
-| [@filumo/json](https://www.npmjs.com/package/@filumo/json)         | JSON, JSONC, JSONL and NDJSON                                 | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/json#readme)     |
-| [@filumo/markdown](https://www.npmjs.com/package/@filumo/markdown) | Markdown reading, source, outlines and controlled HTML        | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/markdown#readme) |
-| [@filumo/csv](https://www.npmjs.com/package/@filumo/csv)           | Readonly CSV and TSV tables                                   | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/csv#readme)      |
-| [@filumo/xml](https://www.npmjs.com/package/@filumo/xml)           | Split XML source and structure views                          | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/xml#readme)      |
-| [@filumo/code](https://www.npmjs.com/package/@filumo/code)         | Common source, configuration, script and build files          | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/code#readme)     |
-| [@filumo/react](https://www.npmjs.com/package/@filumo/react)       | React 18/19 adapter                                           | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/react#readme)    |
-| [@filumo/vue](https://www.npmjs.com/package/@filumo/vue)           | Vue >=3.3 <4 adapter                                          | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/vue#readme)      |
-| [@filumo/vue2](https://www.npmjs.com/package/@filumo/vue2)         | Vue 2.6/2.7 adapter                                           | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/vue2#readme)     |
+| [@filumo/core](https://www.npmjs.com/package/@filumo/core)         | Sources, plugin protocol, sessions and shared text processing | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/core#readme)     |
+| [@filumo/dom](https://www.npmjs.com/package/@filumo/dom)           | DOM shell, toolbar, outline and shared source views           | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/dom#readme)      |
+| [@filumo/viewer](https://www.npmjs.com/package/@filumo/viewer)     | Lightweight standard preset for nine format plugins           | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/viewer#readme)   |
+| [@filumo/office](https://www.npmjs.com/package/@filumo/office)     | Word, Excel, PowerPoint and supported WPS documents           | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/office#readme)   |
+| [@filumo/pdf](https://www.npmjs.com/package/@filumo/pdf)           | Continuous PDF reading, thumbnails, outlines and search       | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/pdf#readme)      |
+| [@filumo/image](https://www.npmjs.com/package/@filumo/image)       | Standalone images and shared image overlay interactions       | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/image#readme)    |
+| [@filumo/text](https://www.npmjs.com/package/@filumo/text)         | Plain text, logs and readable-content fallback                | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/text#readme)     |
+| [@filumo/json](https://www.npmjs.com/package/@filumo/json)         | JSON, JSONC, JSONL and NDJSON                                 | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/json#readme)     |
+| [@filumo/markdown](https://www.npmjs.com/package/@filumo/markdown) | Markdown reading, source, outlines and controlled HTML        | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/markdown#readme) |
+| [@filumo/csv](https://www.npmjs.com/package/@filumo/csv)           | Readonly CSV and TSV tables                                   | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/csv#readme)      |
+| [@filumo/xml](https://www.npmjs.com/package/@filumo/xml)           | Split XML source and structure views                          | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/xml#readme)      |
+| [@filumo/code](https://www.npmjs.com/package/@filumo/code)         | Common source, configuration, script and build files          | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/code#readme)     |
+| [@filumo/react](https://www.npmjs.com/package/@filumo/react)       | React 18/19 adapter                                           | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/react#readme)    |
+| [@filumo/vue](https://www.npmjs.com/package/@filumo/vue)           | Vue >=3.3 <4 adapter                                          | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/vue#readme)      |
+| [@filumo/vue2](https://www.npmjs.com/package/@filumo/vue2)         | Vue 2.6/2.7 adapter                                           | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/vue2#readme)     |
 
 ## Choosing packages
 
@@ -115,4 +115,4 @@ Format Workers use ESM. Manual deployment must preserve worker.js, worker-chunks
 
 Keep package, Worker, asset and external-CSS versions aligned at 0.1.0. All previews are readonly, with no unlimited-size or complete Office fidelity guarantee. See [compatibility](./compatibility) for declared support and the distinction from historical validation.
 
-Source is licensed under MIT. [GitHub](https://github.com/gyxing/office-file-viewer) · [Issues](https://github.com/gyxing/office-file-viewer/issues) · [CHANGELOG](https://github.com/gyxing/office-file-viewer/blob/master/CHANGELOG.md)
+Source is licensed under MIT. [GitHub](https://github.com/gyxing/filumo-viewer) · [Issues](https://github.com/gyxing/filumo-viewer/issues) · [CHANGELOG](https://github.com/gyxing/filumo-viewer/blob/master/CHANGELOG.md)

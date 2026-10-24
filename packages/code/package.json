@@ -53,14 +53,14 @@
     "代码高亮",
     "源码查看器"
   ],
-  "homepage": "https://github.com/gyxing/office-file-viewer/tree/master/packages/code#readme",
+  "homepage": "https://github.com/gyxing/filumo-viewer/tree/master/packages/code#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gyxing/office-file-viewer.git",
+    "url": "git+https://github.com/gyxing/filumo-viewer.git",
     "directory": "packages/code"
   },
   "bugs": {
-    "url": "https://github.com/gyxing/office-file-viewer/issues"
+    "url": "https://github.com/gyxing/filumo-viewer/issues"
   },
   "author": {
     "name": "gyxing",

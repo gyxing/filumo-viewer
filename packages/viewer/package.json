@@ -37,14 +37,14 @@
     "文档预览",
     "多格式预览"
   ],
-  "homepage": "https://github.com/gyxing/office-file-viewer/tree/master/packages/viewer#readme",
+  "homepage": "https://github.com/gyxing/filumo-viewer/tree/master/packages/viewer#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gyxing/office-file-viewer.git",
+    "url": "git+https://github.com/gyxing/filumo-viewer.git",
     "directory": "packages/viewer"
   },
   "bugs": {
-    "url": "https://github.com/gyxing/office-file-viewer/issues"
+    "url": "https://github.com/gyxing/filumo-viewer/issues"
   },
   "author": {
     "name": "gyxing",

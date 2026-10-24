@@ -89,7 +89,7 @@ Remove-Item Env:FILUMO_DOCS_BASE
 
 ## GitHub Pages 发布链路
 
-现有公开站点为 https://gyxing.github.io/office-file-viewer/，FILUMO_DOCS_BASE 使用 /office-file-viewer/。产品名为 Filumo，仓库名和部署目录尚未迁移。
+公开站点为 https://gyxing.github.io/filumo-viewer/，FILUMO_DOCS_BASE 使用 /filumo-viewer/，与 GitHub 仓库 gyxing/filumo-viewer 对应。修改部署前缀后需重新构建并部署文档站点。
 
 .github/workflows/deploy-pages.yml 监听 master 分支 push，并保留 workflow_dispatch 手动入口。当前 next 分支的本地修改不会自动更新公开站点。工作流按锁文件安装依赖，执行 pnpm run docs:build，上传 apps/docs/dist 后部署。手动运行使用所选 ref 的内容，执行前应明确目标版本。
 

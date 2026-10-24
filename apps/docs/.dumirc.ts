@@ -32,7 +32,7 @@ export default defineConfig({
         { title: '文档', link: '/zh-CN/docs' },
       ],
     },
-    socialLinks: { github: 'https://github.com/gyxing/office-file-viewer' },
+    socialLinks: { github: 'https://github.com/gyxing/filumo-viewer' },
   },
   resolve: { docDirs: [] },
 });

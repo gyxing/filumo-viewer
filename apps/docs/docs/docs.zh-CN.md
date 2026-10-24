@@ -28,21 +28,21 @@ Filumo 是跨框架的浏览器端文件预览组件。解析、图片、图表�
 
 | 包                                                                 | 用途                                      | 源码与详细说明                                                                              |
 | ------------------------------------------------------------------ | ----------------------------------------- | ------------------------------------------------------------------------------------------- |
-| [@filumo/core](https://www.npmjs.com/package/@filumo/core)         | 来源、插件协议、会话及公共文本处理        | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/core#readme)     |
-| [@filumo/dom](https://www.npmjs.com/package/@filumo/dom)           | 原生 DOM 外壳、工具栏、大纲及原文公共视图 | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/dom#readme)      |
-| [@filumo/viewer](https://www.npmjs.com/package/@filumo/viewer)     | 九类格式的轻量标准插件预设                | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/viewer#readme)   |
-| [@filumo/office](https://www.npmjs.com/package/@filumo/office)     | Word、Excel、PowerPoint 及支持的 WPS 文档 | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/office#readme)   |
-| [@filumo/pdf](https://www.npmjs.com/package/@filumo/pdf)           | PDF 连续阅读、缩略图、大纲及查找          | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/pdf#readme)      |
-| [@filumo/image](https://www.npmjs.com/package/@filumo/image)       | 独立图片及公共图片弹层交互                | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/image#readme)    |
-| [@filumo/text](https://www.npmjs.com/package/@filumo/text)         | 纯文本、日志及可读内容兜底                | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/text#readme)     |
-| [@filumo/json](https://www.npmjs.com/package/@filumo/json)         | JSON、JSONC、JSONL 与 NDJSON              | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/json#readme)     |
-| [@filumo/markdown](https://www.npmjs.com/package/@filumo/markdown) | Markdown 阅读、原文、大纲及受控 HTML      | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/markdown#readme) |
-| [@filumo/csv](https://www.npmjs.com/package/@filumo/csv)           | CSV、TSV 只读表格                         | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/csv#readme)      |
-| [@filumo/xml](https://www.npmjs.com/package/@filumo/xml)           | XML 原文与结构双栏                        | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/xml#readme)      |
-| [@filumo/code](https://www.npmjs.com/package/@filumo/code)         | 常用代码、配置、脚本及构建文件            | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/code#readme)     |
-| [@filumo/react](https://www.npmjs.com/package/@filumo/react)       | React 18/19 适配                          | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/react#readme)    |
-| [@filumo/vue](https://www.npmjs.com/package/@filumo/vue)           | Vue 3.3+（小于 4）适配                    | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/vue#readme)      |
-| [@filumo/vue2](https://www.npmjs.com/package/@filumo/vue2)         | Vue 2.6/2.7 适配                          | [README](https://github.com/gyxing/office-file-viewer/tree/master/packages/vue2#readme)     |
+| [@filumo/core](https://www.npmjs.com/package/@filumo/core)         | 来源、插件协议、会话及公共文本处理        | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/core#readme)     |
+| [@filumo/dom](https://www.npmjs.com/package/@filumo/dom)           | 原生 DOM 外壳、工具栏、大纲及原文公共视图 | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/dom#readme)      |
+| [@filumo/viewer](https://www.npmjs.com/package/@filumo/viewer)     | 九类格式的轻量标准插件预设                | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/viewer#readme)   |
+| [@filumo/office](https://www.npmjs.com/package/@filumo/office)     | Word、Excel、PowerPoint 及支持的 WPS 文档 | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/office#readme)   |
+| [@filumo/pdf](https://www.npmjs.com/package/@filumo/pdf)           | PDF 连续阅读、缩略图、大纲及查找          | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/pdf#readme)      |
+| [@filumo/image](https://www.npmjs.com/package/@filumo/image)       | 独立图片及公共图片弹层交互                | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/image#readme)    |
+| [@filumo/text](https://www.npmjs.com/package/@filumo/text)         | 纯文本、日志及可读内容兜底                | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/text#readme)     |
+| [@filumo/json](https://www.npmjs.com/package/@filumo/json)         | JSON、JSONC、JSONL 与 NDJSON              | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/json#readme)     |
+| [@filumo/markdown](https://www.npmjs.com/package/@filumo/markdown) | Markdown 阅读、原文、大纲及受控 HTML      | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/markdown#readme) |
+| [@filumo/csv](https://www.npmjs.com/package/@filumo/csv)           | CSV、TSV 只读表格                         | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/csv#readme)      |
+| [@filumo/xml](https://www.npmjs.com/package/@filumo/xml)           | XML 原文与结构双栏                        | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/xml#readme)      |
+| [@filumo/code](https://www.npmjs.com/package/@filumo/code)         | 常用代码、配置、脚本及构建文件            | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/code#readme)     |
+| [@filumo/react](https://www.npmjs.com/package/@filumo/react)       | React 18/19 适配                          | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/react#readme)    |
+| [@filumo/vue](https://www.npmjs.com/package/@filumo/vue)           | Vue 3.3+（小于 4）适配                    | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/vue#readme)      |
+| [@filumo/vue2](https://www.npmjs.com/package/@filumo/vue2)         | Vue 2.6/2.7 适配                          | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/vue2#readme)     |
 
 只选择自己的框架适配包，不需要安装 React、Vue 两套运行时。原生 JS 和 Vue 的 Office 预览不依赖 React。
 

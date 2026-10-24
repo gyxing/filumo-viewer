@@ -40,7 +40,7 @@ test('非法站点前缀必须失败，不产生站外资源请求或目录穿�
 
 import { build } from 'esbuild';
 test('浏览器站内地址使用构建注入值，嵌套路由不改变资源根', async () => {
-  for (const base of ['/', '/docs-preview/']) {
+  for (const base of ['/', '/docs-preview/', '/filumo-viewer/']) {
     const result = await build({
       entryPoints: ['apps/docs/src/site-path.ts'],
       bundle: true,

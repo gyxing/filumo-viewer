@@ -3,13 +3,13 @@
   "private": true,
   "packageManager": "pnpm@11.10.0",
   "description": "Filumo 跨框架文档预览工作区",
-  "homepage": "https://gyxing.github.io/office-file-viewer/",
+  "homepage": "https://gyxing.github.io/filumo-viewer/",
   "bugs": {
-    "url": "https://github.com/gyxing/office-file-viewer/issues"
+    "url": "https://github.com/gyxing/filumo-viewer/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gyxing/office-file-viewer.git"
+    "url": "git+https://github.com/gyxing/filumo-viewer.git"
   },
   "license": "MIT",
   "author": {

@@ -2,7 +2,7 @@
 
 ## Our commitment
 
-We are committed to making participation in `office-file-viewer` a respectful, constructive, and inclusive experience for everyone.
+We are committed to making participation in `Filumo` a respectful, constructive, and inclusive experience for everyone.
 
 ## Expected behavior
 

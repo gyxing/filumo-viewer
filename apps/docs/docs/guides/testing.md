@@ -89,7 +89,7 @@ Build, test server and tests must share FILUMO_DOCS_BASE. Rebuild after changing
 
 ## GitHub Pages publication
 
-The existing site is https://gyxing.github.io/office-file-viewer/, with FILUMO_DOCS_BASE set to /office-file-viewer/. Filumo is the product name; repository and deployment directory have not moved.
+The public site is https://gyxing.github.io/filumo-viewer/, with FILUMO_DOCS_BASE set to /filumo-viewer/ for the gyxing/filumo-viewer repository. Rebuild and deploy the documentation after changing this prefix.
 
 .github/workflows/deploy-pages.yml listens to pushes on master and keeps a workflow_dispatch entry. Local next-branch changes do not update the public site. CI installs from the lockfile, runs pnpm run docs:build, uploads apps/docs/dist and deploys it. A manual run uses the selected ref, so select the intended version deliberately.
 

@@ -279,12 +279,15 @@ test('环境配置的引号注释与变量保持原文，补丁新增和删除�
       (value) => window.filumoTextExpansion.update({ theme: value }),
       theme,
     );
-    const colors = await Promise.all(
-      [addition, deletion].map((node) =>
-        node.evaluate((element) => getComputedStyle(element).color),
-      ),
-    );
-    expect(colors[0]).not.toBe(colors[1]);
+    // 主题刷新会替换可见行；从稳定容器同步读取两种颜色，避免比较已脱离文档的旧节点。
+    await expect.poll(() => page.locator('.filumo-text-viewport').evaluate((viewport) => {
+      const added = viewport.querySelector('.hljs-addition');
+      const removed = viewport.querySelector('.hljs-deletion');
+      if (!added || !removed) return false;
+      const addedColor = getComputedStyle(added).color;
+      const removedColor = getComputedStyle(removed).color;
+      return Boolean(addedColor && removedColor && addedColor !== removedColor);
+    })).toBe(true);
   }
 });
 test('Code 多行着色保持原文且 HTML 不执行', async ({ page }) => {

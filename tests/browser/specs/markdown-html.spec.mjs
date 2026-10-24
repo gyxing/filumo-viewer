@@ -30,7 +30,7 @@ test('HTML 换行、成对链接和 Markdown 行内格式保持同一结构', as
   await expect(article.locator('del')).toHaveText('旧式排版');
   const size = article.getByText('定号文字', { exact: true });
   expect(await size.evaluate((element) => parseFloat(getComputedStyle(element).fontSize))).toBeCloseTo(14, 1);
-  const zoom = page.getByRole('spinbutton', { name: '缩放比例', exact: true });
+  const zoom = page.getByRole('combobox', { name: '缩放比例', exact: true });
   await zoom.fill('150');
   await zoom.press('Enter');
   await expect.poll(() => size.evaluate((element) => parseFloat(getComputedStyle(element).fontSize)))
@@ -73,10 +73,7 @@ test('HTML 标题接入大纲，自定义锚点展开 details 并仅定位正文
     .toHaveAttribute('href', /#filumo-md-\d+-legacy-anchor$/);
   await details.locator('summary').click();
   await expect(details).not.toHaveAttribute('open');
-  const more = page.locator('.filumo-toolbar-more');
-  await more.locator('.filumo-toolbar-more-trigger').click();
-  await page.getByRole('menu', { name: '更多操作', exact: true })
-    .getByRole('menuitem', { name: '查找', exact: true }).click();
+  await page.getByRole('toolbar').getByRole('button', { name: '查找', exact: true }).click();
   await page.locator('.filumo-markdown-find input').fill('折叠区域正文');
   await expect(details).toHaveAttribute('open', '');
 });

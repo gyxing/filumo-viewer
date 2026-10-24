@@ -93,6 +93,22 @@ test('Office 仅适配公共弹层，显示租约与停用订阅各有唯一释�
   assert.equal(released, 1);
 });
 
+test('Office 物化图片从原数据地址补全后缀，不使用显示转换图的格式', async () => {
+  const view = await mountImagePreview(
+    { name: '文档插图', source: { kind: 'url', url: 'data:image/svg+xml;base64,PHN2Zy8+' } },
+    {},
+    {
+      container: { closest: () => null },
+      document: {},
+      signal: new AbortController().signal,
+      services: { resources: {} },
+      onError(error) { throw error; },
+    },
+  );
+  assert.equal(globalThis.officeImageFixture.model.name, '文档插图.svg');
+  await view.dispose();
+});
+
 test('Office 下载使用原始 EMF Blob，保持后缀且归还临时下载地址', async () => {
   const original = new Blob(['original-emf'], { type: 'image/x-emf' }),
     blobs = [],

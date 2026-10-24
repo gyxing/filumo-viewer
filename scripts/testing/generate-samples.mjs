@@ -152,7 +152,8 @@ for (const [format, entries] of Object.entries(samples)) {
   for (const [name, content] of Object.entries(entries))
     await writer.add(name, new TextReader(content), {
       level: 0,
-      lastModDate: new Date('2020-01-01T00:00:00Z'),
+      // ZIP 使用本地 DOS 时间；固定本地字段，避免 Windows 与 Linux 时区改变样本哈希。
+      lastModDate: new Date(2020, 0, 1),
       extendedTimestamp: false,
     });
   await writeFile(out + '/sample.' + format, await writer.close());
@@ -226,7 +227,7 @@ const complexWriter = new ZipWriter(new Uint8ArrayWriter(), {
 for (const [name, content] of Object.entries(complex))
   await complexWriter.add(name, new TextReader(content), {
     level: 0,
-    lastModDate: new Date('2020-01-01T00:00:00Z'),
+    lastModDate: new Date(2020, 0, 1),
     extendedTimestamp: false,
   });
 await writeFile(out + '/sample-complex.docx', await complexWriter.close());

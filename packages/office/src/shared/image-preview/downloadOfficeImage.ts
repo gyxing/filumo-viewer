@@ -24,9 +24,11 @@ const DOWNLOAD_URL_REVOKE_DELAY_MS = 1000;
 
 function getTargetMimeType(target: OfficeImagePreviewTarget) {
   if (target.mimeType) return target.mimeType.toLowerCase();
-  return typeof target.source === 'string' || target.source.kind === 'url'
-    ? undefined
-    : target.source.mimeType.toLowerCase();
+  if (typeof target.source !== 'string' && target.source.kind === 'lazy')
+    return target.source.mimeType.toLowerCase();
+  const url = typeof target.source === 'string' ? target.source : target.source.url;
+  // 物化的 OOXML 图片使用数据地址，仍可读取原 MIME，不能从显示用的转换图猜后缀。
+  return /^data:([^;,]+)/i.exec(url)?.[1].toLowerCase();
 }
 
 /** 根据图片元数据生成稳定且可由浏览器保存的文件名。 */

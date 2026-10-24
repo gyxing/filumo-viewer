@@ -442,7 +442,7 @@ test('窄屏嵌套菜单、主题与旧插件保持可用', async ({ page }) => 
   await expect(zoom).toBeVisible();
   await bar.screenshot({ path: 'tmp/toolbar-dark.png' });
   await page.getByRole('button', { name: '通用', exact: true }).click();
-  const basic = bar.getByRole('spinbutton', {
+  const basic = bar.getByRole('combobox', {
     name: 'Zoom percentage',
     exact: true,
   });

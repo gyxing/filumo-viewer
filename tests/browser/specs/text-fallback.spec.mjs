@@ -60,5 +60,7 @@ test('关闭自动兜底后保留格式选择提示，专用 JSON 错误不改�
   await expect(page.locator('.filumo-text-surface')).toBeVisible();
   await page.getByRole('button', { name: '无效 JSON', exact: true }).click();
   await expect(page.getByText(/JSON 语法错误/)).toBeVisible();
-  await expect(page.locator('.filumo-text-surface')).toHaveCount(0);
+  // JSON 保留原文供定位语法错误；共享原文组件不表示已经切换为 Text 兜底。
+  await expect(page.locator('.filumo-json-workspace')).toBeVisible();
+  await expect(page.locator('.filumo-json-workspace .filumo-text-surface')).toBeVisible();
 });

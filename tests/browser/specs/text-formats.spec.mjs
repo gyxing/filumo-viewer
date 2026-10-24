@@ -344,7 +344,8 @@ test('文本菜单集中次要操作，行号默认开启且可切换，查找�
   await lines.click();
   await expect(lines).toHaveAttribute('aria-checked', 'true');
   await expect(page.locator('.filumo-text-line-number').first()).toBeVisible();
-  await menu.getByRole('menuitem', { name: '查找', exact: true }).click();
+  await page.keyboard.press('Escape');
+  await page.getByRole('toolbar').getByRole('button', { name: '查找', exact: true }).click();
   await expect(page.locator('.filumo-toolbar-more-trigger')).toHaveAttribute('aria-expanded', 'false');
   await expect(
     page.locator('.filumo-text-find input[type="search"]'),
@@ -357,7 +358,7 @@ test('JSON 行号菜单带图标，开关状态在缩放及视图切换后保留
   await expect(page.locator('.filumo-text-line-number').first()).toBeVisible();
   const menu = await openMore(page),
     lines = menu.getByRole('menuitemcheckbox', { name: '行号', exact: true });
-  await expect(lines.locator('[data-name="lines"] svg')).toBeVisible();
+  await expect(lines.locator('svg[data-name="lines"]')).toBeVisible();
   await expect(lines).toHaveAttribute('aria-checked', 'true');
   await lines.click();
   await expect(lines).toHaveAttribute('aria-checked', 'false');
@@ -488,8 +489,7 @@ for (const action of ['目录', '正文锚点', '查找']) {
       scroll = page.locator('.filumo-markdown-scroll');
     await expect(outline).toBeVisible();
     if (action === '查找') {
-      const menu = await openMore(page);
-      await menu.getByRole('menuitem', { name: '查找', exact: true }).click();
+      await page.getByRole('toolbar').getByRole('button', { name: '查找', exact: true }).click();
       await expect(page.locator('.filumo-markdown-find input')).toBeFocused();
     } else if (action === '正文锚点') {
       await expect(
@@ -697,8 +697,7 @@ test('Text 查找栏切换语言时保持查询状态，无结果提示同步翻
   await page.goto(server.url + '/text-formats.html');
   await page.getByRole('button', { name: '文本', exact: true }).click();
   await expect(page.locator('.filumo-text-surface')).toBeVisible();
-  const menu = await openMore(page);
-  await menu.getByRole('menuitem', { name: '查找', exact: true }).click();
+  await page.getByRole('toolbar').getByRole('button', { name: '查找', exact: true }).click();
   const query = page.getByRole('searchbox', { name: '查找文本' });
   await query.fill('definitely-absent');
   const status = page.locator('.filumo-text-find output');

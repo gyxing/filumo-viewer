@@ -255,6 +255,23 @@ test('共享原文视图默认隐藏行号，显式开启及更新可恢复', as
   viewport.dispose();
 });
 
+test('原文滚动重绘期间临时收窄不会丢失横向位置', async () => {
+  const signal = new AbortController().signal;
+  const model = (await readText(new TextEncoder().encode('long line'), { signal })).document;
+  const viewport = new TextViewport(model, { wrap: false }, createDocument());
+  const canvas = viewport.element.querySelector('.filumo-text-canvas');
+  const replace = canvas.replaceChildren.bind(canvas);
+  canvas.replaceChildren = (...nodes) => {
+    replace(...nodes);
+    // 模拟浏览器在内容暂时为空时收窄滚动范围。
+    viewport.element.scrollLeft = 0;
+  };
+  viewport.element.scrollLeft = 30;
+  viewport.highlight([], -1);
+  assert.equal(viewport.element.scrollLeft, 30);
+  viewport.dispose();
+});
+
 test('默认只显示真实行号，缩放和容器变化不启用空白区延续', async () => {
   assert.equal(textViewportFlags.extendLineNumbersToViewport, false);
   const signal = new AbortController().signal;

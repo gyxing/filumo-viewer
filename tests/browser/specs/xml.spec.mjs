@@ -73,7 +73,7 @@ test('XML 行号菜单带图标，开关状态在缩放及视图切换后保留'
   await expect(source.locator('.filumo-text-line-number').first()).toBeVisible();
   await page.locator('.filumo-toolbar-more-trigger').click();
   const lines = page.getByRole('menuitemcheckbox', { name: '行号', exact: true });
-  await expect(lines.locator('[data-name="lines"] svg')).toBeVisible();
+  await expect(lines.locator('svg[data-name="lines"]')).toBeVisible();
   await expect(lines).toHaveAttribute('aria-checked', 'true');
   await lines.click();
   await expect(lines).toHaveAttribute('aria-checked', 'false');
@@ -121,7 +121,7 @@ test('XML 初始双栏与拖动比例恢复保持源文定位', async ({ page })
     .filter({ hasText: 'p:item' })
     .first()
     .click();
-  await expect(page.locator('.filumo-text-reveal')).toContainText('p:item');
+  await expect(first.locator('.filumo-text-row').filter({ has: page.locator('.filumo-text-reveal') })).toContainText('p:item');
   await page.evaluate(() => {
     window.filumoTextExpansion.setActive(false);
     window.filumoTextExpansion.setActive(true);

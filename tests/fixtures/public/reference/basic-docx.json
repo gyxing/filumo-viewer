@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "basic-docx",
-  "fixtureSha256": "3046e8d3a51af44ee1bfd5f83bc7c7a023fad1efac85397cd6564f84fff73c56",
+  "fixtureSha256": "daf15f28423f65da24b45d416cfcb4ec6cd1820ae580325cc5f009d5fdc132c1",
   "format": "docx",
   "environment": {
     "browser": "154.0.8037.98",

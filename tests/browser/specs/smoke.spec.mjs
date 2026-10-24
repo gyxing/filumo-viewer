@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { normalizeDocsBase } from '../../../apps/docs/config/base-path.js';
+import { sampleCatalog } from '../../../scripts/testing/sample-catalog.js';
 import { startServer } from '../helpers.mjs';
 const base = normalizeDocsBase(process.env.FILUMO_DOCS_BASE);
 let server;
@@ -25,7 +26,9 @@ test('新烟测选择公开文件、配置更新、销毁重开和 DOM 探针', 
     'application/json',
   );
 
-  expect(data.samples.length).toBe(11);
+  // 新增格式可以扩充公开样本，但开发接口必须完整返回公开目录且不混入本机文件。
+  const catalogue = await sampleCatalog(process.cwd());
+  expect(data.samples.map((sample) => sample.id).sort()).toEqual(catalogue.map((sample) => sample.id).sort());
   expect(data.samples.some((s) => s.id === 'basic-docx')).toBe(true);
   expect(JSON.stringify(data).includes('absolute')).toBe(false);
   await page.goto(server.url + base);

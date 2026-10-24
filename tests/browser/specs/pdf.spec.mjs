@@ -94,9 +94,12 @@ test('PDF 正文同页和跨页滚动更新大纲，自动展开祖先并滚入�
   await expect(selected).toHaveAttribute('aria-selected', 'true');
   await expect
     .poll(() =>
-      selected.evaluate((node) => {
-        const row = node.getBoundingClientRect(),
-          bounds = node.closest('[role="tree"]').getBoundingClientRect();
+      tree.evaluate((node) => {
+        // 虚拟树会替换行节点，从稳定的树容器读取本帧选中行，避免命中已脱离文档的旧行。
+        const selected = node.querySelector('[aria-selected="true"]');
+        if (!selected || selected.getAttribute('aria-label') !== 'Section 15') return false;
+        const row = selected.getBoundingClientRect(),
+          bounds = node.getBoundingClientRect();
         return row.top >= bounds.top && row.bottom <= bounds.bottom + 1;
       }),
     )

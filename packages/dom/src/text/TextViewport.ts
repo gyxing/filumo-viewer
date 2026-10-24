@@ -173,6 +173,7 @@ export class TextViewport {
   };
   private render() {
     if (this.closed || !this.active) return;
+    const left = this.element.scrollLeft;
     this.resize?.disconnect();
     this.canvas.replaceChildren();
     const start = Math.max(0, this.heights.at(this.element.scrollTop) - 4);
@@ -274,6 +275,8 @@ export class TextViewport {
       this.resize?.observe(row);
     }
     this.renderGutterFill();
+    // 清空可见行期间布局会暂时收窄，重建后恢复横向位置，避免滚动触发重绘又跳回左侧。
+    this.element.scrollLeft = left;
   }
   /** 新文件或字号变化时重建行高，逻辑行锚点继续有效。 */
   update(model: TextDocument, options: TextSurfaceOptions) {

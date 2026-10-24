@@ -226,7 +226,7 @@ test('构建和环境文件按原始文件名进入 Code，语言菜单保持分
         ),
       )
       .toBe(language);
-    await expect(page.getByText(file, { exact: true })).toBeVisible();
+    await expect(page.locator('.filumo-title')).toHaveText(file);
     await expect(page.locator('.filumo-text-line-number').first()).toBeVisible();
   }
   await page.locator('.filumo-toolbar-more-trigger').click();

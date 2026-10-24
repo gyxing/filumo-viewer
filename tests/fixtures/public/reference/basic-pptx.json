@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "basic-pptx",
-  "fixtureSha256": "7744cfcbcb9fe3a532b99d39f9a6606056845b58419019fb7e033566af843909",
+  "fixtureSha256": "0c7efd0727ced0e2c81fa90e91b4c15e252b070a3f4a214773aef19cdb67cd63",
   "format": "pptx",
   "environment": {
     "browser": "154.0.8037.98",

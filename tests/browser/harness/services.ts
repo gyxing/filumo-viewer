@@ -144,7 +144,7 @@ run.onclick = async () => {
     const buttons = Array.from(
       container.querySelectorAll<HTMLButtonElement>('[role=dialog] button'),
     );
-    buttons.find((button) => button.textContent === '旋转')!.click();
+    buttons.find((button) => button.getAttribute('aria-label') === '旋转')!.click();
     await services.layout.flush();
     check(
       container
@@ -152,7 +152,7 @@ run.onclick = async () => {
         .style.transform.includes('rotate(90deg)'),
       '原生图片旋转',
     );
-    buttons.find((button) => button.textContent === '复位')!.click();
+    buttons.find((button) => button.getAttribute('aria-label') === '复位')!.click();
     await services.layout.flush();
     check(
       container.querySelector('[role=dialog] output')!.textContent === '100%',

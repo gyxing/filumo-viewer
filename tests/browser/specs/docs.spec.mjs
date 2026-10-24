@@ -444,12 +444,12 @@ test('文档目录使用原生 Tree 标题、展开图标与选中状态', async
   await section
     .getByText('Component props and configuration', { exact: true })
     .click();
-  await expect(section).toHaveAttribute('aria-selected', 'true');
+  await expect(section).toHaveClass(/ant-tree-treenode-selected/);
   await section.getByRole('img', { name: 'plus-square' }).click();
   await expect(section).toHaveAttribute('aria-expanded', 'true');
   const viewOptions = nav.getByRole('treeitem', { name: /^ViewOptions$/ });
   await viewOptions.getByText('ViewOptions', { exact: true }).click();
-  await expect(viewOptions).toHaveAttribute('aria-selected', 'true');
+  await expect(viewOptions).toHaveClass(/ant-tree-treenode-selected/);
 
   await overview.getByRole('img', { name: 'minus-square' }).click();
   await expect(overview).toHaveAttribute('aria-expanded', 'false');
@@ -471,13 +471,13 @@ test('原生目录手动滚动后，正文在同一节内滚动不会把目录�
   await section
     .getByText('Component props and configuration', { exact: true })
     .click();
-  await expect(section).toHaveAttribute('aria-selected', 'true');
+  await expect(section).toHaveClass(/ant-tree-treenode-selected/);
   const top = await nav.evaluate((node) => {
     node.scrollTop = node.scrollHeight;
     return node.scrollTop;
   });
   await page.evaluate(() => window.scrollBy(0, 12));
-  await expect(section).toHaveAttribute('aria-selected', 'true');
+  await expect(section).toHaveClass(/ant-tree-treenode-selected/);
   await expect.poll(() => nav.evaluate((node) => node.scrollTop)).toBe(top);
 });
 

@@ -81,7 +81,7 @@ async function openToolbarSearch(page, en = false) {
 for (const format of ['docx', 'xlsx', 'pptx']) {
   test('取消滚动气泡后仍可自适应缩放：' + format, async ({ page }) => {
     await preview(page, format, '&width=320');
-    await chooseToolbarZoom(page, 300);
+    await chooseToolbarZoom(page, 200);
     const viewport = page
       .locator('[data-office-overflow-viewport="true"]')
       .first();
@@ -380,7 +380,7 @@ async function checkImagePreview(page, info, name) {
   expect(Math.abs(root.width - rect.width)).toBeLessThanOrEqual(2);
   expect(Math.abs(root.y - rect.y)).toBeLessThanOrEqual(1);
   await expect(overlay.locator('.filumo-image-preview-title')).toHaveText(
-    'Filumo test picture.png',
+    'Filumo test picture.svg',
   );
   expect(await overlay.locator('button svg').count()).toBeGreaterThanOrEqual(6);
   await expect(

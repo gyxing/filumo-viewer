@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "word-long-table",
-  "fixtureSha256": "3d389e559cacc77cd9ad7d138f346f3a6b550d95b71fb4d1804ccaec2e1e81a2",
+  "fixtureSha256": "b4784433b08bc0c25b22c340e157325da2c277fd290c06161f70ed22ff85b95d",
   "format": "docx",
   "environment": {
     "browser": "154.0.8037.98",

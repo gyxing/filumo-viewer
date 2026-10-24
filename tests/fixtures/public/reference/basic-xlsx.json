@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "basic-xlsx",
-  "fixtureSha256": "13273a13cd1824e54b0e5276dc91f90248221bd3ded0d82082a34169a095d4fd",
+  "fixtureSha256": "5b2e5fe27f8911d48ef058ebdc7f5419c8847ea443508ef6ed5547bb1c605627",
   "format": "xlsx",
   "environment": {
     "browser": "154.0.8037.98",

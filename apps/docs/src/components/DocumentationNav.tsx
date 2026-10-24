@@ -102,9 +102,9 @@ export function DocumentationNav({
       window.getComputedStyle(navigation).visibility === 'hidden'
     )
       return;
-    // 读取 Tree 原生选中项，只在越出目录视口时调整滚动，不接管标题渲染。
+    // 当前 rc-tree 用选中类标记节点，只在越出目录视口时调整滚动，不接管标题渲染。
     const selected = navigation.querySelector<HTMLElement>(
-      '[role="treeitem"][aria-selected="true"]',
+      '.ant-tree-treenode-selected',
     );
     if (!selected) return;
     const bounds = navigation.getBoundingClientRect();

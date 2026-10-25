@@ -11,12 +11,13 @@ node_modules/
 /tmp/
 /test-results/
 /.codex-artifacts/
-# 与本次清理无关的原用户材料保留忽略
-/docs/files/
+/.codex-consumer-templates/
+/.superpowers/
+/%SystemDrive%/
+/.claude/
 
 # 设计规格与实施计划仅保留本地，不纳入 Git 提交。
-/docs/superpowers/specs/
-/docs/superpowers/plans/
+/docs/
 
 # 包版本常量在 build/check/test 前由本包 manifest 自动生成。
 /packages/dom/src/generated/

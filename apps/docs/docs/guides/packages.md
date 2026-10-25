@@ -1,6 +1,6 @@
 ---
 title: Packages and installation
-description: All fifteen Filumo 0.1.0 packages, nine format plugins, framework installation choices and lazy-loading boundaries.
+description: All fifteen Filumo packages, nine format plugins, framework installation choices and lazy-loading boundaries.
 keywords:
   - Filumo
   - file preview
@@ -12,7 +12,7 @@ toc: content
 
 # Packages and installation
 
-All fifteen public packages use **0.1.0**. This version is not yet published. npm links identify the intended package pages, not confirmed downloadable releases. Before publication, use the workspace or locally built and packed packages.
+The fifteen packages may release independently. Check their npm pages for published versions; before release use the workspace or locally built and packed packages.
 
 ## Package catalogue
 
@@ -113,6 +113,16 @@ Format Workers use ESM. Manual deployment must preserve worker.js, worker-chunks
 
 ## Version, limits and contribution
 
-Keep package, Worker, asset and external-CSS versions aligned at 0.1.0. All previews are readonly, with no unlimited-size or complete Office fidelity guarantee. See [compatibility](./compatibility) for declared support and the distinction from historical validation.
+```tsx
+/**
+ * inline: true
+ */
+import React from 'react';
+import { DocumentationVersions } from '../../src/components/DocumentationVersions';
+export default () => <DocumentationVersions locale="en-US" />;
+```
+
+
+Packages may release independently. Respect dependency ranges and align Workers, assets and CSS with their owning package version. All previews are readonly, with no unlimited-size or complete Office fidelity guarantee. See [compatibility](./compatibility) for declared support and the distinction from historical validation.
 
 Source is licensed under MIT. [GitHub](https://github.com/gyxing/filumo-viewer) · [Issues](https://github.com/gyxing/filumo-viewer/issues) · [CHANGELOG](https://github.com/gyxing/filumo-viewer/blob/master/CHANGELOG.md)

@@ -91,7 +91,7 @@
 
 .office-viewer-docs__article {
   min-width: 0;
-  padding: 44px 48px 24px;
+  padding: 36px 36px 24px;
   color: var(--site-text);
   font-size: 16px;
   line-height: 1.75;
@@ -226,13 +226,13 @@
   border: 1px solid var(--site-border);
   background: #f8fafc;
   border-radius: 12px;
-  box-shadow: 0 10px 24px rgba(30, 41, 59, 6%);
+  box-shadow: none;
 }
 
 .office-viewer-docs__article pre {
   padding: 20px 22px;
   overflow: auto;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.7;
 }
 
@@ -288,12 +288,91 @@
 
 .office-viewer-docs__article th,
 .office-viewer-docs__article td {
-  min-width: 110px;
+  min-width: 88px;
   padding: 11px 14px;
   text-align: start;
   vertical-align: top;
   white-space: normal;
   border: 1px solid var(--site-border);
+}
+
+.office-viewer-docs__article.is-api-reference th:last-child,
+.office-viewer-docs__article.is-api-reference td:last-child {
+  min-width: 200px;
+}
+
+.office-viewer-docs__article th:first-child,
+.office-viewer-docs__article td:first-child {
+  max-width: 220px;
+}
+
+.office-viewer-docs__article .filumo-doc-callout {
+  margin: 20px 0;
+  padding: 14px 18px;
+  border-inline-start: 3px solid var(--site-primary);
+  border-radius: 0 8px 8px 0;
+  background: var(--site-primary-soft);
+  color: var(--site-text-soft);
+  line-height: 1.7;
+}
+
+.office-viewer-docs__article .filumo-doc-callout[data-kind='limit'] {
+  border-color: #d97706;
+  background: #fffbeb;
+}
+
+.office-viewer-docs__article .filumo-doc-callout[data-kind='deployment'] {
+  border-color: var(--site-cyan);
+  background: #ecfeff;
+}
+
+.filumo-doc-page-footer {
+  padding: 20px 36px 28px;
+  border-top: 1px solid var(--site-border);
+}
+
+.filumo-doc-page-footer > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--site-text-soft);
+  font-size: 13px;
+}
+
+.filumo-doc-page-footer nav {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.filumo-doc-page-footer nav a {
+  display: grid;
+  gap: 7px;
+  padding: 14px 16px;
+  border: 1px solid var(--site-border);
+  border-radius: 10px;
+  color: var(--site-primary-hover);
+  overflow-wrap: anywhere;
+}
+
+.filumo-doc-page-footer nav small {
+  color: var(--site-text-soft);
+}
+
+.filumo-doc-page-footer nav a:last-child {
+  text-align: end;
+}
+
+@media (max-width: 600px) {
+  .filumo-doc-page-footer {
+    padding: 18px 20px 24px;
+  }
+
+  .filumo-doc-page-footer nav {
+    gap: 10px;
+  }
 }
 
 .office-viewer-docs__article th {

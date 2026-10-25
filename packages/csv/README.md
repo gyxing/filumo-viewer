@@ -1,30 +1,40 @@
 # @filumo/csv
 
+<p>
+<strong>English</strong> | <a href="https://github.com/gyxing/filumo-viewer/blob/master/packages/csv/README.zh-CN.md">简体中文</a> ·
+<a href="https://gyxing.github.io/filumo-viewer/playground" target="_blank" rel="noopener noreferrer">Live demo</a> ·
+<a href="https://gyxing.github.io/filumo-viewer/docs" target="_blank" rel="noopener noreferrer">Integration docs</a>
+</p>
+
 Read-only CSV and TSV table viewer for Filumo, with delimiter detection, virtualized rows and columns, search and source view.
 
-CSV/TSV 只读表格插件，支持分隔符与表头选择、行列虚拟化、查找、单元格详情和原文阅读。
+A read-only CSV/TSV grid plugin with delimiter/header selection, row and column virtualization, search, cell details and source reading.
 
-本文档对应 **0.1.0**。以下命令展示 npm 发布后的消费方式；从当前源码工作区使用时，请先按接入指南构建各包。
+This documentation covers **0.1.0**. The commands below describe consumption after publication to npm. When using this source workspace, build the packages first as described in the integration guide.
 
-## 主要能力
+## Features
 
-- 支持逗号、分号、Tab、竖线及自动探测；TSV 默认按 Tab 读取。
-- 支持引号字段、字段中的换行和转义引号；单元格按原文字符串展示，不自动推断数字、日期或公式。
-- 行列均按可见区渲染，按预算缓存单元格内容；超长单元格可单独查看，不将整张表塞入 DOM。
+- Supports commas, semicolons, tabs, pipes and automatic detection. TSV defaults to tabs.
+- Supports quoted fields, embedded line breaks and escaped quotes. Cells remain source strings without automatic number, date or formula inference.
+- Rows and columns render within the visible area with bounded cell caches. Long cells can be inspected separately without inserting the entire grid into DOM.
 
-## 安装
+## Installation
 
 ```sh
 pnpm add @filumo/dom @filumo/csv
-# 或使用 npm
+```
+
+Or with npm:
+
+```sh
 npm install @filumo/dom @filumo/csv
 ```
 
-## 最小接入
+## Minimal integration
 
 ```html
 <div id="viewer"></div>
-<button id="dispose" type="button">关闭预览</button>
+<button id="dispose" type="button">Close preview</button>
 ```
 
 ```ts
@@ -32,12 +42,12 @@ import { createViewer } from '@filumo/dom';
 import { csv } from '@filumo/csv';
 
 const container = document.getElementById('viewer');
-if (!container) throw new Error('缺少预览容器');
+if (!container) throw new Error('Preview container is missing');
 
 const viewer = createViewer(container, {
   plugins: [csv()],
   height: 640,
-  locale: 'zh-CN',
+  locale: 'en-US',
   resourcePolicy: { maxFileBytes: 20 * 1024 * 1024 },
   onError: (error) => console.error(error),
 });
@@ -62,92 +72,92 @@ window.addEventListener(
 );
 ```
 
-将示例 URL 换成真实可访问的文件地址，或在文件选择事件中传入 File。20 MiB 等示例限制是宿主配置，不是库默认限制；关闭时由句柄释放会话、资源与样式租约。
+Replace sample URLs with accessible files, or pass a File from a file-selection event. Example limits such as 20 MiB are host configuration, not library defaults. Destroy the handle to release sessions, resources and style leases.
 
-## 常用配置
+## Common options
 
-| 配置项 | 默认值 | 说明 |
-| --- | --- | --- |
-| `delimiter` | CSV 为 auto，TSV 为 Tab | auto、逗号、分号、Tab 或竖线。 |
-| `header` | true | 首行是否作为表头。 |
-| `initialMode` | table | table 或 source。 |
-| `encoding` | auto | CSV/TSV 字节的解码方式。 |
-| `maxRows / maxColumns` | 1,000,000 / 4,096 | 索引行数和列数预算。 |
-| `maxCachedCells / cellCacheBytes` | 20,000 / 4 MiB | 单元格缓存数量及估算字节预算。 |
-| `maxCellDetailChars` | 65,536 | 单元格详情可展示字符上限。 |
-| `worker / workerFactory` | auto / 内置 Worker | 表格索引任务执行策略。 |
+| Option                            | Default                   | Description                                   |
+| --------------------------------- | ------------------------- | --------------------------------------------- |
+| `delimiter`                       | auto for CSV, Tab for TSV | auto, comma, semicolon, Tab or pipe.          |
+| `header`                          | true                      | Whether the first row is a header.            |
+| `initialMode`                     | table                     | table or source.                              |
+| `encoding`                        | auto                      | Decoding for CSV/TSV bytes.                   |
+| `maxRows / maxColumns`            | 1,000,000 / 4,096         | Indexed row and column budgets.               |
+| `maxCachedCells / cellCacheBytes` | 20,000 / 4 MiB            | Cell-cache count and estimated byte budgets.  |
+| `maxCellDetailChars`              | 65,536                    | Maximum characters displayed in cell details. |
+| `worker / workerFactory`          | auto / bundled Worker     | Grid indexing execution strategy.             |
 
-完整类型以公开声明与源码为准；没有列出的功能不能通过猜测选项名开启。
+See the public declarations and source for complete types. Features cannot be enabled by guessing undocumented option names.
 
-## 数据语义与性能
+## Data semantics and performance
 
-表格视图与 Excel 共用 @filumo/dom/grid 的只读交互：单击/拖动、Shift 扩选、方向键、Tab、Home/End、PageUp/PageDown、Ctrl/Cmd+A 和 Ctrl/Cmd+C。Tab 到范围首尾后允许焦点离开网格；输入框和查找框保留自己的快捷键。
+The grid shares read-only @filumo/dom/grid interaction with Excel: click/drag, Shift extension, arrow keys, Tab, Home/End, PageUp/PageDown, Ctrl/Cmd+A and Ctrl/Cmd+C. Tab can leave the grid at its boundaries. Inputs and search fields retain their own shortcuts.
 
-列宽仅影响当前预览，更多菜单提供恢复列宽。拖动中按 Escape 或取消指针会还原本次调整。查找关闭后回到网格，普通滚动不重置选区。复制使用完整字段并保护 TSV 中的分隔符、换行和引号，默认最多 100000 单元格、8 MiB UTF-16 文本估算；超限提示缩小选区或下载文件，不截断后写入剪贴板。
+Column widths affect only the current preview and can be restored from More. Escape or pointer cancellation rolls back the current resize. Closing search returns focus to the grid; normal scrolling preserves selection. Copying uses complete fields and protects TSV delimiters, line breaks and quotes, with defaults of 100000 cells and an estimated 8 MiB of UTF-16 text. Exceeding limits asks users to reduce selection or download the file rather than writing truncated clipboard data.
 
-字段始终按文本呈现，保留引号、字段换行和转义语义，不自动转换数字、日期或执行等号开头的公式。查找、选择和复制不修改来源，原文模式保留完整解码内容。
+Fields always remain text, preserving quoting, embedded line breaks and escaping semantics without converting numbers/dates or executing formulas beginning with equals. Search, selection and copying do not modify the source. Source mode retains all decoded content.
 
-分隔符尝试成功后才替换表格，失败不清空正在阅读的结果。单元格缓存有数量和字节双重预算，但不表示整个文件完全不读入内存。不提供 CSV 编辑、保存、Excel 工作簿解析或统计计算。
+A new delimiter replaces the grid only after successful parsing, so failure preserves the current result. Cell caches have both count and byte budgets; this does not guarantee the entire file stays out of memory. CSV editing/saving, Excel workbook parsing and statistical calculation are not included.
 
-## 样式与运行环境
+## Styles and runtime environment
 
-默认 auto 模式随实际视图加载样式，通常不需要手动导入 CSS。若宿主选择 `stylePolicy: { mode: 'external' }`，在创建查看器前加载匹配版本的外部样式：
+The default auto mode loads styles with the active view, normally without manual CSS imports. If the host chooses `stylePolicy: { mode: 'external' }`, load matching external styles before creating the viewer:
 
 ```ts
 import '@filumo/dom/styles.css';
 import '@filumo/csv/styles.css';
 ```
 
-模块 Worker 部署时保留本包 worker.js 和 worker-chunks 相对结构；打包器无法自动处理时通过 workerFactory 创建。auto 按环境选择任务执行方式，always 要求可用 Worker，never 使用本包允许的无 Worker 路径；Code 的高亮例外见本页，不会回退到主线程做同样的增强。
+When deploying module Workers, preserve the relative layout of worker.js and worker-chunks. Use workerFactory if the bundler cannot handle it automatically. Auto selects execution based on the environment, always requires an available Worker, and never uses the package's supported non-Worker path. Code highlighting has a separate boundary documented in the Code package; it does not repeat the enhancement on the main thread.
 
-字符串输入表示 URL，不表示文件正文；直接文本内容请使用 File/Blob。支持的来源还包括 Uint8Array、带 name/mimeType/request 的 URL 对象和自定义 DocumentSource 工厂。远程文件和辅助资源需要满足宿主的网络、CORS 与 CSP 配置。
+String input represents a URL, not document content. Use File/Blob for inline text. Other sources include Uint8Array, URL objects with name/mimeType/request, and custom DocumentSource factories. Remote files and supporting resources must satisfy the host's networking, CORS and CSP configuration.
 
-包以 ESM 发布，包含 TypeScript 声明；不提供 CommonJS require 入口。查看器挂载、图片解码和文件选择在浏览器执行；导入轻量入口不等于支持在服务端渲染文件。宿主应在客户端生命周期创建实例，并在不再使用时销毁。
+Packages are published as ESM with TypeScript declarations and no CommonJS require entry. Viewer mounting, image decoding and file selection run in the browser. Importing a lightweight entry does not enable server-side document rendering. Create instances in the client lifecycle and destroy them when no longer needed.
 
-## 公开入口
+## Public entries
 
-| 公开入口 | 用途 |
-| --- | --- |
-| `@filumo/csv` | csv 工厂及公开配置类型 |
-| `@filumo/csv/styles.css` | 预编译外部样式资源，用于 external 样式模式 |
-| `@filumo/csv/worker.js` | 模块 Worker 资源；部署时保留相关分块，不作为普通函数导入 |
+| Public entry             | Purpose                                                                                       |
+| ------------------------ | --------------------------------------------------------------------------------------------- |
+| `@filumo/csv`            | csv factory and public option types                                                           |
+| `@filumo/csv/styles.css` | Precompiled stylesheet for external style mode                                                |
+| `@filumo/csv/worker.js`  | Module Worker asset; preserve related chunks during deployment, not a regular function import |
 
-未列出的包内路径不是稳定公共 API。独立格式不依赖 React/Vue 适配层，宿主只安装实际需要的格式和适配包。
+Unlisted internal paths are not stable public APIs. Standalone format packages do not depend on React/Vue adapters; install only the formats and adapter your host needs.
 
-## Filumo 包清单
+## Filumo packages
 
-当前包已加粗。每个包独立发布，包名链接到 npm，源码链接指向项目实际仓库。
+The current package is bold. Each package is published independently. Package names link to npm, and source links point to this repository.
 
 <!-- filumo-packages:start -->
 
-| 包（点击进入 npm） | 用途 | 源码说明 |
-| --- | --- | --- |
-| [@filumo/core](https://www.npmjs.com/package/@filumo/core) | 无 UI 的来源、插件协议、会话和公共文本处理 | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/core#readme) |
-| [@filumo/dom](https://www.npmjs.com/package/@filumo/dom) | 原生 DOM 查看器、工具栏、原文、大纲和共享 UI | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/dom#readme) |
-| [@filumo/viewer](https://www.npmjs.com/package/@filumo/viewer) | 九类格式插件的标准预设与工厂聚合 | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/viewer#readme) |
-| [@filumo/office](https://www.npmjs.com/package/@filumo/office) | Word、Excel、PowerPoint 与受支持的旧格式 | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/office#readme) |
-| [@filumo/pdf](https://www.npmjs.com/package/@filumo/pdf) | PDF 连续阅读、大纲、缩略图和查找 | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/pdf#readme) |
-| [@filumo/image](https://www.npmjs.com/package/@filumo/image) | 图片预览、缩放、旋转、拖动及共享弹层 | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/image#readme) |
-| [@filumo/text](https://www.npmjs.com/package/@filumo/text) | 纯文本、日志、编码识别与可读文本兜底 | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/text#readme) |
-| [@filumo/json](https://www.npmjs.com/package/@filumo/json) | JSON / JSONC / JSONL / NDJSON 原文与结构 | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/json#readme) |
-| [@filumo/markdown](https://www.npmjs.com/package/@filumo/markdown) | Markdown 阅读、大纲、GFM 排版与代码高亮 | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/markdown#readme) |
-| **[@filumo/csv](https://www.npmjs.com/package/@filumo/csv)** | CSV / TSV 只读表格、虚拟滚动和查找 | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/csv#readme) |
-| [@filumo/xml](https://www.npmjs.com/package/@filumo/xml) | XML 原文、命名空间结构树和节点定位 | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/xml#readme) |
-| [@filumo/code](https://www.npmjs.com/package/@filumo/code) | 代码、脚本、配置及样式源码的只读高亮 | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/code#readme) |
-| [@filumo/react](https://www.npmjs.com/package/@filumo/react) | React 18/19 适配组件 | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/react#readme) |
-| [@filumo/vue](https://www.npmjs.com/package/@filumo/vue) | Vue 3（>=3.3 <4）适配组件 | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/vue#readme) |
-| [@filumo/vue2](https://www.npmjs.com/package/@filumo/vue2) | Vue 2（^2.6.14 或 ^2.7.16）适配组件 | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/vue2#readme) |
+| Package (npm)                                                      | Purpose                                                                 | Source documentation                                                                      |
+| ------------------------------------------------------------------ | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| [@filumo/core](https://www.npmjs.com/package/@filumo/core)         | Headless sources, plugin contracts, sessions and shared text utilities  | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/core/README.md)     |
+| [@filumo/dom](https://www.npmjs.com/package/@filumo/dom)           | Native DOM viewer, toolbars, source views, outlines and shared UI       | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/dom/README.md)      |
+| [@filumo/viewer](https://www.npmjs.com/package/@filumo/viewer)     | Standard preset and factories for nine format plugins                   | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/viewer/README.md)   |
+| [@filumo/office](https://www.npmjs.com/package/@filumo/office)     | Word, Excel, PowerPoint and supported legacy formats                    | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/office/README.md)   |
+| [@filumo/pdf](https://www.npmjs.com/package/@filumo/pdf)           | Continuous PDF reading, outlines, thumbnails and search                 | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/pdf/README.md)      |
+| [@filumo/image](https://www.npmjs.com/package/@filumo/image)       | Image preview, zoom, rotation, panning and shared overlays              | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/image/README.md)    |
+| [@filumo/text](https://www.npmjs.com/package/@filumo/text)         | Plain text, logs, encoding detection and readable-text fallback         | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/text/README.md)     |
+| [@filumo/json](https://www.npmjs.com/package/@filumo/json)         | JSON / JSONC / JSONL / NDJSON source and structure views                | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/json/README.md)     |
+| [@filumo/markdown](https://www.npmjs.com/package/@filumo/markdown) | Markdown reading, outlines, GFM layout and code highlighting            | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/markdown/README.md) |
+| **[@filumo/csv](https://www.npmjs.com/package/@filumo/csv)**       | CSV / TSV read-only grids, virtual scrolling and search                 | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/csv/README.md)      |
+| [@filumo/xml](https://www.npmjs.com/package/@filumo/xml)           | XML source, namespace-aware structure trees and node navigation         | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/xml/README.md)      |
+| [@filumo/code](https://www.npmjs.com/package/@filumo/code)         | Read-only highlighting for code, scripts, configuration and stylesheets | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/code/README.md)     |
+| [@filumo/react](https://www.npmjs.com/package/@filumo/react)       | React 18/19 adapter                                                     | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/react/README.md)    |
+| [@filumo/vue](https://www.npmjs.com/package/@filumo/vue)           | Vue 3 (>=3.3 <4) adapter                                                | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/vue/README.md)      |
+| [@filumo/vue2](https://www.npmjs.com/package/@filumo/vue2)         | Vue 2 (^2.6.14 or ^2.7.16) adapter                                      | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/vue2/README.md)     |
 
 <!-- filumo-packages:end -->
 
-## 文档与反馈
+## Documentation and feedback
 
-- [本包源码与完整类型](https://github.com/gyxing/filumo-viewer/tree/master/packages/csv/src)
-- [框架接入指南](https://github.com/gyxing/filumo-viewer/blob/master/apps/docs/docs/guides/preview-integration.zh-CN.md)
-- [格式能力与限制](https://github.com/gyxing/filumo-viewer/blob/master/apps/docs/docs/guides/compatibility.zh-CN.md)
-- [文本类格式指南](https://github.com/gyxing/filumo-viewer/blob/master/apps/docs/docs/guides/text-formats.zh-CN.md)
-- [图片与 PDF 部署](https://github.com/gyxing/filumo-viewer/blob/master/apps/docs/docs/guides/image-pdf.zh-CN.md)
-- [独立框架示例](https://github.com/gyxing/filumo-viewer/tree/master/examples)
-- [项目变更记录](https://github.com/gyxing/filumo-viewer/blob/master/CHANGELOG.md)
-- [问题反馈](https://github.com/gyxing/filumo-viewer/issues)
-- [MIT 许可证](https://github.com/gyxing/filumo-viewer/blob/master/packages/csv/LICENSE)
+- [Source and complete types](https://github.com/gyxing/filumo-viewer/tree/master/packages/csv/src)
+- [Framework integration](https://github.com/gyxing/filumo-viewer/blob/master/apps/docs/docs/guides/preview-integration.md)
+- [Format capabilities and limits](https://github.com/gyxing/filumo-viewer/blob/master/apps/docs/docs/guides/compatibility.md)
+- [Text-based formats](https://github.com/gyxing/filumo-viewer/blob/master/apps/docs/docs/guides/text-formats.md)
+- [Images and PDF deployment](https://github.com/gyxing/filumo-viewer/blob/master/apps/docs/docs/guides/image-pdf.md)
+- [Standalone framework examples](https://github.com/gyxing/filumo-viewer/tree/master/examples)
+- [Changelog](https://github.com/gyxing/filumo-viewer/blob/master/CHANGELOG.md)
+- [Report an issue](https://github.com/gyxing/filumo-viewer/issues)
+- [MIT license](https://github.com/gyxing/filumo-viewer/blob/master/packages/csv/LICENSE)

@@ -1,5 +1,7 @@
 import { defineConfig } from 'dumi';
+import { resolve } from 'node:path';
 import { normalizeDocsBase } from './config/base-path.js';
+import { readPackageVersions } from './config/read-package-versions';
 import { getDocsRoutes } from './config/routes';
 const docsBase = normalizeDocsBase(process.env.FILUMO_DOCS_BASE);
 const production = process.env.NODE_ENV === 'production';
@@ -7,7 +9,14 @@ const smoke = !production && process.env.FILUMO_SMOKE === '1';
 export default defineConfig({
   base: docsBase,
   publicPath: docsBase,
-  define: { 'process.env.FILUMO_DOCS_BASE': docsBase },
+  define: {
+    'process.env.FILUMO_DOCS_BASE': docsBase,
+    'process.env.FILUMO_DOCS_VERSIONS': JSON.stringify(
+      readPackageVersions(resolve(__dirname, '../..')),
+    ),
+    'process.env.FILUMO_DOCS_ORIGIN':
+      process.env.FILUMO_DOCS_ORIGIN || 'https://gyxing.github.io',
+  },
   outputPath: 'dist',
   locales: [
     { id: 'en-US', name: 'English' },
@@ -15,6 +24,7 @@ export default defineConfig({
   ],
   routes: getDocsRoutes({ production, smoke }),
   plugins: [
+    './config/seo-plugin.ts',
     ...(!production ? ['./server/source-dev-plugin.ts'] : []),
     ...(smoke ? ['./server/smoke-plugin.ts'] : []),
   ],

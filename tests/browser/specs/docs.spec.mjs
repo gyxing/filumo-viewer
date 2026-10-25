@@ -1,8 +1,8 @@
 import { expect, test } from '@playwright/test';
 import { resolve } from 'node:path';
-import { createScanPdfFixture } from '../../fixtures/public/image-pdf/node-samples.mjs';
 import ts from 'typescript';
 import { normalizeDocsBase } from '../../../apps/docs/config/base-path.js';
+import { createScanPdfFixture } from '../../fixtures/public/image-pdf/node-samples.mjs';
 import { isolateNetwork, startServer } from '../helpers.mjs';
 
 /** 对页面实际生成的代码做类型检查，防止只改 UI 却交付不可复制的配置。 */
@@ -50,6 +50,57 @@ test.beforeAll(
   async () => (server = await startServer('scripts/testing/serve-docs.mjs')),
 );
 test.afterAll(async () => server?.close());
+
+test('支持格式包含默认展开的完整清单，两种语言与小屏均可查全', async ({
+  page,
+}) => {
+  await isolateNetwork(page);
+  for (const [prefix, title, link] of [
+    ['', 'Complete format list', 'View the complete list'],
+    ['zh-CN/', '完整格式清单', '查看完整清单'],
+  ]) {
+    await page.goto(server.url + base + prefix);
+    const catalog = page.locator('#format-catalog');
+    await page.getByRole('link', { name: link, exact: true }).click();
+    await expect(
+      catalog.getByRole('heading', { name: title, exact: true }),
+    ).toBeVisible();
+    await expect(catalog.locator('.filumo-format-catalog-row')).toHaveCount(9);
+    // 覆盖此前概览漏写的传统 Office、图片、文本及代码后缀和特殊文件名。
+    for (const value of [
+      '.docm',
+      '.wps',
+      '.xltx',
+      '.potx',
+      '.jpeg',
+      '.gif',
+      '.bmp',
+      '.cfg',
+      '.properties',
+      '.out',
+      '.mjs',
+      '.cts',
+      '.tsx',
+      '.psm1',
+      '.gql',
+      '.patch',
+      'GNUmakefile',
+      'CMakeLists.txt',
+      '.env.*',
+      'Dockerfile.*',
+    ])
+      await expect(catalog.getByText(value, { exact: true })).toBeVisible();
+    await expect(catalog.locator('details, button')).toHaveCount(0);
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.locator('#format-catalog')).toBeVisible();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth - innerWidth,
+    ),
+  ).toBeLessThanOrEqual(1);
+});
+
 test('公开文档两种语言、在线示例与隐私隔离', async ({ page, request }) => {
   await isolateNetwork(page);
   const pageErrors = [];
@@ -132,7 +183,7 @@ test('公开文档恢复品牌外壳、目录和开发指南', async ({
     ).not.toHaveCount(0);
     expect(
       await page.locator('.office-viewer-docs__article h2').count(),
-    ).toBeGreaterThanOrEqual(12);
+    ).toBeGreaterThanOrEqual(6);
     for (const [slug, english, chinese] of guides) {
       const url = base + prefix + 'docs/guides/' + slug;
       await expect(
@@ -422,20 +473,18 @@ test('公开包总览保持中英文十五包，语言切换保留当前指南',
 });
 
 test('文档目录使用原生 Tree 标题、展开图标与选中状态', async ({ page }) => {
-  await page.goto(server.url + base + 'docs/');
+  await page.goto(server.url + base + 'docs/guides/viewer-api/');
   const nav = page.locator('.filumo-doc-navigation');
   await expect(nav.getByRole('tree')).toHaveCount(1);
   await expect(nav.getByRole('link')).toHaveCount(0);
   await expect(page.locator('.dumi-default-toc')).toHaveCount(0);
-  const overview = nav.getByRole('treeitem', { name: /Overview & API/ });
-  await expect(
-    overview.getByText('Overview & API', { exact: true }),
-  ).toBeVisible();
+  const overview = nav.getByRole('treeitem', { name: /Viewer API/ });
+  await expect(overview.getByText('Viewer API', { exact: true })).toBeVisible();
   await expect(
     overview.getByRole('img', { name: 'minus-square' }),
   ).toBeVisible();
   await expect(overview).toHaveAttribute('aria-expanded', 'true');
-  await overview.getByText('Overview & API', { exact: true }).click();
+  await overview.getByText('Viewer API', { exact: true }).click();
   await expect(overview).toHaveAttribute('aria-expanded', 'true');
 
   const section = nav.getByRole('treeitem', {
@@ -463,7 +512,7 @@ test('文档目录使用原生 Tree 标题、展开图标与选中状态', async
 test('原生目录手动滚动后，正文在同一节内滚动不会把目录拉回', async ({
   page,
 }) => {
-  await page.goto(server.url + base + 'docs/');
+  await page.goto(server.url + base + 'docs/guides/viewer-api/');
   const nav = page.locator('.filumo-doc-navigation');
   const section = nav.getByRole('treeitem', {
     name: /Component props and configuration/,
@@ -597,4 +646,59 @@ test('公开 PDF 默认接入不依赖旧 public 资源目录或外部 CDN', asy
         url.startsWith('data:'),
     ),
   ).toBe(true);
+});
+
+test('文档搜索按操作加载并可关闭，双语锚点、页脚与 SEO 保持一致', async ({
+  page,
+}) => {
+  await isolateNetwork(page);
+  await page.goto(server.url + base + 'docs/guides/viewer-api/#viewer-options');
+  await expect(page.locator('.office-viewer-site-language')).toHaveAttribute(
+    'href',
+    base + 'zh-CN/docs/guides/viewer-api#viewer-options',
+  );
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    'href',
+    'https://gyxing.github.io' + base + 'docs/guides/viewer-api',
+  );
+  const trigger = page.getByRole('button', {
+    name: 'Search documentation',
+    exact: true,
+  });
+  await trigger.click();
+  const dialog = page.getByRole('dialog', {
+    name: 'Search documentation',
+    exact: true,
+  });
+  await expect(dialog).toBeVisible();
+  await dialog
+    .getByRole('textbox', { name: 'Search keywords' })
+    .fill('workerFactory');
+  await expect(
+    dialog.locator('.filumo-doc-search-results li').first(),
+  ).toBeVisible();
+  await dialog
+    .getByRole('textbox', { name: 'Search keywords' })
+    .press('ArrowDown');
+  await expect(
+    dialog.locator('.filumo-doc-search-results a').first(),
+  ).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(dialog).toHaveCount(0);
+  await expect(trigger).toBeFocused();
+  await page.goto(server.url + base + 'zh-CN/docs/');
+  await expect(
+    page.locator('.office-viewer-site-footer .office-viewer-site-brand'),
+  ).toHaveAttribute('href', base + 'zh-CN/');
+  await expect(
+    page.getByRole('navigation', { name: '文档上下篇' }),
+  ).toBeVisible();
+  for (const width of [320, 390]) {
+    await page.setViewportSize({ width, height: 844 });
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth - innerWidth,
+      ),
+    ).toBeLessThanOrEqual(1);
+  }
 });

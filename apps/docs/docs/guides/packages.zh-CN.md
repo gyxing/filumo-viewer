@@ -1,6 +1,6 @@
 ---
 title: 包总览与安装
-description: Filumo 0.1.0 的十五个包、九类格式插件、框架安装组合及按需加载边界。
+description: Filumo 的十五个包、九类格式插件、框架安装组合及按需加载边界。
 keywords:
   - Filumo
   - file preview
@@ -12,7 +12,7 @@ toc: content
 
 # 包总览与安装
 
-当前十五个公共包均使用 **0.1.0**。该版本当前尚未发布；npm 链接用于发布后的包发现，不能据此认为包已可下载。发布前请使用本仓库 workspace 或经过构建、打包的本地包。
+十五个包可独立发版，实际发布版本以各包 npm 页面为准；发布前使用工作区或经过构建、打包的本地包。
 
 ## 完整包清单
 
@@ -113,6 +113,16 @@ const plugins = [
 
 ## 版本、限制与贡献
 
-各包同为 0.1.0；不要混用不同版本的 Worker、资源与外部样式。所有预览均为只读，不承诺完整 Office 排版或无限文件大小。声明支持范围和历史验证记录见[兼容范围](./compatibility)。
+```tsx
+/**
+ * inline: true
+ */
+import React from 'react';
+import { DocumentationVersions } from '../../src/components/DocumentationVersions';
+export default () => <DocumentationVersions locale="zh-CN" />;
+```
+
+
+各包可独立发版。遵守依赖范围，让 Worker、资源及外部样式与其所属包版本一致。所有预览均为只读，不承诺完整 Office 排版或无限文件大小。声明支持范围和历史验证记录见[兼容范围](./compatibility)。
 
 源码采用 MIT 许可证。 [GitHub](https://github.com/gyxing/filumo-viewer) · [Issues](https://github.com/gyxing/filumo-viewer/issues) · [CHANGELOG](https://github.com/gyxing/filumo-viewer/blob/master/CHANGELOG.md)

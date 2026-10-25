@@ -10,11 +10,12 @@ export interface DocumentationPage {
   href: string;
   title: string;
   headings?: readonly DocumentationHeading[];
+  group?: string;
 }
 
 export interface DocumentationTreeNode extends DocumentationPage {
   key: string;
-  kind: 'page' | 'heading';
+  kind: 'page' | 'heading' | 'group';
   depth: number;
   id?: string;
   children?: DocumentationTreeNode[];
@@ -33,6 +34,7 @@ export function buildDocumentationTree(
   pages: readonly DocumentationPage[],
   pathname: string,
   headings: readonly DocumentationHeading[],
+  groups: readonly { id: string; title: string }[] = [],
 ): DocumentationTreeModel {
   const currentRoute = pathname.replace(/\/$/, '') || '/';
   const nodes: DocumentationTreeNode[] = pages.map((page) => ({
@@ -73,6 +75,37 @@ export function buildDocumentationTree(
       if (page.key === model.currentPageKey) model.headings.push(node);
       if (item.depth === 2) section = node;
     }
+  }
+  if (groups.length) {
+    const grouped = groups
+      .map(
+        (group): DocumentationTreeNode => ({
+          key: 'group:' + group.id,
+          kind: 'group',
+          title: group.title,
+          route: '',
+          href: '',
+          depth: 0,
+          children: nodes.filter((page) => page.group === group.id),
+        }),
+      )
+      .filter((group) => group.children?.length);
+    for (const group of grouped) {
+      model.byKey.set(group.key, group);
+      for (const page of group.children ?? []) {
+        model.parents.set(page.key, group.key);
+        const deepen = (node: DocumentationTreeNode) => {
+          node.depth += 1;
+          node.children?.forEach(deepen);
+        };
+        deepen(page);
+      }
+    }
+    // 未分组页面仍可导航，不能因注册表扩展而静默丢失文档。
+    model.nodes = [
+      ...grouped,
+      ...nodes.filter((page) => !model.parents.has(page.key)),
+    ];
   }
   return model;
 }

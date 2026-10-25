@@ -1,4 +1,5 @@
 import React from 'react';
+import { FormatCatalog } from './FormatCatalog';
 import type { WebsiteContent } from './home-content';
 
 type HomeProductSectionProps = {
@@ -102,7 +103,7 @@ export function ProductHighlightsSection({ content }: HomeProductSectionProps) {
   );
 }
 
-/** 按九类格式插件展示代表扩展名及预览能力。 */
+/** 九类插件卡片用于概览，完整清单直接列出当前默认识别范围。 */
 export function SupportedFormatsSection({ content }: HomeProductSectionProps) {
   return (
     <section
@@ -117,7 +118,14 @@ export function SupportedFormatsSection({ content }: HomeProductSectionProps) {
           </span>
           <h2 id="formats-title">{content.formats.title}</h2>
         </div>
-        <p>{content.formats.description}</p>
+        <p>
+          {content.formats.description}{' '}
+          <a className="filumo-format-catalog-link" href="#format-catalog">
+            {content.htmlLang === 'zh-CN'
+              ? '查看完整清单'
+              : 'View the complete list'}
+          </a>
+        </p>
       </div>
 
       <div className="office-viewer-site-format-grid">
@@ -144,6 +152,8 @@ export function SupportedFormatsSection({ content }: HomeProductSectionProps) {
           </article>
         ))}
       </div>
+
+      <FormatCatalog locale={content.htmlLang} />
 
       <div className="office-viewer-site-format-roadmap">
         <strong>{content.formats.roadmapTitle}</strong>

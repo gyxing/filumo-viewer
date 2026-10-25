@@ -15,6 +15,7 @@ export type SiteHeaderShellProps = {
   navigation: React.ReactNode;
   /** 窄屏操作区优先展示的导航内容。 */
   mobileNavigation: React.ReactNode;
+  search?: React.ReactNode;
 };
 
 type HeaderActionIconProps = {
@@ -88,6 +89,7 @@ export function SiteHeaderShell({
   languageHref,
   navigation,
   mobileNavigation,
+  search,
 }: SiteHeaderShellProps) {
   return (
     <header className="office-viewer-site-header">
@@ -111,6 +113,7 @@ export function SiteHeaderShell({
         <div className="office-viewer-site-nav-links">{navigation}</div>
 
         <div className="office-viewer-site-nav-actions">
+          {search}
           {mobileNavigation}
           <a
             className="office-viewer-site-npm-link"
@@ -121,7 +124,13 @@ export function SiteHeaderShell({
             <HeaderActionIcon name="npm" />
             {content.navigation.npm}
           </a>
-          <a href={GITHUB_URL} target="_blank" rel="noreferrer">
+          <a
+            className="office-viewer-site-github-link"
+            aria-label={content.navigation.github}
+            href={GITHUB_URL}
+            target="_blank"
+            rel="noreferrer"
+          >
             <HeaderActionIcon name="github" />
             {content.navigation.github}
           </a>

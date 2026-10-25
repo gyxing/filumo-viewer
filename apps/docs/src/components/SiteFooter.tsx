@@ -10,7 +10,10 @@ type SiteFooterProps = {
 export function SiteFooter({ content }: SiteFooterProps) {
   return (
     <footer className="office-viewer-site-footer">
-      <a className="office-viewer-site-brand" href={SITE_ROOT}>
+      <a
+        className="office-viewer-site-brand"
+        href={content.htmlLang === 'zh-CN' ? SITE_ROOT + 'zh-CN/' : SITE_ROOT}
+      >
         <span className="office-viewer-site-brand-mark" aria-hidden="true">
           <i />
           <i />

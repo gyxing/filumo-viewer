@@ -1,4 +1,5 @@
 import { DOCS_BASE } from '../site-path';
+import { DOCUMENTATION_BASELINE } from './documentation-release';
 export type WebsiteLocale = 'en-US' | 'zh-CN';
 export type PackageManager = 'npm' | 'yarn';
 
@@ -190,7 +191,7 @@ const WEBSITE_CONTENT: Record<WebsiteLocale, WebsiteContent> = {
       closeToc: 'Close table of contents',
     },
     hero: {
-      eyebrow: 'Filumo 0.1.0 · Open-source file viewer',
+      eyebrow: 'Filumo · Open-source file viewer',
       title: 'Preview files in your browser.',
       description:
         'Preview Office, PDF, images, text and structured files through one browser viewer, with adapters for React, Vue 3, Vue 2 and native JavaScript.',
@@ -262,7 +263,7 @@ const WEBSITE_CONTENT: Record<WebsiteLocale, WebsiteContent> = {
         'Privacy-sensitive tools',
       ],
       facts: [
-        { value: '0.1.0', label: 'current workspace version' },
+        { value: DOCUMENTATION_BASELINE, label: 'documentation baseline' },
         { value: '9', label: 'format plugins' },
         { value: '15', label: 'packages in the workspace' },
       ],
@@ -322,7 +323,7 @@ const WEBSITE_CONTENT: Record<WebsiteLocale, WebsiteContent> = {
       eyebrow: 'Supported formats',
       title: 'Nine plugins, selected for your application.',
       description:
-        'Each format has its own package. Registration stays lightweight. Extensions below are examples; see the format guides for full coverage and limits.',
+        'Each format has its own package and lightweight registration. Cards provide an overview; the complete grouped list below includes all default extensions and special filenames.',
       groups: [
         {
           category: 'Office',
@@ -444,13 +445,13 @@ const WEBSITE_CONTENT: Record<WebsiteLocale, WebsiteContent> = {
       ],
       roadmapTitle: 'Explicit scope and release status',
       roadmapDescription:
-        'Workspace version 0.1.0 is not yet published. Previews are readonly; editing, OCR, formula recalculation and pixel-perfect Office fidelity are outside the current scope.',
+        'Documentation follows the repository; published versions are listed per package on npm. Previews are read-only; editing, OCR, formula recalculation and pixel-perfect Office fidelity are outside the current scope.',
     },
     developer: {
       eyebrow: 'Developer experience',
       title: 'From install to preview in a few lines.',
       description:
-        'Install a framework adapter and the standard plugin preset after release. Version 0.1.0 is currently unpublished; use workspace or local packages before release. PDF bundles matching resources; optional URL overrides are described in the PDF guide.',
+        'Install a published framework adapter and the required plugins, or use packed workspace artifacts. PDF bundles matching resources; optional overrides are described in the deployment guide.',
       installLabel: 'Install',
       exampleLabel: 'React example',
       packageManagerLabel: 'Package manager',
@@ -525,7 +526,7 @@ export function Preview({ file }: { file?: File }) {
       closeToc: '关闭文档目录',
     },
     hero: {
-      eyebrow: 'Filumo 0.1.0 · 开源文件预览组件',
+      eyebrow: 'Filumo · 开源文件预览组件',
       title: '在浏览器中预览多种文件',
       description:
         'Office、PDF、图片、文本与结构化文件共用统一预览器，支持 React、Vue 3、Vue 2 和原生 JavaScript 接入。',
@@ -591,7 +592,7 @@ export function Preview({ file }: { file?: File }) {
       useCasesLabel: '典型使用场景',
       useCases: ['文档管理系统', '企业知识库', '业务附件预览', '隐私敏感工具'],
       facts: [
-        { value: '0.1.0', label: '当前工作区版本' },
+        { value: DOCUMENTATION_BASELINE, label: '文档基线版本' },
         { value: '9', label: '类格式插件' },
         { value: '15', label: '个工作区包' },
       ],
@@ -650,7 +651,7 @@ export function Preview({ file }: { file?: File }) {
       eyebrow: '支持格式',
       title: '九类插件，按需组合。',
       description:
-        '每类格式由独立包提供，注册描述符不会提前加载全部引擎。下列扩展名为代表，完整识别范围与限制见格式指南。',
+        '每类格式由独立包提供，注册描述符不会提前加载全部引擎。卡片用于概览，下方完整清单分组列出全部默认后缀和特殊文件名。',
       groups: [
         {
           category: 'Office',
@@ -739,13 +740,13 @@ export function Preview({ file }: { file?: File }) {
       ],
       roadmapTitle: '明确支持范围与发布状态',
       roadmapDescription:
-        '当前工作区版本为 0.1.0，尚未发布。预览均为只读，不提供编辑保存、OCR、公式重算或完整 Office 排版保证。',
+        '文档跟随仓库源码，实际发布版本以各包 npm 页面为准。预览均为只读，不提供编辑保存、OCR、公式重算或完整 Office 排版保证。',
     },
     developer: {
       eyebrow: '开发者体验',
       title: '几行代码即可完成安装与预览。',
       description:
-        '发布后安装框架适配器与标准插件预设。0.1.0 当前尚未发布，发布前使用工作区或本地包。PDF 默认集成同版资源，特殊部署可覆盖资源地址。',
+        '安装已发布的框架适配器与所需插件，或使用工作区打包产物。PDF 默认集成配套资源，特殊部署可按指南覆盖资源地址。',
       installLabel: '安装',
       exampleLabel: 'React 示例',
       packageManagerLabel: '包管理器',

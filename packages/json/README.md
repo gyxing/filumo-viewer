@@ -1,32 +1,41 @@
 # @filumo/json
 
+<p>
+<strong>English</strong> | <a href="https://github.com/gyxing/filumo-viewer/blob/master/packages/json/README.zh-CN.md">简体中文</a> ·
+<a href="https://gyxing.github.io/filumo-viewer/playground" target="_blank" rel="noopener noreferrer">Live demo</a> ·
+<a href="https://gyxing.github.io/filumo-viewer/docs" target="_blank" rel="noopener noreferrer">Integration docs</a>
+</p>
+
 Read-only JSON, JSONC and JSON Lines viewer for Filumo, with split source/tree views, duplicate-key preservation and source navigation.
 
-JSON、JSONC、JSONL、NDJSON 的只读结构预览插件，提供原文着色、结构树、节点定位及按记录读取。
+A read-only structured preview plugin for JSON, JSONC, JSONL and NDJSON, with colored source, structure trees, node navigation and record-based reading.
 
-本文档对应 **0.1.0**。以下命令展示 npm 发布后的消费方式；从当前源码工作区使用时，请先按接入指南构建各包。
+This documentation covers **0.1.0**. The commands below describe consumption after publication to npm. When using this source workspace, build the packages first as described in the integration guide.
 
-## 主要能力
+## Features
 
-- 宽容器默认左原文、右结构树，左右比例可拖动；窄容器按模式显示单个区域。
-- JSON 保持严格语法；JSONC 支持注释与尾逗号。原始数字文本和重复属性保留，结构失败时仍可阅读原文。
-- JSONL/NDJSON 先建记录索引，记录错误按记录显示；详情采用有预算的缓存，不一次物化全部结构。
-- 原文默认显示真实行号，更多菜单提供行号开关；同一文件内缩放、切换视图和重新解码保留选择。
+- Wide containers show source on the left and structure on the right with a draggable split; narrow containers show one region according to mode.
+- JSON uses strict syntax; JSONC accepts comments and trailing commas. Original number text and duplicate properties are preserved, and source remains readable if structure parsing fails.
+- JSONL/NDJSON first builds a record index. Errors appear per record, and a bounded details cache avoids materializing all structures at once.
+- Source shows actual line numbers by default, with a toggle in More. Zoom, view changes and re-decoding retain the line-number preference within the same file.
 
-## 安装
+## Installation
 
 ```sh
 pnpm add @filumo/dom @filumo/json
-# 或使用 npm
+```
+
+Or with npm:
+
+```sh
 npm install @filumo/dom @filumo/json
 ```
 
-
-## 最小接入
+## Minimal integration
 
 ```html
 <div id="viewer"></div>
-<button id="dispose" type="button">关闭预览</button>
+<button id="dispose" type="button">Close preview</button>
 ```
 
 ```ts
@@ -34,18 +43,20 @@ import { createViewer } from '@filumo/dom';
 import { json } from '@filumo/json';
 
 const container = document.getElementById('viewer');
-if (!container) throw new Error('缺少预览容器');
+if (!container) throw new Error('Preview container is missing');
 
 const viewer = createViewer(container, {
   plugins: [json()],
   height: 640,
-  locale: 'zh-CN',
+  locale: 'en-US',
   resourcePolicy: { maxFileBytes: 20 * 1024 * 1024 },
   onError: (error) => console.error(error),
 });
 
 try {
-  await viewer.open(new File(['{"name":"Filumo","items":[1,2]}'], 'example.json'));
+  await viewer.open(
+    new File(['{"name":"Filumo","items":[1,2]}'], 'example.json'),
+  );
 } catch (error) {
   console.error(error);
 }
@@ -53,96 +64,101 @@ try {
 document.getElementById('dispose')?.addEventListener('click', () => {
   void viewer.destroy();
 });
-window.addEventListener('pagehide', () => {
-  void viewer.destroy();
-}, { once: true });
+window.addEventListener(
+  'pagehide',
+  () => {
+    void viewer.destroy();
+  },
+  { once: true },
+);
 ```
 
-将示例 URL 换成真实可访问的文件地址，或在文件选择事件中传入 File。20 MiB 等示例限制是宿主配置，不是库默认限制；关闭时由句柄释放会话、资源与样式租约。
+Replace sample URLs with accessible files, or pass a File from a file-selection event. Example limits such as 20 MiB are host configuration, not library defaults. Destroy the handle to release sessions, resources and style leases.
 
-## 常用配置
+## Common options
 
-| 配置项 | 默认值 | 说明 |
-| --- | --- | --- |
-| `variant` | auto | 按来源识别 json / jsonc / lines，或手动指定。 |
-| `initialMode` | tree | tree：宽容器双栏、窄容器结构；source：只显示原文。 |
-| `initialExpandDepth` | 2 | 结构树初始展开层级。 |
-| `maxDepth / maxNodes` | 256 / 200,000 | 结构深度与节点预算。 |
-| `maxRecords` | 1,000,000 | JSONL/NDJSON 记录索引上限。 |
-| `maxCachedRecords / maxCachedNodes` | 3 / 200,000 | 最近记录详情缓存预算。 |
-| `encoding` | auto | 原文字节的解码方式。 |
-| `worker / workerFactory` | auto / 内置 Worker | 任务执行策略与 Worker 创建器。 |
+| Option                              | Default               | Description                                                                         |
+| ----------------------------------- | --------------------- | ----------------------------------------------------------------------------------- |
+| `variant`                           | auto                  | Detects json / jsonc / lines from the source, or selects one explicitly.            |
+| `initialMode`                       | tree                  | tree: split view in wide containers, structure in narrow ones; source: source only. |
+| `initialExpandDepth`                | 2                     | Initial structure-tree expansion depth.                                             |
+| `maxDepth / maxNodes`               | 256 / 200,000         | Structure depth and node budgets.                                                   |
+| `maxRecords`                        | 1,000,000             | JSONL/NDJSON record-index limit.                                                    |
+| `maxCachedRecords / maxCachedNodes` | 3 / 200,000           | Recent record detail cache budgets.                                                 |
+| `encoding`                          | auto                  | Decoding for source bytes.                                                          |
+| `worker / workerFactory`            | auto / bundled Worker | Task execution strategy and Worker factory.                                         |
 
-完整类型以公开声明与源码为准；没有列出的功能不能通过猜测选项名开启。
+See the public declarations and source for complete types. Features cannot be enabled by guessing undocumented option names.
 
-## 结构与原文语义
+## Structure and source semantics
 
-重复属性和长整数保留源文本语义，不先转换成会丢失重复键的普通 JavaScript 对象。JSON 保持严格语法；自动识别或显式 jsonc 模式才接受注释与尾逗号。不支持 JSON5、JSON Schema 校验或编辑保存。
+Duplicate properties and long integers preserve source semantics instead of first converting to ordinary JavaScript objects that lose duplicate keys. JSON remains strict; comments and trailing commas require detected or explicitly selected jsonc mode. JSON5, JSON Schema validation, editing and saving are not supported.
 
-JSONL 详情使用记录局部位置，整文件定位通过索引换算；单条记录出错不抹掉其他记录。隐藏区域按需加载，超过结构预算时保留原文与诊断。更多菜单的行号开关作用于 JSON、JSONC、JSONL 整文件及记录原文。
+JSONL details use record-local positions, converted through the index for whole-file navigation. A malformed record does not erase other records. Hidden regions load on demand; source and diagnostics remain available when structure budgets are exceeded. The More menu line-number toggle applies to JSON, JSONC, complete JSONL source and record source.
 
-## 外部样式注意
+## External stylesheet requirements
 
-公共原文与结构 UI 来自 DOM 包。external 模式只需要 DOM 与 JSON 样式，**不需要安装或导入 @filumo/text/styles.css**。
+Shared source and structure UI comes from DOM. External mode needs only DOM and JSON styles; **installing or importing @filumo/text/styles.css is unnecessary**.
 
-## 样式与运行环境
+## Styles and runtime environment
 
-默认 auto 模式随实际视图加载样式，通常不需要手动导入 CSS。若宿主选择 `stylePolicy: { mode: 'external' }`，在创建查看器前加载匹配版本的外部样式：
+The default auto mode loads styles with the active view, normally without manual CSS imports. If the host chooses `stylePolicy: { mode: 'external' }`, load matching external styles before creating the viewer:
 
 ```ts
 import '@filumo/dom/styles.css';
 import '@filumo/json/styles.css';
 ```
 
-模块 Worker 部署时保留本包 worker.js 和 worker-chunks 相对结构；打包器无法自动处理时通过 workerFactory 创建。auto 按环境选择任务执行方式，always 要求可用 Worker，never 使用本包允许的无 Worker 路径；Code 的高亮例外见本页，不会回退到主线程做同样的增强。
+When deploying module Workers, preserve the relative layout of worker.js and worker-chunks. Use workerFactory if the bundler cannot handle it automatically. Auto selects execution based on the environment, always requires an available Worker, and never uses the package's supported non-Worker path. Code highlighting has a separate boundary documented in the Code package; it does not repeat the enhancement on the main thread.
 
-字符串输入表示 URL，不表示文件正文；直接文本内容请使用 File/Blob。支持的来源还包括 Uint8Array、带 name/mimeType/request 的 URL 对象和自定义 DocumentSource 工厂。远程文件和辅助资源需要满足宿主的网络、CORS 与 CSP 配置。
+String input represents a URL, not document content. Use File/Blob for inline text. Other sources include Uint8Array, URL objects with name/mimeType/request, and custom DocumentSource factories. Remote files and supporting resources must satisfy the host's networking, CORS and CSP configuration.
 
-包以 ESM 发布，包含 TypeScript 声明；不提供 CommonJS require 入口。查看器挂载、图片解码和文件选择在浏览器执行；导入轻量入口不等于支持在服务端渲染文件。宿主应在客户端生命周期创建实例，并在不再使用时销毁。
+Packages are published as ESM with TypeScript declarations and no CommonJS require entry. Viewer mounting, image decoding and file selection run in the browser. Importing a lightweight entry does not enable server-side document rendering. Create instances in the client lifecycle and destroy them when no longer needed.
 
-## 公开入口
+## Public entries
 
-| 公开入口 | 用途 |
-| --- | --- |
-| `@filumo/json` | json 工厂及公开配置类型 |
-| `@filumo/json/styles.css` | 预编译外部样式资源，用于 external 样式模式 |
-| `@filumo/json/worker.js` | 模块 Worker 资源；部署时保留相关分块，不作为普通函数导入 |
+| Public entry              | Purpose                                                                                       |
+| ------------------------- | --------------------------------------------------------------------------------------------- |
+| `@filumo/json`            | json factory and public option types                                                          |
+| `@filumo/json/styles.css` | Precompiled stylesheet for external style mode                                                |
+| `@filumo/json/worker.js`  | Module Worker asset; preserve related chunks during deployment, not a regular function import |
 
-未列出的包内路径不是稳定公共 API。独立格式不依赖 React/Vue 适配层，宿主只安装实际需要的格式和适配包。
+Unlisted internal paths are not stable public APIs. Standalone format packages do not depend on React/Vue adapters; install only the formats and adapter your host needs.
 
-## Filumo 包清单
+## Filumo packages
 
-当前包已加粗。每个包独立发布，包名链接到 npm，源码链接指向项目实际仓库。
+The current package is bold. Each package is published independently. Package names link to npm, and source links point to this repository.
 
 <!-- filumo-packages:start -->
 
-| 包（点击进入 npm） | 用途 | 源码说明 |
-| --- | --- | --- |
-| [@filumo/core](https://www.npmjs.com/package/@filumo/core) | 无 UI 的来源、插件协议、会话和公共文本处理 | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/core#readme) |
-| [@filumo/dom](https://www.npmjs.com/package/@filumo/dom) | 原生 DOM 查看器、工具栏、原文、大纲和共享 UI | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/dom#readme) |
-| [@filumo/viewer](https://www.npmjs.com/package/@filumo/viewer) | 九类格式插件的标准预设与工厂聚合 | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/viewer#readme) |
-| [@filumo/office](https://www.npmjs.com/package/@filumo/office) | Word、Excel、PowerPoint 与受支持的旧格式 | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/office#readme) |
-| [@filumo/pdf](https://www.npmjs.com/package/@filumo/pdf) | PDF 连续阅读、大纲、缩略图和查找 | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/pdf#readme) |
-| [@filumo/image](https://www.npmjs.com/package/@filumo/image) | 图片预览、缩放、旋转、拖动及共享弹层 | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/image#readme) |
-| [@filumo/text](https://www.npmjs.com/package/@filumo/text) | 纯文本、日志、编码识别与可读文本兜底 | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/text#readme) |
-| **[@filumo/json](https://www.npmjs.com/package/@filumo/json)** | JSON / JSONC / JSONL / NDJSON 原文与结构 | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/json#readme) |
-| [@filumo/markdown](https://www.npmjs.com/package/@filumo/markdown) | Markdown 阅读、大纲、GFM 排版与代码高亮 | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/markdown#readme) |
-| [@filumo/csv](https://www.npmjs.com/package/@filumo/csv) | CSV / TSV 只读表格、虚拟滚动和查找 | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/csv#readme) |
-| [@filumo/xml](https://www.npmjs.com/package/@filumo/xml) | XML 原文、命名空间结构树和节点定位 | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/xml#readme) |
-| [@filumo/code](https://www.npmjs.com/package/@filumo/code) | 代码、脚本、配置及样式源码的只读高亮 | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/code#readme) |
-| [@filumo/react](https://www.npmjs.com/package/@filumo/react) | React 18/19 适配组件 | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/react#readme) |
-| [@filumo/vue](https://www.npmjs.com/package/@filumo/vue) | Vue 3（>=3.3 <4）适配组件 | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/vue#readme) |
-| [@filumo/vue2](https://www.npmjs.com/package/@filumo/vue2) | Vue 2（^2.6.14 或 ^2.7.16）适配组件 | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/vue2#readme) |
+| Package (npm)                                                      | Purpose                                                                 | Source documentation                                                                      |
+| ------------------------------------------------------------------ | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| [@filumo/core](https://www.npmjs.com/package/@filumo/core)         | Headless sources, plugin contracts, sessions and shared text utilities  | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/core/README.md)     |
+| [@filumo/dom](https://www.npmjs.com/package/@filumo/dom)           | Native DOM viewer, toolbars, source views, outlines and shared UI       | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/dom/README.md)      |
+| [@filumo/viewer](https://www.npmjs.com/package/@filumo/viewer)     | Standard preset and factories for nine format plugins                   | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/viewer/README.md)   |
+| [@filumo/office](https://www.npmjs.com/package/@filumo/office)     | Word, Excel, PowerPoint and supported legacy formats                    | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/office/README.md)   |
+| [@filumo/pdf](https://www.npmjs.com/package/@filumo/pdf)           | Continuous PDF reading, outlines, thumbnails and search                 | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/pdf/README.md)      |
+| [@filumo/image](https://www.npmjs.com/package/@filumo/image)       | Image preview, zoom, rotation, panning and shared overlays              | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/image/README.md)    |
+| [@filumo/text](https://www.npmjs.com/package/@filumo/text)         | Plain text, logs, encoding detection and readable-text fallback         | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/text/README.md)     |
+| **[@filumo/json](https://www.npmjs.com/package/@filumo/json)**     | JSON / JSONC / JSONL / NDJSON source and structure views                | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/json/README.md)     |
+| [@filumo/markdown](https://www.npmjs.com/package/@filumo/markdown) | Markdown reading, outlines, GFM layout and code highlighting            | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/markdown/README.md) |
+| [@filumo/csv](https://www.npmjs.com/package/@filumo/csv)           | CSV / TSV read-only grids, virtual scrolling and search                 | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/csv/README.md)      |
+| [@filumo/xml](https://www.npmjs.com/package/@filumo/xml)           | XML source, namespace-aware structure trees and node navigation         | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/xml/README.md)      |
+| [@filumo/code](https://www.npmjs.com/package/@filumo/code)         | Read-only highlighting for code, scripts, configuration and stylesheets | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/code/README.md)     |
+| [@filumo/react](https://www.npmjs.com/package/@filumo/react)       | React 18/19 adapter                                                     | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/react/README.md)    |
+| [@filumo/vue](https://www.npmjs.com/package/@filumo/vue)           | Vue 3 (>=3.3 <4) adapter                                                | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/vue/README.md)      |
+| [@filumo/vue2](https://www.npmjs.com/package/@filumo/vue2)         | Vue 2 (^2.6.14 or ^2.7.16) adapter                                      | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/vue2/README.md)     |
+
 <!-- filumo-packages:end -->
 
-## 文档与反馈
+## Documentation and feedback
 
-- [本包源码与完整类型](https://github.com/gyxing/filumo-viewer/tree/master/packages/json/src)
-- [框架接入指南](https://github.com/gyxing/filumo-viewer/blob/master/apps/docs/docs/guides/preview-integration.zh-CN.md)
-- [格式能力与限制](https://github.com/gyxing/filumo-viewer/blob/master/apps/docs/docs/guides/compatibility.zh-CN.md)
-- [文本类格式指南](https://github.com/gyxing/filumo-viewer/blob/master/apps/docs/docs/guides/text-formats.zh-CN.md)
-- [图片与 PDF 部署](https://github.com/gyxing/filumo-viewer/blob/master/apps/docs/docs/guides/image-pdf.zh-CN.md)
-- [独立框架示例](https://github.com/gyxing/filumo-viewer/tree/master/examples)
-- [项目变更记录](https://github.com/gyxing/filumo-viewer/blob/master/CHANGELOG.md)
-- [问题反馈](https://github.com/gyxing/filumo-viewer/issues)
-- [MIT 许可证](https://github.com/gyxing/filumo-viewer/blob/master/packages/json/LICENSE)
+- [Source and complete types](https://github.com/gyxing/filumo-viewer/tree/master/packages/json/src)
+- [Framework integration](https://github.com/gyxing/filumo-viewer/blob/master/apps/docs/docs/guides/preview-integration.md)
+- [Format capabilities and limits](https://github.com/gyxing/filumo-viewer/blob/master/apps/docs/docs/guides/compatibility.md)
+- [Text-based formats](https://github.com/gyxing/filumo-viewer/blob/master/apps/docs/docs/guides/text-formats.md)
+- [Images and PDF deployment](https://github.com/gyxing/filumo-viewer/blob/master/apps/docs/docs/guides/image-pdf.md)
+- [Standalone framework examples](https://github.com/gyxing/filumo-viewer/tree/master/examples)
+- [Changelog](https://github.com/gyxing/filumo-viewer/blob/master/CHANGELOG.md)
+- [Report an issue](https://github.com/gyxing/filumo-viewer/issues)
+- [MIT license](https://github.com/gyxing/filumo-viewer/blob/master/packages/json/LICENSE)

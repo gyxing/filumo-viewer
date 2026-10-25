@@ -12,7 +12,7 @@ toc: content
 
 # Text, structured files and code
 
-Six independent plugins share Core text processing and DOM views without depending on the Text package or new framework-specific components. Version 0.1.0 is not yet published; see the [package overview](./packages).
+Six independent plugins share Core text processing and DOM views without depending on the Text package or new framework-specific components. Published versions are listed per package on npm; see the [package overview](./packages).
 
 ```ts | pure
 import { createViewer } from '@filumo/dom';
@@ -107,14 +107,22 @@ Defaults are initialMode: 'tree', maxDepth: 256 and maxNodes: 200000. DOCTYPE pr
 
 ## Code
 
-| Category | Files |
-| --- | --- |
-| Web | JS/JSX, TS/TSX, HTML, CSS, LESS, SCSS, Sass |
-| Languages | Shell, Python, SQL, Java, C/C++, C#, Go, Rust, PHP, Ruby, Kotlin, Swift, Lua |
-| Configuration and scripts | YAML/YML, TOML, .env/.env.\*, PowerShell, BAT/CMD |
-| Build and protocols | Dockerfile, Makefile/GNUmakefile, CMakeLists.txt, .mk/.cmake, GraphQL, Proto, Diff/Patch |
+<!-- filumo-code-catalog:start -->
+### Code and development files · @filumo/code
 
-All these formats belong to @filumo/code. Filename and extension rules also determine the default language; .h defaults to C and can switch to C++. Mixed Vue/Svelte syntax remains future work. Source is never executed, Sass is not compiled, and styles are not applied. Dedicated suffixes such as JSON/XML keep their own format ownership.
+| Group | Extensions | Filenames and variants |
+| --- | --- | --- |
+| JavaScript, TypeScript and HTML | `.js`, `.mjs`, `.cjs`, `.jsx`, `.ts`, `.mts`, `.cts`, `.tsx`, `.html`, `.htm` | - |
+| Stylesheets | `.css`, `.less`, `.scss`, `.sass` | - |
+| Shell, PowerShell and Batch | `.sh`, `.bash`, `.zsh`, `.ps1`, `.psm1`, `.psd1`, `.bat`, `.cmd` | - |
+| Other programming languages | `.py`, `.pyw`, `.sql`, `.java`, `.c`, `.h`, `.cpp`, `.cc`, `.cxx`, `.hpp`, `.hh`, `.hxx`, `.cs`, `.go`, `.rs`, `.php`, `.rb`, `.rake`, `.kt`, `.kts`, `.swift`, `.lua` | - |
+| Configuration and environment | `.yaml`, `.yml`, `.toml`, `.env` | `.env`, `.env.*` |
+| Build, protocols and patches | `.dockerfile`, `.mk`, `.cmake`, `.graphql`, `.gql`, `.proto`, `.diff`, `.patch` | `Dockerfile`, `Makefile`, `GNUmakefile`, `CMakeLists.txt`, `Dockerfile.*` |
+
+Source preview only: HTML is not rendered, scripts do not run and stylesheets are not compiled or applied. Dedicated formats such as JSON and XML take priority over filename variants. Vue and Svelte mixed-syntax support is outside the current scope.
+<!-- filumo-code-catalog:end -->
+
+Filename and extension rules determine the default language; .h defaults to C and can be switched to C++.
 
 Highlighting runs only in a dedicated Worker with language-specific highlight.js imports; Sass uses lightweight local rules. Defaults are 262,144 characters, 100,000 decoration ranges and 5,000ms. Disabled/unavailable Workers, failures, timeouts and budget limits retain searchable plain source instead of synchronous main-thread highlighting.
 

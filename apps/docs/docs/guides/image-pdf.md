@@ -12,7 +12,7 @@ toc: content
 
 # Image and PDF previews
 
-Image and PDF plugins are framework-independent. Workspace version 0.1.0 is not yet published. Validate actual browser behavior and performance in the target host.
+Image and PDF plugins are framework-independent. Published versions are listed per package on npm. Validate actual browser behavior and performance in the target host.
 
 ## Integration
 
@@ -74,7 +74,7 @@ All files and decoder fallback scripts must match the pinned pdfjs-dist 6.4.299 
 
 Docs, smoke and default examples use the same bundled resource path; public/filumo-assets/pdf copying no longer masks default failures. FILUMO_DOCS_BASE still controls site deployment paths while the bundler handles final asset URLs.
 
-Compatibility requires actual published-artifact checks in Vite development/production, Webpack/dumi and non-root deployments. This source change has not completed build and browser acceptance; it does not certify every host.
+Compatibility requires actual published-artifact checks in Vite development/production, Webpack/dumi and non-root deployments. Use the exact-commit verification matrix; untested hosts are not certified.
 
 ## Images
 

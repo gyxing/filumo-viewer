@@ -8,7 +8,7 @@ import {
   useSiteData,
 } from 'dumi';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { DOC_GUIDES } from '../../config/doc-pages';
+import { DOC_GROUPS, getDocumentationPages } from '../../config/doc-pages';
 import { docsPath } from '../site-path';
 import {
   buildDocumentationTree,
@@ -35,22 +35,12 @@ export function DocumentationNav({
   const { routes } = useAppData();
   const { loading } = useSiteData();
   const model = useMemo(() => {
-    const prefix = locale === 'zh-CN' ? '/zh-CN' : '';
     const routeIds = new Map<string, string>();
     for (const [id, route] of Object.entries(routes)) {
       if (typeof route.path !== 'string') continue;
       routeIds.set('/' + route.path.split('/').filter(Boolean).join('/'), id);
     }
-    const pages = [
-      {
-        route: prefix + '/docs',
-        title: locale === 'zh-CN' ? '概览与 API' : 'Overview & API',
-      },
-      ...DOC_GUIDES.map((page) => ({
-        route: prefix + '/docs/guides/' + page.slug,
-        title: page.title[locale],
-      })),
-    ].map((page) => {
+    const pages = getDocumentationPages(locale).map((page) => {
       const id = routeIds.get(page.route);
       // 只读同步目录元数据，不触发正文、搜索文本或示例组件的加载。
       const metadata = id
@@ -62,7 +52,12 @@ export function DocumentationNav({
         headings: metadata?.toc ?? [],
       };
     });
-    return buildDocumentationTree(pages, pathname, toc);
+    return buildDocumentationTree(
+      pages,
+      pathname,
+      toc,
+      DOC_GROUPS.map((group) => ({ id: group.id, title: group.title[locale] })),
+    );
   }, [locale, pathname, routes, toc]);
   const activeHeading = useDocumentationHeading(
     model.headings,
@@ -71,6 +66,9 @@ export function DocumentationNav({
   );
   const selectedKey = activeHeading ?? model.currentPageKey;
   const [expandedKeys, setExpandedKeys] = useState<string[]>([
+    ...model.nodes
+      .filter((node) => node.kind === 'group')
+      .map((node) => node.key),
     model.currentPageKey,
   ]);
   const visibleSelectedKey = getVisibleDocumentationKey(
@@ -89,6 +87,7 @@ export function DocumentationNav({
         new Set([
           ...previous.filter((key) => model.byKey.has(key)),
           model.currentPageKey,
+          ...getDocumentationAncestors(model, model.currentPageKey),
           ...ancestors,
         ]),
       ),
@@ -116,6 +115,14 @@ export function DocumentationNav({
   }, [drawerOpen, expandedKeys, visibleSelectedKey]);
 
   const activate = (node: DocumentationTreeNode) => {
+    if (node.kind === 'group') {
+      setExpandedKeys((previous) =>
+        previous.includes(node.key)
+          ? previous.filter((key) => key !== node.key)
+          : [...previous, node.key],
+      );
+      return;
+    }
     if (node.kind === 'page') {
       if (node.key === model.currentPageKey) {
         if (hash) history.push(pathname + search);

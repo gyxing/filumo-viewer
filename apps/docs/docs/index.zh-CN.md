@@ -1,6 +1,6 @@
 ---
 title: Filumo · 浏览器文件预览
-description: Filumo 0.1.0 浏览器文件预览，支持 Office、PDF、图片、文本、JSON、Markdown、CSV、XML 和代码，适配 React、Vue 与原生 JavaScript。
+description: Filumo 浏览器文件预览，支持 Office、PDF、图片、文本、JSON、Markdown、CSV、XML 和代码，适配 React、Vue 与原生 JavaScript。
 keywords:
   - Filumo
   - document viewer

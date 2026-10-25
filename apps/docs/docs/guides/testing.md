@@ -14,6 +14,8 @@ toc: content
 
 Public docs, private smoke tests, isolated hosts and automated regressions serve different purposes. Passing scripts is not proof that every visual scenario is identical; select checks relevant to the change.
 
+<a id="development"></a>
+
 ## Environment
 
 Use Node.js 22 and pnpm 11.10.0 as pinned in package.json. Do not install repository dependencies with a different manager or hand-edit the lockfile.
@@ -87,11 +89,13 @@ Remove-Item Env:FILUMO_DOCS_BASE
 
 Build, test server and tests must share FILUMO_DOCS_BASE. Rebuild after changing it instead of merely prefixing the browser URL. The Pages workflow sets its deployment directory; local routes do not require the old package-name prefix.
 
+FILUMO_DOCS_BASE controls the project directory. FILUMO_DOCS_ORIGIN controls only the public HTTP(S) origin (default https://gyxing.github.io), without a path or credentials. Canonical/alternate links and sitemap.xml use the same values.
+
 ## GitHub Pages publication
 
 The public site is https://gyxing.github.io/filumo-viewer/, with FILUMO_DOCS_BASE set to /filumo-viewer/ for the gyxing/filumo-viewer repository. Rebuild and deploy the documentation after changing this prefix.
 
-.github/workflows/deploy-pages.yml listens to pushes on master and keeps a workflow_dispatch entry. Local next-branch changes do not update the public site. CI installs from the lockfile, runs pnpm run docs:build, uploads apps/docs/dist and deploys it. A manual run uses the selected ref, so select the intended version deliberately.
+.github/workflows/deploy-pages.yml listens to pushes on master and keeps a workflow_dispatch entry. Unpushed changes and other branches do not update the public site. CI installs from the lockfile, runs pnpm run docs:build, uploads apps/docs/dist and deploys it. A manual run uses the selected ref, so select the intended version deliberately.
 
 Source edits and production builds do not publish by themselves. Git writes, pushes and workflow runs require authorization. The docs build prepares matching bundled PDF assets and excludes local smoke routes without using a public-directory copy to mask default loading failures.
 

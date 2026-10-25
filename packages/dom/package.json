@@ -107,7 +107,7 @@
       "split": ["dist/split.d.ts"]
     }
   },
-  "files": ["dist"],
+  "files": ["dist", "README.md", "README.zh-CN.md"],
   "dependencies": {
     "@filumo/core": "workspace:^"
   }

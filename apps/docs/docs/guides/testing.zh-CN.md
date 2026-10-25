@@ -14,6 +14,8 @@ toc: content
 
 本页区分公开文档、私有烟测、独立宿主和自动回归。测试脚本通过不等于全部视觉场景一致，应按实际改动选择验证范围。
 
+<a id="development"></a>
+
 ## 环境与首次启动
 
 仓库使用 Node.js 22.11 或更新的 Node 22 版本，与 package.json 固定的 pnpm 11.10.0。不要改用 npm/Yarn 安装仓库依赖，也不要手工修改锁文件。
@@ -87,11 +89,13 @@ Remove-Item Env:FILUMO_DOCS_BASE
 
 构建、测试服务与浏览器用例必须使用同一 FILUMO_DOCS_BASE。修改部署前缀要重新构建；路径不是简单给浏览器 URL 加前缀。GitHub Pages 实际目录由工作流设置，本地不需要旧包名路由。
 
+FILUMO_DOCS_BASE 控制项目目录，FILUMO_DOCS_ORIGIN 只设置公开 HTTP(S) 站点地址（默认 https://gyxing.github.io），不包含路径或凭据。canonical、双语替代链接和 sitemap.xml 共用这两个值。
+
 ## GitHub Pages 发布链路
 
 公开站点为 https://gyxing.github.io/filumo-viewer/，FILUMO_DOCS_BASE 使用 /filumo-viewer/，与 GitHub 仓库 gyxing/filumo-viewer 对应。修改部署前缀后需重新构建并部署文档站点。
 
-.github/workflows/deploy-pages.yml 监听 master 分支 push，并保留 workflow_dispatch 手动入口。当前 next 分支的本地修改不会自动更新公开站点。工作流按锁文件安装依赖，执行 pnpm run docs:build，上传 apps/docs/dist 后部署。手动运行使用所选 ref 的内容，执行前应明确目标版本。
+.github/workflows/deploy-pages.yml 监听 master 分支 push，并保留 workflow_dispatch 手动入口。未推送到 master 的本地修改或其他分支不会自动更新公开站点。工作流按锁文件安装依赖，执行 pnpm run docs:build，上传 apps/docs/dist 后部署。手动运行使用所选 ref 的内容，执行前应明确目标版本。
 
 只更新本地源码不会发布；生产构建也不会自动部署。需要发布时再明确授权 Git 提交、推送或工作流运行。站点构建入口会准备同版 PDF 包内资源并排除本机烟测路由，不使用 public 目录复制作为默认加载兜底。
 

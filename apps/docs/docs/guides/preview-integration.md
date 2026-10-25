@@ -16,7 +16,7 @@ React, Vue 3, Vue 2 and JavaScript adapters share the DOM shell, format plugins 
 
 ## Before you start
 
-Packages are not yet published to npm. Run pnpm install --frozen-lockfile and pnpm build in this repository, then start demo:react, demo:vue3, demo:vue2 or demo:js.
+Check npm for published versions; before release use packed workspace artifacts. Run pnpm install --frozen-lockfile and pnpm build in this repository, then start demo:react, demo:vue3, demo:vue2 or demo:js.
 
 For an external project, use local packed artifacts rather than linking a package's source directory. pnpm test:consumers packs workspace dependencies and verifies isolated installations; records are stored in tmp/testing/consumers.json. It does not publish packages. After release, choose your adapter and required format packages, or use the @filumo/viewer preset. See the [package overview](./packages) for all fifteen packages.
 
@@ -238,6 +238,21 @@ const plugins = [
 ```
 
 The host deploys licensed fonts. preventDefault blocks default navigation without weakening unsafe-URL rules. See Overview & API for Worker, CSP and resource-policy details.
+
+## SSR client boundaries
+
+Next.js hosts can use a client component. Module scope creates descriptors only; never open files or create viewers during server rendering.
+
+```tsx | pure
+'use client';
+import { DocumentViewer } from '@filumo/react';
+import { standardPlugins } from '@filumo/viewer';
+export function FilePreview({ url }: { url: string }) {
+  return <DocumentViewer source={url} plugins={standardPlugins} options={{ height: 640 }} />;
+}
+```
+
+Nuxt can use a .client.vue wrapper or ClientOnly around the Vue 3 example above. These recipes do not certify every Next.js/Nuxt version.
 
 ## Common integration mistakes
 

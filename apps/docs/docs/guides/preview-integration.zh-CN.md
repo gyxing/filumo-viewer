@@ -16,7 +16,7 @@ toc: content
 
 ## 开始前
 
-当前包尚未发布到 npm。在仓库内先执行 pnpm install --frozen-lockfile 和 pnpm build，然后用 pnpm demo:react、demo:vue3、demo:vue2、demo:js 运行独立宿主。
+实际发布版本以各包 npm 页面为准；发布前可使用工作区打包产物。在仓库内先执行 pnpm install --frozen-lockfile 和 pnpm build，然后用 pnpm demo:react、demo:vue3、demo:vue2、demo:js 运行独立宿主。
 
 外部项目试用应使用本地打包产物，而不是只链接某个包的 src：pnpm test:consumers 会构建独立安装环境、打包全部 workspace 依赖并验证实际消费；打包位置记录在 tmp/testing/consumers.json。该流程不执行 npm 发布。发布后按自己的框架选择适配器与所需格式包，完整组合见[包总览](./packages)。
 
@@ -242,6 +242,21 @@ const plugins = [
 ```
 
 字体由宿主部署且须具有合法授权。下载或外部链接策略由业务决定；preventDefault 阻止默认导航，但不会放宽危险 URL 策略。完整参数、CSP 和 Worker 说明见概览与 API。
+
+## SSR 客户端边界
+
+Next.js 可使用客户端组件。模块顶层只创建轻量描述符，不在服务端渲染期间打开文件或创建查看器。
+
+```tsx | pure
+'use client';
+import { DocumentViewer } from '@filumo/react';
+import { standardPlugins } from '@filumo/viewer';
+export function FilePreview({ url }: { url: string }) {
+  return <DocumentViewer source={url} plugins={standardPlugins} options={{ height: 640 }} />;
+}
+```
+
+Nuxt 可把包装组件命名为 .client.vue，或放入 ClientOnly，内部沿用上方 Vue 3 示例。这些配方不代表所有 Next.js/Nuxt 版本均已完成验收。
 
 ## 常见接入错误
 

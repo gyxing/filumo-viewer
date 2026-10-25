@@ -12,7 +12,7 @@ toc: content
 
 # Plugins and future editing
 
-The unpublished 0.1.0 workspace contains nine readonly plugins: Office, text, JSON, Markdown, image, PDF, CSV, XML and code. This guide describes their shared protocol and the future editing boundary.
+The source workspace contains nine readonly plugins: Office, text, JSON, Markdown, image, PDF, CSV, XML and code. This guide describes their shared protocol and the future editing boundary.
 
 ## Layer responsibilities
 
@@ -36,6 +36,7 @@ Shared text processing comes from @filumo/core/text; source, outline and split v
 | extensions / mimeTypes       | Metadata hints                                                     |
 | priority                     | Optional priority; higher values are probed first                  |
 | detect(source, signal)       | Lightweight cancellable detection returning Promise&lt;boolean&gt; |
+| detectFallback(source, signal, policy) | Optional fallback only after ordinary detection rejects; honor cancellation and source budgets |
 | load()                       | Load a DocumentDriver on demand                                    |
 | driver.open(source, context) | Create a DocumentSession                                           |
 

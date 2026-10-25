@@ -38,7 +38,7 @@ const content = {
     noFile: '尚未选择文件',
     code: '示例代码',
     codeHint:
-      '框架标签只切换示例代码。发布后安装对应适配器与 @filumo/viewer；PDF 默认资源由包内部接入，只有自定义部署才需要覆盖地址。0.1.0 当前尚未发布。',
+      '框架标签只切换示例代码。按 npm 实际发布版本安装对应适配器与 @filumo/viewer；发布前可使用打包产物。PDF 默认使用包内资源，自定义部署才需要覆盖地址。',
     copy: '复制代码',
     copied: '已复制',
     copyFailed: '复制失败，请手动选择',
@@ -84,7 +84,7 @@ const content = {
     noFile: 'No file selected',
     code: 'Example code',
     codeHint:
-      'Tabs change example code only. After release, install the chosen adapter and @filumo/viewer, with bundled PDF resources; override asset URLs only for custom deployment. Version 0.1.0 is not yet published.',
+      'Tabs change example code only. Install published versions of the chosen adapter and @filumo/viewer, or use packed artifacts before release. PDF uses bundled resources; override URLs only for custom deployment.',
     copy: 'Copy code',
     copied: 'Copied',
     copyFailed: 'Copy failed; select the code manually',

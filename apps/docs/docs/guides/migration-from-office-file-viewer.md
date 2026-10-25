@@ -1,6 +1,6 @@
 ---
 title: Migration to Filumo
-description: Migrate package scopes, APIs, styles, Workers and lifecycle integration to Filumo 0.1.0.
+description: Migrate package scopes, APIs, styles, Workers and lifecycle integration to Filumo.
 keywords:
   - Filumo
   - file preview
@@ -80,6 +80,6 @@ Validate production bundling, sources, Workers, image overlays, search, teardown
 
 ## Scope and version alignment
 
-Public packages use `@filumo/*` at `0.1.0`, CSS uses `filumo-` prefixes, the public error is `FilumoError`, and project environment variables use `FILUMO_*`. Update old identifiers in custom controls, CSP configuration and deployment scripts. Do not edit generated/package.ts or copy old build caches.
+Public packages use `@filumo/*` and may release independently, CSS uses `filumo-` prefixes, the public error is `FilumoError`, and project environment variables use `FILUMO_*`. Update old identifiers in custom controls, CSP configuration and deployment scripts. Do not edit generated/package.ts or copy old build caches.
 
 The GitHub repository is now [gyxing/filumo-viewer](https://github.com/gyxing/filumo-viewer), and the Pages base is /filumo-viewer/. npm package names remain @filumo/*. See the [package overview](./packages).

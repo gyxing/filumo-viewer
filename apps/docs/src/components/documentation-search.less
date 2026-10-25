@@ -1,0 +1,124 @@
+.filumo-doc-search-trigger {
+  display: inline-flex;
+  min-height: 36px;
+  padding: 0 9px;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--site-border);
+  border-radius: 8px;
+  background: var(--site-surface);
+  color: var(--site-text-soft);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.filumo-doc-search-trigger svg {
+  width: 16px;
+  height: 16px;
+}
+
+.filumo-doc-search-status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.filumo-doc-search-error {
+  position: absolute;
+  top: 100%;
+  right: 12px;
+  padding: 10px 14px;
+  border: 1px solid #ffccc7;
+  border-radius: 8px;
+  background: #fff2f0;
+  color: #a8071a;
+  font-size: 13px;
+}
+
+.filumo-doc-search-modal .ant-modal-content {
+  padding: 24px;
+  border-radius: 16px;
+}
+
+.filumo-doc-search-modal .ant-modal-mask {
+  background: rgba(23, 32, 51, 34%);
+}
+
+.filumo-doc-search-results {
+  // 保留 CSS min()，避免当前 Less 按不同单位的数值提前求最小值。
+  max-height: ~'min(60vh, 560px)';
+  margin-top: 16px;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.filumo-doc-search-results ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.filumo-doc-search-results a {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+  padding: 14px 10px;
+  border-bottom: 1px solid #e5e7eb;
+  border-radius: 8px;
+  color: #172033;
+  overflow-wrap: anywhere;
+}
+
+.filumo-doc-search-results a:hover,
+.filumo-doc-search-results a:focus-visible {
+  background: #eef2ff;
+}
+
+.filumo-doc-search-results small,
+.filumo-doc-search-results span,
+.filumo-doc-search-results p {
+  color: #5f6b7d;
+  line-height: 1.6;
+}
+
+.filumo-doc-search-results mark {
+  padding: 0 2px;
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+@media (max-width: 1080px) {
+  .filumo-doc-search-trigger span {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .filumo-doc-search-trigger {
+    min-width: 32px;
+    padding: 0 6px;
+    justify-content: center;
+  }
+
+  .filumo-doc-search-modal .ant-modal-content {
+    padding: 20px 16px;
+  }
+
+  .office-viewer-site-header
+    .office-viewer-site-nav-actions
+    .office-viewer-site-github-link {
+    min-width: 32px;
+    gap: 0;
+    padding: 0 6px;
+    font-size: 0;
+  }
+}
+
+@media (max-width: 390px) {
+  .office-viewer-site-header .office-viewer-site-nav-actions {
+    gap: 1px;
+  }
+}

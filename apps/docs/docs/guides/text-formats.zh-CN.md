@@ -12,7 +12,7 @@ toc: content
 
 # 文本、结构化文件与代码
 
-六个独立插件共用 Core 的文本处理与 DOM 视图，不需要通过 Text 包复用公共逻辑，也不需要新的框架专用组件。当前版本为 0.1.0，尚未发布；安装组合见[包总览](./packages)。
+六个独立插件共用 Core 的文本处理与 DOM 视图，不需要通过 Text 包复用公共逻辑，也不需要新的框架专用组件。实际发布版本以 npm 为准；安装组合见[包总览](./packages)。
 
 ```ts | pure
 import { createViewer } from '@filumo/dom';
@@ -107,14 +107,22 @@ CSV／TSV 继续独立成包，与 Office 的 Excel 视图共享轻量网格交�
 
 ## Code
 
-| 类别 | 文件范围 |
-| --- | --- |
-| Web | JS/JSX, TS/TSX, HTML, CSS, LESS, SCSS, Sass |
-| 常用语言 | Shell, Python, SQL, Java, C/C++, C#, Go, Rust, PHP, Ruby, Kotlin, Swift, Lua |
-| 配置与脚本 | YAML/YML, TOML, .env/.env.\*, PowerShell, BAT/CMD |
-| 构建与协议 | Dockerfile, Makefile/GNUmakefile, CMakeLists.txt, .mk/.cmake, GraphQL, Proto, Diff/Patch |
+<!-- filumo-code-catalog:start -->
+### 代码与开发文件 · @filumo/code
 
-这些能力统一位于 @filumo/code。文件名、后缀和默认语言共用规则；.h 默认 C，可手动切换 C++。Vue/Svelte 混合语法适配仍为后续范围。源码只展示，不执行脚本、编译 Sass 或应用样式。明确的 JSON/XML 等后缀保持专用包归属。
+| 分组 | 扩展名 | 文件名及变体 |
+| --- | --- | --- |
+| JavaScript、TypeScript 与 HTML | `.js`, `.mjs`, `.cjs`, `.jsx`, `.ts`, `.mts`, `.cts`, `.tsx`, `.html`, `.htm` | - |
+| 样式文件 | `.css`, `.less`, `.scss`, `.sass` | - |
+| Shell、PowerShell 与批处理 | `.sh`, `.bash`, `.zsh`, `.ps1`, `.psm1`, `.psd1`, `.bat`, `.cmd` | - |
+| 其他常用编程语言 | `.py`, `.pyw`, `.sql`, `.java`, `.c`, `.h`, `.cpp`, `.cc`, `.cxx`, `.hpp`, `.hh`, `.hxx`, `.cs`, `.go`, `.rs`, `.php`, `.rb`, `.rake`, `.kt`, `.kts`, `.swift`, `.lua` | - |
+| 配置与环境文件 | `.yaml`, `.yml`, `.toml`, `.env` | `.env`, `.env.*` |
+| 构建、协议与补丁 | `.dockerfile`, `.mk`, `.cmake`, `.graphql`, `.gql`, `.proto`, `.diff`, `.patch` | `Dockerfile`, `Makefile`, `GNUmakefile`, `CMakeLists.txt`, `Dockerfile.*` |
+
+仅预览源码，不渲染 HTML、不执行脚本、不编译或应用样式。文件名变体遇到 JSON、XML 等专用后缀时仍由专用插件处理。Vue、Svelte 混合语法不在当前支持范围内。
+<!-- filumo-code-catalog:end -->
+
+文件名、后缀和默认语言共用识别规则；.h 默认 C，可手动切换 C++。
 
 高亮只在独立 Worker 中运行，按语言加载已有 highlight.js；Sass 使用包内轻量规则。默认最多 262,144 字符、100,000 装饰区间、5,000ms。关闭 Worker、超预算、不可用、失败或超时时继续显示可复制、查找的原文，不转到主线程同步高亮。
 

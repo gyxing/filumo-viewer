@@ -1,6 +1,6 @@
 ---
 title: Filumo Compatibility and Limits
-description: Filumo 0.1.0 declared framework ranges, format limits, resource budgets and historical validation boundaries.
+description: Filumo declared framework ranges, format limits, resource budgets and historical validation boundaries.
 keywords:
   - Filumo
   - file preview
@@ -14,7 +14,7 @@ toc: content
 
 ## Version and declared support
 
-All public workspace packages use **0.1.0**, which is not yet published. Source capabilities and dependency declarations are not a claim of completed browser acceptance for the current version.
+This documentation follows repository source; published versions are listed per package on npm. Source capabilities and dependency declarations are not a claim of completed browser acceptance for the current version.
 
 | Host              | Declared range                 | Adapter       |
 | ----------------- | ------------------------------ | ------------- |
@@ -31,6 +31,18 @@ Historical records include React 18.3.1/19.2.0, Vue 3.5.43, Vue 2.6.14/2.7.16, V
 
 Release readiness needs build, type, unit, isolated-consumer and real-browser evidence from the same commit. Unexecuted checks are not passing checks. PDF performance still requires representative large-file measurements. Local cache budgets do not bound the whole browser process.
 
+### Verification matrix
+
+| Scope | Evidence and boundary |
+| --- | --- |
+| Build, types, units | Validate workflow for the exact commit |
+| Framework consumers | Packed-artifact and npm/Yarn host steps |
+| Chromium UI | Public-fixture browser step, not Safari/Firefox certification |
+| GitHub Pages | Deployment for the same commit and actual base |
+| Large scans, other browsers and SSR | Target-environment acceptance required; unexecuted checks are not passed |
+
+[Workflow records](https://github.com/gyxing/filumo-viewer/actions) identify the tested commit and environment.
+
 ## Nine format plugins
 
 Office, PDF, image, text, JSON, Markdown, CSV, XML and code are registered in the standard preset. See the [package overview](./packages) for all fifteen packages.
@@ -39,15 +51,88 @@ Images use browser decoders. PDF requires pinned PDF.js and matching assets; see
 
 ## File formats
 
-| Parser family | Extensions                       |
-| ------------- | -------------------------------- |
-| DOC / DOCX    | .doc, .wps / .docx, .docm, .dotx |
-| XLS / XLSX    | .xls / .xlsx, .xlsm, .xltx       |
-| PPT / PPTX    | .ppt / .pptx, .pptm, .potx       |
+The list below covers all default extensions and explicit filenames across the nine plugins. Extensions are case-insensitive; filename and MIME hints still require actual content validation.
 
-Filename and MIME are hints. Renaming a PDF to DOCX does not make it supported. Container contents must also be parsed. Macro-enabled extensions expose read-only content without executing macros.
+<!-- filumo-format-catalog:start -->
+### Office documents · @filumo/office
 
-The table above lists Office extensions only. Other plugin ranges are in the format guides. JSONC does not imply JSON5; XML does not own SVG; HTML code stays source; Markdown renders controlled HTML only. Unknown-file fallback requires Text readability checks.
+| Group | Extensions | Filenames and variants |
+| --- | --- | --- |
+| Word / WPS | `.doc`, `.wps`, `.docx`, `.docm`, `.dotx` | - |
+| Excel | `.xls`, `.xlsx`, `.xlsm`, `.xltx` | - |
+| PowerPoint | `.ppt`, `.pptx`, `.pptm`, `.potx` | - |
+
+Documents, workbooks, presentations and supported templates are read-only. Macro-enabled files display supported content without executing macros.
+
+### PDF · @filumo/pdf
+
+| Group | Extensions | Filenames and variants |
+| --- | --- | --- |
+| PDF documents | `.pdf` | - |
+
+Continuous reading with outlines, thumbnails and text search. Scanned pages do not gain searchable text without OCR.
+
+### Images · @filumo/image
+
+| Group | Extensions | Filenames and variants |
+| --- | --- | --- |
+| Image files | `.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`, `.bmp`, `.svg`, `.avif` | - |
+
+Rendering depends on the browser decoder, including AVIF. SVG is displayed in an image context; arbitrary XML is not treated as an image.
+
+### Plain text · @filumo/text
+
+| Group | Extensions | Filenames and variants |
+| --- | --- | --- |
+| Text and logs | `.txt`, `.log`, `.ini`, `.conf`, `.cfg`, `.properties`, `.out` | - |
+
+Other unknown or extensionless files can use optional text fallback only after readability checks. Binary content and dedicated-format parse failures do not become plain text.
+
+### JSON · @filumo/json
+
+| Group | Extensions | Filenames and variants |
+| --- | --- | --- |
+| JSON variants | `.json`, `.jsonc`, `.jsonl`, `.ndjson` | - |
+
+JSONC supports comments and trailing commas; JSONL and NDJSON validate records independently. JSON5 is not supported.
+
+### Markdown · @filumo/markdown
+
+| Group | Extensions | Filenames and variants |
+| --- | --- | --- |
+| Markdown files | `.md`, `.markdown` | - |
+
+GFM and controlled HTML are rendered in reading mode. Scripts, global styles, arbitrary embedded pages, formulas and Mermaid are not executed or rendered.
+
+### CSV / TSV · @filumo/csv
+
+| Group | Extensions | Filenames and variants |
+| --- | --- | --- |
+| Delimited tables | `.csv`, `.tsv` | - |
+
+Read-only table previews preserve fields as strings, support separators and selection copying, and never execute formulas.
+
+### XML · @filumo/xml
+
+| Group | Extensions | Filenames and variants |
+| --- | --- | --- |
+| XML documents | `.xml` | - |
+
+Source and structure views preserve namespaces and attributes. DTD declarations are rejected; SVG belongs to the image plugin.
+
+### Code and development files · @filumo/code
+
+| Group | Extensions | Filenames and variants |
+| --- | --- | --- |
+| JavaScript, TypeScript and HTML | `.js`, `.mjs`, `.cjs`, `.jsx`, `.ts`, `.mts`, `.cts`, `.tsx`, `.html`, `.htm` | - |
+| Stylesheets | `.css`, `.less`, `.scss`, `.sass` | - |
+| Shell, PowerShell and Batch | `.sh`, `.bash`, `.zsh`, `.ps1`, `.psm1`, `.psd1`, `.bat`, `.cmd` | - |
+| Other programming languages | `.py`, `.pyw`, `.sql`, `.java`, `.c`, `.h`, `.cpp`, `.cc`, `.cxx`, `.hpp`, `.hh`, `.hxx`, `.cs`, `.go`, `.rs`, `.php`, `.rb`, `.rake`, `.kt`, `.kts`, `.swift`, `.lua` | - |
+| Configuration and environment | `.yaml`, `.yml`, `.toml`, `.env` | `.env`, `.env.*` |
+| Build, protocols and patches | `.dockerfile`, `.mk`, `.cmake`, `.graphql`, `.gql`, `.proto`, `.diff`, `.patch` | `Dockerfile`, `Makefile`, `GNUmakefile`, `CMakeLists.txt`, `Dockerfile.*` |
+
+Source preview only: HTML is not rendered, scripts do not run and stylesheets are not compiled or applied. Dedicated formats such as JSON and XML take priority over filename variants. Vue and Svelte mixed-syntax support is outside the current scope.
+<!-- filumo-format-catalog:end -->
 
 ## Rendering boundaries
 

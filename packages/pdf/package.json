@@ -73,7 +73,9 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "README.zh-CN.md"
   ],
   "dependencies": {
     "@filumo/core": "workspace:^",

@@ -1,12 +1,18 @@
-import { useLocation } from 'dumi';
+import { getRouteMetaById, useAppData, useLocation, useRouteMeta } from 'dumi';
 import React from 'react';
 import { docsPath } from '../site-path';
+import { DocumentationSearch } from './DocumentationSearch';
+import { SiteHeaderShell } from './SiteHeaderShell';
 import {
-  getWebsiteContent,
+  documentationRoute,
+  sharedDocumentationAnchor,
+  translateDocumentationHash,
+} from './documentation-links';
+import {
   SITE_ROOT,
+  getWebsiteContent,
   type WebsiteLocale,
 } from './home-content';
-import { SiteHeaderShell } from './SiteHeaderShell';
 
 type DocumentationHeaderProps = {
   /** 当前文档页使用的语言。 */
@@ -34,13 +40,25 @@ export function DocumentationHeader({
   const content = getWebsiteContent(locale);
   const homeHref = HOME_PATHS[locale];
   const { pathname, hash } = useLocation();
+  const { routes } = useAppData();
+  const { toc } = useRouteMeta();
   // useLocation 已移除部署 base；语言切换保留指南与锚点，再统一补回前缀。
-  const route = pathname
-    .replace(/^\//, '')
-    .replace(/^zh-CN\//, '')
-    .replace(/\/$/, '');
+  const route = documentationRoute(pathname).replace(/^\//, '');
+  const targetRoute = '/' + (locale === 'zh-CN' ? '' : 'zh-CN/') + route;
+  const target = Object.entries(routes).find(
+    ([, entry]) =>
+      '/' + String(entry.path).replace(/^\//, '').replace(/\/$/, '') ===
+      targetRoute,
+  );
+  const targetToc = target
+    ? getRouteMetaById(target[0], { syncOnly: true })?.toc ?? []
+    : [];
+  const stableAnchor = sharedDocumentationAnchor(pathname, hash);
+  const targetHash = stableAnchor
+    ? hash
+    : translateDocumentationHash(hash, toc, targetToc);
   const languageHref =
-    docsPath((locale === 'zh-CN' ? '' : 'zh-CN/') + route) + hash;
+    docsPath((locale === 'zh-CN' ? '' : 'zh-CN/') + route) + targetHash;
   const navigation = (
     <>
       <a href={homeHref + '#overview'}>{content.navigation.overview}</a>
@@ -85,6 +103,7 @@ export function DocumentationHeader({
       languageHref={languageHref}
       navigation={navigation}
       mobileNavigation={mobileNavigation}
+      search={<DocumentationSearch locale={locale} pageKey={pathname + hash} />}
     />
   );
 }

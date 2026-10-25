@@ -1,8 +1,14 @@
 # Filumo 多格式文件预览
 
+<p>
+<a href="./README.md">English</a> | <strong>简体中文</strong> ·
+<a href="https://gyxing.github.io/filumo-viewer/playground" target="_blank" rel="noopener noreferrer">在线示例</a> ·
+<a href="https://gyxing.github.io/filumo-viewer/docs" target="_blank" rel="noopener noreferrer">对接文档</a>
+</p>
+
 Filumo is a framework-independent, plugin-based file preview toolkit for Office, PDF, images, text, structured data and source code.
 
-Filumo 是跨框架、按需加载的多格式文件预览库。当前工作区版本为 **0.1.0**，尚未发布 npm，不兼容旧包入口。格式视图使用原生 DOM；React、Vue 3、Vue 2 仅作为薄适配层。
+Filumo 是跨框架、按需加载的多格式文件预览库。实际发布版本以各包 npm 页面为准，不兼容旧包入口。格式视图使用原生 DOM；React、Vue 3、Vue 2 仅作为薄适配层。
 
 ## 格式与选型
 
@@ -71,7 +77,7 @@ auto 模式随视图取得样式租约，通常无需手工导入 CSS。external
 
 ## Filumo 包清单
 
-包名链接到 npm，源码说明指向项目实际仓库；15 个正式包均为 0.1.0。
+包名链接到 npm，源码说明指向项目实际仓库；各包可独立发版，遵守声明的依赖范围。
 
 <!-- filumo-packages:start -->
 
@@ -127,7 +133,7 @@ pnpm demo:vue2
 ## 文档与反馈
 
 - [框架接入指南](https://github.com/gyxing/filumo-viewer/blob/master/apps/docs/docs/guides/preview-integration.zh-CN.md)
-- [API 文档](https://github.com/gyxing/filumo-viewer/blob/master/apps/docs/docs/docs.zh-CN.md)
+- [API 文档](https://github.com/gyxing/filumo-viewer/blob/master/apps/docs/docs/guides/viewer-api.zh-CN.md)
 - [文本类格式与边界](https://github.com/gyxing/filumo-viewer/blob/master/apps/docs/docs/guides/text-formats.zh-CN.md)
 - [图片与 PDF 部署](https://github.com/gyxing/filumo-viewer/blob/master/apps/docs/docs/guides/image-pdf.zh-CN.md)
 - [兼容范围](https://github.com/gyxing/filumo-viewer/blob/master/apps/docs/docs/guides/compatibility.zh-CN.md)

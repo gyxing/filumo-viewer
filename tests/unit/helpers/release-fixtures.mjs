@@ -75,6 +75,14 @@ export async function releaseWorkspace(packages = releasePackages()) {
     await writeFile(join(directory, 'package.json'), JSON.stringify(manifest));
     await writeFile(
       join(directory, 'README.md'),
+      '# ' +
+        pkg.name +
+        '\n\nThis documentation covers **' +
+        pkg.version +
+        '**.\n',
+    );
+    await writeFile(
+      join(directory, 'README.zh-CN.md'),
       '# ' + pkg.name + '\n\n本文档对应 **' + pkg.version + '**。\n',
     );
     await writeFile(join(directory, 'dist/index.js'), 'export {};');

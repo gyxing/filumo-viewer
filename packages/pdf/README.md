@@ -1,30 +1,40 @@
 # @filumo/pdf
 
+<p>
+<strong>English</strong> | <a href="https://github.com/gyxing/filumo-viewer/blob/master/packages/pdf/README.zh-CN.md">简体中文</a> ·
+<a href="https://gyxing.github.io/filumo-viewer/playground" target="_blank" rel="noopener noreferrer">Live demo</a> ·
+<a href="https://gyxing.github.io/filumo-viewer/docs" target="_blank" rel="noopener noreferrer">Integration docs</a>
+</p>
+
 Continuous-scroll PDF viewer plugin for Filumo, with virtualized pages, outlines, thumbnails, text search and bounded canvas caches.
 
-基于固定版本 PDF.js 的只读 PDF 连续阅读插件。滚轮连续浏览页面，页面 DOM、Canvas、文字层和缩略图按窗口管理。
+A read-only continuous-scroll PDF plugin using a pinned PDF.js version. Pages scroll continuously while page DOM, Canvas, text layers and thumbnails are managed within a window.
 
-本文档对应 **0.1.0**。以下命令展示 npm 发布后的消费方式；从当前源码工作区使用时，请先按接入指南构建各包。
+This documentation covers **0.1.0**. The commands below describe consumption after publication to npm. When using this source workspace, build the packages first as described in the integration guide.
 
-## 主要能力
+## Features
 
-- 提供连续滚动、大纲定位与跟随、缩略图、文本查找、页码导航和旋转。
-- 根入口仅注册描述符；引擎与 Worker 在真正打开 PDF 时加载。
-- 自带同版本资源的地址解析入口，不默认使用外部 CDN；内存预算只约束查看器自身管理的资源。
+- Provides continuous scrolling, outline navigation and tracking, thumbnails, text search, page navigation and rotation.
+- The root entry only registers descriptors; the engine and Worker load when a PDF is actually opened.
+- Includes resource URL resolution for the same engine version without a default external CDN. Memory budgets cover only resources managed by the viewer.
 
-## 安装
+## Installation
 
 ```sh
 pnpm add @filumo/dom @filumo/pdf
-# 或使用 npm
+```
+
+Or with npm:
+
+```sh
 npm install @filumo/dom @filumo/pdf
 ```
 
-## 最小接入
+## Minimal integration
 
 ```html
 <div id="viewer"></div>
-<button id="dispose" type="button">关闭预览</button>
+<button id="dispose" type="button">Close preview</button>
 ```
 
 ```ts
@@ -32,12 +42,12 @@ import { createViewer } from '@filumo/dom';
 import { pdf } from '@filumo/pdf';
 
 const container = document.getElementById('viewer');
-if (!container) throw new Error('缺少预览容器');
+if (!container) throw new Error('Preview container is missing');
 
 const viewer = createViewer(container, {
   plugins: [pdf()],
   height: 640,
-  locale: 'zh-CN',
+  locale: 'en-US',
   resourcePolicy: { maxFileBytes: 20 * 1024 * 1024 },
   onError: (error) => console.error(error),
 });
@@ -60,46 +70,46 @@ window.addEventListener(
 );
 ```
 
-将示例 URL 换成真实可访问的文件地址，或在文件选择事件中传入 File。20 MiB 等示例限制是宿主配置，不是库默认限制；关闭时由句柄释放会话、资源与样式租约。
+Replace sample URLs with accessible files, or pass a File from a file-selection event. Example limits such as 20 MiB are host configuration, not library defaults. Destroy the handle to release sessions, resources and style leases.
 
-## 常用配置
+## Common options
 
-| 配置项                      | 默认值               | 说明                                                       |
-| --------------------------- | -------------------- | ---------------------------------------------------------- |
-| `assetsBaseUrl`             | 包内默认资源集成     | 可选的整套外部资源根目录；普通接入不需要填写。             |
-| `cMapUrl`                   | 包内压缩 CMap        | 可选覆盖字符映射目录。                                     |
-| `standardFontDataUrl`       | 包内标准字体         | 可选覆盖字体目录。                                         |
-| `wasmUrl`                   | 包内 WASM 与 JS 回退 | 可选覆盖解码资源目录。                                     |
-| `iccUrl`                    | 包内 ICC             | 可选覆盖色彩配置目录。                                     |
-| `useWasm`                   | true                 | false 明确关闭 WASM，保留可用的 JS 图像解码回退。          |
-| `workerSrc / workerFactory` | 内置模块 Worker 地址 | 覆盖 Worker 路径或创建器；必须与当前 PDF.js 引擎版本一致。 |
-| `renderConcurrency`         | 2                    | 页面绘制并发数。                                           |
-| `maxDpr`                    | 2                    | Canvas 绘制使用的设备像素比上限。                          |
-| `maxCanvasPixels`           | 8,388,608            | 单张 Canvas 像素预算。                                     |
-| `canvasCacheBytes`          | 96 MiB               | 当前查看器管理的 Canvas 缓存预算。                         |
-| `textCacheBytes`            | 16 MiB               | 文本缓存的估算预算。                                       |
-| `maxSearchMatches`          | 10,000               | 保留的查找命中数量上限。                                   |
-| `onHyperlinkActivate`       | 未设置               | 外部链接回调，参数为 URL 字符串。                          |
+| Option                      | Default                      | Description                                                                             |
+| --------------------------- | ---------------------------- | --------------------------------------------------------------------------------------- |
+| `assetsBaseUrl`             | Bundled resource integration | Optional root for a complete external resource set; unnecessary for normal integration. |
+| `cMapUrl`                   | Bundled compressed CMaps     | Optional character-map directory override.                                              |
+| `standardFontDataUrl`       | Bundled standard fonts       | Optional font directory override.                                                       |
+| `wasmUrl`                   | Bundled WASM and JS fallback | Optional decoder resource directory override.                                           |
+| `iccUrl`                    | Bundled ICC                  | Optional color-profile directory override.                                              |
+| `useWasm`                   | true                         | false explicitly disables WASM while retaining available JS image-decoder fallbacks.    |
+| `workerSrc / workerFactory` | Bundled module Worker URL    | Overrides the Worker URL or factory; must match the current PDF.js engine version.      |
+| `renderConcurrency`         | 2                            | Concurrent page renders.                                                                |
+| `maxDpr`                    | 2                            | Maximum device pixel ratio used for Canvas rendering.                                   |
+| `maxCanvasPixels`           | 8,388,608                    | Pixel budget for one Canvas.                                                            |
+| `canvasCacheBytes`          | 96 MiB                       | Canvas cache budget managed by the current viewer.                                      |
+| `textCacheBytes`            | 16 MiB                       | Estimated text cache budget.                                                            |
+| `maxSearchMatches`          | 10,000                       | Maximum retained search matches.                                                        |
+| `onHyperlinkActivate`       | Unset                        | External-link callback receiving a URL string.                                          |
 
-完整类型以公开声明与源码为准；没有列出的功能不能通过猜测选项名开启。
+See the public declarations and source for complete types. Features cannot be enabled by guessing undocumented option names.
 
-## 默认资源与宿主覆盖
+## Default resources and host overrides
 
-普通接入使用 `pdf()`。默认引擎通过模块动态导入加载，Worker 使用包内的 `new Worker(new URL(..., import.meta.url))` 入口；CMap、标准字体、WASM、ICC 和解码回退文件由同版资源清单定位，默认文字层样式来自延迟加载模块。宿主不需要为默认配置手工复制整套静态目录。
+Use `pdf()` for normal integration. The default engine loads through a dynamic module import; the bundled Worker uses `new Worker(new URL(..., import.meta.url))`. A matching resource manifest resolves CMaps, standard fonts, WASM, ICC and decoder fallback files. Default text-layer styles come from a lazy module. Hosts do not need to copy a full static directory for default configuration.
 
-注册插件不创建 Worker，也不下载全部辅助资源。资源进入构建输出不等于首屏全部请求，具体字体、字符映射与解码数据仍在 PDF 内容需要时读取。默认不访问公共 CDN，也不会在失败后偷偷切换 CDN。
+Registering a plugin neither creates a Worker nor downloads all auxiliary resources. Emitting resources in build output does not mean they are all requested initially. Fonts, character maps and decoding data are fetched as required by the PDF content. There is no default public CDN or silent CDN fallback.
 
-| 配置项                    | 缺省行为                 | 宿主覆盖                                                                     |
-| ------------------------- | ------------------------ | ---------------------------------------------------------------------------- |
-| assetsBaseUrl             | 使用包内集成             | 指定整套同版资源根目录，保留外部引擎、Worker、辅助资源和文字层样式的部署方式 |
-| cMapUrl                   | 包内压缩 CMap            | 覆盖 CMap 目录，保持 cMapPacked: true 对应的 bcmap 格式                      |
-| standardFontDataUrl       | 包内标准字体             | 覆盖标准字体目录                                                             |
-| wasmUrl                   | 包内 WASM 与对应 JS 回退 | 覆盖解码资源目录，应包含匹配的回退脚本                                       |
-| iccUrl                    | 包内 ICC                 | 覆盖色彩配置目录                                                             |
-| workerSrc / workerFactory | 包内适配 Worker          | 自定义 Worker 地址或创建方式，工厂优先                                       |
-| useWasm                   | true                     | false 明确停用 WASM，使用可用的 JavaScript 图像解码回退                      |
+| Option                    | Default behavior                      | Host override                                                                                                           |
+| ------------------------- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| assetsBaseUrl             | Bundled integration                   | Root of a complete matching resource set, preserving external engine, Worker, auxiliary resources and text-layer styles |
+| cMapUrl                   | Bundled compressed CMaps              | Override the CMap directory using bcmap files matching cMapPacked: true                                                 |
+| standardFontDataUrl       | Bundled standard fonts                | Override the standard font directory                                                                                    |
+| wasmUrl                   | Bundled WASM and matching JS fallback | Override decoder resources, including matching fallback scripts                                                         |
+| iccUrl                    | Bundled ICC                           | Override the color-profile directory                                                                                    |
+| workerSrc / workerFactory | Bundled adapted Worker                | Custom Worker URL or factory; the factory takes precedence                                                              |
+| useWasm                   | true                                  | false explicitly disables WASM and uses available JavaScript image-decoder fallbacks                                    |
 
-资源优先级为：**单项目录 > assetsBaseUrl 对应子目录 > 包内默认资源**。不传 URL 不表示禁用；空白字符串、非法协议或非布尔 useWasm 会明确报错。相对覆盖地址按宿主页面 baseURI 解析，目录补齐末尾斜杠。
+Resource precedence is **individual directory override > assetsBaseUrl subdirectory > bundled defaults**. Omitting a URL does not disable a resource. Blank strings, invalid protocols and non-boolean useWasm values produce explicit errors. Relative overrides resolve against the host page baseURI; directory URLs receive a trailing slash.
 
 ```ts
 const plugins = [
@@ -113,83 +123,83 @@ const plugins = [
 ];
 ```
 
-以上均为可选覆盖项。只需要修改其中一项时，其余类别继续使用默认资源。
+All options above are optional overrides. If only one is changed, other resource categories retain their defaults.
 
-## 高级：整套外部资源部署
+## Advanced: deploying a complete external resource set
 
-只有宿主明确选择独立资源目录时，才将 `@filumo/pdf/dist/assets/pdfjs/` 的内容保留原结构复制到公开目录，再配置 `pdf({ assetsBaseUrl: '/filumo-pdf/' })`。不要只复制一个 Worker。目录包括引擎、Worker、CMap、字体、WASM、ICC、文字层 CSS、LICENSE 和 NOTICE。
+Only when the host explicitly chooses a separate resource directory should it copy the contents of `@filumo/pdf/dist/assets/pdfjs/` to a public directory, preserving structure, and configure `pdf({ assetsBaseUrl: '/filumo-pdf/' })`. Do not copy only a Worker. The directory includes the engine, Worker, CMaps, fonts, WASM, ICC, text-layer CSS, LICENSE and NOTICE.
 
-引擎、Worker、辅助文件及解码回退脚本必须与固定的 pdfjs-dist 6.4.299 一致。自定义 CDN 由宿主显式指定，须满足 CORS/CSP；跨域 Worker 还需要符合浏览器的 Worker 来源限制。目录查询参数需要本包的适配 Worker 才能正确还原。直接使用原生 PDF.js Worker 时，宿主须提供它能访问的完整普通资源目录，不能让它解析包内虚拟资源标识。
+The engine, Worker, auxiliary resources and decoder fallbacks must match the pinned pdfjs-dist 6.4.299. Hosts explicitly configure custom CDNs and must satisfy CORS/CSP; cross-origin Workers also follow browser origin restrictions. Restoring directory query parameters requires this package's adapted Worker. When using a native PDF.js Worker directly, provide a complete ordinary resource directory it can access; it cannot interpret bundled virtual resource identifiers.
 
-文档站、烟测和默认示例使用相同的包内资源链路，不再依赖 public/filumo-assets/pdf 复制作为默认兜底。FILUMO_DOCS_BASE 继续控制站点子目录，资源最终地址由构建器处理。
+The documentation site, smoke page and default examples use the same bundled resource path without a public/filumo-assets/pdf copy fallback. FILUMO_DOCS_BASE still controls the site subdirectory; the bundler determines final resource URLs.
 
-默认集成的实际兼容范围需以发布产物在 Vite 开发/生产、Webpack/dumi 和非根部署中的执行记录为准；本次源码改造未执行完整构建和浏览器验收，不能据此宣称所有宿主已经验证通过。
+Compatibility of default integration must be established from published artifacts running in Vite development/production, Webpack/dumi and subdirectory deployments. Source changes alone are not evidence of successful host integration; consult validation records for the relevant version.
 
-## 阅读和性能边界
+## Reading and performance limits
 
-Canvas、文字层、缩略图与页面 DOM 按窗口管理，不一次保留全部位图。缓存预算不等于进程总内存限制，PDF 引擎和浏览器开销另计。扫描 PDF 可显示图像，但缺少文字的页面不能凭空检索；没有 OCR、编辑或格式转换。加密文件需要有效密码，具体支持取决于引擎和文档。
+Canvas, text layers, thumbnails and page DOM are windowed rather than retaining every page bitmap. Cache budgets are not total process memory limits; PDF engine and browser overhead are separate. Scanned PDFs can display images, but pages without text cannot be searched without OCR, which is not included. Editing and conversion are also outside scope. Encrypted documents require a valid password, with support depending on the engine and file.
 
-## 样式与运行环境
+## Styles and runtime environment
 
-默认 auto 模式随实际视图加载样式，通常不需要手动导入 CSS。若宿主选择 `stylePolicy: { mode: 'external' }`，在创建查看器前加载匹配版本的外部样式：
+The default auto mode loads styles with the active view, normally without manual CSS imports. If the host chooses `stylePolicy: { mode: 'external' }`, load matching external styles before creating the viewer:
 
 ```ts
 import '@filumo/dom/styles.css';
 import '@filumo/pdf/styles.css';
 ```
 
-external 样式模式只改变 CSS 提供方式，PDF 的默认引擎与辅助资源集成仍然有效；选择 assetsBaseUrl 外部部署时才需要复制整套资源。
+External style mode only changes how CSS is supplied. Default PDF engine and auxiliary resource integration still apply; copying the full resource set is required only for an assetsBaseUrl deployment.
 
-字符串输入表示 URL，不表示文件正文；直接文本内容请使用 File/Blob。支持的来源还包括 Uint8Array、带 name/mimeType/request 的 URL 对象和自定义 DocumentSource 工厂。远程文件和辅助资源需要满足宿主的网络、CORS 与 CSP 配置。
+String input represents a URL, not document content. Use File/Blob for inline text. Other sources include Uint8Array, URL objects with name/mimeType/request, and custom DocumentSource factories. Remote files and supporting resources must satisfy the host's networking, CORS and CSP configuration.
 
-包以 ESM 发布，包含 TypeScript 声明；不提供 CommonJS require 入口。查看器挂载、图片解码和文件选择在浏览器执行；导入轻量入口不等于支持在服务端渲染文件。宿主应在客户端生命周期创建实例，并在不再使用时销毁。
+Packages are published as ESM with TypeScript declarations and no CommonJS require entry. Viewer mounting, image decoding and file selection run in the browser. Importing a lightweight entry does not enable server-side document rendering. Create instances in the client lifecycle and destroy them when no longer needed.
 
-## 公开入口
+## Public entries
 
-| 公开入口                 | 用途                                                                                              |
-| ------------------------ | ------------------------------------------------------------------------------------------------- |
-| `@filumo/pdf`            | pdf 工厂及公开配置类型                                                                            |
-| `@filumo/pdf/styles.css` | 预编译外部样式资源，用于 external 样式模式                                                        |
-| `@filumo/pdf/assets`     | resolvePdfAssets 地址解析、createPdfWorker 创建器及 PdfAssetLocations 类型；单纯导入不创建 Worker |
-| `@filumo/pdf/worker.js`  | 模块 Worker 资源；部署时保留相关分块，不作为普通函数导入                                          |
-| `@filumo/pdf/assets/*`   | PDF.js 发行资产子路径，供构建复制和部署                                                           |
+| Public entry             | Purpose                                                                                                   |
+| ------------------------ | --------------------------------------------------------------------------------------------------------- |
+| `@filumo/pdf`            | pdf factory and public option types                                                                       |
+| `@filumo/pdf/styles.css` | Precompiled stylesheet for external style mode                                                            |
+| `@filumo/pdf/assets`     | resolvePdfAssets URL resolution, createPdfWorker and PdfAssetLocations; importing alone creates no Worker |
+| `@filumo/pdf/worker.js`  | Module Worker asset; preserve related chunks during deployment, not a regular function import             |
+| `@filumo/pdf/assets/*`   | PDF.js distribution assets for build copying and deployment                                               |
 
-未列出的包内路径不是稳定公共 API。独立格式不依赖 React/Vue 适配层，宿主只安装实际需要的格式和适配包。
+Unlisted internal paths are not stable public APIs. Standalone format packages do not depend on React/Vue adapters; install only the formats and adapter your host needs.
 
-## Filumo 包清单
+## Filumo packages
 
-当前包已加粗。每个包独立发布，包名链接到 npm，源码链接指向项目实际仓库。
+The current package is bold. Each package is published independently. Package names link to npm, and source links point to this repository.
 
 <!-- filumo-packages:start -->
 
-| 包（点击进入 npm）                                                 | 用途                                         | 源码说明                                                                                    |
-| ------------------------------------------------------------------ | -------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| [@filumo/core](https://www.npmjs.com/package/@filumo/core)         | 无 UI 的来源、插件协议、会话和公共文本处理   | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/core#readme)     |
-| [@filumo/dom](https://www.npmjs.com/package/@filumo/dom)           | 原生 DOM 查看器、工具栏、原文、大纲和共享 UI | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/dom#readme)      |
-| [@filumo/viewer](https://www.npmjs.com/package/@filumo/viewer)     | 九类格式插件的标准预设与工厂聚合             | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/viewer#readme)   |
-| [@filumo/office](https://www.npmjs.com/package/@filumo/office)     | Word、Excel、PowerPoint 与受支持的旧格式     | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/office#readme)   |
-| **[@filumo/pdf](https://www.npmjs.com/package/@filumo/pdf)**       | PDF 连续阅读、大纲、缩略图和查找             | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/pdf#readme)      |
-| [@filumo/image](https://www.npmjs.com/package/@filumo/image)       | 图片预览、缩放、旋转、拖动及共享弹层         | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/image#readme)    |
-| [@filumo/text](https://www.npmjs.com/package/@filumo/text)         | 纯文本、日志、编码识别与可读文本兜底         | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/text#readme)     |
-| [@filumo/json](https://www.npmjs.com/package/@filumo/json)         | JSON / JSONC / JSONL / NDJSON 原文与结构     | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/json#readme)     |
-| [@filumo/markdown](https://www.npmjs.com/package/@filumo/markdown) | Markdown 阅读、大纲、GFM 排版与代码高亮      | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/markdown#readme) |
-| [@filumo/csv](https://www.npmjs.com/package/@filumo/csv)           | CSV / TSV 只读表格、虚拟滚动和查找           | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/csv#readme)      |
-| [@filumo/xml](https://www.npmjs.com/package/@filumo/xml)           | XML 原文、命名空间结构树和节点定位           | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/xml#readme)      |
-| [@filumo/code](https://www.npmjs.com/package/@filumo/code)         | 代码、脚本、配置及样式源码的只读高亮         | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/code#readme)     |
-| [@filumo/react](https://www.npmjs.com/package/@filumo/react)       | React 18/19 适配组件                         | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/react#readme)    |
-| [@filumo/vue](https://www.npmjs.com/package/@filumo/vue)           | Vue 3（>=3.3 <4）适配组件                    | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/vue#readme)      |
-| [@filumo/vue2](https://www.npmjs.com/package/@filumo/vue2)         | Vue 2（^2.6.14 或 ^2.7.16）适配组件          | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/vue2#readme)     |
+| Package (npm)                                                      | Purpose                                                                 | Source documentation                                                                      |
+| ------------------------------------------------------------------ | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| [@filumo/core](https://www.npmjs.com/package/@filumo/core)         | Headless sources, plugin contracts, sessions and shared text utilities  | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/core/README.md)     |
+| [@filumo/dom](https://www.npmjs.com/package/@filumo/dom)           | Native DOM viewer, toolbars, source views, outlines and shared UI       | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/dom/README.md)      |
+| [@filumo/viewer](https://www.npmjs.com/package/@filumo/viewer)     | Standard preset and factories for nine format plugins                   | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/viewer/README.md)   |
+| [@filumo/office](https://www.npmjs.com/package/@filumo/office)     | Word, Excel, PowerPoint and supported legacy formats                    | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/office/README.md)   |
+| **[@filumo/pdf](https://www.npmjs.com/package/@filumo/pdf)**       | Continuous PDF reading, outlines, thumbnails and search                 | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/pdf/README.md)      |
+| [@filumo/image](https://www.npmjs.com/package/@filumo/image)       | Image preview, zoom, rotation, panning and shared overlays              | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/image/README.md)    |
+| [@filumo/text](https://www.npmjs.com/package/@filumo/text)         | Plain text, logs, encoding detection and readable-text fallback         | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/text/README.md)     |
+| [@filumo/json](https://www.npmjs.com/package/@filumo/json)         | JSON / JSONC / JSONL / NDJSON source and structure views                | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/json/README.md)     |
+| [@filumo/markdown](https://www.npmjs.com/package/@filumo/markdown) | Markdown reading, outlines, GFM layout and code highlighting            | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/markdown/README.md) |
+| [@filumo/csv](https://www.npmjs.com/package/@filumo/csv)           | CSV / TSV read-only grids, virtual scrolling and search                 | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/csv/README.md)      |
+| [@filumo/xml](https://www.npmjs.com/package/@filumo/xml)           | XML source, namespace-aware structure trees and node navigation         | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/xml/README.md)      |
+| [@filumo/code](https://www.npmjs.com/package/@filumo/code)         | Read-only highlighting for code, scripts, configuration and stylesheets | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/code/README.md)     |
+| [@filumo/react](https://www.npmjs.com/package/@filumo/react)       | React 18/19 adapter                                                     | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/react/README.md)    |
+| [@filumo/vue](https://www.npmjs.com/package/@filumo/vue)           | Vue 3 (>=3.3 <4) adapter                                                | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/vue/README.md)      |
+| [@filumo/vue2](https://www.npmjs.com/package/@filumo/vue2)         | Vue 2 (^2.6.14 or ^2.7.16) adapter                                      | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/vue2/README.md)     |
 
 <!-- filumo-packages:end -->
 
-## 文档与反馈
+## Documentation and feedback
 
-- [本包源码与完整类型](https://github.com/gyxing/filumo-viewer/tree/master/packages/pdf/src)
-- [框架接入指南](https://github.com/gyxing/filumo-viewer/blob/master/apps/docs/docs/guides/preview-integration.zh-CN.md)
-- [格式能力与限制](https://github.com/gyxing/filumo-viewer/blob/master/apps/docs/docs/guides/compatibility.zh-CN.md)
-- [文本类格式指南](https://github.com/gyxing/filumo-viewer/blob/master/apps/docs/docs/guides/text-formats.zh-CN.md)
-- [图片与 PDF 部署](https://github.com/gyxing/filumo-viewer/blob/master/apps/docs/docs/guides/image-pdf.zh-CN.md)
-- [独立框架示例](https://github.com/gyxing/filumo-viewer/tree/master/examples)
-- [项目变更记录](https://github.com/gyxing/filumo-viewer/blob/master/CHANGELOG.md)
-- [问题反馈](https://github.com/gyxing/filumo-viewer/issues)
-- [MIT 许可证](https://github.com/gyxing/filumo-viewer/blob/master/packages/pdf/LICENSE)
+- [Source and complete types](https://github.com/gyxing/filumo-viewer/tree/master/packages/pdf/src)
+- [Framework integration](https://github.com/gyxing/filumo-viewer/blob/master/apps/docs/docs/guides/preview-integration.md)
+- [Format capabilities and limits](https://github.com/gyxing/filumo-viewer/blob/master/apps/docs/docs/guides/compatibility.md)
+- [Text-based formats](https://github.com/gyxing/filumo-viewer/blob/master/apps/docs/docs/guides/text-formats.md)
+- [Images and PDF deployment](https://github.com/gyxing/filumo-viewer/blob/master/apps/docs/docs/guides/image-pdf.md)
+- [Standalone framework examples](https://github.com/gyxing/filumo-viewer/tree/master/examples)
+- [Changelog](https://github.com/gyxing/filumo-viewer/blob/master/CHANGELOG.md)
+- [Report an issue](https://github.com/gyxing/filumo-viewer/issues)
+- [MIT license](https://github.com/gyxing/filumo-viewer/blob/master/packages/pdf/LICENSE)

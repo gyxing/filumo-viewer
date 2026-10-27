@@ -34,8 +34,8 @@ test('图片/PDF 描述符入口没有引擎、样式或 DOM 视图的静态依�
     );
   }
 });
-test('十五包声明依赖保持 image 与 Office 单向，PDF 仅增加必要引擎', async () => {
-  assert.equal(WORKSPACE_PACKAGES.length, 15);
+test('十六包声明依赖保持 image 与 Office 单向，PDF 仅增加必要引擎', async () => {
+  assert.equal(WORKSPACE_PACKAGES.length, 16);
   const image = JSON.parse(
       await readFile('packages/image/package.json', 'utf8'),
     ),

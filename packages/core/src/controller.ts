@@ -89,16 +89,21 @@ export function createDocumentController(options: ControllerOptions) {
         source = await waitForSource(preparing, abort.signal);
         throwIfAborted(abort.signal);
         const currentSource = source;
-        const metadata = () => JSON.stringify([currentSource.name, currentSource.mimeType]);
+        const metadata = () =>
+          JSON.stringify([currentSource.name, currentSource.mimeType]);
         let detectedMetadata = '';
         const detectRegular = async () => {
           detectedMetadata = metadata();
-          const extension = currentSource.name?.toLowerCase().match(/\.[^.]+$/)?.[0];
+          const extension = currentSource.name
+            ?.toLowerCase()
+            .match(/\.[^.]+$/)?.[0];
           const candidates = plugins.filter(
             (plugin) =>
               (extension && plugin.extensions.includes(extension)) ||
               (currentSource.mimeType &&
-                plugin.mimeTypes.includes(currentSource.mimeType.split(';')[0])),
+                plugin.mimeTypes.includes(
+                  currentSource.mimeType.split(';')[0],
+                )),
           );
           // 元数据仅用于排序，未知名称仍允许已注册描述符探测，不提前加载驱动。
           for (const candidate of [
@@ -106,7 +111,8 @@ export function createDocumentController(options: ControllerOptions) {
             ...plugins.filter((plugin) => !candidates.includes(plugin)),
           ]) {
             const matched = await waitForSource(
-              candidate.detect(currentSource, abort.signal), abort.signal,
+              candidate.detect(currentSource, abort.signal),
+              abort.signal,
             );
             throwIfAborted(abort.signal);
             if (generation !== task || disposed) throw abortError();
@@ -129,7 +135,11 @@ export function createDocumentController(options: ControllerOptions) {
           for (const candidate of plugins) {
             if (!candidate.detectFallback) continue;
             const matched = await waitForSource(
-              candidate.detectFallback(source, abort.signal, options.resourcePolicy),
+              candidate.detectFallback(
+                source,
+                abort.signal,
+                options.resourcePolicy,
+              ),
               abort.signal,
             );
             throwIfAborted(abort.signal);
@@ -155,6 +165,7 @@ export function createDocumentController(options: ControllerOptions) {
           sessionId: 'filumo-' + Date.now() + '-' + task,
           signal: abort.signal,
           resourcePolicy: options.resourcePolicy,
+          resources: selection.resources,
           reportProgress(progress) {
             latestProgress = progress;
             if (generation === task && !disposed)

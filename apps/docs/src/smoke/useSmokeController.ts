@@ -1,8 +1,7 @@
-import { csv } from '@filumo/csv';
-import { sampleFileName } from './sampleFileName';
-import { xml } from '@filumo/xml';
+import { archive } from '@filumo/archive';
 import { code } from '@filumo/code';
 import type { ControllerSnapshot } from '@filumo/core';
+import { csv } from '@filumo/csv';
 import type { ViewerCapabilities, ViewerHandle } from '@filumo/dom';
 import { image } from '@filumo/image';
 import { json } from '@filumo/json';
@@ -10,9 +9,11 @@ import { markdown } from '@filumo/markdown';
 import { office } from '@filumo/office';
 import { pdf } from '@filumo/pdf';
 import { text } from '@filumo/text';
+import { xml } from '@filumo/xml';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { docsPath } from '../site-path';
 import { redact, resetSmokeConfig } from './config';
+import { sampleFileName } from './sampleFileName';
 import type { LogEntry, Sample, SmokeConfig, SmokeTarget } from './types';
 
 /** 只以 source 驱动解析，切换测试对象时释放旧视图并保留当前文件。 */
@@ -60,6 +61,7 @@ export function useSmokeController() {
       markdown(config.markdown),
       image(config.image),
       pdf(config.pdf),
+      archive(),
     ],
     [
       config.office,

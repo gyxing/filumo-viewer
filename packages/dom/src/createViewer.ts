@@ -1,10 +1,5 @@
 import type { DocumentInput, DocumentOpenOptions } from '@filumo/core';
-import {
-  abortError,
-  createDocumentController,
-  exportOriginal,
-  notify,
-} from '@filumo/core';
+import { abortError, createDocumentController, notify } from '@filumo/core';
 import type { ViewerCapabilities } from './capabilities/types';
 import type {
   ViewHandle,
@@ -13,6 +8,8 @@ import type {
   ViewerOptions,
 } from './contracts';
 import './shell.less';
+import { createDownloadControl } from './shell/DownloadControl';
+import { createReadingNotice } from './shell/ReadingNotice';
 import { bindCapabilities } from './shell/bindCapabilities';
 import { labelShellButton, updateFileIcon } from './shell/icons';
 import { createViewerStatus } from './shell/status';
@@ -48,10 +45,14 @@ export function createViewer(
   const fileInput = document.createElement('input');
   fileInput.type = 'file';
   // 存在内容兜底时允许选择未知后缀，实际格式与可读性仍由控制器和插件确认。
-  fileInput.accept = options.plugins.some((plugin) => plugin.document.detectFallback)
+  fileInput.accept = options.plugins.some(
+    (plugin) => plugin.document.detectFallback,
+  )
     ? ''
     : Array.from(
-        new Set(options.plugins.flatMap((plugin) => plugin.document.extensions)),
+        new Set(
+          options.plugins.flatMap((plugin) => plugin.document.extensions),
+        ),
       ).join(',');
   fileInput.hidden = true;
   fileInput.tabIndex = -1;
@@ -94,6 +95,11 @@ export function createViewer(
   const body = document.createElement('div');
   body.className = 'filumo-viewer-body';
   body.append(status, viewport, progressBox);
+  const downloadNotice = createReadingNotice(document, () =>
+    download.focus({ preventScroll: true }),
+  );
+  body.append(downloadNotice.element);
+  let downloadNoticeId = 0;
   // 更多入口稍后由能力绑定追加在全局操作之后，不能夹在缩放与下载之间。
   toolbar.append(fileTitle, openButton, controls, download, fullscreen);
   root.append(toolbar, body, fileInput);
@@ -104,13 +110,12 @@ export function createViewer(
   let generation = 0;
   let disposed = false;
   let active = true;
-  let downloading = false;
   let lastInput: DocumentInput | undefined;
   let lastSelection: DocumentOpenOptions | undefined;
   let destroying: Promise<void> | undefined;
   let capabilities: ViewerCapabilities = {};
   const capabilityListeners = new Set<() => void>();
-  const downloadLeases = new Set<() => void>();
+  const children = new Set<ViewerHandle>();
   const report = (cause: unknown) => {
     if (disposed) return;
     const error = cause instanceof Error ? cause : new Error(String(cause));
@@ -129,6 +134,41 @@ export function createViewer(
     }
   };
   const bindings = bindCapabilities(controls, report);
+  let downloadControl: ReturnType<typeof createDownloadControl>;
+  const currentCapabilities = (): ViewerCapabilities => ({
+    ...capabilities,
+    download: downloadControl.capability(),
+  });
+  function emitCapabilities() {
+    notify(capabilityListeners);
+    try {
+      options.onCapabilitiesChange?.(currentCapabilities());
+    } catch {
+      /* 观察者不拥有当前能力状态。 */
+    }
+  }
+  downloadControl = createDownloadControl(
+    download,
+    root,
+    () => ({
+      session: controller.getSnapshot().session,
+      ready: controller.getSnapshot().status === 'ready' && !!view,
+      active,
+      locale: viewOptions.locale,
+      capabilities,
+      handler: options.downloadOriginal,
+    }),
+    emitCapabilities,
+    (error) => {
+      if (!disposed && !(error instanceof Error && error.name === 'AbortError'))
+        downloadNotice.update(
+          ++downloadNoticeId,
+          error instanceof Error ? error.message : String(error),
+          viewOptions.locale,
+        );
+    },
+  );
+  let downloadStateKey = '';
   const publish = (next: ViewerCapabilities) => {
     capabilities = next;
     bindings.update(
@@ -136,12 +176,8 @@ export function createViewer(
       viewOptions.locale,
       controller.getSnapshot().status === 'ready' && active,
     );
-    notify(capabilityListeners);
-    try {
-      options.onCapabilitiesChange?.(next);
-    } catch {
-      /* 观察者不拥有当前能力状态。 */
-    }
+    downloadControl.update();
+    emitCapabilities();
   };
   const refresh = () => {
     const snapshot = controller.getSnapshot();
@@ -159,13 +195,16 @@ export function createViewer(
       typeof viewOptions.height === 'number'
         ? viewOptions.height + 'px'
         : viewOptions.height ?? '560px';
-    labelShellButton(
-      download,
-      en ? 'Download original' : '下载原文件',
-      'download',
-      true,
-    );
-    download.disabled = snapshot.status !== 'ready' || downloading;
+    downloadControl.update();
+    const downloadState = downloadControl.capability();
+    const nextDownloadKey = JSON.stringify([
+      downloadState.enabled,
+      downloadState.reason,
+    ]);
+    if (nextDownloadKey !== downloadStateKey) {
+      downloadStateKey = nextDownloadKey;
+      emitCapabilities();
+    }
     const isFullscreen = document.fullscreenElement === root;
     labelShellButton(
       fullscreen,
@@ -199,7 +238,9 @@ export function createViewer(
     // 无可靠总量时保留不定进度，避免阶段文字旁出现虚假的百分比。
     const hasPercentage =
       percentage !== undefined && Number.isFinite(percentage);
-    progressValue.textContent = hasPercentage ? Math.round(percentage) + '%' : '';
+    progressValue.textContent = hasPercentage
+      ? Math.round(percentage) + '%'
+      : '';
     progressValue.hidden = !hasPercentage;
     progressBar.setAttribute(
       'aria-label',
@@ -254,7 +295,10 @@ export function createViewer(
         await waitForView(releaseView, abort.signal);
         if (generation !== task || disposed || abort.signal.aborted)
           throw abort.signal.reason ?? abortError();
-        await waitForView(() => controller.open(input, selection), abort.signal);
+        await waitForView(
+          () => controller.open(input, selection),
+          abort.signal,
+        );
         if (generation !== task || disposed || abort.signal.aborted)
           throw abort.signal.reason ?? abortError();
         const snapshot = controller.getSnapshot();
@@ -268,32 +312,58 @@ export function createViewer(
         sessionSignal.addEventListener('abort', cancel, { once: true });
         stopSession = () => sessionSignal.removeEventListener('abort', cancel);
         if (sessionSignal.aborted) cancel();
-        const factory = await waitForView(() => plugin.loadView(), abort.signal);
+        const factory = await waitForView(
+          () => plugin.loadView(),
+          abort.signal,
+        );
         if (generation !== task || disposed || abort.signal.aborted)
           throw abort.signal.reason ?? abortError();
         const mount = document.createElement('div');
         mount.className = 'filumo-document-mount';
         viewport.replaceChildren(mount);
         const mounted = await waitForView(
-          () => factory.mount({
-            container: mount,
-            session: snapshot.session!,
-            options: viewOptions,
-            stylePolicy: options.stylePolicy,
-            onError(cause) {
-              if (task === generation && !disposed && !abort.signal.aborted)
-                report(cause);
-            },
-            setCapabilities(next) {
-              if (task === generation && !disposed && !abort.signal.aborted)
-                publish(next);
-            },
-          }),
+          () =>
+            factory.mount({
+              container: mount,
+              session: snapshot.session!,
+              options: viewOptions,
+              stylePolicy: options.stylePolicy,
+              createChildViewer(container, configuration = {}) {
+                const child = createViewer(container, {
+                  ...options,
+                  ...viewOptions,
+                  ...configuration,
+                  height: configuration.height ?? '100%',
+                  plugins: options.plugins,
+                  onReady: undefined,
+                  onStateChange: undefined,
+                  onCapabilitiesChange: undefined,
+                  onError: undefined,
+                });
+                children.add(child);
+                const destroy = child.destroy.bind(child);
+                child.destroy = () => {
+                  children.delete(child);
+                  return destroy();
+                };
+                return child;
+              },
+              onError(cause) {
+                if (task === generation && !disposed && !abort.signal.aborted)
+                  report(cause);
+              },
+              setCapabilities(next) {
+                if (task === generation && !disposed && !abort.signal.aborted)
+                  publish(next);
+              },
+            }),
           abort.signal,
           (late) => late.dispose(),
         );
         if (generation !== task || disposed || abort.signal.aborted) {
-          await Promise.resolve().then(() => mounted.dispose()).catch(() => undefined);
+          await Promise.resolve()
+            .then(() => mounted.dispose())
+            .catch(() => undefined);
           throw abort.signal.reason ?? abortError();
         }
         view = mounted;
@@ -321,15 +391,22 @@ export function createViewer(
       viewOptions = { ...viewOptions, ...next };
       refresh();
       view?.update(viewOptions);
+      for (const child of children)
+        child.update({
+          theme: viewOptions.theme,
+          locale: viewOptions.locale,
+          watermark: viewOptions.watermark,
+        });
     },
     setActive(value) {
       active = value;
       view?.setActive(value);
+      for (const child of children) child.setActive(value);
       refresh();
     },
     getSnapshot: controller.getSnapshot,
     subscribe: controller.subscribe,
-    getCapabilities: () => capabilities,
+    getCapabilities: currentCapabilities,
     subscribeCapabilities(listener) {
       if (disposed) return () => undefined;
       capabilityListeners.add(listener);
@@ -346,6 +423,7 @@ export function createViewer(
       destroying = (async () => {
         let error: unknown;
         try {
+          await Promise.all([...children].map((child) => child.destroy()));
           await releaseView();
         } catch (cause) {
           error = cause;
@@ -355,12 +433,13 @@ export function createViewer(
         } catch (cause) {
           error ??= cause;
         } finally {
-          for (const release of downloadLeases) release();
+          downloadControl.dispose();
           bindings.dispose();
           document.removeEventListener('fullscreenchange', refresh);
           capabilityListeners.clear();
           root.remove();
           releaseStyles();
+          downloadNotice.dispose();
           lastInput = undefined;
         }
         if (error) throw error;
@@ -383,52 +462,6 @@ export function createViewer(
         ? document.exitFullscreen()
         : root.requestFullscreen()
     ).catch(report);
-  };
-  download.onclick = () => {
-    const session = controller.getSnapshot().session;
-    if (!session || downloading) return;
-    downloading = true;
-    refresh();
-    void exportOriginal(session.source, session.signal)
-      .then((file) => {
-        if (disposed || controller.getSnapshot().session !== session)
-          throw abortError();
-        const window = document.defaultView;
-        if (!window) throw new Error('此文档没有下载窗口');
-        const url = window.URL.createObjectURL(
-          new window.Blob([file.bytes], { type: file.mimeType }),
-        );
-        const release = () => {
-          window.URL.revokeObjectURL(url);
-          // 回调注册后才调用，此时所引用的节点/句柄已初始化。
-          // eslint-disable-next-line @typescript-eslint/no-use-before-define
-          downloadLeases.delete(cancel);
-        };
-        const timer = window.setTimeout(release, 1000);
-        const cancel = () => {
-          window.clearTimeout(timer);
-          release();
-        };
-        downloadLeases.add(cancel);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = file.name ?? 'document';
-        link.hidden = true;
-        root.append(link);
-        try {
-          link.click();
-        } finally {
-          link.remove();
-        }
-      })
-      .catch((error) => {
-        if (!(error instanceof Error && error.name === 'AbortError'))
-          report(error);
-      })
-      .finally(() => {
-        downloading = false;
-        if (!disposed) refresh();
-      });
   };
   root.addEventListener('keydown', (event) => {
     if (

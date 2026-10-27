@@ -40,6 +40,7 @@ for (const manager of ['npm', 'yarn']) {
     'csv',
     'xml',
     'code',
+    'archive',
     'viewer',
   ])
     dependencies['@filumo/' + name] =

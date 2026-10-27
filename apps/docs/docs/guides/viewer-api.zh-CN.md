@@ -55,15 +55,13 @@ Vue 接收相同的前三项，通过模板 ref 获取方法。原生 createView
 | 字段      | 类型             | 默认值 | 行为                                |
 | --------- | ---------------- | ------ | ----------------------------------- |
 | height    | number 或 string | 560px  | 数字按 px；百分比要求祖先高度可计算 |
-| zoom      | number           | 随格式 | 百分比；初始模式见下方说明 |
+| zoom      | number           | 随格式 | 百分比；初始模式见下方说明          |
 | theme     | light / dark     | light  | 外壳和面板主题，不改变源文档配色    |
 | locale    | zh-CN / en-US    | zh-CN  | 查看器控件文案                      |
 | watermark | string           | 无     | 只读展示水印，不改写原件            |
 | toolbar   | boolean          | true   | false 隐藏默认工具栏                |
 
 通过 `viewer.update({...})` 更新这些字段，不重新解析来源。
-
-
 
 初始比例按格式区分：Word、Excel 为 100%；PPT 未传 zoom 时适应页面；PDF 初始适应宽度，图片初始适应容器。显式比例与后续更新须遵守当前格式能力范围，不应把外壳默认值视为所有格式都固定 100%。
 
@@ -143,7 +141,7 @@ stop();
 
 Office 工具栏按文档内容显示专属操作：Word 显示实际存在的大纲和可用修订视图；Excel 显示原始布局 / 阅读模式；PPT 在多页时显示前后翻页及备注。Excel 和 PPT 有批注或审阅笔记时才显示批注入口。Word 页码导航和 Excel 工作表选择继续通过能力调用，默认工具栏不重复展示。
 
-缩放组合框提供常用比例和适应模式；Excel 仅支持适应宽度，Word 与 PPT 还支持适应页面。确认手动比例后退出自适应模式。插件未声明 presets 时，外壳默认提供 25%、50%、75%、100%、125%、150%、200%，并按能力范围过滤。手动输入范围由格式决定，Office 当前为 25～300%。
+缩放组合框提供常用比例和适应模式；Excel 仅支持适应宽度，Word 与 PPT 还支持适应页面。确认手动比例后退出自适应模式。插件未声明 presets 时，外壳默认提供 25%、50%、75%、100%、125%、150%、200%，并按能力范围过滤。手动输入范围由格式决定，Office 当前为 25 ～ 300%。
 
 ### Office 动作标识
 
@@ -287,6 +285,10 @@ open 可能拒绝，同时通过 onError/error 上报。被新任务替换的加
 
 不要假定所有 Error 都有 code，格式解析、资源和浏览器错误可能来自不同层。文件留在浏览器不等于零风险，仍应配置资源策略；日志不可包含原始文件、认证头或令牌。
 
-
-
 各格式工厂的完整参数见[格式插件参数](./plugin-api)；资源与 CSP 配置见[生产部署](./deployment)，按现象排查见[问题排查](./troubleshooting)。
+
+## 单次资源与原件下载
+
+嵌入查看器通过 `toolbar: false` 隐藏自己的工具栏，格式能力仍由 `getCapabilities()` 和 `subscribeCapabilities()` 提供。外壳补充的 `download` 能力含 `enabled`、`reason` 和 `run(): Promise<void>`，运行时下载该查看器的原始来源，继续遵守宿主接管、格式限制和会话取消。可选 `downloadTargets` 是下载菜单目标数组，每项包含 `id`、`label`、可选 `enabled`/`reason`；`kind: 'original'` 使用当前查看器原件通道，`kind: 'custom'` 通过 `run(signal)` 委托其他目标。未声明时保留原来的单次下载按钮。
+
+`viewer.open(input, { resources: { baseUrl, resolveResource } })` 只影响本次打开，返回 undefined 表示阻止，不回退外部请求。`DocumentSource.openStream(signal)` 可选提供可重放流。`ViewerOptions.downloadOriginal(source, signal)` 接管原件下载；`ViewerCapabilities.originalDownload` 可覆盖或禁止不安全的默认物化。`ViewContext.createChildViewer` 供归档条目复用已注册格式。

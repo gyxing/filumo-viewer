@@ -143,7 +143,7 @@ test('canonical、双语替代和 sitemap 保留部署目录，只包含公开�
 
 test('版本信息读取每个包 manifest，不依赖固定版本或推断 npm 状态', async () => {
   const versions = app.readPackageVersions(process.cwd());
-  assert.equal(Object.keys(versions).length, 15);
+  assert.equal(Object.keys(versions).length, 16);
   const manifest = JSON.parse(
     await readFile('packages/viewer/package.json', 'utf8'),
   );
@@ -182,6 +182,7 @@ test('插件 API 覆盖每个公开工厂的全部顶层参数，两种语言均
       'csv',
       'xml',
       'code',
+      'archive',
     ]) {
       const source = ts.createSourceFile(
         'options.ts',
@@ -201,7 +202,7 @@ test('插件 API 覆盖每个公开工厂的全部顶层参数，两种语言均
       assert.ok(section, id);
       for (const member of declaration.members)
         assert.ok(
-          section.includes('| `' + member.name.text + '` |'),
+          new RegExp('\\|\\s*`'+member.name.text+'`\\s*\\|').test(section),
           id + '/' + member.name.text,
         );
     }

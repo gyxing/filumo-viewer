@@ -13,6 +13,7 @@ A cross-framework, lazy-loaded browser file viewer. Native DOM renderers are sha
 - Office: supported Word/WPS, Excel and PowerPoint documents, templates and macro-enabled content. Macros are never executed.
 - PDF and images: continuous PDF reading, outlines, thumbnails, search, pan, zoom, rotation and shared image overlays.
 - Text and data: plain text/logs, JSON/JSONC/JSONL/NDJSON, Markdown, CSV/TSV, XML and code/development files.
+- HTML reading stays in Code. Archives provide directory browsing and previews through registered format plugins; see the [Archive package](./packages/archive/README.md) for codecs and limits.
 
 The [complete format list](https://gyxing.github.io/filumo-viewer/docs/guides/compatibility) contains all default extensions and filenames, plus rendering and browser limits. All previews are read-only; editing/saving, OCR, formula recalculation and pixel-perfect Office fidelity are outside the current scope.
 
@@ -28,7 +29,14 @@ pnpm add @filumo/react @filumo/viewer
 import { DocumentViewer } from '@filumo/react';
 import { standardPlugins } from '@filumo/viewer';
 export function Preview({ file }: { file?: File }) {
-  return <DocumentViewer source={file} plugins={standardPlugins} options={{ height: 640 }} onError={console.error} />;
+  return (
+    <DocumentViewer
+      source={file}
+      plugins={standardPlugins}
+      options={{ height: 640 }}
+      onError={console.error}
+    />
+  );
 }
 ```
 
@@ -42,29 +50,34 @@ See [production deployment](https://gyxing.github.io/filumo-viewer/docs/guides/d
 
 ## All Filumo packages
 
-| Package                                                            | Responsibility                                                | Source and details                                                                          |
-| ------------------------------------------------------------------ | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| [@filumo/core](https://www.npmjs.com/package/@filumo/core)         | Sources, plugin protocol, sessions and shared text processing | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/core#readme)     |
-| [@filumo/dom](https://www.npmjs.com/package/@filumo/dom)           | DOM shell, toolbar, outline and shared source views           | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/dom#readme)      |
-| [@filumo/viewer](https://www.npmjs.com/package/@filumo/viewer)     | Lightweight standard preset for nine format plugins           | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/viewer#readme)   |
-| [@filumo/office](https://www.npmjs.com/package/@filumo/office)     | Word, Excel, PowerPoint and supported WPS documents           | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/office#readme)   |
-| [@filumo/pdf](https://www.npmjs.com/package/@filumo/pdf)           | Continuous PDF reading, thumbnails, outlines and search       | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/pdf#readme)      |
-| [@filumo/image](https://www.npmjs.com/package/@filumo/image)       | Standalone images and shared image overlay interactions       | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/image#readme)    |
-| [@filumo/text](https://www.npmjs.com/package/@filumo/text)         | Plain text, logs and readable-content fallback                | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/text#readme)     |
-| [@filumo/json](https://www.npmjs.com/package/@filumo/json)         | JSON, JSONC, JSONL and NDJSON                                 | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/json#readme)     |
-| [@filumo/markdown](https://www.npmjs.com/package/@filumo/markdown) | Markdown reading, source, outlines and controlled HTML        | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/markdown#readme) |
-| [@filumo/csv](https://www.npmjs.com/package/@filumo/csv)           | Readonly CSV and TSV tables                                   | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/csv#readme)      |
-| [@filumo/xml](https://www.npmjs.com/package/@filumo/xml)           | Split XML source and structure views                          | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/xml#readme)      |
-| [@filumo/code](https://www.npmjs.com/package/@filumo/code)         | Common source, configuration, script and build files          | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/code#readme)     |
-| [@filumo/react](https://www.npmjs.com/package/@filumo/react)       | React 18/19 adapter                                           | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/react#readme)    |
-| [@filumo/vue](https://www.npmjs.com/package/@filumo/vue)           | Vue >=3.3 <4 adapter                                          | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/vue#readme)      |
-| [@filumo/vue2](https://www.npmjs.com/package/@filumo/vue2)         | Vue 2.6/2.7 adapter                                           | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/vue2#readme)     |
-| ------------------------ | ------------------------------------------ |
-| React + Office           | `npm install @filumo/react @filumo/office` |
-| Vue 3 + Markdown         | `npm install @filumo/vue @filumo/markdown` |
-| Vue 2 + JSON             | `npm install @filumo/vue2 @filumo/json`    |
-| JavaScript + images      | `npm install @filumo/dom @filumo/image`    |
-| React + all nine formats | `npm install @filumo/react @filumo/viewer` |
+| Package                                                            | Responsibility                                                | Source and details                                                                       |
+| ------------------------------------------------------------------ | ------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| [@filumo/core](https://www.npmjs.com/package/@filumo/core)         | Sources, plugin protocol, sessions and shared text processing | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/core#readme)       |
+| [@filumo/dom](https://www.npmjs.com/package/@filumo/dom)           | DOM shell, toolbar, outline and shared source views           | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/dom#readme)        |
+| [@filumo/viewer](https://www.npmjs.com/package/@filumo/viewer)     | Lightweight standard preset for ten format plugins            | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/viewer#readme)     |
+| [@filumo/office](https://www.npmjs.com/package/@filumo/office)     | Word, Excel, PowerPoint and supported WPS documents           | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/office#readme)     |
+| [@filumo/pdf](https://www.npmjs.com/package/@filumo/pdf)           | Continuous PDF reading, thumbnails, outlines and search       | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/pdf#readme)        |
+| [@filumo/image](https://www.npmjs.com/package/@filumo/image)       | Standalone images and shared image overlay interactions       | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/image#readme)      |
+| [@filumo/text](https://www.npmjs.com/package/@filumo/text)         | Plain text, logs and readable-content fallback                | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/text#readme)       |
+| [@filumo/json](https://www.npmjs.com/package/@filumo/json)         | JSON, JSONC, JSONL and NDJSON                                 | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/json#readme)       |
+| [@filumo/markdown](https://www.npmjs.com/package/@filumo/markdown) | Markdown reading, source, outlines and controlled HTML        | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/markdown#readme)   |
+| [@filumo/csv](https://www.npmjs.com/package/@filumo/csv)           | Readonly CSV and TSV tables                                   | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/csv#readme)        |
+| [@filumo/xml](https://www.npmjs.com/package/@filumo/xml)           | Split XML source and structure views                          | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/xml#readme)        |
+| [@filumo/code](https://www.npmjs.com/package/@filumo/code)         | Common source, configuration, script and build files          | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/code#readme)       |
+| [@filumo/react](https://www.npmjs.com/package/@filumo/react)       | React 18/19 adapter                                           | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/react#readme)      |
+| [@filumo/vue](https://www.npmjs.com/package/@filumo/vue)           | Vue >=3.3 <4 adapter                                          | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/vue#readme)        |
+| [@filumo/vue2](https://www.npmjs.com/package/@filumo/vue2)         | Vue 2.6/2.7 adapter                                           | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/vue2#readme)       |
+| [@filumo/archive](https://www.npmjs.com/package/@filumo/archive)   | Archive directories, on-demand extraction and child previews  | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/archive/README.md) |
+
+## Installation combinations
+
+| Scenario                | Install after publication                  |
+| ----------------------- | ------------------------------------------ |
+| React + Office          | `npm install @filumo/react @filumo/office` |
+| Vue 3 + Markdown        | `npm install @filumo/vue @filumo/markdown` |
+| Vue 2 + JSON            | `npm install @filumo/vue2 @filumo/json`    |
+| JavaScript + images     | `npm install @filumo/dom @filumo/image`    |
+| React + all ten formats | `npm install @filumo/react @filumo/viewer` |
 
 The standard preset installs its declared format dependencies. Lazy loading controls browser execution, not npm installation. Select individual packages for a smaller dependency set. Packages may release independently; obey dependency ranges and match Workers/assets/styles to their owning package version.
 

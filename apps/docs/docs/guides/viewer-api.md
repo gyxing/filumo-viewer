@@ -52,18 +52,16 @@ Vue accepts the first three props and exposes methods through a template ref. Na
 
 ### ViewOptions
 
-| Field     | Type             | Default | Behavior                                                 |
-| --------- | ---------------- | ------- | -------------------------------------------------------- |
-| height    | number or string | 560px   | Numbers are pixels; percentages require a sized ancestor |
-| zoom      | number           | Format-dependent | Percentage; see initial modes below           |
-| theme     | light / dark     | light   | Shell/panel theme, not source-document colors            |
-| locale    | zh-CN / en-US    | zh-CN   | Viewer interface language                                |
-| watermark | string           | None    | Read-only overlay; no source rewrite                     |
-| toolbar   | boolean          | true    | false hides the default toolbar                          |
+| Field     | Type             | Default          | Behavior                                                 |
+| --------- | ---------------- | ---------------- | -------------------------------------------------------- |
+| height    | number or string | 560px            | Numbers are pixels; percentages require a sized ancestor |
+| zoom      | number           | Format-dependent | Percentage; see initial modes below                      |
+| theme     | light / dark     | light            | Shell/panel theme, not source-document colors            |
+| locale    | zh-CN / en-US    | zh-CN            | Viewer interface language                                |
+| watermark | string           | None             | Read-only overlay; no source rewrite                     |
+| toolbar   | boolean          | true             | false hides the default toolbar                          |
 
 Use viewer.update({...}) for these fields; the same source is not reparsed.
-
-
 
 Initial scale is format-specific: Word and Excel start at 100%; presentations fit the page when zoom is omitted. PDF fits width and images fit their container. An explicit zoom sets the initial percentage where supported; updates use the current capability range.
 
@@ -285,6 +283,10 @@ open can reject, with failures also surfaced through onError/error. A replaced t
 
 Not every Error has a code. Parser, resource and browser errors originate in different layers. Browser-only processing is not risk-free: use resource policies and keep files, authorization headers and tokens out of public logs.
 
-
-
 All format-specific factory options are listed in [Plugin options](./plugin-api). Production asset and CSP recipes are in [Production deployment](./deployment); symptom-based diagnostics are in [Troubleshooting](./troubleshooting).
+
+## Per-open resources and original downloads
+
+Embedded viewers use `toolbar: false` while exposing format controls through `getCapabilities()` and `subscribeCapabilities()`. The shell adds `download` with `enabled`, `reason` and `run(): Promise<void>` for this viewer's original source, preserving host overrides, format restrictions and cancellation. Optional `downloadTargets` entries contain `id`, `label`, optional `enabled`/`reason`, and either `kind: 'original'` for this viewer's original channel or `kind: 'custom'` with `run(signal)`. Without targets, the existing direct-download button remains.
+
+`viewer.open(input, { resources: { baseUrl, resolveResource } })` supplies resource resolution only for that open. Returning undefined blocks a resource; it does not fall back to an external fetch. `DocumentSource.openStream(signal)` optionally supplies a replayable bounded stream. `ViewerOptions.downloadOriginal(source, signal)` takes over original downloads, while `ViewerCapabilities.originalDownload` can override or disable unsafe default materialization. `ViewContext.createChildViewer` reuses registered plugins for archive entries.

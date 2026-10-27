@@ -33,14 +33,14 @@ test('正式包使用 Filumo 作用域及各自合法版本，包间引用不混
         if (version.startsWith('workspace:'))
           assert.equal(dependency.startsWith('@filumo/'), true);
   }
-  assert.equal(names.size, 15);
+  assert.equal(names.size, WORKSPACE_PACKAGES.length);
 });
 
 test('DOM 和 Office 元数据分别来自所属包，重复准备不改文件', async () => {
   const root = await mkdtemp(join(tmpdir(), 'filumo-metadata-'));
   // 临时工作区只验证版本元数据；PDF 资源准备需要真实安装的发行依赖。
   const metadataNames = WORKSPACE_PACKAGES.filter(
-    (item) => (item.name === 'dom' || item.scopedStyles) && item.name !== 'pdf',
+    (item) => (item.name === 'dom' || item.scopedStyles) && !item.assetStrategy,
   ).map((item) => item.name);
   for (const { name } of WORKSPACE_PACKAGES.filter(
     (item) => item.name === 'dom' || item.scopedStyles,

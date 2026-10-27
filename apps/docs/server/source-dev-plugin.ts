@@ -26,8 +26,12 @@ export default (api: IApi) => {
   const pdfGenerated = resolve(root, 'packages/pdf/src/generated');
   // 第三方发行资源不能注入 React 运行时，目录边界也不能误伤同名前缀的源码。
   const pdfGeneratedPattern = new RegExp(
+    '^' + pdfGenerated.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?:[\\\\/]|$)',
+  );
+  const archiveGenerated = resolve(root, 'packages/archive/src/generated');
+  const archiveGeneratedPattern = new RegExp(
     '^' +
-      pdfGenerated.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') +
+      archiveGenerated.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') +
       '(?:[\\\\/]|$)',
   );
   const clients = new Set<ServerResponse>();
@@ -41,7 +45,10 @@ export default (api: IApi) => {
       ...Object.fromEntries(
         WORKSPACE_PACKAGES.flatMap((item) =>
           Object.entries(item.entries).map(([entry, file]) => [
-            '@filumo/' + item.name + (entry === 'index' ? '' : '/' + entry) + '$',
+            '@filumo/' +
+              item.name +
+              (entry === 'index' ? '' : '/' + entry) +
+              '$',
             resolve(root, 'packages', item.name, file),
           ]),
         ),
@@ -53,7 +60,10 @@ export default (api: IApi) => {
   api.chainWebpack((config, { webpack }) => {
     // 仅跳过 Babel 转换，仍由 Webpack 解析 Worker 和静态 URL 资源依赖。
     for (const name of ['src', 'extra-src'])
-      config.module.rule(name).exclude.add(pdfGeneratedPattern);
+      config.module
+        .rule(name)
+        .exclude.add(pdfGeneratedPattern)
+        .add(archiveGeneratedPattern);
     if (config.plugins.has('fastRefresh'))
       config.plugin('fastRefresh').tap(([options = {}, ...rest]) => [
         {
@@ -64,6 +74,7 @@ export default (api: IApi) => {
               ? options.exclude
               : [options.exclude ?? /node_modules/i]),
             pdfGeneratedPattern,
+            archiveGeneratedPattern,
           ],
         },
         ...rest,

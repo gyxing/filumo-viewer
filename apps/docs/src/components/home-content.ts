@@ -230,7 +230,7 @@ const WEBSITE_CONTENT: Record<WebsiteLocale, WebsiteContent> = {
     },
     overview: {
       eyebrow: 'Product',
-      title: 'One viewer, nine format plugins.',
+      title: 'One viewer, ten format plugins.',
       description:
         'Filumo is a browser-side file viewer with independent format plugins and thin framework adapters. Local files do not require an upload or conversion service.',
       details:
@@ -265,12 +265,12 @@ const WEBSITE_CONTENT: Record<WebsiteLocale, WebsiteContent> = {
       facts: [
         { value: DOCUMENTATION_BASELINE, label: 'documentation baseline' },
         { value: '9', label: 'format plugins' },
-        { value: '15', label: 'packages in the workspace' },
+        { value: '16', label: 'packages in the workspace' },
       ],
       architecture: {
         imageSrc: `${SITE_ROOT}assets/filumo-architecture-flow.en-us.svg`,
         imageAlt:
-          'Filumo architecture: source and session protocols, shared DOM shell, nine lazy format plugins and framework adapters.',
+          'Filumo architecture: source and session protocols, shared DOM shell, ten lazy format plugins and framework adapters.',
       },
     },
     demo: {
@@ -321,7 +321,7 @@ const WEBSITE_CONTENT: Record<WebsiteLocale, WebsiteContent> = {
     },
     formats: {
       eyebrow: 'Supported formats',
-      title: 'Nine plugins, selected for your application.',
+      title: 'Ten plugins, selected for your application.',
       description:
         'Each format has its own package and lightweight registration. Cards provide an overview; the complete grouped list below includes all default extensions and special filenames.',
       groups: [
@@ -441,6 +441,19 @@ const WEBSITE_CONTENT: Record<WebsiteLocale, WebsiteContent> = {
             'Budgeted Worker highlighting',
           ],
           tone: 'presentation',
+        },
+        {
+          category: 'Archive',
+          title: 'Archives & packaged files',
+          formats: ['ZIP', 'TAR', 'GZIP', 'RAR', '7Z', 'XZ'],
+          description:
+            'Browse directories and preview registered formats on demand. Large-file behavior depends on the container and configured limits.',
+          capabilities: [
+            'Directory tree',
+            'On-demand extraction',
+            'Bounded WASM backend',
+          ],
+          tone: 'document',
         },
       ],
       roadmapTitle: 'Explicit scope and release status',
@@ -564,7 +577,7 @@ export function Preview({ file }: { file?: File }) {
     },
     overview: {
       eyebrow: '产品介绍',
-      title: '一个预览器，九类格式插件。',
+      title: '一个预览器，十类格式插件。',
       description:
         'Filumo 是浏览器端文件预览组件，由独立格式包与轻量框架适配器组成，本地文件无需经过上传或转换服务。',
       details:
@@ -594,12 +607,12 @@ export function Preview({ file }: { file?: File }) {
       facts: [
         { value: DOCUMENTATION_BASELINE, label: '文档基线版本' },
         { value: '9', label: '类格式插件' },
-        { value: '15', label: '个工作区包' },
+        { value: '16', label: '个工作区包' },
       ],
       architecture: {
         imageSrc: `${SITE_ROOT}assets/filumo-architecture-flow.zh-cn.svg`,
         imageAlt:
-          'Filumo 架构：来源与会话协议、公共 DOM 外壳、九类按需加载的格式插件和框架适配层。',
+          'Filumo 架构：来源与会话协议、公共 DOM 外壳、十类按需加载的格式插件和框架适配层。',
       },
     },
     demo: {
@@ -649,7 +662,7 @@ export function Preview({ file }: { file?: File }) {
     },
     formats: {
       eyebrow: '支持格式',
-      title: '九类插件，按需组合。',
+      title: '十类插件，按需组合。',
       description:
         '每类格式由独立包提供，注册描述符不会提前加载全部引擎。卡片用于概览，下方完整清单分组列出全部默认后缀和特殊文件名。',
       groups: [
@@ -736,6 +749,15 @@ export function Preview({ file }: { file?: File }) {
             '以原文预览常用语言、配置和构建文件，不执行代码；高亮超预算时保留普通原文。',
           capabilities: ['语言切换', '默认显示行号', 'Worker 按需高亮'],
           tone: 'presentation',
+        },
+        {
+          category: '压缩包',
+          title: '归档与包内预览',
+          formats: ['ZIP', 'TAR', 'GZIP', 'RAR', '7Z', 'XZ'],
+          description:
+            '浏览目录，按需使用已注册格式预览条目；大文件能力受读取方式和预算约束。',
+          capabilities: ['目录树', '按需提取', '有界 WASM 后端'],
+          tone: 'document',
         },
       ],
       roadmapTitle: '明确支持范围与发布状态',

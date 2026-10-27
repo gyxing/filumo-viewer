@@ -111,7 +111,7 @@ FILUMO_DOCS_BASE 控制项目目录，FILUMO_DOCS_ORIGIN 只设置公开 HTTP(S)
 
 ## npm 包独立发布
 
-十五个正式包独立管理版本；首次保留 0.1.0，正式发布分支为 master，首版采用本地手动命令。GitHub Pages 的部署与 npm 发版是两个独立操作。
+十六个正式包独立管理版本；首次保留 0.1.0，正式发布分支为 master，首版采用本地手动命令。GitHub Pages 的部署与 npm 发版是两个独立操作。
 
 普通修复先运行 `pnpm changeset` 记录修改包，用 `pnpm release:status` 查看计划，再用 `pnpm release:version` 更新对应包版本、依赖、CHANGELOG、README 版本标记和锁文件。全部修改完成后统一构建、测试并审阅 Git 差异；这些命令不自动提交，也不自动构建或测试。
 

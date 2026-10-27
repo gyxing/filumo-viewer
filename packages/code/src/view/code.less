@@ -51,3 +51,21 @@
     font-style: italic;
   }
 }
+
+.filumo-code-source-host {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+
+  // 原文带有样式作用域包装，须撑满容器，避免按近零宽度计算换行与行高。
+  > * {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &[hidden] {
+    display: none;
+  }
+}

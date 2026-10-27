@@ -1,5 +1,11 @@
 import { fileURLToPath } from 'node:url';
 import {
+  gzipFixture,
+  tarFixture,
+  tarGzipFixture,
+  zipFixture,
+} from '../../tests/fixtures/public/archive/samples.mjs';
+import {
   createPasswordPdfFixture,
   createScanPdfFixture,
 } from '../../tests/fixtures/public/image-pdf/node-samples.mjs';
@@ -23,6 +29,27 @@ const out = fileURLToPath(
   new URL('../../tests/fixtures/public/generated/', import.meta.url),
 );
 await mkdir(out, { recursive: true });
+await writeFile(out + '/sample.zip', zipFixture());
+await writeFile(
+  out + '/sample-nested.zip',
+  zipFixture({
+    'inner.zip': zipFixture({
+      'scripts/example.sql': '-- Filumo SQL preview\nSELECT 1 AS value;\n',
+      'readme.md': '# Nested document\n\nMarkdown inside an archive.\n',
+    }),
+    'docs/index.html':
+      '<h1>Archive HTML</h1><p>Safe sibling image</p><img alt="Archive image" src="pixel.svg">',
+    'docs/pixel.svg': imageFixture,
+  }),
+);
+await writeFile(out + '/sample.tar', tarFixture());
+await writeFile(out + '/sample.txt.gz', gzipFixture());
+await writeFile(out + '/sample.tar.gz', tarGzipFixture());
+await writeFile(
+  out + '/sample.html',
+  '<!doctype html><html><body><h1>HTML preview</h1><p>Filumo static reading.</p><table><tr><th>Name</th><th>Value</th></tr><tr><td>Preview</td><td>Read only</td></tr></table></body></html>',
+  'utf8',
+);
 await writeFile(out + '/sample.svg', imageFixture, 'utf8');
 await writeFile(out + '/sample.pdf', createPdfFixture(12, true));
 await writeFile(out + '/sample-password.pdf', createPasswordPdfFixture());

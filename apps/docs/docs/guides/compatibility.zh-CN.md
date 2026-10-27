@@ -33,105 +33,120 @@ toc: content
 
 ### 验证矩阵
 
-| 范围 | 证据与边界 |
-| --- | --- |
-| 构建、类型、单元检查 | 对应提交的 Validate 工作流 |
-| 框架消费 | 实际打包产物与 npm/Yarn 宿主步骤 |
-| Chromium UI | 公开样本浏览器步骤，不代表 Safari/Firefox 已验证 |
-| GitHub Pages | 同一提交的部署与实际 base |
-| 大型扫描件、其他浏览器、SSR | 需目标环境验收，未执行的检查不能标为通过 |
+| 范围                        | 证据与边界                                       |
+| --------------------------- | ------------------------------------------------ |
+| 构建、类型、单元检查        | 对应提交的 Validate 工作流                       |
+| 框架消费                    | 实际打包产物与 npm/Yarn 宿主步骤                 |
+| Chromium UI                 | 公开样本浏览器步骤，不代表 Safari/Firefox 已验证 |
+| GitHub Pages                | 同一提交的部署与实际 base                        |
+| 大型扫描件、其他浏览器、SSR | 需目标环境验收，未执行的检查不能标为通过         |
 
 [工作流记录](https://github.com/gyxing/filumo-viewer/actions)标明验证所用提交及环境。
 
-## 九类格式插件
+## 十类格式插件
 
-Office、PDF、Image、Text、JSON、Markdown、CSV、XML、Code 均已接入标准预设，完整十五包清单见[包总览](./packages)。
+Office、PDF、Image、Text、JSON、Markdown、CSV、XML、Code、Archive 均已接入标准预设，完整十六包清单见[包总览](./packages)。
 
 图片依赖浏览器解码器；PDF 依赖固定 PDF.js 及同版资源，见[图片与 PDF](./image-pdf)。文本、结构化文件与代码的编码、预算及语言范围见[对应指南](./text-formats)。
 
 ## 文件格式
 
-以下清单覆盖九类插件默认识别的全部后缀与明确文件名。扩展名不区分大小写；文件名和 MIME 只参与识别，仍需通过实际内容校验。
+以下清单覆盖十类插件默认识别的全部后缀与明确文件名。扩展名不区分大小写；文件名和 MIME 只参与识别，仍需通过实际内容校验。
 
 <!-- filumo-format-catalog:start -->
+
+### 压缩包 · @filumo/archive
+
+| 分组           | 扩展名                                                         | 文件名及变体 |
+| -------------- | -------------------------------------------------------------- | ------------ |
+| ZIP 与容器文件 | `.zip`, `.jar`, `.war`, `.ear`, `.apk`, `.aab`, `.cbz`, `.kmz` | -            |
+| TAR 归档       | `.tar`                                                         | -            |
+| GZIP 与 TAR.GZ | `.gz`, `.gzip`, `.tgz`                                         | `*.tar.gz`   |
+| RAR            | `.rar`                                                         | -            |
+| 7-Zip          | `.7z`                                                          | -            |
+| XZ 压缩的 TAR  | `.tar.xz`, `.txz`                                              | `*.tar.xz`   |
+
+只读浏览目录，按需交给已注册格式预览。ZIP/TAR 尽可能区间读取，GZIP 顺序解压；WASM 格式受完整输入上限约束。当前引擎的 XZ 内容必须是 TAR，暂不支持仅压缩单个文件的 XZ 流。不支持加密和分卷。
+
 ### Office 文档 · @filumo/office
 
-| 分组 | 扩展名 | 文件名及变体 |
-| --- | --- | --- |
-| Word / WPS | `.doc`, `.wps`, `.docx`, `.docm`, `.dotx` | - |
-| Excel | `.xls`, `.xlsx`, `.xlsm`, `.xltx` | - |
-| PowerPoint | `.ppt`, `.pptx`, `.pptm`, `.potx` | - |
+| 分组       | 扩展名                                    | 文件名及变体 |
+| ---------- | ----------------------------------------- | ------------ |
+| Word / WPS | `.doc`, `.wps`, `.docx`, `.docm`, `.dotx` | -            |
+| Excel      | `.xls`, `.xlsx`, `.xlsm`, `.xltx`         | -            |
+| PowerPoint | `.ppt`, `.pptx`, `.pptm`, `.potx`         | -            |
 
 只读预览文档、工作簿、演示文稿及支持的模板；宏启用文件仅展示支持的内容，不执行宏。
 
 ### PDF · @filumo/pdf
 
-| 分组 | 扩展名 | 文件名及变体 |
-| --- | --- | --- |
-| PDF 文档 | `.pdf` | - |
+| 分组     | 扩展名 | 文件名及变体 |
+| -------- | ------ | ------------ |
+| PDF 文档 | `.pdf` | -            |
 
 连续阅读、大纲、缩略图与文字查找；不提供 OCR，纯扫描页不会自动生成可搜索文字。
 
 ### 图片 · @filumo/image
 
-| 分组 | 扩展名 | 文件名及变体 |
-| --- | --- | --- |
-| 图片文件 | `.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`, `.bmp`, `.svg`, `.avif` | - |
+| 分组     | 扩展名                                                            | 文件名及变体 |
+| -------- | ----------------------------------------------------------------- | ------------ |
+| 图片文件 | `.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`, `.bmp`, `.svg`, `.avif` | -            |
 
 能否呈现取决于浏览器解码能力，AVIF 也受此限制。SVG 以图片上下文展示，不把任意 XML 当作图片。
 
 ### 纯文本 · @filumo/text
 
-| 分组 | 扩展名 | 文件名及变体 |
-| --- | --- | --- |
-| 文本与日志 | `.txt`, `.log`, `.ini`, `.conf`, `.cfg`, `.properties`, `.out` | - |
+| 分组       | 扩展名                                                         | 文件名及变体 |
+| ---------- | -------------------------------------------------------------- | ------------ |
+| 文本与日志 | `.txt`, `.log`, `.ini`, `.conf`, `.cfg`, `.properties`, `.out` | -            |
 
 其他未知后缀或无后缀文件仅在可读性检查通过后尝试可选的文本兜底；二进制内容及专用格式解析失败不转为纯文本。
 
 ### JSON · @filumo/json
 
-| 分组 | 扩展名 | 文件名及变体 |
-| --- | --- | --- |
-| JSON 及变体 | `.json`, `.jsonc`, `.jsonl`, `.ndjson` | - |
+| 分组        | 扩展名                                 | 文件名及变体 |
+| ----------- | -------------------------------------- | ------------ |
+| JSON 及变体 | `.json`, `.jsonc`, `.jsonl`, `.ndjson` | -            |
 
 JSONC 支持注释及尾逗号；JSONL、NDJSON 按记录独立校验。不支持 JSON5。
 
 ### Markdown · @filumo/markdown
 
-| 分组 | 扩展名 | 文件名及变体 |
-| --- | --- | --- |
-| Markdown 文件 | `.md`, `.markdown` | - |
+| 分组          | 扩展名             | 文件名及变体 |
+| ------------- | ------------------ | ------------ |
+| Markdown 文件 | `.md`, `.markdown` | -            |
 
 阅读模式呈现 GFM 与受控 HTML，不执行脚本、不应用全局样式、不嵌入任意页面；不提供公式或 Mermaid 渲染。
 
 ### CSV / TSV · @filumo/csv
 
-| 分组 | 扩展名 | 文件名及变体 |
-| --- | --- | --- |
-| 分隔符表格 | `.csv`, `.tsv` | - |
+| 分组       | 扩展名         | 文件名及变体 |
+| ---------- | -------------- | ------------ |
+| 分隔符表格 | `.csv`, `.tsv` | -            |
 
 只读表格保留字段字符串，支持分隔符切换与选区复制，不执行公式。
 
 ### XML · @filumo/xml
 
-| 分组 | 扩展名 | 文件名及变体 |
-| --- | --- | --- |
-| XML 文档 | `.xml` | - |
+| 分组     | 扩展名 | 文件名及变体 |
+| -------- | ------ | ------------ |
+| XML 文档 | `.xml` | -            |
 
 原文与结构视图保留命名空间和属性，拒绝 DTD 声明；SVG 归图片插件处理。
 
 ### 代码与开发文件 · @filumo/code
 
-| 分组 | 扩展名 | 文件名及变体 |
-| --- | --- | --- |
-| JavaScript、TypeScript 与 HTML | `.js`, `.mjs`, `.cjs`, `.jsx`, `.ts`, `.mts`, `.cts`, `.tsx`, `.html`, `.htm` | - |
-| 样式文件 | `.css`, `.less`, `.scss`, `.sass` | - |
-| Shell、PowerShell 与批处理 | `.sh`, `.bash`, `.zsh`, `.ps1`, `.psm1`, `.psd1`, `.bat`, `.cmd` | - |
-| 其他常用编程语言 | `.py`, `.pyw`, `.sql`, `.java`, `.c`, `.h`, `.cpp`, `.cc`, `.cxx`, `.hpp`, `.hh`, `.hxx`, `.cs`, `.go`, `.rs`, `.php`, `.rb`, `.rake`, `.kt`, `.kts`, `.swift`, `.lua` | - |
-| 配置与环境文件 | `.yaml`, `.yml`, `.toml`, `.env` | `.env`, `.env.*` |
-| 构建、协议与补丁 | `.dockerfile`, `.mk`, `.cmake`, `.graphql`, `.gql`, `.proto`, `.diff`, `.patch` | `Dockerfile`, `Makefile`, `GNUmakefile`, `CMakeLists.txt`, `Dockerfile.*` |
+| 分组                           | 扩展名                                                                                                                                                                 | 文件名及变体                                                              |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| JavaScript、TypeScript 与 HTML | `.js`, `.mjs`, `.cjs`, `.jsx`, `.ts`, `.mts`, `.cts`, `.tsx`, `.html`, `.htm`                                                                                          | -                                                                         |
+| 样式文件                       | `.css`, `.less`, `.scss`, `.sass`                                                                                                                                      | -                                                                         |
+| Shell、PowerShell 与批处理     | `.sh`, `.bash`, `.zsh`, `.ps1`, `.psm1`, `.psd1`, `.bat`, `.cmd`                                                                                                       | -                                                                         |
+| 其他常用编程语言               | `.py`, `.pyw`, `.sql`, `.java`, `.c`, `.h`, `.cpp`, `.cc`, `.cxx`, `.hpp`, `.hh`, `.hxx`, `.cs`, `.go`, `.rs`, `.php`, `.rb`, `.rake`, `.kt`, `.kts`, `.swift`, `.lua` | -                                                                         |
+| 配置与环境文件                 | `.yaml`, `.yml`, `.toml`, `.env`                                                                                                                                       | `.env`, `.env.*`                                                          |
+| 构建、协议与补丁               | `.dockerfile`, `.mk`, `.cmake`, `.graphql`, `.gql`, `.proto`, `.diff`, `.patch`                                                                                        | `Dockerfile`, `Makefile`, `GNUmakefile`, `CMakeLists.txt`, `Dockerfile.*` |
 
-仅预览源码，不渲染 HTML、不执行脚本、不编译或应用样式。文件名变体遇到 JSON、XML 等专用后缀时仍由专用插件处理。Vue、Svelte 混合语法不在当前支持范围内。
+默认源码；HTML/HTM 可切换受控静态阅读，不执行脚本或将外链样式应用到宿主。JSON、XML 等专用后缀保持优先，暂不包括 Vue/Svelte 混合语法。
+
 <!-- filumo-format-catalog:end -->
 
 ## 排版与功能边界

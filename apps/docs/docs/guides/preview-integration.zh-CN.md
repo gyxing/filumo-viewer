@@ -12,7 +12,7 @@ toc: content
 
 # 框架接入指南
 
-本页分别给出 React、Vue 3、Vue 2 和原生 JavaScript 示例。各格式复用 DOM 外壳、默认工具栏与自动样式，框架选择只影响挂载及生命周期适配。下面先用 Office 展示最小接入，再说明九类格式预设。
+本页分别给出 React、Vue 3、Vue 2 和原生 JavaScript 示例。各格式复用 DOM 外壳、默认工具栏与自动样式，框架选择只影响挂载及生命周期适配。下面先用 Office 展示最小接入，再说明十类格式预设。
 
 ## 开始前
 
@@ -186,7 +186,7 @@ export function Preview({ file }: { file?: File }) {
 }
 ```
 
-standardPlugins 是冻结的 Office、Text、JSON、Markdown、Image、PDF、CSV、XML、Code 九类描述符数组。需要格式专属参数时使用自己的稳定插件数组；PDF 资源部署见 [图片与 PDF 指南](./image-pdf)。@filumo/viewer 不会自动导入 React/Vue 组件，也不会提前加载格式引擎。
+standardPlugins 是冻结的 Office、Text、JSON、Markdown、Image、PDF、CSV、XML、Code、Archive 十类描述符数组。需要格式专属参数时使用自己的稳定插件数组；PDF 资源部署见 [图片与 PDF 指南](./image-pdf)。@filumo/viewer 不会自动导入 React/Vue 组件，也不会提前加载格式引擎。
 
 ## 自定义来源工厂
 
@@ -252,7 +252,13 @@ Next.js 可使用客户端组件。模块顶层只创建轻量描述符，不在
 import { DocumentViewer } from '@filumo/react';
 import { standardPlugins } from '@filumo/viewer';
 export function FilePreview({ url }: { url: string }) {
-  return <DocumentViewer source={url} plugins={standardPlugins} options={{ height: 640 }} />;
+  return (
+    <DocumentViewer
+      source={url}
+      plugins={standardPlugins}
+      options={{ height: 640 }}
+    />
+  );
 }
 ```
 
@@ -269,7 +275,7 @@ Nuxt 可把包装组件命名为 .client.vue，或放入 ClientOnly，内部沿�
 
 ## 多格式接入与部署
 
-上述 Office 示例是最小接入，不限制查看器只能预览 Office。完整十五包清单与安装组合见[包总览](./packages)。可分别导入 text、json、markdown、image、pdf、csv、xml、code，或从 @filumo/viewer 取得这些工厂并构建稳定数组。
+上述 Office 示例是最小接入，不限制查看器只能预览 Office。完整十六包清单与安装组合见[包总览](./packages)。可分别导入 text、json、markdown、image、pdf、csv、xml、code、archive，或从 @filumo/viewer 取得这些工厂并构建稳定数组。
 
 PDF 默认使用包内同版资源，普通接入直接使用 pdf()。assetsBaseUrl、cMapUrl、standardFontDataUrl、wasmUrl 和 iccUrl 仅用于宿主选择自定义部署；在线体验不再填入本站的资源地址。
 

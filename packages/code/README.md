@@ -107,7 +107,7 @@ Full filenames such as `Dockerfile.*`, `*.dockerfile`, `.env.*` and `CMakeLists.
 
 Highlighting is enhanced only in a dedicated Worker. worker: 'never', an unavailable Worker, timeouts or budget limits preserve source without repeating the same heavy enhancement on the main thread. Grammars load by language rather than all at once.
 
-TOML reuses the INI grammar; YAML loads the upstream Ruby prerequisite; Dockerfile loads Shell. PHP supports bare code and tagged templates. Variables and commands in .env files are colored without expansion. HTML, CSS, LESS, SCSS and Sass are not executed or applied to the page. Compilers, language servers, formatting, code execution and Vue/Svelte mixed grammars are not included.
+TOML reuses the INI grammar; YAML loads the upstream Ruby prerequisite; Dockerfile loads Shell. PHP supports bare code and tagged templates. Variables and commands in .env files are colored without expansion. HTML defaults to source and can switch to controlled static reading. CSS, LESS, SCSS and Sass remain source without compilation or host style application. Compilers, language servers, formatting, code execution and Vue/Svelte mixed grammars are not included.
 
 ## Styles and runtime environment
 
@@ -134,6 +134,10 @@ Packages are published as ESM with TypeScript declarations and no CommonJS requi
 
 Unlisted internal paths are not stable public APIs. Standalone format packages do not depend on React/Vue adapters; install only the formats and adapter your host needs.
 
+## HTML reading
+
+HTML/HTM defaults to source mode. The main toolbar toggles static reading and source. Configure `html.initialMode: 'reading'` for a reading default, with `html.baseUrl` or `html.resolveResource` for explicit image resolution. The reader loads only on entry and executes no scripts, forms or external CSS. A 2 Mi-character reading budget preserves source with a notice on limit/failure. Both views share decoded content.
+
 ## Filumo packages
 
 The current package is bold. Each package is published independently. Package names link to npm, and source links point to this repository.
@@ -144,7 +148,7 @@ The current package is bold. Each package is published independently. Package na
 | ------------------------------------------------------------------ | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
 | [@filumo/core](https://www.npmjs.com/package/@filumo/core)         | Headless sources, plugin contracts, sessions and shared text utilities  | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/core/README.md)     |
 | [@filumo/dom](https://www.npmjs.com/package/@filumo/dom)           | Native DOM viewer, toolbars, source views, outlines and shared UI       | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/dom/README.md)      |
-| [@filumo/viewer](https://www.npmjs.com/package/@filumo/viewer)     | Standard preset and factories for nine format plugins                   | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/viewer/README.md)   |
+| [@filumo/viewer](https://www.npmjs.com/package/@filumo/viewer)     | Standard preset and factories for ten format plugins                    | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/viewer/README.md)   |
 | [@filumo/office](https://www.npmjs.com/package/@filumo/office)     | Word, Excel, PowerPoint and supported legacy formats                    | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/office/README.md)   |
 | [@filumo/pdf](https://www.npmjs.com/package/@filumo/pdf)           | Continuous PDF reading, outlines, thumbnails and search                 | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/pdf/README.md)      |
 | [@filumo/image](https://www.npmjs.com/package/@filumo/image)       | Image preview, zoom, rotation, panning and shared overlays              | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/image/README.md)    |
@@ -157,6 +161,7 @@ The current package is bold. Each package is published independently. Package na
 | [@filumo/react](https://www.npmjs.com/package/@filumo/react)       | React 18/19 adapter                                                     | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/react/README.md)    |
 | [@filumo/vue](https://www.npmjs.com/package/@filumo/vue)           | Vue 3 (>=3.3 <4) adapter                                                | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/vue/README.md)      |
 | [@filumo/vue2](https://www.npmjs.com/package/@filumo/vue2)         | Vue 2 (^2.6.14 or ^2.7.16) adapter                                      | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/vue2/README.md)     |
+| [@filumo/archive](https://www.npmjs.com/package/@filumo/archive)   | Archive directories, on-demand extraction and child previews            | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/archive/README.md)  |
 
 <!-- filumo-packages:end -->
 

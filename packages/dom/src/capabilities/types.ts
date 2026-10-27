@@ -31,7 +31,29 @@ export interface CapabilityAction {
   toolbar?: ToolbarPresentation;
   run(value?: string): void | Promise<void>;
 }
+/** 同一个下载入口可提供原件与嵌入内容等目标，外壳统一处理状态和错误。 */
+export type DownloadTarget = {
+  id: string;
+  label: string;
+  enabled?: boolean;
+  reason?: string;
+} & (
+  | { kind: 'original' }
+  | { kind: 'custom'; run(signal: AbortSignal): void | Promise<void> }
+);
 export interface ViewerCapabilities {
+  /** 由 DOM 外壳补充的有效原件下载命令，包含宿主接管后的可用状态。 */
+  download?: {
+    enabled: boolean;
+    reason?: string;
+    run(): Promise<void>;
+  };
+  downloadTargets?: readonly DownloadTarget[];
+  originalDownload?: {
+    enabled?: boolean;
+    reason?: string;
+    run?(signal: AbortSignal): void | Promise<void>;
+  };
   actions?: readonly CapabilityAction[];
   zoom?: {
     value: number;

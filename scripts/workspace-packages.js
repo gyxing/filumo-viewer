@@ -11,6 +11,7 @@ export const WORKSPACE_PACKAGES = [
   'csv',
   'xml',
   'code',
+  'archive',
   'react',
   'vue',
   'vue2',
@@ -30,10 +31,13 @@ export const WORKSPACE_PACKAGES = [
             'text-highlight': 'src/text-highlight.ts',
             split: 'src/split.ts',
             grid: 'src/grid.ts',
+            html: 'src/html.ts',
           }
         : name === 'image'
         ? { index: 'src/index.ts', view: 'src/view/index.ts' }
         : name === 'pdf'
+        ? { index: 'src/index.ts', assets: 'src/assets.ts' }
+        : name === 'archive'
         ? { index: 'src/index.ts', assets: 'src/assets.ts' }
         : name === 'text'
         ? {
@@ -54,12 +58,22 @@ export const WORKSPACE_PACKAGES = [
       'csv',
       'xml',
       'code',
+      'archive',
     ].includes(name),
-    assetStrategy: name === 'pdf' ? 'pdfjs' : undefined,
+    assetStrategy:
+      name === 'pdf' ? 'pdfjs' : name === 'archive' ? 'archive' : undefined,
     workerEntry:
       name === 'office'
         ? 'src/engine/parsing/runtime/worker/entry.js'
-        : ['text', 'json', 'markdown', 'csv', 'xml', 'code'].includes(name)
+        : [
+            'text',
+            'json',
+            'markdown',
+            'csv',
+            'xml',
+            'code',
+            'archive',
+          ].includes(name)
         ? 'src/worker/entry.ts'
         : undefined,
   }),

@@ -6,14 +6,14 @@
 <a href="https://gyxing.github.io/filumo-viewer/docs" target="_blank" rel="noopener noreferrer">对接文档</a>
 </p>
 
-Filumo 九类格式插件的标准预设与工厂聚合入口。适合需要完整格式支持的宿主，实际查看器仍由 DOM 或框架适配包创建。
+Filumo 十类格式插件的标准预设与工厂聚合入口。适合需要完整格式支持的宿主，实际查看器仍由 DOM 或框架适配包创建。
 
 本文档对应 **0.1.0**。以下命令展示 npm 发布后的消费方式；从当前源码工作区使用时，请先按接入指南构建各包。
 
 ## 主要能力
 
 - standardPlugins 是只读插件数组，不是需要调用的函数。
-- 聚合 Office、Text、JSON、Markdown、Image、PDF、CSV、XML、Code，格式实现仍在打开对应文件后加载。
+- 聚合 Office、Text、JSON、Markdown、Image、PDF、CSV、XML、Code、Archive，格式实现仍在打开对应文件后加载。
 - 安装本包会安装所有格式依赖；只需要部分格式时，分别安装并注册对应的独立包。
 
 ## 安装
@@ -66,7 +66,7 @@ window.addEventListener(
 
 | 配置项                                                             | 默认值             | 说明                                                                          |
 | ------------------------------------------------------------------ | ------------------ | ----------------------------------------------------------------------------- |
-| `standardPlugins`                                                  | 九个插件的只读数组 | 传给 createViewer 或 DocumentViewer 的 plugins；不要写成 standardPlugins()。  |
+| `standardPlugins`                                                  | 十个插件的只读数组 | 传给 createViewer 或 DocumentViewer 的 plugins；不要写成 standardPlugins()。  |
 | `office / pdf / image / text / json / markdown / csv / xml / code` | 对应工厂           | 按需配置单个插件，或用于替换标准数组中的某个实例。                            |
 | `查看器配置`                                                       | 由外壳提供         | height、theme、locale、resourcePolicy 等传给 DOM 或适配组件，不传给本包数组。 |
 
@@ -91,7 +91,7 @@ plugins 交给 DOM 或适配组件。标准数组内的 pdf() 默认使用包内
 
 ## 样式与资源
 
-默认使用各格式的自动样式。external 模式加载 DOM、Office、Text、JSON、Markdown、Image、PDF、CSV、XML、Code 的 styles.css；本包不存在 @filumo/viewer/styles.css。
+默认使用各格式的自动样式。external 模式加载 DOM、Office、Text、JSON、Markdown、Image、PDF、CSV、XML、Code、Archive 的 styles.css；本包不存在 @filumo/viewer/styles.css。
 
 选择 external 时，宿主应将实际导入样式的包声明为直接依赖，不依赖包管理器的依赖提升。默认 auto 接入不需要为了导入这些样式再逐个安装格式包。
 
@@ -107,7 +107,7 @@ Worker 需要保留所属包 worker.js 与 worker-chunks 的相对结构；PDF �
 
 | 公开入口         | 用途                                   |
 | ---------------- | -------------------------------------- |
-| `@filumo/viewer` | standardPlugins 只读数组与九个格式工厂 |
+| `@filumo/viewer` | standardPlugins 只读数组与十个格式工厂 |
 
 未列出的包内路径不是稳定公共 API。独立格式不依赖 React/Vue 适配层，宿主只安装实际需要的格式和适配包。
 
@@ -121,7 +121,7 @@ Worker 需要保留所属包 worker.js 与 worker-chunks 的相对结构；PDF �
 | ------------------------------------------------------------------ | -------------------------------------------- | ----------------------------------------------------------------------------------------------- |
 | [@filumo/core](https://www.npmjs.com/package/@filumo/core)         | 无 UI 的来源、插件协议、会话和公共文本处理   | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/core/README.zh-CN.md)     |
 | [@filumo/dom](https://www.npmjs.com/package/@filumo/dom)           | 原生 DOM 查看器、工具栏、原文、大纲和共享 UI | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/dom/README.zh-CN.md)      |
-| **[@filumo/viewer](https://www.npmjs.com/package/@filumo/viewer)** | 九类格式插件的标准预设与工厂聚合             | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/viewer/README.zh-CN.md)   |
+| **[@filumo/viewer](https://www.npmjs.com/package/@filumo/viewer)** | 十类格式插件的标准预设与工厂聚合             | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/viewer/README.zh-CN.md)   |
 | [@filumo/office](https://www.npmjs.com/package/@filumo/office)     | Word、Excel、PowerPoint 与受支持的旧格式     | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/office/README.zh-CN.md)   |
 | [@filumo/pdf](https://www.npmjs.com/package/@filumo/pdf)           | PDF 连续阅读、大纲、缩略图和查找             | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/pdf/README.zh-CN.md)      |
 | [@filumo/image](https://www.npmjs.com/package/@filumo/image)       | 图片预览、缩放、旋转、拖动及共享弹层         | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/image/README.zh-CN.md)    |
@@ -134,6 +134,7 @@ Worker 需要保留所属包 worker.js 与 worker-chunks 的相对结构；PDF �
 | [@filumo/react](https://www.npmjs.com/package/@filumo/react)       | React 18/19 适配组件                         | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/react/README.zh-CN.md)    |
 | [@filumo/vue](https://www.npmjs.com/package/@filumo/vue)           | Vue 3（>=3.3 <4）适配组件                    | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/vue/README.zh-CN.md)      |
 | [@filumo/vue2](https://www.npmjs.com/package/@filumo/vue2)         | Vue 2（^2.6.14 或 ^2.7.16）适配组件          | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/vue2/README.zh-CN.md)     |
+| [@filumo/archive](https://www.npmjs.com/package/@filumo/archive)   | 压缩包目录、按需提取与包内预览               | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/archive/README.zh-CN.md)  |
 
 <!-- filumo-packages:end -->
 

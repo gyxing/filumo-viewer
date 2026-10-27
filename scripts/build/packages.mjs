@@ -15,6 +15,7 @@ import {
   WORKSPACE_PACKAGES,
   getWorkspacePackage,
 } from '../workspace-packages.js';
+import { copyArchiveAssets } from './archive-assets.mjs';
 import { resolveBuildOrder } from './build-order.mjs';
 import { createBuildManifest } from './manifest.mjs';
 import { preparePackageMetadata, readPackageMetadata } from './metadata.mjs';
@@ -145,6 +146,8 @@ for (const name of names) {
     definition.assetStrategy === 'pdfjs'
       ? await copyPdfAssets(directory, output, metadata.styleScope)
       : undefined;
+  const archiveAssets =
+    name === 'archive' ? await copyArchiveAssets(directory, output) : undefined;
   await writeFile(
     join(output, 'styles.css'),
     ':root { --filumo-style-' +
@@ -165,6 +168,7 @@ for (const name of names) {
           directory,
         }),
         styleCount: styles.size,
+        ...(archiveAssets ? { archiveAssets } : {}),
         ...(pdfAssets
           ? {
               pdfAssets: {

@@ -10,6 +10,8 @@ export interface DocumentSource {
   readonly size?: number;
   readonly url?: string;
   readAll(signal: AbortSignal): Promise<Uint8Array>;
+  /** 每次从头交付独立消费流；消费者负责消费或取消，不能隐式物化全文。 */
+  openStream?(signal: AbortSignal): Promise<ReadableStream<Uint8Array>>;
   /** 可直接交付不可变的本地 Blob；不具备此能力时返回 undefined，调用方回退到 readAll。 */
   readBlob?(signal: AbortSignal): Promise<Blob | undefined>;
   /** 明确提供高效区间能力；未实现时调用方继续使用原有读取路径。 */
@@ -33,6 +35,16 @@ export type DocumentInput =
 /** 单次打开可显式选择已经注册的插件，不隐式安装其他格式。 */
 export interface DocumentOpenOptions {
   pluginId?: string;
+  resources?: DocumentResourceContext;
+}
+/** 单次打开的相邻资源解析；返回 undefined 明确阻止，不回退外部请求。 */
+export interface DocumentResourceContext {
+  baseUrl?: string;
+  resolveResource?: (
+    reference: string,
+    kind: 'image' | 'link',
+    signal: AbortSignal,
+  ) => string | undefined | Promise<string | undefined>;
 }
 export type DocumentStatus =
   | 'idle'
@@ -65,6 +77,7 @@ export interface OpenContext {
   sessionId: string;
   signal: AbortSignal;
   resourcePolicy?: ResourcePolicy;
+  resources?: DocumentResourceContext;
   reportProgress(progress: DocumentSnapshot['progress']): void;
 }
 export interface DocumentDriver<T = unknown> {

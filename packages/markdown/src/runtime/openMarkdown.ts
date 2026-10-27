@@ -34,7 +34,10 @@ export async function openMarkdown(
       source,
       signal: context.signal,
       format: 'markdown',
-      data: new MarkdownSession(content, options),
+      data: new MarkdownSession(
+        content,
+        context.resources ? { ...options, ...context.resources } : options,
+      ),
       dispose: content.dispose,
     });
   } catch (error) {

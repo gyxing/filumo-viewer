@@ -1,7 +1,7 @@
-import { expansionSamples } from '../../tests/fixtures/public/text-expansion/samples.mjs';
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import { expansionSamples } from '../../tests/fixtures/public/text-expansion/samples.mjs';
 import { loadLocalCatalog, resolveSampleFile } from './local-samples.js';
 /** 公共夹具与真实本机文件严格分开，消费页面共享同一 ID。 */
 export async function sampleCatalog(root, local = false) {
@@ -26,6 +26,12 @@ export async function sampleCatalog(root, local = false) {
     local: false,
   });
   for (const [id, format, file] of [
+    ['archive-zip', 'zip', 'sample.zip'],
+    ['archive-nested', 'zip', 'sample-nested.zip'],
+    ['archive-tar', 'tar', 'sample.tar'],
+    ['archive-gzip', 'gz', 'sample.txt.gz'],
+    ['archive-targz', 'tgz', 'sample.tar.gz'],
+    ['code-html-reading', 'html', 'sample.html'],
     ['text-utf8', 'txt', 'sample.txt'],
     ['text-log', 'log', 'sample.log'],
     ['text-utf16', 'txt', 'sample-utf16.txt'],
@@ -47,6 +53,18 @@ export async function sampleCatalog(root, local = false) {
       id: sample.id,
       format: sample.format,
       absolute: resolve(root, 'tests/fixtures/public/generated', sample.file),
+      local: false,
+    });
+  for (const [id, format, file] of [
+    ['archive-rar-v4', 'rar', 'sample-v4.rar'],
+    ['archive-rar-v5', 'rar', 'sample-v5.rar'],
+    ['archive-7z', '7z', 'sample.7z'],
+    ['archive-tarxz', 'tar.xz', 'sample.tar.xz'],
+  ])
+    result.push({
+      id,
+      format,
+      absolute: resolve(root, 'tests/fixtures/public/archive/vendor', file),
       local: false,
     });
   if (local) {

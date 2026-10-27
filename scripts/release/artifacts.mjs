@@ -33,6 +33,7 @@ export async function validateBuildArtifacts(root, pkg) {
     ...manifest.outputs.map((output) => output.file),
     ...(manifest.worker?.outputs ?? []),
     ...(manifest.pdfAssets?.assets ?? []).map((asset) => asset.file),
+    ...(manifest.archiveAssets?.assets ?? []).map((asset) => asset.file),
     ...exports(pkg.exports)
       .filter((file) => file.startsWith('./dist/') && !file.includes('*'))
       .map((file) => file.slice('./dist/'.length)),

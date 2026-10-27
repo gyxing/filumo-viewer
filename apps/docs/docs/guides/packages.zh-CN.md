@@ -1,6 +1,6 @@
 ---
 title: 包总览与安装
-description: Filumo 的十五个包、九类格式插件、框架安装组合及按需加载边界。
+description: Filumo 的十六个包、十类格式插件、框架安装组合及按需加载边界。
 keywords:
   - Filumo
   - file preview
@@ -12,15 +12,15 @@ toc: content
 
 # 包总览与安装
 
-十五个包可独立发版，实际发布版本以各包 npm 页面为准；发布前使用工作区或经过构建、打包的本地包。
+十六个包可独立发版，实际发布版本以各包 npm 页面为准；发布前使用工作区或经过构建、打包的本地包。
 
 ## 完整包清单
 
-| 包                                                                 | 用途                                      | 源码与详细说明                                                                              |
-| ------------------------------------------------------------------ | ----------------------------------------- | ------------------------------------------------------------------------------------------- |
+| 包                                                                 | 用途                                      | 源码与详细说明                                                                         |
+| ------------------------------------------------------------------ | ----------------------------------------- | -------------------------------------------------------------------------------------- |
 | [@filumo/core](https://www.npmjs.com/package/@filumo/core)         | 来源、插件协议、会话及公共文本处理        | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/core#readme)     |
 | [@filumo/dom](https://www.npmjs.com/package/@filumo/dom)           | 原生 DOM 外壳、工具栏、大纲及原文公共视图 | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/dom#readme)      |
-| [@filumo/viewer](https://www.npmjs.com/package/@filumo/viewer)     | 九类格式的轻量标准插件预设                | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/viewer#readme)   |
+| [@filumo/viewer](https://www.npmjs.com/package/@filumo/viewer)     | 十类格式的轻量标准插件预设                | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/viewer#readme)   |
 | [@filumo/office](https://www.npmjs.com/package/@filumo/office)     | Word、Excel、PowerPoint 及支持的 WPS 文档 | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/office#readme)   |
 | [@filumo/pdf](https://www.npmjs.com/package/@filumo/pdf)           | PDF 连续阅读、缩略图、大纲及查找          | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/pdf#readme)      |
 | [@filumo/image](https://www.npmjs.com/package/@filumo/image)       | 独立图片及公共图片弹层交互                | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/image#readme)    |
@@ -33,6 +33,7 @@ toc: content
 | [@filumo/react](https://www.npmjs.com/package/@filumo/react)       | React 18/19 适配                          | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/react#readme)    |
 | [@filumo/vue](https://www.npmjs.com/package/@filumo/vue)           | Vue 3.3+（小于 4）适配                    | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/vue#readme)      |
 | [@filumo/vue2](https://www.npmjs.com/package/@filumo/vue2)         | Vue 2.6/2.7 适配                          | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/vue2#readme)     |
+| [@filumo/archive](https://www.npmjs.com/package/@filumo/archive)   | 压缩包目录、按需提取与包内预览            | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/archive#readme)  |
 
 ## 如何选择
 
@@ -46,13 +47,13 @@ toc: content
 | Vue 3 + Markdown     | `npm install @filumo/vue @filumo/markdown` |
 | Vue 2 + JSON         | `npm install @filumo/vue2 @filumo/json`    |
 | 原生 JS + 图片       | `npm install @filumo/dom @filumo/image`    |
-| React + 九类格式预设 | `npm install @filumo/react @filumo/viewer` |
+| React + 十类格式预设 | `npm install @filumo/react @filumo/viewer` |
 
 pnpm/Yarn 宿主可使用对应的 add 命令。本仓库自身统一使用根 package.json 固定的 pnpm，避免混用锁文件。
 
 ## 标准预设与自定义插件
 
-standardPlugins 是冻结的九类轻量描述符数组，不是函数，也不是组件。它包含 Office、Text、JSON、Markdown、Image、PDF、CSV、XML、Code。createViewer 从 @filumo/dom 导入，DocumentViewer 从所选适配器导入。
+standardPlugins 是冻结的十类轻量描述符数组，不是函数，也不是组件。它包含 Office、Text、JSON、Markdown、Image、PDF、CSV、XML、Code、Archive。createViewer 从 @filumo/dom 导入，DocumentViewer 从所选适配器导入。
 
 ```tsx | pure
 import { DocumentViewer } from '@filumo/react';
@@ -82,6 +83,7 @@ import {
   csv,
   xml,
   code,
+  archive,
 } from '@filumo/viewer';
 
 const plugins = [
@@ -94,6 +96,7 @@ const plugins = [
   csv(),
   xml(),
   code(),
+  archive(),
 ];
 ```
 
@@ -121,7 +124,6 @@ import React from 'react';
 import { DocumentationVersions } from '../../src/components/DocumentationVersions';
 export default () => <DocumentationVersions locale="zh-CN" />;
 ```
-
 
 各包可独立发版。遵守依赖范围，让 Worker、资源及外部样式与其所属包版本一致。所有预览均为只读，不承诺完整 Office 排版或无限文件大小。声明支持范围和历史验证记录见[兼容范围](./compatibility)。
 

@@ -1,6 +1,6 @@
 ---
 title: Packages and installation
-description: All fifteen Filumo packages, nine format plugins, framework installation choices and lazy-loading boundaries.
+description: All sixteen Filumo packages, ten format plugins, framework installation choices and lazy-loading boundaries.
 keywords:
   - Filumo
   - file preview
@@ -12,15 +12,15 @@ toc: content
 
 # Packages and installation
 
-The fifteen packages may release independently. Check their npm pages for published versions; before release use the workspace or locally built and packed packages.
+The sixteen packages may release independently. Check their npm pages for published versions; before release use the workspace or locally built and packed packages.
 
 ## Package catalogue
 
-| Package                                                            | Responsibility                                                | Source and details                                                                          |
-| ------------------------------------------------------------------ | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| Package                                                            | Responsibility                                                | Source and details                                                                     |
+| ------------------------------------------------------------------ | ------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
 | [@filumo/core](https://www.npmjs.com/package/@filumo/core)         | Sources, plugin protocol, sessions and shared text processing | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/core#readme)     |
 | [@filumo/dom](https://www.npmjs.com/package/@filumo/dom)           | DOM shell, toolbar, outline and shared source views           | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/dom#readme)      |
-| [@filumo/viewer](https://www.npmjs.com/package/@filumo/viewer)     | Lightweight standard preset for nine format plugins           | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/viewer#readme)   |
+| [@filumo/viewer](https://www.npmjs.com/package/@filumo/viewer)     | Lightweight standard preset for ten format plugins            | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/viewer#readme)   |
 | [@filumo/office](https://www.npmjs.com/package/@filumo/office)     | Word, Excel, PowerPoint and supported WPS documents           | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/office#readme)   |
 | [@filumo/pdf](https://www.npmjs.com/package/@filumo/pdf)           | Continuous PDF reading, thumbnails, outlines and search       | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/pdf#readme)      |
 | [@filumo/image](https://www.npmjs.com/package/@filumo/image)       | Standalone images and shared image overlay interactions       | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/image#readme)    |
@@ -33,6 +33,7 @@ The fifteen packages may release independently. Check their npm pages for publis
 | [@filumo/react](https://www.npmjs.com/package/@filumo/react)       | React 18/19 adapter                                           | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/react#readme)    |
 | [@filumo/vue](https://www.npmjs.com/package/@filumo/vue)           | Vue >=3.3 <4 adapter                                          | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/vue#readme)      |
 | [@filumo/vue2](https://www.npmjs.com/package/@filumo/vue2)         | Vue 2.6/2.7 adapter                                           | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/vue2#readme)     |
+| [@filumo/archive](https://www.npmjs.com/package/@filumo/archive)   | Archive directories, on-demand extraction and child previews  | [README](https://github.com/gyxing/filumo-viewer/tree/master/packages/archive#readme)  |
 
 ## Choosing packages
 
@@ -40,19 +41,19 @@ Native JavaScript uses createViewer from @filumo/dom. React, Vue 3 and Vue 2 eac
 
 These commands apply after publication and assume the host already provides its framework:
 
-| Scenario                 | Install after publication                  |
-| ------------------------ | ------------------------------------------ |
-| React + Office           | `npm install @filumo/react @filumo/office` |
-| Vue 3 + Markdown         | `npm install @filumo/vue @filumo/markdown` |
-| Vue 2 + JSON             | `npm install @filumo/vue2 @filumo/json`    |
-| JavaScript + images      | `npm install @filumo/dom @filumo/image`    |
-| React + all nine formats | `npm install @filumo/react @filumo/viewer` |
+| Scenario                | Install after publication                  |
+| ----------------------- | ------------------------------------------ |
+| React + Office          | `npm install @filumo/react @filumo/office` |
+| Vue 3 + Markdown        | `npm install @filumo/vue @filumo/markdown` |
+| Vue 2 + JSON            | `npm install @filumo/vue2 @filumo/json`    |
+| JavaScript + images     | `npm install @filumo/dom @filumo/image`    |
+| React + all ten formats | `npm install @filumo/react @filumo/viewer` |
 
 Consumer projects may use pnpm or Yarn add commands. This repository itself uses the pinned pnpm version and a single lockfile.
 
 ## Standard preset and custom plugins
 
-standardPlugins is a frozen array of nine lightweight descriptors, not a function or component: Office, Text, JSON, Markdown, Image, PDF, CSV, XML and Code. Import createViewer from @filumo/dom and DocumentViewer from your adapter.
+standardPlugins is a frozen array of ten lightweight descriptors, not a function or component: Office, Text, JSON, Markdown, Image, PDF, CSV, XML, Code and Archive. Import createViewer from @filumo/dom and DocumentViewer from your adapter.
 
 ```tsx | pure
 import { DocumentViewer } from '@filumo/react';
@@ -82,6 +83,7 @@ import {
   csv,
   xml,
   code,
+  archive,
 } from '@filumo/viewer';
 
 const plugins = [
@@ -94,6 +96,7 @@ const plugins = [
   csv(),
   xml(),
   code(),
+  archive(),
 ];
 ```
 
@@ -121,7 +124,6 @@ import React from 'react';
 import { DocumentationVersions } from '../../src/components/DocumentationVersions';
 export default () => <DocumentationVersions locale="en-US" />;
 ```
-
 
 Packages may release independently. Respect dependency ranges and align Workers, assets and CSS with their owning package version. All previews are readonly, with no unlimited-size or complete Office fidelity guarantee. See [compatibility](./compatibility) for declared support and the distinction from historical validation.
 

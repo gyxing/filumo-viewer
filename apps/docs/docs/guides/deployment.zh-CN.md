@@ -29,8 +29,16 @@ Webpack 5 原生识别 new Worker(new URL(..., import.meta.url))。保留包的 
 import { createViewer } from '@filumo/dom';
 import { pdf } from '@filumo/pdf';
 export async function mountPrivatePdf(container: HTMLElement, url: string) {
-  const viewer = createViewer(container, { plugins: [pdf()], height: 640, onError: console.error });
-  await viewer.open({ url, name: 'report.pdf', request: { credentials: 'include' } });
+  const viewer = createViewer(container, {
+    plugins: [pdf()],
+    height: 640,
+    onError: console.error,
+  });
+  await viewer.open({
+    url,
+    name: 'report.pdf',
+    request: { credentials: 'include' },
+  });
   return () => viewer.destroy();
 }
 ```
@@ -68,3 +76,7 @@ const plugin = markdown({
 在客户端创建查看器、打开浏览器 File。React/Next.js 使用客户端组件；Nuxt 可使用 .client.vue 或 ClientOnly。[框架接入](./preview-integration)提供示例，但这些接入配方不等同于所有 SSR 框架及版本都已通过验收。
 
 验收应使用真实生产 base、实际 Worker、带鉴权文件和销毁重开流程。[问题排查](./troubleshooting)按现象给出检查顺序。
+
+## 归档资源与下载
+
+Archive 自带 Worker、固定版本 WASM 和许可。ZIP/TAR/GZIP 不加载 WASM；保留 worker-chunks 与 generated 资源相对结构。只有显式外部部署才配置 `archive({assetsBaseUrl})`。私有大远程原包可用 `ViewerOptions.downloadOriginal(source, signal)` 完全接管默认下载。缓存和完整输入预算不等于浏览器进程内存上限。

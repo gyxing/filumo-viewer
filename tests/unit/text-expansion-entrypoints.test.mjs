@@ -6,8 +6,8 @@ import test from 'node:test';
 import { WORKSPACE_PACKAGES } from '../../scripts/workspace-packages.js';
 import { collectStaticInputs } from '../../scripts/testing/consumer-graph.mjs';
 test('新增格式依赖公共层且描述符不提前加载引擎或视图', async () => {
-  assert.equal(WORKSPACE_PACKAGES.length, 15);
-  for (const name of ['csv', 'xml', 'code', 'json', 'markdown']) {
+  assert.equal(WORKSPACE_PACKAGES.length, 16);
+  for (const name of ['csv', 'xml', 'code', 'json', 'markdown', 'archive']) {
     const metadata = JSON.parse(
       await readFile(`packages/${name}/package.json`, 'utf8'),
     );

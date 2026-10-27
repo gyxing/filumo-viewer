@@ -108,18 +108,20 @@ CSV／TSV 继续独立成包，与 Office 的 Excel 视图共享轻量网格交�
 ## Code
 
 <!-- filumo-code-catalog:start -->
+
 ### 代码与开发文件 · @filumo/code
 
-| 分组 | 扩展名 | 文件名及变体 |
-| --- | --- | --- |
-| JavaScript、TypeScript 与 HTML | `.js`, `.mjs`, `.cjs`, `.jsx`, `.ts`, `.mts`, `.cts`, `.tsx`, `.html`, `.htm` | - |
-| 样式文件 | `.css`, `.less`, `.scss`, `.sass` | - |
-| Shell、PowerShell 与批处理 | `.sh`, `.bash`, `.zsh`, `.ps1`, `.psm1`, `.psd1`, `.bat`, `.cmd` | - |
-| 其他常用编程语言 | `.py`, `.pyw`, `.sql`, `.java`, `.c`, `.h`, `.cpp`, `.cc`, `.cxx`, `.hpp`, `.hh`, `.hxx`, `.cs`, `.go`, `.rs`, `.php`, `.rb`, `.rake`, `.kt`, `.kts`, `.swift`, `.lua` | - |
-| 配置与环境文件 | `.yaml`, `.yml`, `.toml`, `.env` | `.env`, `.env.*` |
-| 构建、协议与补丁 | `.dockerfile`, `.mk`, `.cmake`, `.graphql`, `.gql`, `.proto`, `.diff`, `.patch` | `Dockerfile`, `Makefile`, `GNUmakefile`, `CMakeLists.txt`, `Dockerfile.*` |
+| 分组                           | 扩展名                                                                                                                                                                 | 文件名及变体                                                              |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| JavaScript、TypeScript 与 HTML | `.js`, `.mjs`, `.cjs`, `.jsx`, `.ts`, `.mts`, `.cts`, `.tsx`, `.html`, `.htm`                                                                                          | -                                                                         |
+| 样式文件                       | `.css`, `.less`, `.scss`, `.sass`                                                                                                                                      | -                                                                         |
+| Shell、PowerShell 与批处理     | `.sh`, `.bash`, `.zsh`, `.ps1`, `.psm1`, `.psd1`, `.bat`, `.cmd`                                                                                                       | -                                                                         |
+| 其他常用编程语言               | `.py`, `.pyw`, `.sql`, `.java`, `.c`, `.h`, `.cpp`, `.cc`, `.cxx`, `.hpp`, `.hh`, `.hxx`, `.cs`, `.go`, `.rs`, `.php`, `.rb`, `.rake`, `.kt`, `.kts`, `.swift`, `.lua` | -                                                                         |
+| 配置与环境文件                 | `.yaml`, `.yml`, `.toml`, `.env`                                                                                                                                       | `.env`, `.env.*`                                                          |
+| 构建、协议与补丁               | `.dockerfile`, `.mk`, `.cmake`, `.graphql`, `.gql`, `.proto`, `.diff`, `.patch`                                                                                        | `Dockerfile`, `Makefile`, `GNUmakefile`, `CMakeLists.txt`, `Dockerfile.*` |
 
-仅预览源码，不渲染 HTML、不执行脚本、不编译或应用样式。文件名变体遇到 JSON、XML 等专用后缀时仍由专用插件处理。Vue、Svelte 混合语法不在当前支持范围内。
+默认源码；HTML/HTM 可切换受控静态阅读，不执行脚本或将外链样式应用到宿主。JSON、XML 等专用后缀保持优先，暂不包括 Vue/Svelte 混合语法。
+
 <!-- filumo-code-catalog:end -->
 
 文件名、后缀和默认语言共用识别规则；.h 默认 C，可手动切换 C++。

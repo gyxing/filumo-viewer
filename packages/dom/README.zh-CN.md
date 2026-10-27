@@ -130,6 +130,10 @@ Image CSS 用于 Office 的共享图片弹层。外部样式须匹配各包版�
 
 未列出的包内路径不是稳定公共 API。独立格式不依赖 React/Vue 适配层，宿主只安装实际需要的格式和适配包。
 
+## 嵌入预览与下载
+
+嵌入查看器可设置 `toolbar: false`，通过 `getCapabilities()` 与 `subscribeCapabilities()` 在外层显示格式操作。DOM 外壳补充有效的 `download` 能力，`download.run()` 复用宿主下载接管和格式限制。插件可用可选 `downloadTargets` 声明同一下载菜单的目标：`original` 使用当前查看器的原件通道，`custom` 运行指定回调。下载失败保留正文并浮窗提示。
+
 ## Filumo 包清单
 
 当前包已加粗。每个包独立发布，包名链接到 npm，源码链接指向项目实际仓库。
@@ -140,7 +144,7 @@ Image CSS 用于 Office 的共享图片弹层。外部样式须匹配各包版�
 | ------------------------------------------------------------------ | -------------------------------------------- | ----------------------------------------------------------------------------------------------- |
 | [@filumo/core](https://www.npmjs.com/package/@filumo/core)         | 无 UI 的来源、插件协议、会话和公共文本处理   | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/core/README.zh-CN.md)     |
 | **[@filumo/dom](https://www.npmjs.com/package/@filumo/dom)**       | 原生 DOM 查看器、工具栏、原文、大纲和共享 UI | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/dom/README.zh-CN.md)      |
-| [@filumo/viewer](https://www.npmjs.com/package/@filumo/viewer)     | 九类格式插件的标准预设与工厂聚合             | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/viewer/README.zh-CN.md)   |
+| [@filumo/viewer](https://www.npmjs.com/package/@filumo/viewer)     | 十类格式插件的标准预设与工厂聚合             | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/viewer/README.zh-CN.md)   |
 | [@filumo/office](https://www.npmjs.com/package/@filumo/office)     | Word、Excel、PowerPoint 与受支持的旧格式     | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/office/README.zh-CN.md)   |
 | [@filumo/pdf](https://www.npmjs.com/package/@filumo/pdf)           | PDF 连续阅读、大纲、缩略图和查找             | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/pdf/README.zh-CN.md)      |
 | [@filumo/image](https://www.npmjs.com/package/@filumo/image)       | 图片预览、缩放、旋转、拖动及共享弹层         | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/image/README.zh-CN.md)    |
@@ -153,6 +157,7 @@ Image CSS 用于 Office 的共享图片弹层。外部样式须匹配各包版�
 | [@filumo/react](https://www.npmjs.com/package/@filumo/react)       | React 18/19 适配组件                         | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/react/README.zh-CN.md)    |
 | [@filumo/vue](https://www.npmjs.com/package/@filumo/vue)           | Vue 3（>=3.3 <4）适配组件                    | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/vue/README.zh-CN.md)      |
 | [@filumo/vue2](https://www.npmjs.com/package/@filumo/vue2)         | Vue 2（^2.6.14 或 ^2.7.16）适配组件          | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/vue2/README.zh-CN.md)     |
+| [@filumo/archive](https://www.npmjs.com/package/@filumo/archive)   | 压缩包目录、按需提取与包内预览               | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/archive/README.zh-CN.md)  |
 
 <!-- filumo-packages:end -->
 

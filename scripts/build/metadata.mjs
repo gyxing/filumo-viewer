@@ -1,6 +1,7 @@
 import { lstat, mkdir, readFile, realpath, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { WORKSPACE_PACKAGES } from '../workspace-packages.js';
+import { copyArchiveAssets } from './archive-assets.mjs';
 import { preparePdfDefaultAssets } from './pdf-assets.mjs';
 
 /** 包版本与样式身份以 manifest 为唯一来源，不读取根工作区版本。 */
@@ -82,5 +83,7 @@ export async function preparePackageMetadata(
     if (previous !== source) await writeFile(file, source, 'utf8');
     if (name === 'pdf')
       await preparePdfDefaultAssets(directory, metadata.styleScope);
+    if (name === 'archive')
+      await copyArchiveAssets(directory, join(directory, 'src'));
   }
 }

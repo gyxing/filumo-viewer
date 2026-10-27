@@ -1,3 +1,4 @@
+import type { DocumentResourceContext } from '@filumo/core';
 import type { TaskWorker, TextEncoding } from '@filumo/core/text';
 export type CodeLanguage =
   | 'javascript'
@@ -34,6 +35,7 @@ export type CodeLanguage =
   | 'dotenv'
   | 'plaintext';
 export interface CodeOptions {
+  html?: DocumentResourceContext & { initialMode?: 'source' | 'reading' };
   encoding?: TextEncoding;
   worker?: 'auto' | 'always' | 'never';
   workerFactory?: () => TaskWorker;

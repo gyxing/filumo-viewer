@@ -27,15 +27,15 @@ pnpm build
 
 ## Everyday commands
 
-| Command | Use | Notes |
-| --- | --- | --- |
-| pnpm docs:dev | Documentation development | Home, Playground, docs and Chinese counterparts |
-| pnpm smoke | Private local-file smoke tests | Opens the /dev/smoke-test workbench by default |
-| pnpm demo:js | JavaScript example | Real build output, no React |
-| pnpm demo:react | React example | @filumo/react integration |
-| pnpm demo:vue3 | Vue 3 example | Native Office and KeepAlive |
-| pnpm demo:vue2 | Vue 2 example | Options API |
-| pnpm docs:build | Production documentation build | Writes apps/docs/dist; does not deploy |
+| Command         | Use                            | Notes                                           |
+| --------------- | ------------------------------ | ----------------------------------------------- |
+| pnpm docs:dev   | Documentation development      | Home, Playground, docs and Chinese counterparts |
+| pnpm smoke      | Private local-file smoke tests | Opens the /dev/smoke-test workbench by default  |
+| pnpm demo:js    | JavaScript example             | Real build output, no React                     |
+| pnpm demo:react | React example                  | @filumo/react integration                       |
+| pnpm demo:vue3  | Vue 3 example                  | Native Office and KeepAlive                     |
+| pnpm demo:vue2  | Vue 2 example                  | Options API                                     |
+| pnpm docs:build | Production documentation build | Writes apps/docs/dist; does not deploy          |
 
 pnpm demo defaults to JavaScript. Port 4173 is the default. For simultaneous demos, choose a different port, for example pnpm demo:vue3 --port 4174.
 
@@ -49,15 +49,15 @@ The smoke workbench covers Office and additional formats, with fixture filtering
 
 ## Automated checks
 
-| Command | Coverage |
-| --- | --- |
-| pnpm check:types | Package and documentation TypeScript checks |
-| pnpm check:lint / pnpm check:styles | TypeScript/JSX and Less rules |
-| pnpm test | Existing unit/contract tests |
-| pnpm test:consumers | Packing, isolated installs and real consumers |
-| pnpm test:browser | Public fixtures and browser regressions |
-| pnpm test:browser:local | Private local fixtures, isolated reports |
-| pnpm test:acceptance | Audit migration evidence, not a substitute for real runs |
+| Command                             | Coverage                                                 |
+| ----------------------------------- | -------------------------------------------------------- |
+| pnpm check:types                    | Package and documentation TypeScript checks              |
+| pnpm check:lint / pnpm check:styles | TypeScript/JSX and Less rules                            |
+| pnpm test                           | Existing unit/contract tests                             |
+| pnpm test:consumers                 | Packing, isolated installs and real consumers            |
+| pnpm test:browser                   | Public fixtures and browser regressions                  |
+| pnpm test:browser:local             | Private local fixtures, isolated reports                 |
+| pnpm test:acceptance                | Audit migration evidence, not a substitute for real runs |
 
 Install a browser and run the focused docs suite:
 
@@ -111,7 +111,7 @@ Source edits and production builds do not publish by themselves. Git writes, pus
 
 ## Independent npm releases
 
-The fifteen public packages have independent versions. Keep 0.1.0 for the first release. Publish from master using local commands; npm publication is separate from GitHub Pages deployment.
+The sixteen public packages have independent versions. Keep 0.1.0 for the first release. Publish from master using local commands; npm publication is separate from GitHub Pages deployment.
 
 Use `pnpm changeset` to record affected packages, `pnpm release:status` to review the version plan, and `pnpm release:version` to apply package versions, dependency ranges, changelogs, affected README version markers and the lockfile. Finish all edits before building and validating together. These commands do not commit, build or test automatically.
 

@@ -101,7 +101,7 @@ window.addEventListener(
 
 高亮仅在独立 Worker 中增强。worker: 'never'、Worker 不可用、超时或超预算时保留原文，不在主线程执行相同重型增强作为回退。语法按语言加载，不预加载全部语言。
 
-TOML 复用 INI 语法，YAML 加载上游需要的 Ruby，Dockerfile 加载 Shell；PHP 支持裸代码和带标签模板。.env 变量和命令只着色，不展开。HTML、CSS、LESS、SCSS、Sass 不执行或应用到页面。不提供编译器、语言服务器、格式化、代码执行或 Vue/Svelte 混合语法。
+TOML 复用 INI 语法，YAML 加载上游需要的 Ruby，Dockerfile 加载 Shell；PHP 支持裸代码和带标签模板。.env 变量和命令只着色，不展开。HTML 默认源码，可切换受控静态阅读；CSS、LESS、SCSS、Sass 不编译或应用到宿主。不提供编译器、语言服务器、格式化、代码执行或 Vue/Svelte 混合语法。
 
 ## 样式与运行环境
 
@@ -128,6 +128,10 @@ import '@filumo/code/styles.css';
 
 未列出的包内路径不是稳定公共 API。独立格式不依赖 React/Vue 适配层，宿主只安装实际需要的格式和适配包。
 
+## HTML 阅读
+
+`.html`、`.htm` 默认仍显示源码，主工具栏的阅读／源码按钮切换静态文档排版。`html.initialMode` 可设为 `reading`；`html.baseUrl` 与 `html.resolveResource` 显式解析相邻图片。只有进入阅读才加载 HTML 模块，不执行脚本、表单或外链 CSS。阅读预算为 2 Mi 字符，超出或排版失败时保留源码并提示。编码切换复用同一原始内容。
+
 ## Filumo 包清单
 
 当前包已加粗。每个包独立发布，包名链接到 npm，源码链接指向项目实际仓库。
@@ -138,7 +142,7 @@ import '@filumo/code/styles.css';
 | ------------------------------------------------------------------ | -------------------------------------------- | ----------------------------------------------------------------------------------------------- |
 | [@filumo/core](https://www.npmjs.com/package/@filumo/core)         | 无 UI 的来源、插件协议、会话和公共文本处理   | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/core/README.zh-CN.md)     |
 | [@filumo/dom](https://www.npmjs.com/package/@filumo/dom)           | 原生 DOM 查看器、工具栏、原文、大纲和共享 UI | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/dom/README.zh-CN.md)      |
-| [@filumo/viewer](https://www.npmjs.com/package/@filumo/viewer)     | 九类格式插件的标准预设与工厂聚合             | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/viewer/README.zh-CN.md)   |
+| [@filumo/viewer](https://www.npmjs.com/package/@filumo/viewer)     | 十类格式插件的标准预设与工厂聚合             | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/viewer/README.zh-CN.md)   |
 | [@filumo/office](https://www.npmjs.com/package/@filumo/office)     | Word、Excel、PowerPoint 与受支持的旧格式     | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/office/README.zh-CN.md)   |
 | [@filumo/pdf](https://www.npmjs.com/package/@filumo/pdf)           | PDF 连续阅读、大纲、缩略图和查找             | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/pdf/README.zh-CN.md)      |
 | [@filumo/image](https://www.npmjs.com/package/@filumo/image)       | 图片预览、缩放、旋转、拖动及共享弹层         | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/image/README.zh-CN.md)    |
@@ -151,6 +155,7 @@ import '@filumo/code/styles.css';
 | [@filumo/react](https://www.npmjs.com/package/@filumo/react)       | React 18/19 适配组件                         | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/react/README.zh-CN.md)    |
 | [@filumo/vue](https://www.npmjs.com/package/@filumo/vue)           | Vue 3（>=3.3 <4）适配组件                    | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/vue/README.zh-CN.md)      |
 | [@filumo/vue2](https://www.npmjs.com/package/@filumo/vue2)         | Vue 2（^2.6.14 或 ^2.7.16）适配组件          | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/vue2/README.zh-CN.md)     |
+| [@filumo/archive](https://www.npmjs.com/package/@filumo/archive)   | 压缩包目录、按需提取与包内预览               | [README](https://github.com/gyxing/filumo-viewer/blob/master/packages/archive/README.zh-CN.md)  |
 
 <!-- filumo-packages:end -->
 

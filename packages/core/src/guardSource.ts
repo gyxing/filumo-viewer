@@ -1,4 +1,5 @@
 import { abortError, FilumoError, throwIfAborted } from './errors';
+import { guardByteStream } from './sourceStream';
 import type { DocumentSource, ResourcePolicy } from './types';
 const owners = new WeakMap<DocumentSource, number>();
 
@@ -99,7 +100,10 @@ export function guardSource(
         const bytes = await raw.readRange(offset, length, readingSignal);
         check(bytes.byteLength);
         if (bytes.byteLength > length)
-          throw new FilumoError('INVALID_RANGE', '来源返回了超出请求范围的数据');
+          throw new FilumoError(
+            'INVALID_RANGE',
+            '来源返回了超出请求范围的数据',
+          );
         return bytes;
       }
       const bytes = await raw.readAll(readingSignal);
@@ -122,6 +126,22 @@ export function guardSource(
       return raw.url;
     },
     readAll: (signal) => read(signal),
+    openStream: raw.openStream
+      ? async (signal) => {
+          if (closed)
+            throw new FilumoError('SOURCE_DISPOSED', '文件来源已释放');
+          check(raw.size);
+          const stream = await run(signal, (current) =>
+            raw.openStream!(current),
+          );
+          return guardByteStream(
+            stream,
+            signal,
+            lifetime.signal,
+            policy?.maxFileBytes,
+          );
+        }
+      : undefined,
     getRangeReader: raw.getRangeReader
       ? (signal) =>
           run(signal, async (readingSignal) => {
@@ -149,7 +169,10 @@ export function guardSource(
                   const bytes = await reader.read(offset, count, rangeSignal);
                   check(bytes.length);
                   if (bytes.length !== count)
-                    throw new FilumoError('INVALID_RANGE', '来源区间数据不完整');
+                    throw new FilumoError(
+                      'INVALID_RANGE',
+                      '来源区间数据不完整',
+                    );
                   return bytes;
                 }),
             };

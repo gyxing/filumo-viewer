@@ -1,7 +1,7 @@
 {
   "name": "@filumo/viewer",
   "version": "0.1.0",
-  "description": "Standard lazy-loaded Filumo plugin preset for Office, PDF, images, text, Markdown, JSON, CSV, XML and source code previews.",
+  "description": "Standard lazy-loaded Filumo plugin preset for Office, PDF, images, text, Markdown, JSON, CSV, XML, source code and archive previews.",
   "keywords": [
     "filumo",
     "file-viewer",
@@ -18,6 +18,8 @@
     "csv-viewer",
     "xml-viewer",
     "code-viewer",
+    "archive-viewer",
+    "zip",
     "docx",
     "xlsx",
     "pptx",
@@ -38,21 +40,18 @@
     "多格式预览"
   ],
   "homepage": "https://github.com/gyxing/filumo-viewer/tree/master/packages/viewer#readme",
+  "bugs": {
+    "url": "https://github.com/gyxing/filumo-viewer/issues"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/gyxing/filumo-viewer.git",
     "directory": "packages/viewer"
   },
-  "bugs": {
-    "url": "https://github.com/gyxing/filumo-viewer/issues"
-  },
+  "license": "MIT",
   "author": {
     "name": "gyxing",
     "url": "https://github.com/gyxing"
-  },
-  "license": "MIT",
-  "publishConfig": {
-    "access": "public"
   },
   "sideEffects": [
     "**/styles/**",
@@ -75,15 +74,19 @@
     "README.zh-CN.md"
   ],
   "dependencies": {
+    "@filumo/archive": "workspace:^",
+    "@filumo/code": "workspace:^",
+    "@filumo/csv": "workspace:^",
     "@filumo/image": "workspace:^",
     "@filumo/json": "workspace:^",
     "@filumo/markdown": "workspace:^",
     "@filumo/office": "workspace:^",
     "@filumo/pdf": "workspace:^",
     "@filumo/text": "workspace:^",
-    "@filumo/csv": "workspace:^",
-    "@filumo/xml": "workspace:^",
-    "@filumo/code": "workspace:^"
+    "@filumo/xml": "workspace:^"
   },
-  "peerDependencies": {}
+  "peerDependencies": {},
+  "publishConfig": {
+    "access": "public"
+  }
 }

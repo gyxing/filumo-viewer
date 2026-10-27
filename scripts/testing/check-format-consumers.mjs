@@ -17,6 +17,7 @@ export async function checkFormatConsumers(root, work, packed, overrides) {
     'csv',
     'xml',
     'code',
+    'archive',
   ]) {
     const directory = join(work, 'format-' + name);
     await mkdir(directory);

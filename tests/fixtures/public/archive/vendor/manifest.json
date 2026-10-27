@@ -1,0 +1,37 @@
+{
+  "source": "nika-begiashvili/libarchivejs",
+  "commit": "0989c1a6db20d030d793b1763e20d880068091bd",
+  "license": "MIT; see LICENSE.txt",
+  "files": [
+    {
+      "file": "sample-v4.rar",
+      "url": "https://raw.githubusercontent.com/nika-begiashvili/libarchivejs/0989c1a6db20d030d793b1763e20d880068091bd/test/files/archives/rar/test-v4.rar",
+      "bytes": 2282,
+      "sha256": "198080e63eb83f0c58cee8c53777332c4cbe09d5f9cbd35138a5e46b94add530"
+    },
+    {
+      "file": "sample-v5.rar",
+      "url": "https://raw.githubusercontent.com/nika-begiashvili/libarchivejs/0989c1a6db20d030d793b1763e20d880068091bd/test/files/archives/rar/test-v5.rar",
+      "bytes": 2281,
+      "sha256": "c6442ed8caff535e9c1dcfd38e0aeed96ac51121335df83b5b68676b6ddbd4ed"
+    },
+    {
+      "file": "sample.7z",
+      "url": "https://raw.githubusercontent.com/nika-begiashvili/libarchivejs/0989c1a6db20d030d793b1763e20d880068091bd/test/files/archives/7z/lzma2.7z",
+      "bytes": 2142,
+      "sha256": "e1096e068cbcdf8aac238ab9e71d2b6e948ad9ffb026a76f7419cc18d9c2ec82"
+    },
+    {
+      "file": "sample.tar.xz",
+      "url": "https://raw.githubusercontent.com/nika-begiashvili/libarchivejs/0989c1a6db20d030d793b1763e20d880068091bd/test/files/archives/tar/test.tar.xz",
+      "bytes": 2160,
+      "sha256": "86b386acf0ea59ac45d8e473aff15d0cf12325dabdd3300d86d27852d9274b36"
+    },
+    {
+      "file": "LICENSE.txt",
+      "url": "https://raw.githubusercontent.com/nika-begiashvili/libarchivejs/0989c1a6db20d030d793b1763e20d880068091bd/LICENSE",
+      "bytes": 1069,
+      "sha256": "cd2233ededca3500350239c4995a3bf4f57cb810b77074d266b0fb0d781dc161"
+    }
+  ]
+}

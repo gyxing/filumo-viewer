@@ -29,8 +29,16 @@ Webpack 5 understands new Worker(new URL(..., import.meta.url)). Keep the packag
 import { createViewer } from '@filumo/dom';
 import { pdf } from '@filumo/pdf';
 export async function mountPrivatePdf(container: HTMLElement, url: string) {
-  const viewer = createViewer(container, { plugins: [pdf()], height: 640, onError: console.error });
-  await viewer.open({ url, name: 'report.pdf', request: { credentials: 'include' } });
+  const viewer = createViewer(container, {
+    plugins: [pdf()],
+    height: 640,
+    onError: console.error,
+  });
+  await viewer.open({
+    url,
+    name: 'report.pdf',
+    request: { credentials: 'include' },
+  });
   return () => viewer.destroy();
 }
 ```
@@ -68,3 +76,7 @@ Auto mode uses the host nonce for style elements. External mode requires direct 
 Create viewers and open browser File sources on the client. React/Next.js uses a client component; Nuxt can use a .client.vue component or ClientOnly. [Framework integration](./preview-integration) includes examples. These are integration recipes, not a claim that every SSR framework/version has passed acceptance.
 
 Validate a production build with the real base URL, a real Worker, one private file and a destroy/reopen cycle. [Troubleshooting](./troubleshooting) describes symptom-based checks.
+
+## Archive resources and downloads
+
+Archive bundles its Worker, pinned WASM and third-party notices. ZIP/TAR/GZIP do not load WASM. Preserve worker-chunks and generated resource structure. Use `archive({assetsBaseUrl})` only for explicit external deployment. Large private remote originals can use `ViewerOptions.downloadOriginal(source, signal)`; providing it completely replaces default download. Cached or in-memory limits are not total browser memory bounds.

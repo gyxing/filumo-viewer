@@ -17,7 +17,7 @@ The documentation follows the repository. Check each package on npm for publishe
 
 ## Getting started
 
-Choose a framework adapter and the required plugins. The standard preset includes nine lightweight format descriptors.
+Choose a framework adapter and the required plugins. The standard preset includes ten lightweight format descriptors.
 
 - [Quick start](./guides/quick-start)
 - [Packages and installation](./guides/packages)

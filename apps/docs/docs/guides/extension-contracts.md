@@ -12,7 +12,7 @@ toc: content
 
 # Plugins and future editing
 
-The source workspace contains nine readonly plugins: Office, text, JSON, Markdown, image, PDF, CSV, XML and code. This guide describes their shared protocol and the future editing boundary.
+The source workspace contains ten readonly plugins: Office, text, JSON, Markdown, image, PDF, CSV, XML, code and Archive. This guide describes their shared protocol and the future editing boundary.
 
 ## Layer responsibilities
 
@@ -29,16 +29,16 @@ Shared text processing comes from @filumo/core/text; source, outline and split v
 
 ## DocumentPlugin
 
-| Field                        | Contract                                                           |
-| ---------------------------- | ------------------------------------------------------------------ |
-| id                           | Stable unique plugin identity                                      |
-| protocolVersion              | Currently 1                                                        |
-| extensions / mimeTypes       | Metadata hints                                                     |
-| priority                     | Optional priority; higher values are probed first                  |
-| detect(source, signal)       | Lightweight cancellable detection returning Promise&lt;boolean&gt; |
+| Field                                  | Contract                                                                                       |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| id                                     | Stable unique plugin identity                                                                  |
+| protocolVersion                        | Currently 1                                                                                    |
+| extensions / mimeTypes                 | Metadata hints                                                                                 |
+| priority                               | Optional priority; higher values are probed first                                              |
+| detect(source, signal)                 | Lightweight cancellable detection returning Promise&lt;boolean&gt;                             |
 | detectFallback(source, signal, policy) | Optional fallback only after ordinary detection rejects; honor cancellation and source budgets |
-| load()                       | Load a DocumentDriver on demand                                    |
-| driver.open(source, context) | Create a DocumentSession                                           |
+| load()                                 | Load a DocumentDriver on demand                                                                |
+| driver.open(source, context)           | Create a DocumentSession                                                                       |
 
 Without an explicit pluginId, Core orders candidates using metadata and probes them. Explicit IDs must be registered. Duplicate IDs, mismatched protocols and unknown IDs fail explicitly.
 

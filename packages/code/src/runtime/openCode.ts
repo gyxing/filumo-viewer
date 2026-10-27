@@ -1,9 +1,9 @@
-import { createSession } from '@filumo/core';
 import type { DocumentSource, OpenContext } from '@filumo/core';
-import { TextContent } from '@filumo/core/text';
+import { createSession } from '@filumo/core';
 import type { TaskWorker } from '@filumo/core/text';
-import type { CodeOptions } from '../options';
+import { TextContent } from '@filumo/core/text';
 import { codeLanguageForName, codeLanguages } from '../fileTypes';
+import type { CodeOptions } from '../options';
 import { CodeSession } from './CodeSession';
 /** 打开只做解码，语法增强由可见视图另行申请。 */
 export async function openCode(
@@ -33,8 +33,15 @@ export async function openCode(
     content,
     options,
     !options.language || options.language === 'auto'
-      ? codeLanguageForName(source.name)
+      ? source.mimeType?.split(';')[0] === 'text/html' &&
+        !source.name?.match(/\.[^./\\]+$/)
+        ? 'html'
+        : codeLanguageForName(source.name)
       : options.language,
+    /\.html?$/i.test(source.name ?? '') ||
+      (!source.name?.match(/\.[^./\\]+$/) &&
+        source.mimeType?.split(';')[0] === 'text/html'),
+    context.resources ?? options.html,
   );
   try {
     await content.setEncoding(options.encoding ?? 'auto');

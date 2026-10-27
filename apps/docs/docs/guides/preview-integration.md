@@ -18,7 +18,7 @@ React, Vue 3, Vue 2 and JavaScript adapters share the DOM shell, format plugins 
 
 Check npm for published versions; before release use packed workspace artifacts. Run pnpm install --frozen-lockfile and pnpm build in this repository, then start demo:react, demo:vue3, demo:vue2 or demo:js.
 
-For an external project, use local packed artifacts rather than linking a package's source directory. pnpm test:consumers packs workspace dependencies and verifies isolated installations; records are stored in tmp/testing/consumers.json. It does not publish packages. After release, choose your adapter and required format packages, or use the @filumo/viewer preset. See the [package overview](./packages) for all fifteen packages.
+For an external project, use local packed artifacts rather than linking a package's source directory. pnpm test:consumers packs workspace dependencies and verifies isolated installations; records are stored in tmp/testing/consumers.json. It does not publish packages. After release, choose your adapter and required format packages, or use the @filumo/viewer preset. See the [package overview](./packages) for all sixteen packages.
 
 No CSS import is required in normal mode. Do not install framework adapters your host does not use.
 
@@ -182,7 +182,7 @@ export function Preview({ file }: { file?: File }) {
 }
 ```
 
-standardPlugins is a frozen array of nine descriptors: Office, text, JSON, Markdown, image, PDF, CSV, XML and code. Use your own stable plugin array for format-specific options; PDF asset deployment is described in the [image and PDF guide](./image-pdf). The preset does not import framework components or eagerly load format engines.
+standardPlugins is a frozen array of ten descriptors: Office, text, JSON, Markdown, image, PDF, CSV, XML, code and Archive. Use your own stable plugin array for format-specific options; PDF asset deployment is described in the [image and PDF guide](./image-pdf). The preset does not import framework components or eagerly load format engines.
 
 ## Custom source factories
 
@@ -248,7 +248,13 @@ Next.js hosts can use a client component. Module scope creates descriptors only;
 import { DocumentViewer } from '@filumo/react';
 import { standardPlugins } from '@filumo/viewer';
 export function FilePreview({ url }: { url: string }) {
-  return <DocumentViewer source={url} plugins={standardPlugins} options={{ height: 640 }} />;
+  return (
+    <DocumentViewer
+      source={url}
+      plugins={standardPlugins}
+      options={{ height: 640 }}
+    />
+  );
 }
 ```
 
@@ -265,7 +271,7 @@ Nuxt can use a .client.vue wrapper or ClientOnly around the Vue 3 example above.
 
 ## Multiple formats and deployment
 
-The Office examples above are minimal integrations, not an Office-only limitation. See the [package overview](./packages) for all fifteen packages and installation combinations. Register text, json, markdown, image, pdf, csv, xml and code from their packages, or build a stable array from @filumo/viewer factories.
+The Office examples above are minimal integrations, not an Office-only limitation. See the [package overview](./packages) for all sixteen packages and installation combinations. Register text, json, markdown, image, pdf, csv, xml, code and archive from their packages, or build a stable array from @filumo/viewer factories.
 
 PDF uses matching bundled resources through pdf() by default. assetsBaseUrl, cMapUrl, standardFontDataUrl, wasmUrl and iccUrl are optional deployment overrides. Playground examples no longer point to this site's resource directory.
 

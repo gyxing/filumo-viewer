@@ -111,6 +111,8 @@ test('PDF 生成 Worker、引擎和回退模块不经过 Babel 与 React Refresh
     resolve('apps/docs/src/components/Playground.tsx'),
     resolve('packages/pdf/src/runtime/PdfSession.ts'),
     resolve('packages/pdf/src/generated-example.js'),
+    resolve('packages/archive/src/runtime/ArchiveSession.ts'),
+    resolve('packages/archive/src/generated-example.js'),
   ]) {
     assert.equal(matches(refresh.exclude, resource), false);
     for (const name of ['src', 'extra-src'])
@@ -121,6 +123,19 @@ test('PDF 生成 Worker、引擎和回退模块不经过 Babel 与 React Refresh
         false,
       );
   }
+});
+
+test('Archive 生成引擎不经过 Babel 与 React Refresh，路径转义保持精确', () => {
+  const { rules, plugins } = configureSourceDev({ overlay: false });
+  const [refresh] = plugins.get('fastRefresh');
+  const resource = resolve('packages/archive/src/generated/engine.js');
+  assert.ok(matches(refresh.exclude, resource));
+  for (const name of ['src', 'extra-src'])
+    assert.ok(
+      [...rules.get(name).exclude].some((condition) =>
+        matches(condition, resource),
+      ),
+    );
 });
 
 test('添加资源排除时保留宿主既有的 Refresh 排除项', () => {

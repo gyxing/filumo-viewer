@@ -75,15 +75,24 @@ test('标准描述符静态闭包不包含格式引擎、样式、Worker 或高�
     false,
     initial.join('\n'),
   );
-  for (const name of ['text', 'json', 'markdown', 'csv', 'xml', 'code']) {
+  for (const name of [
+    'text',
+    'json',
+    'markdown',
+    'csv',
+    'xml',
+    'code',
+    'archive',
+  ]) {
     const manifest = JSON.parse(
       await readFile(`packages/${name}/dist/build-manifest.json`, 'utf8'),
     );
     const forbidden = manifest.outputs.filter((output) =>
-      output.inputs.some((input) =>
-        /^src\/(?:runtime|view|parser|reader|worker|highlight)\/|\.less$/.test(
-          input,
-        ),
+      output.inputs.some(
+        (input) =>
+          /^src\/(?:runtime|view|parser|reader|worker|highlight)\/|\.less$/.test(
+            input,
+          ) && input !== 'src/reader/detectArchive.ts',
       ),
     );
     const eager = new Set(initial.map((file) => resolve(file)));

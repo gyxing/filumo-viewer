@@ -1,5 +1,5 @@
 import { build } from 'esbuild';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 
 /** Worker 是公开独立资产，不与主入口静态打包在一起。 */
 export async function buildOfficeWorker(directory, root) {
@@ -33,6 +33,10 @@ export async function buildFormatWorker(directory, root, entry) {
     platform: 'browser',
     target: 'es2020',
     chunkNames: 'worker-chunks/[name]-[hash]',
+    external:
+      basename(directory) === 'archive'
+        ? ['@filumo/archive/assets', 'fs', 'path', 'url', 'module', 'node:*']
+        : [],
     metafile: true,
     logLevel: 'warning',
   });

@@ -7,18 +7,19 @@
     "dev": "vite"
   },
   "dependencies": {
+    "@filumo/archive": "0.1.0",
+    "@filumo/code": "0.1.0",
+    "@filumo/csv": "0.1.0",
     "@filumo/dom": "0.1.0",
     "@filumo/image": "0.1.0",
+    "@filumo/json": "0.1.0",
+    "@filumo/markdown": "0.1.0",
     "@filumo/office": "0.1.0",
     "@filumo/pdf": "0.1.0",
-    "@filumo/vue2": "0.1.0",
-    "vue": "2.7.16",
-    "@filumo/csv": "0.1.0",
-    "@filumo/xml": "0.1.0",
-    "@filumo/code": "0.1.0",
     "@filumo/text": "0.1.0",
-    "@filumo/json": "0.1.0",
-    "@filumo/markdown": "0.1.0"
+    "@filumo/vue2": "0.1.0",
+    "@filumo/xml": "0.1.0",
+    "vue": "2.7.16"
   },
   "devDependencies": {
     "vite": "5.4.21"

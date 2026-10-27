@@ -18,9 +18,13 @@ export const code: CodeFactory = (options = {}) => {
       protocolVersion: 1,
       priority: 10,
       extensions: Object.keys(codeExtensions),
-      mimeTypes: [],
+      mimeTypes: ['text/html'],
       async detect(source) {
-        return detectCodeLanguage(source.name) !== undefined;
+        return (
+          detectCodeLanguage(source.name) !== undefined ||
+          (!source.name?.match(/\.[^./\\]+$/) &&
+            source.mimeType?.split(';')[0].trim().toLowerCase() === 'text/html')
+        );
       },
       async load() {
         const { openCode } = await import('./runtime/openCode');

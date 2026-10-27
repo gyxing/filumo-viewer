@@ -39,13 +39,13 @@ The More menu selects the actual UTF-8, UTF-16LE, UTF-16BE, GBK or GB18030 encod
 
 ## Default views and toolbar
 
-| Plugin | Initial view | Source line numbers | Wrap |
-| --- | --- | --- | --- |
-| Text | Source | On | On |
-| Code | Source | On | On |
-| JSON / XML | Structure; equal source/structure split in wide containers | On | On |
-| Markdown | Reading | Off in source mode | On |
-| CSV | Table with first row as headers | Off in source mode | On in source mode |
+| Plugin     | Initial view                                               | Source line numbers | Wrap              |
+| ---------- | ---------------------------------------------------------- | ------------------- | ----------------- |
+| Text       | Source                                                     | On                  | On                |
+| Code       | Source                                                     | On                  | On                |
+| JSON / XML | Structure; equal source/structure split in wide containers | On                  | On                |
+| Markdown   | Reading                                                    | Off in source mode  | On                |
+| CSV        | Table with first row as headers                            | Off in source mode  | On in source mode |
 
 Line numbers represent real lines only. Find appears on the main toolbar by default, while encoding, views, wrapping and line numbers use format-specific More menus with first-level icons. When space is limited, Find may move into More according to its priority. Markdown keeps its outline on the main toolbar. JSON uses one stateful expand/collapse action. JSON/XML line-number choices persist within the open file across views, zoom and decoding.
 
@@ -108,18 +108,20 @@ Defaults are initialMode: 'tree', maxDepth: 256 and maxNodes: 200000. DOCTYPE pr
 ## Code
 
 <!-- filumo-code-catalog:start -->
+
 ### Code and development files · @filumo/code
 
-| Group | Extensions | Filenames and variants |
-| --- | --- | --- |
-| JavaScript, TypeScript and HTML | `.js`, `.mjs`, `.cjs`, `.jsx`, `.ts`, `.mts`, `.cts`, `.tsx`, `.html`, `.htm` | - |
-| Stylesheets | `.css`, `.less`, `.scss`, `.sass` | - |
-| Shell, PowerShell and Batch | `.sh`, `.bash`, `.zsh`, `.ps1`, `.psm1`, `.psd1`, `.bat`, `.cmd` | - |
-| Other programming languages | `.py`, `.pyw`, `.sql`, `.java`, `.c`, `.h`, `.cpp`, `.cc`, `.cxx`, `.hpp`, `.hh`, `.hxx`, `.cs`, `.go`, `.rs`, `.php`, `.rb`, `.rake`, `.kt`, `.kts`, `.swift`, `.lua` | - |
-| Configuration and environment | `.yaml`, `.yml`, `.toml`, `.env` | `.env`, `.env.*` |
-| Build, protocols and patches | `.dockerfile`, `.mk`, `.cmake`, `.graphql`, `.gql`, `.proto`, `.diff`, `.patch` | `Dockerfile`, `Makefile`, `GNUmakefile`, `CMakeLists.txt`, `Dockerfile.*` |
+| Group                           | Extensions                                                                                                                                                             | Filenames and variants                                                    |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| JavaScript, TypeScript and HTML | `.js`, `.mjs`, `.cjs`, `.jsx`, `.ts`, `.mts`, `.cts`, `.tsx`, `.html`, `.htm`                                                                                          | -                                                                         |
+| Stylesheets                     | `.css`, `.less`, `.scss`, `.sass`                                                                                                                                      | -                                                                         |
+| Shell, PowerShell and Batch     | `.sh`, `.bash`, `.zsh`, `.ps1`, `.psm1`, `.psd1`, `.bat`, `.cmd`                                                                                                       | -                                                                         |
+| Other programming languages     | `.py`, `.pyw`, `.sql`, `.java`, `.c`, `.h`, `.cpp`, `.cc`, `.cxx`, `.hpp`, `.hh`, `.hxx`, `.cs`, `.go`, `.rs`, `.php`, `.rb`, `.rake`, `.kt`, `.kts`, `.swift`, `.lua` | -                                                                         |
+| Configuration and environment   | `.yaml`, `.yml`, `.toml`, `.env`                                                                                                                                       | `.env`, `.env.*`                                                          |
+| Build, protocols and patches    | `.dockerfile`, `.mk`, `.cmake`, `.graphql`, `.gql`, `.proto`, `.diff`, `.patch`                                                                                        | `Dockerfile`, `Makefile`, `GNUmakefile`, `CMakeLists.txt`, `Dockerfile.*` |
 
-Source preview only: HTML is not rendered, scripts do not run and stylesheets are not compiled or applied. Dedicated formats such as JSON and XML take priority over filename variants. Vue and Svelte mixed-syntax support is outside the current scope.
+Source is the default. HTML/HTM can switch to controlled static reading; scripts and external stylesheets do not execute or affect the host. Dedicated formats such as JSON and XML retain priority. Vue/Svelte mixed syntax is not included.
+
 <!-- filumo-code-catalog:end -->
 
 Filename and extension rules determine the default language; .h defaults to C and can be switched to C++.

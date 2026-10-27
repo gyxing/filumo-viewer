@@ -78,6 +78,7 @@ for (const [id, example, version] of cases) {
     'csv',
     'xml',
     'code',
+    'archive',
   ])
     metadata.dependencies['@filumo/' + name] = overrides['@filumo/' + name];
   for (const name of Object.keys(metadata.dependencies))

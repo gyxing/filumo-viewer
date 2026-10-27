@@ -6,6 +6,7 @@ import {
   type HttpRangeSetup,
 } from './range/HttpRangeReader';
 import type { DocumentRangeReader } from './range/types';
+import { guardByteStream } from './sourceStream';
 import type { DocumentInput, DocumentSource, ResourcePolicy } from './types';
 
 /** 校验限制值，不设置与文件格式无关的默认硬上限。 */
@@ -178,6 +179,87 @@ export async function normalizeSource(
       return url;
     },
     readAll: read,
+    async openStream(signal) {
+      if (disposed) throw new FilumoError('SOURCE_DISPOSED', '文件来源已释放');
+      throwIfAborted(signal);
+      throwIfAborted(localAbort.signal);
+      if (size !== undefined) checkSize(size);
+      if (blob)
+        return guardByteStream(
+          blob.stream(),
+          signal,
+          localAbort.signal,
+          options.resourcePolicy?.maxFileBytes,
+        );
+      if (bytes) {
+        const current = bytes;
+        return guardByteStream(
+          new ReadableStream({
+            start(c) {
+              c.enqueue(current);
+              c.close();
+            },
+          }),
+          signal,
+          localAbort.signal,
+          options.resourcePolicy?.maxFileBytes,
+        );
+      }
+      if (rangeSetup) await waitForSource(rangeSetup, signal);
+      const abort = new AbortController();
+      const cancel = () =>
+        abort.abort(signal.reason ?? localAbort.signal.reason ?? abortError());
+      signal.addEventListener('abort', cancel, { once: true });
+      localAbort.signal.addEventListener('abort', cancel, { once: true });
+      const finish = () => {
+        signal.removeEventListener('abort', cancel);
+        localAbort.signal.removeEventListener('abort', cancel);
+      };
+      try {
+        throwIfAborted(signal);
+        throwIfAborted(localAbort.signal);
+        const response =
+          fallbackResponse ??
+          (await fetch(url!, { ...request, signal: abort.signal }));
+        fallbackResponse = undefined;
+        const rangeFinish = finishRange;
+        finishRange = undefined;
+        if (!response.ok) {
+          await response.body?.cancel();
+          throw new FilumoError(
+            'DOWNLOAD_FAILED',
+            '文件下载失败：' + response.status,
+          );
+        }
+        mimeType ||= response.headers.get('content-type') ?? undefined;
+        const advertised = response.headers.get('content-length');
+        if (advertised && /^\d+$/.test(advertised)) {
+          size = Number(advertised);
+          try {
+            checkSize(size);
+          } catch (error) {
+            await response.body?.cancel();
+            rangeFinish?.();
+            throw error;
+          }
+        }
+        if (!response.body)
+          throw new FilumoError('INVALID_SOURCE', '来源未提供可读取的数据流');
+        return guardByteStream(
+          response.body,
+          signal,
+          localAbort.signal,
+          options.resourcePolicy?.maxFileBytes,
+          () => {
+            finish();
+            rangeFinish?.();
+          },
+        );
+      } catch (error) {
+        finish();
+        throw error;
+      }
+    },
     async getRangeReader(signal): Promise<DocumentRangeReader | undefined> {
       if (disposed) throw new FilumoError('SOURCE_DISPOSED', '文件来源已释放');
       throwIfAborted(signal);

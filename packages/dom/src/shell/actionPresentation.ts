@@ -15,6 +15,7 @@ const ACTION_ICONS: Readonly<Partial<Record<string, ShellIcon>>> = {
   whitespace: 'lines',
   copy: 'copy',
   mode: 'view',
+  view: 'view',
   sheetMode: 'view',
   revision: 'review',
   wrap: 'wrap',

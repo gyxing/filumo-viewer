@@ -1,7 +1,8 @@
-import type { TextContent, TaskWorker } from '@filumo/core/text';
-import type { CodeOptions, CodeLanguage } from '../options';
+import type { DocumentResourceContext } from '@filumo/core';
+import type { TaskWorker, TextContent } from '@filumo/core/text';
 import { codeLanguages } from '../fileTypes';
 import type { CodeHighlightResult } from '../highlight/highlightTask';
+import type { CodeLanguage, CodeOptions } from '../options';
 import { CodeHighlighter } from './CodeHighlighter';
 /** 原文为主数据，高亮缓存按内容版本和手动语法失效。 */
 export class CodeSession {
@@ -18,6 +19,8 @@ export class CodeSession {
     readonly content: TextContent,
     readonly options: CodeOptions & { workerFactory: () => TaskWorker },
     public language: CodeLanguage,
+    readonly htmlDocument = false,
+    readonly resources?: DocumentResourceContext,
   ) {
     this.highlighter = new CodeHighlighter(
       options.workerFactory,

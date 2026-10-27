@@ -12,7 +12,7 @@ toc: content
 
 # 插件与后续编辑扩展
 
-当前 源码工作区包含 Office、Text、JSON、Markdown、Image、PDF、CSV、XML、Code 九类只读插件，实际发布状态以对应 npm 页面为准。本页说明现有扩展协议及尚未提供的编辑保存能力。
+当前 源码工作区包含 Office、Text、JSON、Markdown、Image、PDF、CSV、XML、Code、Archive 十类只读插件，实际发布状态以对应 npm 页面为准。本页说明现有扩展协议及尚未提供的编辑保存能力。
 
 ## 分层职责
 
@@ -29,16 +29,16 @@ toc: content
 
 ## DocumentPlugin
 
-| 字段                         | 接口约定                                      |
-| ---------------------------- | --------------------------------------------- |
-| id                           | 稳定且唯一的插件 ID                           |
-| protocolVersion              | 当前为 1                                      |
-| extensions / mimeTypes       | 元数据识别提示                                |
-| priority                     | 可选优先级，较高者先探测                      |
-| detect(source, signal)       | 轻量、可取消识别，返回 Promise&lt;boolean&gt; |
+| 字段                                   | 接口约定                                           |
+| -------------------------------------- | -------------------------------------------------- |
+| id                                     | 稳定且唯一的插件 ID                                |
+| protocolVersion                        | 当前为 1                                           |
+| extensions / mimeTypes                 | 元数据识别提示                                     |
+| priority                               | 可选优先级，较高者先探测                           |
+| detect(source, signal)                 | 轻量、可取消识别，返回 Promise&lt;boolean&gt;      |
 | detectFallback(source, signal, policy) | 可选；常规探测全部拒绝后才兜底，遵守取消与来源预算 |
-| load()                       | 按需取得 DocumentDriver                       |
-| driver.open(source, context) | 创建 DocumentSession                          |
+| load()                                 | 按需取得 DocumentDriver                            |
+| driver.open(source, context)           | 创建 DocumentSession                               |
 
 未显式指定 pluginId 时，Core 根据元数据排列候选项并探测；显式 ID 必须已经注册。重名、协议版本不匹配或未注册 ID 都会失败。
 

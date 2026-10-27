@@ -103,7 +103,7 @@ export function ProductHighlightsSection({ content }: HomeProductSectionProps) {
   );
 }
 
-/** 九类插件卡片用于概览，完整清单直接列出当前默认识别范围。 */
+/** 十类插件卡片用于概览，完整清单直接列出当前默认识别范围。 */
 export function SupportedFormatsSection({ content }: HomeProductSectionProps) {
   return (
     <section

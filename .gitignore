@@ -32,3 +32,4 @@ apps/docs/public/*-assets/pdf/
 /packages/csv/src/generated/
 /packages/xml/src/generated/
 /packages/code/src/generated/
+/packages/archive/src/generated/

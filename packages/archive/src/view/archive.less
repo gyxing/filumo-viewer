@@ -1,0 +1,281 @@
+.filumo-archive-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.filumo-archive-panes {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.filumo-archive-sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 240px;
+  flex: none;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border-right: 1px solid var(--filumo-border, #d9e2ef);
+
+  &[hidden] {
+    display: none;
+  }
+
+  .filumo-outline-tree {
+    flex: 1;
+    min-height: 0;
+    height: auto;
+  }
+}
+
+.filumo-archive-sidebar-heading {
+  flex: none;
+  border-bottom: 1px solid var(--filumo-border, #d9e2ef);
+}
+
+.filumo-archive-sidebar-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  min-height: 36px;
+  padding: 4px 8px;
+  box-sizing: border-box;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 28px;
+    padding: 3px 6px;
+    color: inherit;
+    font: inherit;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      background: var(--filumo-hover, #f3f7fc);
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+
+    &:focus-visible {
+      outline: 1px solid var(--filumo-primary, #1677ff);
+      outline-offset: -1px;
+    }
+  }
+}
+
+.filumo-archive-filter {
+  padding: 0 8px 8px;
+
+  &[hidden] {
+    display: none;
+  }
+
+  input {
+    width: 100%;
+    min-width: 0;
+    height: 30px;
+    padding: 4px 8px;
+    box-sizing: border-box;
+    color: inherit;
+    font: inherit;
+    background: var(--filumo-surface, #fff);
+    border: 1px solid var(--filumo-border, #d9e2ef);
+    border-radius: 5px;
+    outline: none;
+
+    &:focus {
+      border-color: var(--filumo-primary, #1677ff);
+    }
+  }
+}
+
+.filumo-archive-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+.filumo-archive-breadcrumb {
+  flex: none;
+  min-height: 36px;
+  padding: 6px 12px;
+  overflow: auto;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--filumo-border, #d9e2ef);
+
+  button {
+    padding: 3px 5px;
+    color: var(--filumo-primary, #1677ff);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+  }
+}
+
+.filumo-archive-list-tools {
+  display: flex;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--filumo-border, #d9e2ef);
+
+  input {
+    flex: 1;
+    min-width: 0;
+    height: 30px;
+    padding: 4px 8px;
+    color: inherit;
+    background: var(--filumo-surface, #fff);
+    border: 1px solid var(--filumo-border, #d9e2ef);
+    border-radius: 5px;
+    outline: none;
+
+    &:focus {
+      border-color: var(--filumo-primary, #1677ff);
+    }
+  }
+
+  button {
+    padding: 4px 10px;
+    color: inherit;
+    background: var(--filumo-surface, #fff);
+    border: 1px solid var(--filumo-border, #d9e2ef);
+    border-radius: 5px;
+    cursor: pointer;
+
+    &:hover {
+      background: var(--filumo-hover, #f3f6fb);
+    }
+  }
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.filumo-archive-list {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.filumo-archive-list-canvas {
+  position: relative;
+  min-width: 0;
+}
+
+.filumo-archive-row {
+  position: absolute;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 36px;
+  padding: 0 12px;
+  color: inherit;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--filumo-border, #edf1f7);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--filumo-hover, #f3f7fc);
+  }
+
+  &[aria-selected='true'] {
+    color: var(--filumo-primary, #1677ff);
+    background: var(--filumo-selected, #e8f3ff);
+  }
+
+  &:focus-visible {
+    outline: 1px solid var(--filumo-primary, #1677ff);
+    outline-offset: -1px;
+  }
+}
+
+.filumo-archive-entry-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.filumo-archive-entry-size {
+  flex: none;
+  color: var(--filumo-text-muted, #64748b);
+  font-size: 12px;
+}
+
+.filumo-archive-preview {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.filumo-archive-child {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+
+  > .filumo-viewer {
+    flex: 1;
+  }
+}
+
+.filumo-archive-busy {
+  position: absolute;
+  top: 45px;
+  right: 12px;
+  z-index: 3;
+  padding: 8px 12px;
+  color: var(--filumo-text, #24344d);
+  background: var(--filumo-bg, #fff);
+  border: 1px solid var(--filumo-border, #d9e2ef);
+  border-radius: 6px;
+  box-shadow: 0 4px 16px #00000014;
+
+  &[hidden] {
+    display: none;
+  }
+}
+@media (max-width: 640px) {
+  .filumo-archive-sidebar {
+    position: absolute;
+    inset: 0 auto 0 0;
+    z-index: 4;
+    width: 240px !important;
+    background: var(--filumo-bg, #fff);
+    box-shadow: 4px 0 12px #00000010;
+  }
+
+  .filumo-archive-panes {
+    position: relative;
+  }
+}

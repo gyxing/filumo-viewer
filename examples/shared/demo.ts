@@ -1,13 +1,14 @@
+import { archive } from '@filumo/archive';
+import { code } from '@filumo/code';
+import { csv } from '@filumo/csv';
 import type { ViewerHandle } from '@filumo/dom';
 import { image } from '@filumo/image';
+import { json } from '@filumo/json';
+import { markdown } from '@filumo/markdown';
 import { office } from '@filumo/office';
 import { pdf } from '@filumo/pdf';
 import { text } from '@filumo/text';
-import { json } from '@filumo/json';
-import { markdown } from '@filumo/markdown';
-import { csv } from '@filumo/csv';
 import { xml } from '@filumo/xml';
-import { code } from '@filumo/code';
 // 强制 Worker 使资源部署失败可见，正常宿主也可以采用默认 auto 回退策略。
 export const plugins = [
   office({ worker: 'always' }),
@@ -19,6 +20,7 @@ export const plugins = [
   xml(),
   code(),
   pdf(),
+  archive(),
 ];
 export const options = { height: '65vh' };
 let readyCount = 0;

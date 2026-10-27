@@ -1,0 +1,77 @@
+{
+  "name": "@filumo/archive",
+  "version": "0.1.0",
+  "description": "Lazy archive browser for Filumo with ZIP, TAR, GZIP and bounded WASM previews for RAR, 7z and TAR.XZ.",
+  "keywords": [
+    "filumo",
+    "archive-viewer",
+    "archive-preview",
+    "zip",
+    "tar",
+    "gzip",
+    "rar",
+    "7z",
+    "xz",
+    "wasm",
+    "lazy-loading",
+    "压缩包预览",
+    "归档浏览"
+  ],
+  "homepage": "https://github.com/gyxing/filumo-viewer/tree/master/packages/archive#readme",
+  "bugs": {
+    "url": "https://github.com/gyxing/filumo-viewer/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gyxing/filumo-viewer.git",
+    "directory": "packages/archive"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "gyxing",
+    "url": "https://github.com/gyxing"
+  },
+  "sideEffects": [
+    "**/*.css",
+    "./dist/chunks/*.js"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json",
+    "./styles.css": "./dist/styles.css",
+    "./worker.js": "./dist/worker.js",
+    "./assets": {
+      "types": "./dist/assets.d.ts",
+      "import": "./dist/assets.js",
+      "default": "./dist/assets.js"
+    }
+  },
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "assets": [
+        "dist/assets.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "README.zh-CN.md"
+  ],
+  "dependencies": {
+    "@filumo/core": "workspace:^",
+    "@filumo/dom": "workspace:^",
+    "@zip.js/zip.js": "2.8.34",
+    "libarchive-wasm": "1.2.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

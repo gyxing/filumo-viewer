@@ -4,6 +4,7 @@ import type {
   DocumentOpenOptions,
   DocumentPlugin,
   DocumentSession,
+  DocumentSource,
   ResourcePolicy,
 } from '@filumo/core';
 import type { ViewerCapabilities } from './capabilities/types';
@@ -26,6 +27,11 @@ export interface ViewContext {
   stylePolicy?: StylePolicy;
   onError(error: unknown): void;
   setCapabilities(capabilities: ViewerCapabilities): void;
+  /** 子视图只继承已注册插件，不隐式安装格式；拥有者负责销毁。 */
+  createChildViewer?(
+    container: HTMLElement,
+    configuration?: ViewerConfiguration,
+  ): ViewerHandle;
 }
 export interface ViewHandle {
   update(options: ViewOptions): void;
@@ -50,6 +56,8 @@ export interface ViewerOptions extends ViewerConfiguration {
   onError?(error: Error): void;
   onStateChange?(state: ControllerSnapshot): void;
   onCapabilitiesChange?(capabilities: ViewerCapabilities): void;
+  /** 宿主显式接管原包下载，适用于需要私有鉴权的大文件。 */
+  downloadOriginal?(source: DocumentSource, signal: AbortSignal): Promise<void>;
 }
 export interface ViewerHandle {
   open(input: DocumentInput, selection?: DocumentOpenOptions): Promise<void>;

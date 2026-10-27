@@ -22,21 +22,18 @@
     "文档预览"
   ],
   "homepage": "https://github.com/gyxing/filumo-viewer/tree/master/packages/dom#readme",
+  "bugs": {
+    "url": "https://github.com/gyxing/filumo-viewer/issues"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/gyxing/filumo-viewer.git",
     "directory": "packages/dom"
   },
-  "bugs": {
-    "url": "https://github.com/gyxing/filumo-viewer/issues"
-  },
+  "license": "MIT",
   "author": {
     "name": "gyxing",
     "url": "https://github.com/gyxing"
-  },
-  "license": "MIT",
-  "publishConfig": {
-    "access": "public"
   },
   "sideEffects": [
     "./src/outline.ts",
@@ -93,22 +90,49 @@
       "types": "./dist/split.d.ts",
       "import": "./dist/split.js",
       "default": "./dist/split.js"
+    },
+    "./html": {
+      "types": "./dist/html.d.ts",
+      "import": "./dist/html.js",
+      "default": "./dist/html.js"
     }
   },
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
-      "outline": ["dist/outline.d.ts"],
-      "text": ["dist/text.d.ts"],
-      "text-messages": ["dist/text-messages.d.ts"],
-      "text-highlight": ["dist/text-highlight.d.ts"],
-      "grid": ["dist/grid.d.ts"],
-      "split": ["dist/split.d.ts"]
+      "outline": [
+        "dist/outline.d.ts"
+      ],
+      "text": [
+        "dist/text.d.ts"
+      ],
+      "text-messages": [
+        "dist/text-messages.d.ts"
+      ],
+      "text-highlight": [
+        "dist/text-highlight.d.ts"
+      ],
+      "grid": [
+        "dist/grid.d.ts"
+      ],
+      "split": [
+        "dist/split.d.ts"
+      ],
+      "html": [
+        "dist/html.d.ts"
+      ]
     }
   },
-  "files": ["dist", "README.md", "README.zh-CN.md"],
+  "files": [
+    "dist",
+    "README.md",
+    "README.zh-CN.md"
+  ],
   "dependencies": {
     "@filumo/core": "workspace:^"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

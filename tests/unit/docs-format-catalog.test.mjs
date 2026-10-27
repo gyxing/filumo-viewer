@@ -5,6 +5,7 @@ import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import test from 'node:test';
 import ts from 'typescript';
+import prettier from 'prettier';
 import { formatCatalogMarkdown } from '../../scripts/docs/format-catalog-markdown.mjs';
 
 const catalogBundle = await build({
@@ -29,6 +30,7 @@ const ids = [
   'csv',
   'xml',
   'code',
+  'archive',
 ];
 const descriptorsBundle = await build({
   stdin: {
@@ -160,8 +162,8 @@ test('中英文指南的完整格式与代码表格均与共享清单一致', as
           ),
         )?.[1];
       assert.equal(
-        body,
-        formatCatalogMarkdown(entries, locale),
+        prettier.format(body ?? '', {parser:'markdown',proseWrap:'preserve'}),
+        prettier.format(formatCatalogMarkdown(entries, locale), {parser:'markdown',proseWrap:'preserve'}),
         file + '/' + locale,
       );
     }
@@ -224,7 +226,7 @@ test('首页完整清单在两种语言下直接呈现全部后缀和文件名�
     );
     assert.equal(
       (section.match(/office-viewer-site-format-card is-/g) ?? []).length,
-      9,
+      10,
     );
     assert.equal((section.match(/id="format-catalog"/g) ?? []).length, 1);
     assert.ok(section.includes('href="#format-catalog"'));

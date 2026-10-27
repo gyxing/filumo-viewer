@@ -1,5 +1,6 @@
 import type { ViewerPlugin } from '@filumo/dom';
 import {
+  archive,
   code,
   csv,
   image,
@@ -39,6 +40,7 @@ const PLUGINS: readonly PlaygroundPluginDefinition[] = [
   { name: 'csv', create: () => csv() },
   { name: 'xml', create: () => xml() },
   { name: 'code', create: () => code() },
+  { name: 'archive', create: () => archive() },
 ];
 
 /** 为公开体验创建稳定的插件描述符，不预先加载解析器。 */

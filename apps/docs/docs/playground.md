@@ -1,6 +1,6 @@
 ---
 title: Filumo Playground
-description: Try nine Filumo format plugins in the browser, tune display and Office options, and copy React, Vue or JavaScript integration examples.
+description: Try ten Filumo format plugins in the browser, tune display and Office options, and copy React, Vue or JavaScript integration examples.
 keywords:
   - Filumo
   - document viewer

@@ -1,5 +1,14 @@
 import { createShellIcon, labelShellButton } from './icons';
 
+// 仅把已知资源限制作为用户提示，未知引擎错误仍保留在技术详情中。
+const RESOURCE_LIMIT_CODES = new Set([
+  'FILE_SIZE_LIMIT_EXCEEDED',
+  'ARCHIVE_TOTAL_LIMIT',
+  'ARCHIVE_ENTRY_LIMIT',
+  'ARCHIVE_ENTRIES_LIMIT',
+  'ARCHIVE_DEPTH_LIMIT',
+]);
+
 /** 展示面向用户的状态说明；原始错误仍通过 onError 和控制器快照交付。 */
 export function createViewerStatus(
   host: HTMLElement,
@@ -35,7 +44,11 @@ export function createViewerStatus(
   ) => {
     const failed = kind === 'error';
     const code = error && 'code' in error ? error.code : undefined;
-    const unsupported = failed && (code === 'UNSUPPORTED_FORMAT' || code === 'UNSUPPORTED_FILE_TYPE');
+    const unsupported =
+      failed &&
+      (code === 'UNSUPPORTED_FORMAT' || code === 'UNSUPPORTED_FILE_TYPE');
+    const limited =
+      failed && typeof code === 'string' && RESOURCE_LIMIT_CODES.has(code);
     const loading = kind === 'loading' || kind === 'detecting';
     const cancelled = kind === 'cancelled';
     const name = failed ? 'error' : loading ? 'loading' : 'document';
@@ -46,8 +59,14 @@ export function createViewerStatus(
     host.classList.toggle('filumo-status--centered', !inline);
     host.dataset.kind = kind;
     host.setAttribute('role', failed ? 'alert' : 'status');
-    heading.textContent = unsupported
-      ? en ? 'Unsupported format' : '暂不支持该格式'
+    heading.textContent = limited
+      ? en
+        ? 'Preview limit exceeded'
+        : '超出预览限制'
+      : unsupported
+      ? en
+        ? 'Unsupported format'
+        : '暂不支持该格式'
       : failed
       ? en
         ? 'Preview failed'
@@ -63,7 +82,12 @@ export function createViewerStatus(
       : en
       ? 'Select a document to preview'
       : '请选择文档进行预览';
-    description.textContent = unsupported
+    description.textContent = limited
+      ? en
+        ? 'This file exceeds the configured preview resource limits. Use a smaller file or adjust the host policy.'
+        : error?.message ??
+          '该文件超过当前预览资源限制，请选择较小的文件或调整宿主配置。'
+      : unsupported
       ? en
         ? 'No enabled preview format matched this file, and it could not be read as plain text. Choose another file.'
         : '该文件未匹配可用的预览格式，且无法按纯文本读取，请选择其他文件。'
@@ -78,9 +102,17 @@ export function createViewerStatus(
       : en
       ? 'Open a file supported by the enabled document plugins.'
       : '点击打开文件，选择当前已启用格式的文档。';
-    labelShellButton(choose,
-      unsupported ? en ? 'Open another file' : '打开其他文件' : en ? 'Open file' : '打开文件',
-      'open');
+    labelShellButton(
+      choose,
+      unsupported
+        ? en
+          ? 'Open another file'
+          : '打开其他文件'
+        : en
+        ? 'Open file'
+        : '打开文件',
+      'open',
+    );
     retry.textContent = en ? 'Retry' : '重试';
     retry.hidden = !(failed && canRetry && !unsupported);
     actions.hidden = loading;

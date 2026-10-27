@@ -22,7 +22,7 @@ test('普通 PDF patch 只发布 PDF，兼容范围内的 Viewer 不参与', asy
   assert.equal(packages.get('@filumo/viewer').version, '0.1.0');
 });
 
-test('首次发布保留十五个 0.1.0，前置依赖排在使用者前面', async () => {
+test('首次发布保留十六个 0.1.0，前置依赖排在使用者前面', async () => {
   const packages = releasePackages();
   const plan = await createReleasePlan(
     packages,
@@ -30,7 +30,7 @@ test('首次发布保留十五个 0.1.0，前置依赖排在使用者前面', as
     async () => [],
   );
   assert.deepEqual(plan.errors, []);
-  assert.equal(plan.order.length, 15);
+  assert.equal(plan.order.length, 16);
   assert.ok(
     plan.order.indexOf('@filumo/core') < plan.order.indexOf('@filumo/dom'),
   );
@@ -98,16 +98,16 @@ test('明确要求的新 Core 最低版本不能由不兼容本地版本补足',
 
 test('包选择拒绝未知目标和路径，私有应用不进入正式清单', async () => {
   const packages = await loadReleasePackages(process.cwd());
-  assert.equal(packages.size, 15);
+  assert.equal(packages.size, 16);
   assert.deepEqual(selectReleasePackages(['pdf', '@filumo/core'], packages), [
     '@filumo/pdf',
     '@filumo/core',
   ]);
-  assert.equal(selectReleasePackages(['--all'], packages).length, 15);
+  assert.equal(selectReleasePackages(['--all'], packages).length, 16);
   for (const args of [['../pdf'], ['*'], ['filumo-docs'], ['--all', 'pdf']])
     assert.throws(() => selectReleasePackages(args, packages));
   const root = await releaseWorkspace();
-  assert.equal((await loadReleasePackages(root)).size, 15);
+  assert.equal((await loadReleasePackages(root)).size, 16);
 });
 
 test('registry 仅明确结构化 404 表示不存在，保留其他失败', async () => {

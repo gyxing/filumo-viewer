@@ -1,8 +1,9 @@
+import { archive } from '@filumo/archive';
+import { code } from '@filumo/code';
 import { Alert, Button, Empty, Input, Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { docsPath } from '../site-path';
 import type { Sample } from './types';
-import { code } from '@filumo/code';
 
 // 按实际解析族展示本机和公开样本，WPS 随 Word 分组。
 const groups = [
@@ -26,6 +27,12 @@ const groups = [
     formats: ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg', 'avif'],
   },
   { name: 'PDF', formats: ['pdf'] },
+  {
+    name: '压缩包',
+    formats: archive().document.extensions.map((extension) =>
+      extension.slice(1),
+    ),
+  },
 ];
 
 /** 样本只从开发接口读取，工作台源码不包含真实文件名或本机路径。 */

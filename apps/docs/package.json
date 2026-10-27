@@ -9,7 +9,10 @@
     "setup": "dumi setup"
   },
   "dependencies": {
+    "@filumo/archive": "workspace:^",
+    "@filumo/code": "workspace:^",
     "@filumo/core": "workspace:^",
+    "@filumo/csv": "workspace:^",
     "@filumo/dom": "workspace:^",
     "@filumo/image": "workspace:^",
     "@filumo/json": "workspace:^",
@@ -19,12 +22,10 @@
     "@filumo/react": "workspace:^",
     "@filumo/text": "workspace:^",
     "@filumo/viewer": "workspace:^",
+    "@filumo/xml": "workspace:^",
     "antd": "^5.29.3",
     "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "@filumo/csv": "workspace:^",
-    "@filumo/xml": "workspace:^",
-    "@filumo/code": "workspace:^"
+    "react-dom": "^18.0.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.0",

@@ -18,6 +18,59 @@ export interface FormatCatalogEntry {
 // 文档清单不导入格式包；一致性回归对照真实描述符，避免首页提前加载任何解析引擎。
 export const FORMAT_CATALOG: readonly FormatCatalogEntry[] = [
   {
+    id: 'archive',
+    label: { 'en-US': 'Archives', 'zh-CN': '压缩包' },
+    groups: [
+      {
+        id: 'zip',
+        label: { 'en-US': 'ZIP and ZIP containers', 'zh-CN': 'ZIP 与容器文件' },
+        extensions: [
+          '.zip',
+          '.jar',
+          '.war',
+          '.ear',
+          '.apk',
+          '.aab',
+          '.cbz',
+          '.kmz',
+        ],
+      },
+      {
+        id: 'tar',
+        label: { 'en-US': 'TAR', 'zh-CN': 'TAR 归档' },
+        extensions: ['.tar'],
+      },
+      {
+        id: 'gzip',
+        label: { 'en-US': 'GZIP and TAR.GZ', 'zh-CN': 'GZIP 与 TAR.GZ' },
+        extensions: ['.gz', '.gzip', '.tgz'],
+        patterns: ['*.tar.gz'],
+      },
+      {
+        id: 'rar',
+        label: { 'en-US': 'RAR', 'zh-CN': 'RAR' },
+        extensions: ['.rar'],
+      },
+      {
+        id: '7z',
+        label: { 'en-US': '7-Zip', 'zh-CN': '7-Zip' },
+        extensions: ['.7z'],
+      },
+      {
+        id: 'xz',
+        label: { 'en-US': 'XZ-compressed TAR', 'zh-CN': 'XZ 压缩的 TAR' },
+        extensions: ['.tar.xz', '.txz'],
+        patterns: ['*.tar.xz'],
+      },
+    ],
+    note: {
+      'en-US':
+        'Read-only directories and on-demand previews using registered plugins. ZIP/TAR use range reads where available; GZIP is sequential. WASM formats have a bounded full-input limit. XZ requires a TAR payload with the current engine; standalone single-file XZ streams are not supported. Encrypted and multipart archives are not included.',
+      'zh-CN':
+        '只读浏览目录，按需交给已注册格式预览。ZIP/TAR 尽可能区间读取，GZIP 顺序解压；WASM 格式受完整输入上限约束。当前引擎的 XZ 内容必须是 TAR，暂不支持仅压缩单个文件的 XZ 流。不支持加密和分卷。',
+    },
+  },
+  {
     id: 'office',
     label: { 'en-US': 'Office documents', 'zh-CN': 'Office 文档' },
     groups: [
@@ -287,9 +340,9 @@ export const FORMAT_CATALOG: readonly FormatCatalogEntry[] = [
     ],
     note: {
       'en-US':
-        'Source preview only: HTML is not rendered, scripts do not run and stylesheets are not compiled or applied. Dedicated formats such as JSON and XML take priority over filename variants. Vue and Svelte mixed-syntax support is outside the current scope.',
+        'Source is the default. HTML/HTM can switch to controlled static reading; scripts and external stylesheets do not execute or affect the host. Dedicated formats such as JSON and XML retain priority. Vue/Svelte mixed syntax is not included.',
       'zh-CN':
-        '仅预览源码，不渲染 HTML、不执行脚本、不编译或应用样式。文件名变体遇到 JSON、XML 等专用后缀时仍由专用插件处理。Vue、Svelte 混合语法不在当前支持范围内。',
+        '默认源码；HTML/HTM 可切换受控静态阅读，不执行脚本或将外链样式应用到宿主。JSON、XML 等专用后缀保持优先，暂不包括 Vue/Svelte 混合语法。',
     },
   },
 ];

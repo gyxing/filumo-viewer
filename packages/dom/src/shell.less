@@ -88,6 +88,18 @@
   border-bottom: 1px solid var(--filumo-border);
 }
 
+.filumo-toolbar-download {
+  display: inline-flex;
+  flex: none;
+
+  .is-menu {
+    gap: 3px;
+    width: auto;
+    min-width: 48px;
+    padding: 4px 6px;
+  }
+}
+
 .filumo-file-title {
   display: flex;
   align-items: center;
@@ -603,7 +615,9 @@
   transform: rotate(-20deg);
 }
 
-.filumo-viewer:not([data-state='ready']) > .filumo-viewer-body > .filumo-viewport {
+.filumo-viewer:not([data-state='ready'])
+  > .filumo-viewer-body
+  > .filumo-viewport {
   display: none;
 }
 

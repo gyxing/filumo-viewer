@@ -12,14 +12,37 @@ async function fixture(page, query = '') {
 const state = (page) =>
   page.locator('#result').evaluate((el) => JSON.parse(el.textContent));
 
+test('连续进度保持即时回调，静态按钮与工具栏不重复刷新', async ({
+  page,
+}, info) => {
+  await fixture(page);
+  const result = await page.evaluate(() => window.filumoProgressBenchmark());
+  await info.attach('progress-benchmark', {
+    body: JSON.stringify(result),
+    contentType: 'application/json',
+  });
+  expect(result.callbackDelta).toBe(100);
+  expect(result.received).toEqual(
+    Array.from({ length: 100 }, (_, index) => index),
+  );
+  expect(result.label).toBe('Open file');
+  expect(result.lifecycleCallbacks).toBe(3);
+  expect(result.actionLabel).toBe('Changed action');
+  expect(result.staticMutations).toBe(0);
+  expect(result.controlMutations).toBe(0);
+});
+
 test('更多位于所有工具栏操作之后，视觉位置与键盘顺序一致', async ({ page }) => {
   await fixture(page, '?width=320');
   await page.getByRole('button', { name: 'Excel', exact: true }).click();
   const toolbar = page.getByRole('toolbar');
   const more = toolbar.getByRole('button', { name: '更多操作', exact: true });
   await expect(more).toBeVisible();
-  expect(await toolbar.evaluate((element) =>
-    element.lastElementChild.classList.contains('filumo-toolbar-more'))).toBe(true);
+  expect(
+    await toolbar.evaluate((element) =>
+      element.lastElementChild.classList.contains('filumo-toolbar-more'),
+    ),
+  ).toBe(true);
   const bounds = await more.boundingBox();
   const fullscreen = toolbar.getByRole('button', { name: '全屏', exact: true });
   const previous = await fullscreen.boundingBox();
@@ -32,8 +55,11 @@ test('更多位于所有工具栏操作之后，视觉位置与键盘顺序一�
   await more.press('ArrowDown');
   await page.keyboard.press('Escape');
   await expect(more).toBeFocused();
-  expect(await toolbar.evaluate((element) => element.scrollWidth - element.clientWidth))
-    .toBeLessThanOrEqual(1);
+  expect(
+    await toolbar.evaluate(
+      (element) => element.scrollWidth - element.clientWidth,
+    ),
+  ).toBeLessThanOrEqual(1);
 });
 
 test('更多使用纯菜单和单选子菜单，刷新后保留展开状态', async ({ page }) => {
@@ -43,20 +69,27 @@ test('更多使用纯菜单和单选子菜单，刷新后保留展开状态', as
   await more.click();
   const menu = page.getByRole('menu', { name: '更多操作', exact: true });
   await expect(menu).toBeVisible();
-  await expect(menu.locator('input, select, [role="combobox"], [role="switch"]')).toHaveCount(0);
+  await expect(
+    menu.locator('input, select, [role="combobox"], [role="switch"]'),
+  ).toHaveCount(0);
   const view = menu.getByRole('menuitem', { name: '表格视图', exact: true });
   await expect(view).toContainText('原始布局');
   await view.click();
   const submenu = page.getByRole('menu', { name: '表格视图', exact: true });
-  await expect(submenu.getByRole('menuitemradio', { name: '原始布局', exact: true }))
-    .toHaveAttribute('aria-checked', 'true');
-  await page.getByRole('button', { name: '异步刷新', exact: true }).dispatchEvent('click');
+  await expect(
+    submenu.getByRole('menuitemradio', { name: '原始布局', exact: true }),
+  ).toHaveAttribute('aria-checked', 'true');
+  await page
+    .getByRole('button', { name: '异步刷新', exact: true })
+    .dispatchEvent('click');
   await expect(submenu).toBeVisible();
   const bounds = await submenu.boundingBox();
   const root = await page.locator('.filumo-viewer').boundingBox();
   expect(bounds.x).toBeGreaterThanOrEqual(root.x);
   expect(bounds.x + bounds.width).toBeLessThanOrEqual(root.x + root.width);
-  await submenu.getByRole('menuitemradio', { name: '阅读模式', exact: true }).click();
+  await submenu
+    .getByRole('menuitemradio', { name: '阅读模式', exact: true })
+    .click();
   await expect(menu).toBeHidden();
   await expect(more).toBeFocused();
   expect((await state(page)).sheetMode).toBe('reading');
@@ -71,7 +104,10 @@ test('更多支持勾选、子菜单键盘返回及销毁清理', async ({ page 
   await more.focus();
   await more.press('ArrowDown');
   const menu = page.getByRole('menu', { name: '更多操作', exact: true });
-  const outline = menu.getByRole('menuitemcheckbox', { name: '大纲', exact: true });
+  const outline = menu.getByRole('menuitemcheckbox', {
+    name: '大纲',
+    exact: true,
+  });
   await outline.click();
   await expect(menu).toBeVisible();
   await expect(outline).toHaveAttribute('aria-checked', 'true');
@@ -102,14 +138,22 @@ test('窄屏翻页转换为菜单并保留边界禁用状态', async ({ page }) 
   const more = page.getByRole('button', { name: '更多操作', exact: true });
   await more.click();
   await page.getByRole('menuitem', { name: '翻页', exact: true }).click();
-  await expect(page.getByRole('menuitem', { name: '上一张幻灯片', exact: true })).toBeDisabled();
-  await page.getByRole('menuitem', { name: '下一张幻灯片', exact: true }).click();
+  await expect(
+    page.getByRole('menuitem', { name: '上一张幻灯片', exact: true }),
+  ).toBeDisabled();
+  await page
+    .getByRole('menuitem', { name: '下一张幻灯片', exact: true })
+    .click();
   await expect(more).toHaveAttribute('aria-expanded', 'false');
   expect((await state(page)).activeIndex).toBe(1);
   await more.click();
   await page.getByRole('menuitem', { name: '翻页', exact: true }).click();
-  await expect(page.getByRole('menuitem', { name: '下一张幻灯片', exact: true })).toBeDisabled();
-  await expect(page.getByRole('menuitem', { name: '上一张幻灯片', exact: true })).toBeEnabled();
+  await expect(
+    page.getByRole('menuitem', { name: '下一张幻灯片', exact: true }),
+  ).toBeDisabled();
+  await expect(
+    page.getByRole('menuitem', { name: '上一张幻灯片', exact: true }),
+  ).toBeEnabled();
 });
 
 for (const theme of ['light', 'dark']) {
@@ -253,8 +297,9 @@ test('更多级联菜单支持悬停进入、外部关闭和主题继承', async
   await child.locator('button').last().hover();
   await expect(child).toBeVisible();
   await expect(menu).toHaveCSS('border-radius', '8px');
-  expect(await child.evaluate((el) => getComputedStyle(el).backgroundColor))
-    .toBe(await menu.evaluate((el) => getComputedStyle(el).backgroundColor));
+  expect(
+    await child.evaluate((el) => getComputedStyle(el).backgroundColor),
+  ).toBe(await menu.evaluate((el) => getComputedStyle(el).backgroundColor));
   await page.locator('#result').click();
   await expect(menu).toBeHidden();
   await expect(child).toHaveCount(0);
@@ -301,12 +346,16 @@ if (process.env.FILUMO_LOCAL_SAMPLES === '1') {
   }
 }
 
-test('更多菜单中的缩放通过菜单执行，能力刷新不丢失键盘焦点', async ({ page }) => {
+test('更多菜单中的缩放通过菜单执行，能力刷新不丢失键盘焦点', async ({
+  page,
+}) => {
   await fixture(page, '?width=320');
   await page.getByRole('button', { name: '内容', exact: true }).click();
   const bar = page.getByRole('toolbar');
   await bar.getByRole('button', { name: '更多操作', exact: true }).click();
-  await page.getByRole('menuitem', { name: '缩放', exact: true }).press('ArrowRight');
+  await page
+    .getByRole('menuitem', { name: '缩放', exact: true })
+    .press('ArrowRight');
   const choice = page.getByRole('menuitemradio', { name: '125%', exact: true });
   await choice.focus();
   await page
@@ -323,12 +372,12 @@ test('格式工具栏按内容和顺序展示，切换后不残留旧操作', as
 }, info) => {
   await fixture(page);
   const bar = page.getByRole('toolbar');
-  await expect(bar.locator('[data-filumo-action="office.outline"]')).toHaveCount(
-    0,
-  );
-  await expect(bar.locator('[data-filumo-action="office.revision"]')).toHaveCount(
-    0,
-  );
+  await expect(
+    bar.locator('[data-filumo-action="office.outline"]'),
+  ).toHaveCount(0);
+  await expect(
+    bar.locator('[data-filumo-action="office.revision"]'),
+  ).toHaveCount(0);
   await expect(bar.getByRole('spinbutton', { name: '页码' })).toHaveCount(0);
   await page.getByRole('button', { name: '内容', exact: true }).click();
   await expect(
@@ -341,10 +390,12 @@ test('格式工具栏按内容和顺序展示，切换后不残留旧操作', as
   ).toEqual(['office.outline', 'office.revision', 'office.search']);
   await bar.screenshot({ path: 'tmp/toolbar-word.png' });
   await page.getByRole('button', { name: 'Excel', exact: true }).click();
-  await expect(bar.locator('[data-filumo-action="office.outline"]')).toHaveCount(
+  await expect(
+    bar.locator('[data-filumo-action="office.outline"]'),
+  ).toHaveCount(0);
+  await expect(bar.locator('[data-filumo-action="office.sheet"]')).toHaveCount(
     0,
   );
-  await expect(bar.locator('[data-filumo-action="office.sheet"]')).toHaveCount(0);
   await expect(bar.locator('[data-filumo-action="office.review"]')).toHaveCount(
     0,
   );
@@ -430,7 +481,9 @@ test('窄屏嵌套菜单、主题与旧插件保持可用', async ({ page }) => 
   expect((await state(page)).zoom).toBe(125);
   await more.press('ArrowDown');
   await page.keyboard.press('Escape');
-  await expect(page.getByRole('menu', { name: 'More actions', exact: true })).toBeHidden();
+  await expect(
+    page.getByRole('menu', { name: 'More actions', exact: true }),
+  ).toBeHidden();
   await expect(more).toBeFocused();
   expect(
     await bar.evaluate((el) => el.scrollWidth - el.clientWidth),
@@ -438,7 +491,10 @@ test('窄屏嵌套菜单、主题与旧插件保持可用', async ({ page }) => 
   await page.locator('#preview').evaluate((el) => {
     el.style.width = '1100px';
   });
-  const zoom = bar.getByRole('combobox', { name: 'Zoom percentage', exact: true });
+  const zoom = bar.getByRole('combobox', {
+    name: 'Zoom percentage',
+    exact: true,
+  });
   await expect(zoom).toBeVisible();
   await bar.screenshot({ path: 'tmp/toolbar-dark.png' });
   await page.getByRole('button', { name: '通用', exact: true }).click();

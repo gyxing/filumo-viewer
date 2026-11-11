@@ -141,3 +141,9 @@ The current package is bold. Each package is published independently. Package na
 - [Changelog](https://github.com/gyxing/filumo-viewer/blob/master/CHANGELOG.md)
 - [Report an issue](https://github.com/gyxing/filumo-viewer/issues)
 - [MIT license](https://github.com/gyxing/filumo-viewer/blob/master/packages/react/LICENSE)
+
+## Custom toolbar icons
+
+Import ToolbarAction from @filumo/react and provide a ReactNode through options.toolbarActions[].icon, for example icon: <ReloadOutlined spin={loading} />. Native ToolbarIcon objects are accepted too. Portals preserve host Context and render separately in the toolbar and overflow menu. Configuration types and ViewerHandle.update() accept React icons. getCapabilities() exposes normalized DOM capabilities. undefined keeps the default, while null and booleans suppress icons. React and React DOM 18/19 are host peer dependencies. Updated definitions, removed actions, and unmounted viewers update or release their portals.
+
+See the Chinese README and exported types for full usage examples.

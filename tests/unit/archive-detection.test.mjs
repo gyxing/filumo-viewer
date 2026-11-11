@@ -72,3 +72,21 @@ test('首版只声明 TAR.XZ/TXZ，单文件 XZ 不匹配且不读取来源', as
     'tarxz',
   );
 });
+
+test('不支持区间的无扩展名归档通过有界前缀识别', async () => {
+  const plugin = archive();
+  const source = {
+    name: 'download',
+    getRangeReader: async () => undefined,
+    readRange: async (offset, length) => {
+      assert.equal(offset, 0);
+      assert.equal(length, 512);
+      return new Uint8Array([0x50, 0x4b, 3, 4]);
+    },
+    readAll: () => assert.fail('识别不应全文读取'),
+  };
+  assert.equal(
+    await plugin.document.detect(source, new AbortController().signal),
+    true,
+  );
+});

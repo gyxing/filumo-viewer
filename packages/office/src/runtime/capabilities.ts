@@ -109,15 +109,25 @@ export function createOfficeCapabilities(
         id: 'office.copy',
         label: en ? 'Copy selection' : '复制选区',
         kind: 'action',
-        toolbar: { placement: 'more', order: 60 },
-        enabled: enabled && !!state.gridReady,
+        // 复制入口跟随有效选区，初始阅读和清除后的空状态无需占位。
+        toolbar: {
+          placement: 'main',
+          order: 60,
+          visible: !!state.gridReady && !!state.gridHasSelection,
+        },
+        enabled: enabled && !!state.gridReady && !!state.gridHasSelection,
         run: () => port.execute({ type: 'gridCopy' }),
       },
       {
         id: 'office.resetColumns',
         label: en ? 'Reset column widths' : '恢复列宽',
         kind: 'action',
-        toolbar: { placement: 'more', order: 70 },
+        // 没有列宽改动时恢复操作无实际作用，主栏和更多均隐藏。
+        toolbar: {
+          placement: 'main',
+          order: 70,
+          visible: !!state.gridReady && !!state.columnWidthsChanged,
+        },
         enabled: enabled && !!state.gridReady && !!state.columnWidthsChanged,
         run: () => port.execute({ type: 'gridResetColumns' }),
       },
@@ -210,21 +220,35 @@ export function createOfficeCapabilities(
         set: (mode) =>
           port.execute({ type: 'zoomMode', mode: mode as OfficeZoomMode }),
       },
-      toolbar: { order: 50, placement: 'main', priority: 100 },
+      toolbar: { order: 50, placement: 'main', priority: 120 },
       set: (value) => port.execute({ type: 'zoom', value }),
     },
     navigation:
       enabled && count > 0
         ? {
             toolbar: {
-              visible: state.family === 'presentation',
+              visible: true,
               order: 10,
               placement: 'main',
               // 幻灯片翻页是核心导航，窄容器中优先于查找和缩放。
-              priority: 120,
-              layout: 'buttons',
-              previousLabel: en ? 'Previous slide' : '上一张幻灯片',
-              nextLabel: en ? 'Next slide' : '下一张幻灯片',
+              priority: 130,
+              layout: state.family === 'presentation' ? 'buttons' : 'paging',
+              previousLabel:
+                state.family === 'presentation'
+                  ? en
+                    ? 'Previous slide'
+                    : '上一张幻灯片'
+                  : en
+                  ? 'Previous page'
+                  : '上一页',
+              nextLabel:
+                state.family === 'presentation'
+                  ? en
+                    ? 'Next slide'
+                    : '下一张幻灯片'
+                  : en
+                  ? 'Next page'
+                  : '下一页',
             },
             index,
             count,

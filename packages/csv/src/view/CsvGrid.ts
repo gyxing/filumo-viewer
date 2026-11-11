@@ -1,12 +1,14 @@
+import type { StylePolicy } from '@filumo/dom';
+import type { GridPoint, GridRange, GridState } from '@filumo/dom/grid';
+import { GridColumnResize, GridInteractionController } from '@filumo/dom/grid';
 import type { CsvIndex } from '../parser/types';
 import type { CsvSession } from '../runtime/CsvSession';
-import { GridInteractionController, GridColumnResize } from '@filumo/dom/grid';
-import type { GridPoint, GridRange, GridState } from '@filumo/dom/grid';
-import type { StylePolicy } from '@filumo/dom';
 import { CsvCellDetail } from './CsvCellDetail';
 import { CsvFind } from './CsvFind';
-import { csvScrollMetrics } from './csvViewport';
 import './csv.less';
+import { csvScrollMetrics } from './csvViewport';
+// 未调整的列采用相同基准宽度，自动适应只读取列元数据。
+const DEFAULT_COLUMN_WIDTH = 160;
 export interface CsvGridOptions {
   stylePolicy?: StylePolicy;
   locale?: 'zh-CN' | 'en-US';
@@ -41,6 +43,7 @@ export class CsvGrid {
   private detailRequest = new AbortController();
   private active = true;
   private closed = false;
+  private selectionAvailable = false;
   private pendingPosition?: { top: number; left: number };
   constructor(
     private session: CsvSession,
@@ -49,7 +52,9 @@ export class CsvGrid {
     private options: CsvGridOptions,
     private onError: (error: unknown) => void,
     state?: CsvGridState,
-    private widthsChanged: () => void = () => undefined,
+    private capabilitiesChanged: (manualResize?: boolean) => void = () =>
+      undefined,
+    private layoutChanged: () => void = () => undefined,
   ) {
     this.element = document.createElement('section');
     this.element.className = 'filumo-csv-grid';
@@ -63,6 +68,7 @@ export class CsvGrid {
     this.canvas = document.createElement('div');
     this.canvas.className = 'filumo-csv-canvas';
     this.detail = new CsvCellDetail(document);
+    this.detail.element.dataset.gridInteractive = '';
     this.find = new CsvFind(
       document,
       session,
@@ -76,6 +82,7 @@ export class CsvGrid {
         if (this.active) this.viewport.focus({ preventScroll: true });
       },
     );
+    this.find.element.dataset.gridInteractive = '';
     this.viewport.append(this.header, this.canvas);
     this.element.append(this.find.element, this.viewport, this.detail.element);
     if (state) {
@@ -101,7 +108,7 @@ export class CsvGrid {
         };
         if (width === undefined) this.widths.delete(column);
         else this.widths.set(column, width);
-        this.widthsChanged();
+        this.capabilitiesChanged(true);
         this.schedule();
       },
     });
@@ -129,16 +136,24 @@ export class CsvGrid {
           ),
         changed: (state) => {
           if (state.focus) void this.showDetail(state.focus);
-          else this.detail.element.textContent = '';
+          else {
+            this.detailRequest.abort();
+            this.detail.element.textContent = '';
+          }
+          const available = !!(state.focus || state.range);
+          if (available !== this.selectionAvailable) {
+            this.selectionAvailable = available;
+            this.capabilitiesChanged();
+          }
         },
       },
     });
     this.viewport.addEventListener('scroll', this.schedule, { passive: true });
     const Resize = document.defaultView?.ResizeObserver;
     if (Resize) {
-      this.observer = new Resize(this.schedule);
+      this.observer = new Resize(this.resized);
       this.observer.observe(this.viewport);
-    }
+    } else document.defaultView?.addEventListener('resize', this.resized);
     this.update(options);
   }
   private get firstRow() {
@@ -151,8 +166,28 @@ export class CsvGrid {
     return 28 * this.scale;
   }
   private width(column: number) {
-    return (this.widths.get(column) ?? 160) * this.scale;
+    return (this.widths.get(column) ?? DEFAULT_COLUMN_WIDTH) * this.scale;
   }
+  /** 按整张表的未缩放列宽计算，虚拟窗口和当前比例不会影响结果。 */
+  get fitWidthZoom(): number | undefined {
+    let width = this.index.columnCount * DEFAULT_COLUMN_WIDTH;
+    for (const [column, value] of this.widths)
+      if (column < this.index.columnCount)
+        width += value - DEFAULT_COLUMN_WIDTH;
+    if (width <= 0 || this.viewport.clientWidth <= 0) return undefined;
+    return (this.viewport.clientWidth / width) * 100;
+  }
+  /** 自动适应时稳定滚动条占位，临界高度变化可以保持宽度测量收敛。 */
+  setFitWidth(active: boolean): void {
+    const gutter = active ? 'stable' : 'auto';
+    if (this.viewport.style.scrollbarGutter !== gutter)
+      this.viewport.style.scrollbarGutter = gutter;
+  }
+  private resized = () => {
+    if (this.closed || !this.active) return;
+    this.schedule();
+    this.layoutChanged();
+  };
   private schedule = () => {
     if (this.closed || !this.active || this.frame !== undefined) return;
     const window = this.document.defaultView;
@@ -471,6 +506,10 @@ export class CsvGrid {
   copy(): Promise<void> {
     return this.interaction.copy();
   }
+  /** 选择变化只在可用性切换时通知工具栏，拖选过程复用已有能力。 */
+  get hasSelection(): boolean {
+    return this.selectionAvailable;
+  }
   /** 只恢复预览列宽，不修改原文或重新解析。 */
   get hasColumnWidths(): boolean {
     return this.widths.size > 0;
@@ -479,7 +518,7 @@ export class CsvGrid {
     this.resize.setActive(false);
     this.widths.clear();
     this.resize.setActive(this.active);
-    this.widthsChanged();
+    this.capabilitiesChanged();
     this.schedule();
   }
   private async showDetail(point: GridPoint) {
@@ -608,6 +647,7 @@ export class CsvGrid {
     this.cellNodes.clear();
     this.find.dispose();
     this.viewport.removeEventListener('scroll', this.schedule);
+    this.document.defaultView?.removeEventListener('resize', this.resized);
     this.element.remove();
   }
 }

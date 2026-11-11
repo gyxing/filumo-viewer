@@ -32,6 +32,16 @@ for (const id of [
 test('严格 CSP、跨 Document 与非 Office 能力', async ({ page }, info) => {
   await runChecks(page, consumers.url + '/vanilla/checks.html', info);
 });
+
+test('安装后的 PDF Worker 保留初始化副作用并实际完成绘制', async ({ page }) => {
+  await isolateNetwork(page);
+  await page.goto(consumers.url + '/vanilla/');
+  await page.locator('#pdf').click();
+  await expect(page.locator('.filumo-pdf-canvas').first()).toBeVisible();
+  await expect(page.locator('[data-pdf-page="1"] .textLayer')).toContainText(
+    'Filumo PDF page 1',
+  );
+});
 for (const [label, script] of [
   ['共享原生资源服务', 'serve-services.mjs'],
   ['演示文稿元素对照', 'serve-presentation-check.mjs'],

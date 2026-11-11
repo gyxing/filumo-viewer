@@ -25,6 +25,33 @@ const {
 );
 const bounds = { startRow: 1, endRow: 1000, startColumn: 0, endColumn: 20 };
 
+test('初始空选区及清除状态在反复边界修正和恢复后保持为空', () => {
+  const selection = new GridSelection();
+  selection.clamp(bounds);
+  assert.equal(selection.range, undefined);
+  assert.equal(selection.focus, undefined);
+  selection.select({ row: 2, column: 3 }, false, bounds);
+  selection.clear();
+  selection.clamp(bounds);
+  const restored = new GridSelection(selection.getState());
+  restored.clamp(bounds);
+  assert.equal(restored.range, undefined);
+  assert.equal(restored.focus, undefined);
+});
+
+test('空选区可显式全选，已有全选恢复范围与活动位置', () => {
+  const selection = new GridSelection();
+  selection.selectAll(bounds);
+  assert.deepEqual(selection.range, bounds);
+  assert.deepEqual(selection.focus, { row: 1, column: 0 });
+  const restored = new GridSelection({ range: bounds });
+  restored.clamp(bounds);
+  assert.deepEqual(restored.range, bounds);
+  restored.clear();
+  restored.selectAll({ ...bounds, endRow: -1 });
+  assert.equal(restored.range, undefined);
+});
+
 test('文字选择依据真实文字行框，点击空白不误判为选字', () => {
   const cell = {};
   const text = { textContent: '中文 text' };

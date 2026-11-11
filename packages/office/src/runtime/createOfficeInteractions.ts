@@ -37,6 +37,7 @@ export function createOfficeInteractions(kind: string): OfficeInteractionPort {
     showReview: false,
     revisionMode: 'final',
     sheetMode: 'source',
+    gridHasSelection: false,
     transitions: false,
     query: '',
     resultCount: 0,
@@ -285,11 +286,15 @@ export function createOfficeInteractions(kind: string): OfficeInteractionPort {
     },
     bindGrid(next) {
       gridHandlers = next;
-      update({ gridReady: true });
+      update({ gridReady: true, gridHasSelection: false });
       return () => {
         if (gridHandlers === next) {
           gridHandlers = undefined;
-          update({ gridReady: false, columnWidthsChanged: false });
+          update({
+            gridReady: false,
+            columnWidthsChanged: false,
+            gridHasSelection: false,
+          });
         }
       };
     },

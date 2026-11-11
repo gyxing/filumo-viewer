@@ -1,16 +1,22 @@
-import { createReadingFrame } from '@filumo/dom';
-import type { CapabilityAction, ViewContext, ViewHandle } from '@filumo/dom';
+import { FilumoError } from '@filumo/core';
 import type { TextEncoding } from '@filumo/core/text';
-import { formatEncodingWarning } from '@filumo/dom/text-messages';
+import type { CapabilityAction, ViewContext, ViewHandle } from '@filumo/dom';
+import { createReadingFrame, resolveZoomOptions } from '@filumo/dom';
 import type { TextSurfaceHandle } from '@filumo/dom/text';
-import type { CsvSession } from '../runtime/CsvSession';
-import type { CsvDelimiter, CsvIndex, CsvParseResult } from '../parser/types';
-import type { CsvGrid } from './CsvGrid';
+import { formatEncodingWarning } from '@filumo/dom/text-messages';
 import { STYLE_SCOPE } from '../generated/package';
+import type { CsvDelimiter, CsvIndex, CsvParseResult } from '../parser/types';
+import type { CsvSession } from '../runtime/CsvSession';
+import type { CsvGrid } from './CsvGrid';
 import './frame.less';
 
 /** 格式外壳连接会话和两种独立视图，不在原文模式预建表格索引。 */
 export async function mountCsv(context: ViewContext): Promise<ViewHandle> {
+  const initialZoom = resolveZoomOptions(context.options, {
+    mode: 'percentage',
+    modes: ['percentage', 'fit-width'],
+    minFitZoom: 50,
+  });
   const session = context.session.data as CsvSession,
     content = session.content,
     frame = createReadingFrame(context, STYLE_SCOPE!, 'csv');
@@ -19,7 +25,8 @@ export async function mountCsv(context: ViewContext): Promise<ViewHandle> {
   sourceHost.hidden = true;
   frame.body.append(sourceHost);
   let options = context.options,
-    zoom = options.zoom ?? 100,
+    zoom = initialZoom.zoom,
+    zoomMode = initialZoom.mode,
     source: TextSurfaceHandle | undefined,
     grid: CsvGrid | undefined,
     index: CsvIndex | undefined,
@@ -29,6 +36,26 @@ export async function mountCsv(context: ViewContext): Promise<ViewHandle> {
     generation = 0,
     noticeId = 0;
   let warnedEncoding = 0;
+  const fitWidth = (): boolean => {
+    if (!grid) return false;
+    const enabled = zoomMode === 'fit-width' && session.mode === 'table';
+    grid.setFitWidth(enabled);
+    if (!enabled) return false;
+    const measured = grid.fitWidthZoom;
+    if (measured === undefined) return false;
+    const next = Math.min(
+      300,
+      Math.max(50, Math.min(measured, options.fitMaxZoom ?? Infinity)),
+    );
+    if (Math.abs(next - zoom) < 1e-6) return false;
+    zoom = next;
+    grid.update({
+      locale: options.locale,
+      zoom,
+      stylePolicy: context.stylePolicy,
+    });
+    return true;
+  };
   const error = (error: unknown) => {
     if (!closed && (error as { name?: string })?.name !== 'AbortError')
       frame.notice(
@@ -52,7 +79,7 @@ export async function mountCsv(context: ViewContext): Promise<ViewHandle> {
     kind: 'select',
     allowReselect: true,
     enabled: !content.loading,
-    toolbar: { placement: 'more', order: 10 },
+    toolbar: { placement: 'main', order: 10 },
     value: content.document?.encoding,
     options: [
       ...['utf-8', 'utf-16le', 'utf-16be', 'gbk', 'gb18030'].map((value) => ({
@@ -78,7 +105,7 @@ export async function mountCsv(context: ViewContext): Promise<ViewHandle> {
           id: 'csv.mode',
           label: en ? 'View' : '视图',
           kind: 'select',
-          toolbar: { placement: 'more', order: 20 },
+          toolbar: { placement: 'main', order: 20 },
           value: session.mode,
           options: [
             { value: 'table', label: en ? 'Table' : '表格' },
@@ -93,7 +120,11 @@ export async function mountCsv(context: ViewContext): Promise<ViewHandle> {
           id: 'csv.delimiter',
           label: en ? 'Delimiter' : '分隔符',
           kind: 'select',
-          toolbar: { placement: 'more', order: 30 },
+          toolbar: {
+            placement: 'main',
+            order: 30,
+            visible: session.mode === 'table',
+          },
           enabled: !!content.document && !content.loading,
           value: session.delimiter,
           options: [
@@ -118,7 +149,11 @@ export async function mountCsv(context: ViewContext): Promise<ViewHandle> {
           id: 'csv.header',
           label: en ? 'First row as header' : '首行作为表头',
           kind: 'toggle',
-          toolbar: { placement: 'more', order: 40 },
+          toolbar: {
+            placement: 'main',
+            order: 40,
+            visible: session.mode === 'table',
+          },
           pressed: session.header,
           run: () => {
             session.header = !session.header;
@@ -146,15 +181,24 @@ export async function mountCsv(context: ViewContext): Promise<ViewHandle> {
           id: 'csv.copy',
           label: en ? 'Copy selection' : '复制选区',
           kind: 'action',
-          toolbar: { placement: 'more', order: 60 },
-          enabled: session.mode === 'table' && !!grid,
+          toolbar: {
+            placement: 'main',
+            order: 60,
+            visible: session.mode === 'table' && !!grid?.hasSelection,
+          },
+          enabled: session.mode === 'table' && !!grid?.hasSelection,
           run: () => grid?.copy().catch(error),
         },
         {
           id: 'csv.resetColumns',
           label: en ? 'Reset column widths' : '恢复列宽',
           kind: 'action',
-          toolbar: { placement: 'more', order: 70 },
+          // 列宽状态变化后才提供恢复入口，源码视图没有表格布局操作。
+          toolbar: {
+            placement: 'main',
+            order: 70,
+            visible: session.mode === 'table' && !!grid?.hasColumnWidths,
+          },
           enabled: session.mode === 'table' && !!grid?.hasColumnWidths,
           run: () => grid?.resetColumnWidths(),
         },
@@ -164,8 +208,31 @@ export async function mountCsv(context: ViewContext): Promise<ViewHandle> {
         min: 50,
         max: 300,
         step: 10,
+        mode:
+          session.mode === 'table'
+            ? {
+                value: zoomMode,
+                options: [
+                  { value: 'fit-width', label: en ? 'Fit width' : '适应宽度' },
+                ],
+                async set(value) {
+                  if (value !== 'fit-width')
+                    throw new FilumoError(
+                      'INVALID_ZOOM_MODE',
+                      '当前格式不支持该缩放模式',
+                    );
+                  zoomMode = 'fit-width';
+                  fitWidth();
+                  publish();
+                },
+              }
+            : undefined,
         set: async (value) => {
+          if (!Number.isFinite(value) || value < 50 || value > 300)
+            throw new FilumoError('INVALID_ZOOM', '缩放超出支持范围');
+          zoomMode = 'percentage';
           zoom = value;
+          fitWidth();
           grid?.update({
             locale: options.locale,
             zoom,
@@ -246,7 +313,14 @@ export async function mountCsv(context: ViewContext): Promise<ViewHandle> {
             { locale: options.locale, zoom, stylePolicy: context.stylePolicy },
             error,
             undefined,
-            publish,
+            (manualResize) => {
+              if (manualResize) zoomMode = 'percentage';
+              fitWidth();
+              publish();
+            },
+            () => {
+              if (fitWidth()) publish();
+            },
           );
           frame.body.append(grid.element);
         }
@@ -259,6 +333,7 @@ export async function mountCsv(context: ViewContext): Promise<ViewHandle> {
           stylePolicy: context.stylePolicy,
         });
         frame.state('');
+        fitWidth();
         publish();
         return;
       }
@@ -297,10 +372,26 @@ export async function mountCsv(context: ViewContext): Promise<ViewHandle> {
   }
   return {
     update(next) {
-      if (next.zoom !== options.zoom && next.zoom !== undefined)
-        zoom = next.zoom;
-      options = next;
-      grid?.update({ locale: next.locale, zoom });
+      const updated = { ...options, ...next };
+      const resolved = resolveZoomOptions(updated, {
+        mode: 'percentage',
+        modes: ['percentage', 'fit-width'],
+        minFitZoom: 50,
+      });
+      if (
+        updated.zoom !== options.zoom ||
+        updated.zoomMode !== options.zoomMode
+      ) {
+        zoomMode = resolved.mode;
+        if (zoomMode === 'percentage') zoom = resolved.zoom;
+      }
+      options = updated;
+      grid?.update({
+        locale: options.locale,
+        zoom,
+        stylePolicy: context.stylePolicy,
+      });
+      fitWidth();
       run();
     },
     setActive(value) {

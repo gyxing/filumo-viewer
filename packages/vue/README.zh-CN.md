@@ -135,3 +135,23 @@ auto 模式由 DOM 与格式加载样式；external 模式导入 @filumo/dom/sty
 - [项目变更记录](https://github.com/gyxing/filumo-viewer/blob/master/CHANGELOG.md)
 - [问题反馈](https://github.com/gyxing/filumo-viewer/issues)
 - [MIT 许可证](https://github.com/gyxing/filumo-viewer/blob/master/packages/vue/LICENSE)
+
+## 自定义工具栏图标
+
+从本包导入 `ToolbarAction`，`icon` 使用 `(context) => VNodeChild` 渲染函数，也支持原生 `ToolbarIcon`。每个位置分别执行函数，图标可直接读取响应式状态。
+
+```ts
+import { h } from 'vue';
+import type { ToolbarAction } from '@filumo/vue';
+const actions: readonly ToolbarAction[] = [
+  {
+    id: 'host.retry',
+    label: '重新生成',
+    kind: 'action',
+    icon: () => h(MyRetryIcon, { spinning: loading.value }),
+    run: retry,
+  },
+];
+```
+
+将数组放入 `options.toolbarActions`。Teleport 保留宿主应用上下文及 provide/inject，查看器根节点继续接收 class 等属性。`undefined` 沿用默认图标，`null` 隐藏。公开 `ToolbarIconRenderer` 及框架侧配置、update 类型，`getCapabilities()` 返回归一化后的 DOM 能力。

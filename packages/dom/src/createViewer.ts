@@ -12,7 +12,12 @@ import { createDownloadControl } from './shell/DownloadControl';
 import { createReadingNotice } from './shell/ReadingNotice';
 import { bindCapabilities } from './shell/bindCapabilities';
 import { labelShellButton, updateFileIcon } from './shell/icons';
+import type { ToolbarItem } from './shell/overflow';
 import { createViewerStatus } from './shell/status';
+import {
+  toolbarCapabilities,
+  toolbarConfigurationKey,
+} from './shell/toolbarCapabilities';
 import { useStyles as acquireStyles } from './styles';
 import { waitForView } from './waitForView';
 
@@ -21,6 +26,11 @@ export function createViewer(
   container: HTMLElement,
   options: ViewerOptions,
 ): ViewerHandle {
+  let viewOptions: ViewOptions = { ...options };
+  let toolbarKey = toolbarConfigurationKey(
+    viewOptions.toolbarActions,
+    viewOptions.toolbarVisibility,
+  );
   const document = container.ownerDocument;
   const controller = createDocumentController({
     plugins: options.plugins.map((plugin) => plugin.document),
@@ -100,11 +110,10 @@ export function createViewer(
   );
   body.append(downloadNotice.element);
   let downloadNoticeId = 0;
-  // 更多入口稍后由能力绑定追加在全局操作之后，不能夹在缩放与下载之间。
+  // 能力绑定会把外壳与格式操作统一移入主栏，并在末尾添加更多入口。
   toolbar.append(fileTitle, openButton, controls, download, fullscreen);
   root.append(toolbar, body, fileInput);
   container.append(root);
-  let viewOptions: ViewOptions = { ...options };
   let view: ViewHandle | undefined;
   let viewAbort: AbortController | undefined;
   let generation = 0;
@@ -126,6 +135,7 @@ export function createViewer(
       lastInput !== undefined,
       controller.getSnapshot().status === 'ready',
       error,
+      viewOptions.toolbarVisibility?.open !== false,
     );
     try {
       options.onError?.(error);
@@ -136,7 +146,11 @@ export function createViewer(
   const bindings = bindCapabilities(controls, report);
   let downloadControl: ReturnType<typeof createDownloadControl>;
   const currentCapabilities = (): ViewerCapabilities => ({
-    ...capabilities,
+    ...toolbarCapabilities(
+      capabilities,
+      viewOptions.toolbarActions,
+      viewOptions.toolbarVisibility,
+    ),
     download: downloadControl.capability(),
   });
   function emitCapabilities() {
@@ -155,10 +169,14 @@ export function createViewer(
       ready: controller.getSnapshot().status === 'ready' && !!view,
       active,
       locale: viewOptions.locale,
+      showDownload: viewOptions.toolbarVisibility?.download,
       capabilities,
       handler: options.downloadOriginal,
     }),
-    emitCapabilities,
+    () => {
+      updateBindings(true);
+      emitCapabilities();
+    },
     (error) => {
       if (!disposed && !(error instanceof Error && error.name === 'AbortError'))
         downloadNotice.update(
@@ -169,32 +187,140 @@ export function createViewer(
     },
   );
   let downloadStateKey = '';
+  let shellKey: string | undefined;
+  let boundCapabilities: ViewerCapabilities | undefined;
+  let boundLocale: ViewOptions['locale'];
+  let boundAvailable: boolean | undefined;
+  let boundToolbarActions: ViewOptions['toolbarActions'];
+  let boundToolbarVisibility: ViewOptions['toolbarVisibility'];
+  let boundShellKey: string | undefined;
+  let boundDownloadStateKey: string | undefined;
+  function updateBindings(force = false) {
+    const available = controller.getSnapshot().status === 'ready' && active;
+    // 进度不会改变格式能力，跳过重复布局仍保留新能力对象中的最新操作回调。
+    if (
+      !force &&
+      boundCapabilities === capabilities &&
+      boundLocale === viewOptions.locale &&
+      boundToolbarActions === viewOptions.toolbarActions &&
+      boundToolbarVisibility === viewOptions.toolbarVisibility &&
+      boundShellKey === shellKey &&
+      boundDownloadStateKey === downloadStateKey &&
+      boundAvailable === available
+    )
+      return;
+    // 外壳操作和格式控件统一参与单行收纳，菜单仍调用各自原有通道。
+    const shellItems: ToolbarItem[] = [];
+    if (!openButton.hidden)
+      shellItems.push({
+        node: openButton,
+        order: -100,
+        priority: 70,
+        menu: {
+          id: 'toolbar.open',
+          label: openButton.getAttribute('aria-label') ?? '打开文件',
+          icon: 'open',
+          run: pickFile,
+        },
+      });
+    const downloadItem = downloadControl.toolbarItem();
+    if (!downloadItem.node.hidden) shellItems.push(downloadItem);
+    if (!fullscreen.hidden)
+      shellItems.push({
+        node: fullscreen,
+        order: 1001,
+        priority: 60,
+        menu: {
+          id: 'toolbar.fullscreen',
+          label: fullscreen.getAttribute('aria-label') ?? '全屏',
+          icon:
+            document.fullscreenElement === root
+              ? 'exitFullscreen'
+              : 'fullscreen',
+          run: () => fullscreen.click(),
+        },
+      });
+    bindings.update(
+      toolbarCapabilities(
+        capabilities,
+        viewOptions.toolbarActions,
+        viewOptions.toolbarVisibility,
+      ),
+      viewOptions.locale,
+      available,
+      shellItems,
+      new Set(viewOptions.toolbarActions?.map((action) => action.id)),
+    );
+    boundCapabilities = capabilities;
+    boundLocale = viewOptions.locale;
+    boundAvailable = available;
+    boundToolbarActions = viewOptions.toolbarActions;
+    boundToolbarVisibility = viewOptions.toolbarVisibility;
+    boundShellKey = shellKey;
+    boundDownloadStateKey = downloadStateKey;
+  }
   const publish = (next: ViewerCapabilities) => {
     capabilities = next;
-    bindings.update(
-      next,
-      viewOptions.locale,
-      controller.getSnapshot().status === 'ready' && active,
-    );
+    // 插件允许原地更新能力对象；显式发布必须刷新，只有纯进度刷新可以复用。
     downloadControl.update();
+    updateBindings(true);
     emitCapabilities();
   };
   const refresh = () => {
     const snapshot = controller.getSnapshot();
     const en = viewOptions.locale === 'en-US';
-    title.textContent =
-      snapshot.session?.source.name ?? (en ? 'Document preview' : '文档预览');
-    title.title = title.textContent;
-    updateFileIcon(fileIcon, snapshot.session?.source.name);
+    const isFullscreen = document.fullscreenElement === root;
+    const nextShellKey = JSON.stringify([
+      snapshot.session?.source.name,
+      en,
+      viewOptions.theme,
+      viewOptions.toolbar,
+      viewOptions.height,
+      viewOptions.toolbarVisibility,
+      isFullscreen,
+      typeof root.requestFullscreen,
+    ]);
+    // 静态外壳只跟随展示配置变化，不让连续进度重复写按钮与尺寸。
+    if (shellKey !== nextShellKey) {
+      shellKey = nextShellKey;
+      title.textContent =
+        snapshot.session?.source.name ?? (en ? 'Document preview' : '文档预览');
+      title.title = title.textContent;
+      updateFileIcon(fileIcon, snapshot.session?.source.name);
+      toolbar.setAttribute(
+        'aria-label',
+        en ? 'Document toolbar' : '文档工具栏',
+      );
+      labelShellButton(openButton, en ? 'Open file' : '打开文件', 'open');
+      openButton.hidden = viewOptions.toolbarVisibility?.open === false;
+      root.dataset.theme = viewOptions.theme ?? 'light';
+      toolbar.hidden = viewOptions.toolbar === false;
+      root.style.height =
+        typeof viewOptions.height === 'number'
+          ? viewOptions.height + 'px'
+          : viewOptions.height ?? '560px';
+      labelShellButton(
+        fullscreen,
+        isFullscreen
+          ? en
+            ? 'Exit fullscreen'
+            : '退出全屏'
+          : en
+          ? 'Fullscreen'
+          : '全屏',
+        isFullscreen ? 'exitFullscreen' : 'fullscreen',
+        true,
+      );
+      fullscreen.hidden =
+        typeof root.requestFullscreen !== 'function' ||
+        viewOptions.toolbarVisibility?.fullscreen === false;
+      retry.textContent = en ? 'Retry' : '重试';
+      progressBar.setAttribute(
+        'aria-label',
+        en ? 'Document loading progress' : '文档加载进度',
+      );
+    }
     root.dataset.state = snapshot.status;
-    toolbar.setAttribute('aria-label', en ? 'Document toolbar' : '文档工具栏');
-    labelShellButton(openButton, en ? 'Open file' : '打开文件', 'open');
-    root.dataset.theme = viewOptions.theme ?? 'light';
-    toolbar.hidden = viewOptions.toolbar === false;
-    root.style.height =
-      typeof viewOptions.height === 'number'
-        ? viewOptions.height + 'px'
-        : viewOptions.height ?? '560px';
     downloadControl.update();
     const downloadState = downloadControl.capability();
     const nextDownloadKey = JSON.stringify([
@@ -205,21 +331,6 @@ export function createViewer(
       downloadStateKey = nextDownloadKey;
       emitCapabilities();
     }
-    const isFullscreen = document.fullscreenElement === root;
-    labelShellButton(
-      fullscreen,
-      isFullscreen
-        ? en
-          ? 'Exit fullscreen'
-          : '退出全屏'
-        : en
-        ? 'Fullscreen'
-        : '全屏',
-      isFullscreen ? 'exitFullscreen' : 'fullscreen',
-      true,
-    );
-    fullscreen.hidden = typeof root.requestFullscreen !== 'function';
-    retry.textContent = en ? 'Retry' : '重试';
     root.setAttribute(
       'aria-busy',
       String(snapshot.status === 'loading' || snapshot.status === 'detecting'),
@@ -242,10 +353,6 @@ export function createViewer(
       ? Math.round(percentage) + '%'
       : '';
     progressValue.hidden = !hasPercentage;
-    progressBar.setAttribute(
-      'aria-label',
-      en ? 'Document loading progress' : '文档加载进度',
-    );
     if (!hasPercentage) progressBar.removeAttribute('value');
     else progressBar.value = percentage;
     status.hidden =
@@ -261,12 +368,9 @@ export function createViewer(
       lastInput !== undefined,
       false,
       snapshot.error,
+      viewOptions.toolbarVisibility?.open !== false,
     );
-    bindings.update(
-      capabilities,
-      viewOptions.locale,
-      snapshot.status === 'ready' && active,
-    );
+    updateBindings();
     try {
       options.onStateChange?.(snapshot);
     } catch {
@@ -334,6 +438,7 @@ export function createViewer(
                   ...viewOptions,
                   ...configuration,
                   height: configuration.height ?? '100%',
+                  toolbarActions: configuration.toolbarActions,
                   plugins: options.plugins,
                   onReady: undefined,
                   onStateChange: undefined,
@@ -389,7 +494,15 @@ export function createViewer(
     },
     update(next) {
       viewOptions = { ...viewOptions, ...next };
+      const nextToolbarKey = toolbarConfigurationKey(
+        viewOptions.toolbarActions,
+        viewOptions.toolbarVisibility,
+      );
+      const toolbarChanged = nextToolbarKey !== toolbarKey;
+      toolbarKey = nextToolbarKey;
+      if (toolbarChanged) updateBindings(true);
       refresh();
+      if (toolbarChanged) emitCapabilities();
       view?.update(viewOptions);
       for (const child of children)
         child.update({

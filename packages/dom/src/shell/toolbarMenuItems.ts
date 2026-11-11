@@ -1,5 +1,7 @@
 import type {
   CapabilityAction,
+  ToolbarActionState,
+  ToolbarIcon,
   ViewerCapabilities,
 } from '../capabilities/types';
 import { getActionPresentation } from './actionPresentation';
@@ -10,7 +12,8 @@ export interface ToolbarMenuItem {
   id: string;
   label: string;
   value?: string;
-  icon?: ShellIcon;
+  icon?: ShellIcon | ToolbarIcon | null;
+  action?: ToolbarActionState;
   kind?: 'checkbox' | 'radio';
   checked?: boolean;
   disabled?: boolean;
@@ -29,8 +32,12 @@ export function actionMenuItem(
     id: action.id,
     label: action.label,
     disabled: !available || action.enabled === false,
-    // 第一级操作始终带图标；自定义能力使用通用图标，子菜单选项不受影响。
-    icon: getActionPresentation(action).icon ?? 'command',
+    // 宿主图标同时用于主栏和菜单，null 保留显式隐藏意图。
+    icon:
+      action.icon === null
+        ? null
+        : getActionPresentation(action).icon ?? 'command',
+    action,
     closeOnRun: action.menu?.closeOnRun,
   };
   if (action.kind === 'select') {

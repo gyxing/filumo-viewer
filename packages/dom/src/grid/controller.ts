@@ -1,17 +1,17 @@
+import '../grid.less';
+import { useStyles as acquireStyles } from '../styles';
+import { serializeGridSelection } from './clipboard';
 import type {
   GridInteractionOptions,
   GridPoint,
   GridRange,
   GridState,
 } from './contracts';
-import { clampGridPoint, GridSelection, validGridRange } from './selection';
-import { serializeGridSelection } from './clipboard';
 import { gridKeyboardTarget } from './keyboard';
-import { gridInteractiveTarget, GridPointer } from './pointer';
-import { GridTextSelection } from './textSelection';
 import { gridMessages } from './messages';
-import { useStyles as acquireStyles } from '../styles';
-import '../grid.less';
+import { GridPointer, gridInteractiveTarget } from './pointer';
+import { GridSelection, clampGridPoint, validGridRange } from './selection';
+import { GridTextSelection } from './textSelection';
 
 const GRID_SEQUENCE = Symbol.for('filumo.grid.instance-sequence');
 /** 同一文档中的不同模块副本也共享编号，避免多版本 DOM 的活动节点 ID 冲突。 */
@@ -56,6 +56,7 @@ export class GridInteractionController {
     host.setAttribute('aria-readonly', 'true');
     host.addEventListener('keydown', this.key);
     host.addEventListener('scroll', this.refresh, { passive: true });
+    host.ownerDocument.addEventListener('click', this.outsideClick);
     this.textSelection = new GridTextSelection(host, (active) => {
       this.layer.hidden = !this.active || active;
       options.onTextSelectionChange?.(active);
@@ -83,6 +84,43 @@ export class GridInteractionController {
     this.textSelection.clear();
     this.applySelection(point, extend, reveal);
   }
+  /** 清除选择时同步停止旧复制与拖选，重绘负责移除高亮及可访问活动单元格。 */
+  clearSelection(): void {
+    if (!this.active || this.closed) return;
+    this.pointer?.cancel();
+    this.copying.abort();
+    this.textSelection.clear();
+    this.selection.clear();
+    this.refresh();
+  }
+  private outsideClick = (event: MouseEvent) => {
+    if (
+      !this.active ||
+      this.closed ||
+      event.defaultPrevented ||
+      event.button !== 0
+    )
+      return;
+    if (!this.selection.range && !this.textSelection.active) return;
+    const host = this.options.host;
+    const target = event.target as Element | null;
+    if (
+      !target?.closest ||
+      host.contains(target) ||
+      gridInteractiveTarget(target)
+    )
+      return;
+    const viewer = host.closest('.filumo-viewer');
+    // 文档级事件只处理所属查看器的阅读空白，工具栏及嵌套查看器各自管理交互。
+    if (
+      !viewer ||
+      target.closest('.filumo-viewer') !== viewer ||
+      !target.closest('.filumo-viewport') ||
+      target.closest('.filumo-grid-interaction')
+    )
+      return;
+    this.clearSelection();
+  };
   private applySelection(
     point: GridPoint,
     extend: boolean,
@@ -282,6 +320,7 @@ export class GridInteractionController {
     if (control && key === 'c') {
       if (this.options.host.ownerDocument.getSelection()?.isCollapsed === false)
         return;
+      if (!this.range) return;
       event.preventDefault();
       void this.copy().catch((error) => {
         if ((error as Error)?.name !== 'AbortError')
@@ -290,12 +329,12 @@ export class GridInteractionController {
       return;
     }
     if (event.key === 'Escape') {
-      this.textSelection.clear();
-      this.pointer?.cancel();
-      this.copying.abort();
+      if (this.selection.range || this.textSelection.active)
+        event.preventDefault();
+      this.clearSelection();
       return;
     }
-    if (!validGridRange(bounds) || !focus) return;
+    if (!validGridRange(bounds)) return;
     if (control && key === 'a') {
       event.preventDefault();
       this.textSelection.clear();
@@ -304,6 +343,30 @@ export class GridInteractionController {
       return;
     }
     if (this.textSelection.active) return;
+    if (!focus) {
+      // 键盘主动导航才建立首个选择，Tab继续使用浏览器的焦点顺序。
+      if (
+        ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)
+      ) {
+        event.preventDefault();
+        this.select({ row: bounds.startRow, column: bounds.startColumn });
+      } else if (['Home', 'End', 'PageUp', 'PageDown'].includes(event.key)) {
+        const start = { row: bounds.startRow, column: bounds.startColumn };
+        const target = gridKeyboardTarget(
+          start,
+          event.key,
+          event.shiftKey,
+          control,
+          bounds,
+          adapter.pageRows?.() ?? 10,
+        );
+        if (target) {
+          event.preventDefault();
+          this.select(target);
+        }
+      }
+      return;
+    }
     const target = adapter.move
       ? adapter.move(focus, event.key, event.shiftKey, control)
       : gridKeyboardTarget(
@@ -336,6 +399,7 @@ export class GridInteractionController {
             ? this.applySelection(point, extend, false)
             : this.select(point, extend, false),
         this.textSelection,
+        () => this.clearSelection(),
       );
       this.refresh();
     } else {
@@ -351,6 +415,10 @@ export class GridInteractionController {
     this.textSelection.dispose();
     this.options.host.removeEventListener('keydown', this.key);
     this.options.host.removeEventListener('scroll', this.refresh);
+    this.options.host.ownerDocument.removeEventListener(
+      'click',
+      this.outsideClick,
+    );
     this.options.host.removeAttribute('aria-activedescendant');
     this.layer.remove();
     this.releaseStyles();

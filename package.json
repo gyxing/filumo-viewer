@@ -1,7 +1,6 @@
 {
   "name": "filumo-workspace",
   "private": true,
-  "packageManager": "pnpm@11.10.0",
   "description": "Filumo 跨框架文档预览工作区",
   "homepage": "https://gyxing.github.io/filumo-viewer/",
   "bugs": {
@@ -18,13 +17,10 @@
   },
   "type": "module",
   "scripts": {
-    "changeset": "changeset",
-    "release:status": "node scripts/release/cli.mjs status",
-    "release:version": "node scripts/release/cli.mjs version",
-    "release:plan": "node scripts/release/cli.mjs plan",
-    "release:publish": "node scripts/release/cli.mjs publish",
     "build": "node scripts/build/packages.mjs",
+    "changeset": "changeset",
     "check": "pnpm run build && pnpm run check:types && pnpm run check:lint && pnpm run check:styles && pnpm --filter filumo-docs build",
+    "check:format": "prettier --check \"packages/*/src/**/*.{ts,tsx}\" \"apps/docs/src/**/*.{ts,tsx}\"",
     "check:lint": "eslint packages apps/docs/src --ext .ts,.tsx --ignore-pattern \"**/dist/**\"",
     "check:styles": "stylelint \"packages/*/src/**/*.less\" \"apps/docs/src/**/*.less\"",
     "check:types": "node scripts/checks/types.mjs",
@@ -35,6 +31,11 @@
     "demo:vue3": "pnpm run demo --framework vue3",
     "docs:build": "node scripts/docs/run.mjs build",
     "docs:dev": "node scripts/docs/run.mjs dev",
+    "prepare": "husky install",
+    "release:plan": "node scripts/release/cli.mjs plan",
+    "release:publish": "node scripts/release/cli.mjs publish",
+    "release:status": "node scripts/release/cli.mjs status",
+    "release:version": "node scripts/release/cli.mjs version",
     "smoke": "node scripts/docs/run.mjs smoke",
     "test": "node scripts/testing/run-unit.mjs",
     "test:acceptance": "node scripts/checks/acceptance.mjs",
@@ -44,13 +45,26 @@
     "test:consumers:hosts": "node scripts/testing/check-host-managers.mjs"
   },
   "commitlint": {
-    "extends": ["@commitlint/config-conventional"]
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
   },
   "lint-staged": {
-    "*.{md,json}": ["prettier --write --no-error-on-unmatched-pattern"],
-    "*.{css,less}": ["stylelint --fix", "prettier --write"],
-    "*.{js,jsx}": ["eslint --fix", "prettier --write"],
-    "*.{ts,tsx}": ["eslint --fix", "prettier --parser=typescript --write"]
+    "*.{md,json}": [
+      "prettier --write --no-error-on-unmatched-pattern"
+    ],
+    "*.{css,less}": [
+      "stylelint --fix",
+      "prettier --write"
+    ],
+    "*.{js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --parser=typescript --write"
+    ]
   },
   "devDependencies": {
     "@changesets/cli": "3.0.3",
@@ -70,5 +84,6 @@
     "semver": "7.8.5",
     "stylelint": "^14.9.1",
     "typescript": "5.4.2"
-  }
+  },
+  "packageManager": "pnpm@11.10.0"
 }

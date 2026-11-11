@@ -7,13 +7,25 @@ import type {
   DocumentSource,
   ResourcePolicy,
 } from '@filumo/core';
-import type { ViewerCapabilities } from './capabilities/types';
+import type {
+  CapabilityAction,
+  ViewerCapabilities,
+} from './capabilities/types';
+export type ZoomMode = 'percentage' | 'fit-width' | 'fit-page';
 export interface ViewOptions {
   zoom?: number;
+  /** 声明初始或宿主更新的模式；省略时单独zoom使用固定比例，其余沿用格式默认。 */
+  zoomMode?: ZoomMode;
+  /** 自动适应的百分比上限，手动缩放继续使用当前格式支持的范围。 */
+  fitMaxZoom?: number;
   theme?: 'light' | 'dark';
   locale?: 'zh-CN' | 'en-US';
   watermark?: string;
   toolbar?: boolean;
+  /** 按内置名称或动作 ID 控制工具栏显隐，省略时沿用格式默认呈现。 */
+  toolbarVisibility?: Readonly<Record<string, boolean>>;
+  /** 宿主操作融入公共工具栏，跟随响应式布局，子查看器默认不继承。 */
+  toolbarActions?: readonly CapabilityAction[];
   height?: number | string;
 }
 export interface StylePolicy {

@@ -1,5 +1,7 @@
 # @filumo/csv
 
+表格默认 100%，ViewOptions 支持 zoomMode 为 percentage 或 fit-width，fitMaxZoom 设置自动上限。自动比例在 50%至 300%范围内按整张表列宽计算，原文视图保留当前百分比。手动缩放和列宽拖动进入固定比例，回到适应宽度后继续应用自动上限。
+
 <p>
 <a href="https://github.com/gyxing/filumo-viewer/blob/master/packages/csv/README.md">English</a> | <strong>简体中文</strong> ·
 <a href="https://gyxing.github.io/filumo-viewer/playground" target="_blank" rel="noopener noreferrer">在线示例</a> ·

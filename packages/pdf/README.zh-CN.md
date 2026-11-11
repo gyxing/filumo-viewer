@@ -13,6 +13,8 @@
 ## 主要能力
 
 - 提供连续滚动、大纲定位与跟随、缩略图、文本查找、页码导航和旋转。
+- 默认适应宽度，ViewOptions 可用 zoomMode 选择 percentage 或 fit-width。fitMaxZoom 约束自动适应，窗口变化和旋转复用该上限，手动 150%可保持固定比例。
+- 侧栏初始收起，读取到大纲后默认展开大纲，无大纲或读取失败保持收起。手动打开缩略图、查找或收起后，异步结果保留用户选择。折叠态保留 28px 展开条，缩略图在主动打开后激活。
 - 根入口仅注册描述符；引擎与 Worker 在真正打开 PDF 时加载。
 - 自带同版本资源的地址解析入口，不默认使用外部 CDN；内存预算只约束查看器自身管理的资源。
 
@@ -122,6 +124,8 @@ const plugins = [
 ## 高级：整套外部资源部署
 
 只有宿主明确选择独立资源目录时，才将 `@filumo/pdf/dist/assets/pdfjs/` 的内容保留原结构复制到公开目录，再配置 `pdf({ assetsBaseUrl: '/filumo-pdf/' })`。不要只复制一个 Worker。目录包括引擎、Worker、CMap、字体、WASM、ICC、文字层 CSS、LICENSE 和 NOTICE。
+
+默认 `worker.js` 是模块转发入口，复用 `assets/pdfjs/legacy/build/pdf.worker.mjs` 中的完整适配实现，避免发布两份完整 Worker。外部资源目录仍然自包含，无需额外安装或生成；直接静态托管默认入口时可能多一次模块请求，宿主构建器的最终输出需按实际环境验证。
 
 引擎、Worker、辅助文件及解码回退脚本必须与固定的 pdfjs-dist 6.4.299 一致。自定义 CDN 由宿主显式指定，须满足 CORS/CSP；跨域 Worker 还需要符合浏览器的 Worker 来源限制。目录查询参数需要本包的适配 Worker 才能正确还原。直接使用原生 PDF.js Worker 时，宿主须提供它能访问的完整普通资源目录，不能让它解析包内虚拟资源标识。
 

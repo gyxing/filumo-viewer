@@ -129,6 +129,8 @@ All options above are optional overrides. If only one is changed, other resource
 
 Only when the host explicitly chooses a separate resource directory should it copy the contents of `@filumo/pdf/dist/assets/pdfjs/` to a public directory, preserving structure, and configure `pdf({ assetsBaseUrl: '/filumo-pdf/' })`. Do not copy only a Worker. The directory includes the engine, Worker, CMaps, fonts, WASM, ICC, text-layer CSS, LICENSE and NOTICE.
 
+The default `worker.js` is a module forwarding entry that reuses the complete adapted implementation at `assets/pdfjs/legacy/build/pdf.worker.mjs`, avoiding a second full Worker copy. The external asset directory remains self-contained and needs no extra package or generation step. Serving the default entry directly may add a module request; verify the final output of your host bundler in its actual environment.
+
 The engine, Worker, auxiliary resources and decoder fallbacks must match the pinned pdfjs-dist 6.4.299. Hosts explicitly configure custom CDNs and must satisfy CORS/CSP; cross-origin Workers also follow browser origin restrictions. Restoring directory query parameters requires this package's adapted Worker. When using a native PDF.js Worker directly, provide a complete ordinary resource directory it can access; it cannot interpret bundled virtual resource identifiers.
 
 The documentation site, smoke page and default examples use the same bundled resource path without a public/filumo-assets/pdf copy fallback. FILUMO_DOCS_BASE still controls the site subdirectory; the bundler determines final resource URLs.

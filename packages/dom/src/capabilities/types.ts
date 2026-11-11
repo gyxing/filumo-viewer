@@ -1,9 +1,35 @@
+/** 图标可读取的操作状态，由外壳提供当前快照。 */
+export interface ToolbarActionState {
+  readonly id: string;
+  readonly label: string;
+  readonly enabled?: boolean;
+  readonly pressed?: boolean;
+  readonly value?: string;
+}
+/** 每个显示位置分别挂载图标，使用容器所属的文档创建节点。 */
+export interface ToolbarIconContext {
+  readonly document: Document;
+  readonly placement: 'toolbar' | 'menu';
+  readonly action: ToolbarActionState;
+}
+/** 图标定义保留时更新状态，移除或销毁时释放资源。 */
+export interface ToolbarIconInstance {
+  update?(context: ToolbarIconContext): void;
+  dispose(): void;
+}
+/** 框架无关的图标协议，框架适配层也可直接透传此对象。 */
+export interface ToolbarIcon {
+  mount(
+    container: HTMLElement,
+    context: ToolbarIconContext,
+  ): ToolbarIconInstance;
+}
 /** 插件声明默认工具栏的呈现；隐藏入口不会移除程序调用能力。 */
 export interface ToolbarPresentation {
   visible?: boolean;
   order?: number;
   placement?: 'main' | 'more';
-  /** 值越大越优先保留；Infinity 固定在主栏，空间不足时换行。 */
+  /** 值越大越优先保留；Infinity 最后收纳，工具栏始终单行。 */
   priority?: number;
   /** 控制主栏名称显示；无图标按钮保留名称，选择控件始终显示当前选中值。 */
   showLabel?: boolean;
@@ -19,6 +45,8 @@ export interface CapabilityOption {
 export interface CapabilityAction {
   id: string;
   label: string;
+  /** undefined 沿用默认语义图标，null 显式隐藏图标。 */
+  icon?: ToolbarIcon | null;
   kind: 'action' | 'toggle' | 'select';
   enabled?: boolean;
   pressed?: boolean;

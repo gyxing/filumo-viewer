@@ -93,6 +93,7 @@ test('PDF 生成 Worker、引擎和回退模块不经过 Babel 与 React Refresh
   const [refresh] = plugins.get('fastRefresh');
   for (const file of [
     'worker.js',
+    'assets/pdfjs/legacy/build/pdf.worker.mjs',
     'assets/pdfjs/legacy/build/pdf.mjs',
     'assets/pdfjs/wasm/openjpeg_nowasm_fallback.js',
   ]) {

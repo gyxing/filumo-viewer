@@ -1,5 +1,6 @@
 node_modules
 packages/*/dist
+packages/*/src/generated/
 apps/docs/dist
 apps/docs/.dumi/tmp*
 tests/fixtures

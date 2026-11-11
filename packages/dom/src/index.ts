@@ -4,3 +4,4 @@ export * from './createViewer';
 export { createSelectControl } from './shell/SelectControl';
 export { createReadingFrame } from './shell/readingFrame';
 export * from './styles';
+export { resolveZoomOptions } from './zoomOptions';

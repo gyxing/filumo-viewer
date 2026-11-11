@@ -66,6 +66,8 @@ const plugins = [
 
 只有宿主明确选择独立资源目录时，才将 `@filumo/pdf/dist/assets/pdfjs/` 的内容保留原结构复制到公开目录，再配置 `pdf({ assetsBaseUrl: '/filumo-pdf/' })`。不要只复制一个 Worker。目录包括引擎、Worker、CMap、字体、WASM、ICC、文字层 CSS、LICENSE 和 NOTICE。
 
+默认 `worker.js` 通过静态模块转发复用资源目录内的完整适配 Worker。完整 `assets/pdfjs/` 目录仍可独立复制，不依赖上级 `worker.js`，也不要求新增安装或生成步骤。直接静态托管默认入口可能增加一次模块请求，需结合实际宿主构建和部署验证。
+
 引擎、Worker、辅助文件及解码回退脚本必须与固定的 pdfjs-dist 6.4.299 一致。自定义 CDN 由宿主显式指定，须满足 CORS/CSP；跨域 Worker 还需要符合浏览器的 Worker 来源限制。目录查询参数需要本包的适配 Worker 才能正确还原。直接使用原生 PDF.js Worker 时，宿主须提供它能访问的完整普通资源目录，不能让它解析包内虚拟资源标识。
 
 文档站、烟测和默认示例使用相同的包内资源链路，不再依赖 public/filumo-assets/pdf 复制作为默认兜底。FILUMO_DOCS_BASE 继续控制站点子目录，资源最终地址由构建器处理。

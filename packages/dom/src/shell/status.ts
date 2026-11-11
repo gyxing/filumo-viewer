@@ -41,6 +41,7 @@ export function createViewerStatus(
     canRetry = false,
     inline = false,
     error?: Error,
+    canOpen = true,
   ) => {
     const failed = kind === 'error';
     const code = error && 'code' in error ? error.code : undefined;
@@ -115,7 +116,8 @@ export function createViewerStatus(
     );
     retry.textContent = en ? 'Retry' : '重试';
     retry.hidden = !(failed && canRetry && !unsupported);
-    actions.hidden = loading;
+    choose.hidden = !canOpen;
+    actions.hidden = loading || (choose.hidden && retry.hidden);
     summary.textContent = en ? 'Technical details' : '技术详情';
     technical.textContent = error?.message ?? '';
     details.hidden = !failed || !error?.message;

@@ -176,3 +176,9 @@ The current package is bold. Each package is published independently. Package na
 - [Changelog](https://github.com/gyxing/filumo-viewer/blob/master/CHANGELOG.md)
 - [Report an issue](https://github.com/gyxing/filumo-viewer/issues)
 - [MIT license](https://github.com/gyxing/filumo-viewer/blob/master/packages/dom/LICENSE)
+
+## Custom toolbar icons
+
+Custom toolbar icons use a ToolbarIcon object in toolbarActions[].icon. mount(container, context) returns an instance with dispose() and optional update(context). Context supplies the owning document, placement (toolbar or menu), and the current action state. Create a separate instance for each mount and release its resources synchronously. The shell owns icon containers and resize observation. undefined keeps the semantic default, null suppresses the icon, and iconless action buttons retain their labels. ToolbarIcon, ToolbarIconContext, ToolbarIconInstance, and ToolbarActionState are public exports. Framework adapters also accept the native object.
+
+See the Chinese README and exported types for full usage examples.

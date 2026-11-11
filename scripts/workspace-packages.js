@@ -38,7 +38,7 @@ export const WORKSPACE_PACKAGES = [
         : name === 'pdf'
         ? { index: 'src/index.ts', assets: 'src/assets.ts' }
         : name === 'archive'
-        ? { index: 'src/index.ts', assets: 'src/assets.ts' }
+        ? { index: 'src/index.ts', assets: 'src/assets.ts', zip: 'src/zip.ts' }
         : name === 'text'
         ? {
             index: 'src/index.ts',

@@ -79,6 +79,7 @@
   z-index: 20;
   display: flex;
   flex: 0 0 auto;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 8px;
   min-height: 55px;
@@ -105,20 +106,8 @@
   align-items: center;
   gap: 8px;
   flex: 1 1 100px;
-  min-width: 72px;
-  overflow: hidden;
-}
-
-// 固定主栏的能力允许换行，保持所有操作可见，不再进入更多菜单。
-.filumo-toolbar[data-keep-actions='true'] {
-  flex-wrap: wrap;
-}
-
-.filumo-toolbar[data-keep-actions='true'] .filumo-controls,
-.filumo-toolbar[data-keep-actions='true'] .filumo-controls-main {
-  flex-shrink: 1;
   min-width: 0;
-  flex-wrap: wrap;
+  overflow: hidden;
 }
 
 .filumo-title {
@@ -222,6 +211,23 @@
   cursor: default;
 }
 
+.filumo-custom-icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: inherit;
+  font-size: 16px;
+  pointer-events: none;
+}
+
+.filumo-custom-icon > :is(svg, img) {
+  width: 100%;
+  height: 100%;
+}
+
 .filumo-toolbar .filumo-icon-button {
   width: 32px;
   padding: 4px;
@@ -253,42 +259,28 @@
   font-size: 13px;
 }
 
-// PDF 的阅读、翻页、视图和通用操作分组；作用域随当前能力节点切换。
-.filumo-toolbar:has([data-filumo-action='pdf.rotate']) {
-  .filumo-controls-main {
-    row-gap: 8px;
-  }
-
-  .filumo-controls,
-  .filumo-navigation-control:not(:first-child),
-  .filumo-zoom-control:not(:first-child) {
+// 只在实际相邻的操作组之间分隔，隐藏或收纳后由主栏节点顺序自动消除空分隔。
+.filumo-controls-main {
+  > :is(
+      .filumo-navigation-control,
+      .filumo-zoom-control,
+      .filumo-toolbar-download
+    ):not(:first-child),
+  > .filumo-open-file + * {
     position: relative;
-    margin-inline-start: 6px;
-    padding-inline-start: 12px;
-  }
+    margin-inline-start: 12px;
 
-  .filumo-controls::before,
-  .filumo-navigation-control:not(:first-child)::before,
-  .filumo-zoom-control:not(:first-child)::before,
-  .filumo-controls + button::before {
-    position: absolute;
-    top: 50%;
-    left: 0;
-    width: 1px;
-    height: 18px;
-    background: var(--filumo-border);
-    transform: translateY(-50%);
-    content: '';
-    pointer-events: none;
-  }
-
-  .filumo-controls + button {
-    position: relative;
-    margin-inline-start: 8px;
-  }
-
-  .filumo-controls + button::before {
-    left: -9px;
+    &::before {
+      position: absolute;
+      top: 50%;
+      left: -10px;
+      width: 1px;
+      height: 18px;
+      background: var(--filumo-border);
+      transform: translateY(-50%);
+      content: '';
+      pointer-events: none;
+    }
   }
 }
 

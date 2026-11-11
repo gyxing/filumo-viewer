@@ -1,12 +1,12 @@
+import type { GridPoint, GridRange, GridState } from '@filumo/dom/grid';
 import {
   GridColumnResize,
   GridInteractionController,
   createGridNotice,
   gridKeyboardTarget,
 } from '@filumo/dom/grid';
-import type { GridPoint, GridRange, GridState } from '@filumo/dom/grid';
-import type { SpreadsheetRange } from '../../engine/spreadsheet/types';
 import type { SpreadsheetSource } from '../../engine/spreadsheet/SpreadsheetSource';
+import type { SpreadsheetRange } from '../../engine/spreadsheet/types';
 import type { OfficeRenderContext } from '../../view/types';
 import {
   revealSpreadsheetCell,
@@ -101,6 +101,10 @@ export class SpreadsheetGridInteraction {
           options.schedule();
         },
         readRows: (range, signal) => this.readRows(range, signal),
+        changed: (state) =>
+          options.context.services.state.updateGrid?.({
+            gridHasSelection: !!(state.focus || state.range),
+          }),
       },
     });
   }

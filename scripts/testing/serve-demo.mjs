@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { WORKSPACE_PACKAGES } from '../workspace-packages.js';
 import './generate-samples.mjs';
 import { servePdfFixture } from './serve-pdf-fixture.mjs';
+import { serveSourceFixture } from './serve-source-fixture.mjs';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const args = process.argv.slice(2);
 let framework = 'vanilla',
@@ -57,7 +58,7 @@ const aliases = {
     builder.onLoad(
       {
         filter:
-          /[\\/]packages[\\/](?:office|text|json|markdown|csv|xml|code)[\\/]dist[\\/]index\.js$/,
+          /[\\/]packages[\\/](?:office|text|json|markdown|csv|xml|code|archive)[\\/]dist[\\/]index\.js$/,
       },
       async ({ path }) => {
         const name = path.split(/[\\/]/).at(-3);
@@ -112,6 +113,16 @@ const aliases = {
 const result = await build({
   absWorkingDir: root,
   entryPoints: {
+    ...(['react', 'vue3'].includes(framework)
+      ? {
+          adapter: join(
+            root,
+            'tests/browser/harness/' +
+              (framework === 'react' ? 'react-adapter.tsx' : 'vue-adapter.ts'),
+          ),
+        }
+      : {}),
+    'source-range': join(root, 'tests/browser/harness/source-range.ts'),
     'image-pdf': join(root, 'tests/browser/harness/image-pdf.ts'),
     'text-formats': join(root, 'tests/browser/harness/text-formats.ts'),
     'text-expansion': join(root, 'tests/browser/harness/text-expansion.ts'),
@@ -209,10 +220,17 @@ const server = http.createServer(async (req, res) => {
   try {
     const path = new URL(req.url, 'http://localhost').pathname;
     if (servePdfFixture(req, res, path)) return;
-    const file = files.get(path);
+    if (serveSourceFixture(req, res, path)) return;
+    // 前缀部署夹具保留浏览器中的真实相对资源基准，仅复用磁盘资产。
+    const assetPath = path.startsWith('/deployment-prefix/assets/')
+      ? path.slice('/deployment-prefix'.length)
+      : path;
+    const file = files.get(assetPath);
     const page =
       path === '/' ||
       path === '/text-formats.html' ||
+      path === '/source-range.html' ||
+      path === '/adapter.html' ||
       path === '/text-expansion.html' ||
       path === '/image-pdf.html';
     if (!page && !file) {
@@ -222,6 +240,10 @@ const server = http.createServer(async (req, res) => {
     const data = page
       ? path === '/'
         ? html
+        : path === '/source-range.html'
+        ? imagePdfHtml.replaceAll('image-pdf', 'source-range')
+        : path === '/adapter.html'
+        ? imagePdfHtml.replaceAll('image-pdf', 'adapter')
         : path === '/image-pdf.html'
         ? imagePdfHtml
         : path === '/text-expansion.html'

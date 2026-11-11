@@ -31,6 +31,7 @@ const ACTION_ICONS: Readonly<Partial<Record<string, ShellIcon>>> = {
   fit: 'fit',
   actual: 'actual',
   retry: 'reset',
+  close: 'close',
   thumbnails: 'thumbnails',
   previous: 'previous',
   next: 'next',
@@ -57,10 +58,10 @@ const ICON_ONLY_ACTIONS = new Set([
 
 /** 返回主栏采用的图标和标签策略；选择控件的标签策略不影响当前值。 */
 export function getActionPresentation(
-  action: Pick<CapabilityAction, 'id' | 'kind' | 'toolbar'>,
-): { icon?: ShellIcon; showLabel: boolean } {
+  action: Pick<CapabilityAction, 'id' | 'kind' | 'toolbar' | 'icon'>,
+): { icon?: ShellIcon | CapabilityAction['icon']; showLabel: boolean } {
   const semantic = action.id.split('.').at(-1) ?? '';
-  const icon = ACTION_ICONS[semantic];
+  const icon = action.icon === undefined ? ACTION_ICONS[semantic] : action.icon;
   const showLabel =
     action.toolbar?.showLabel ??
     (!icon || (action.kind !== 'select' && !ICON_ONLY_ACTIONS.has(semantic)));

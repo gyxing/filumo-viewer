@@ -1,4 +1,4 @@
-import { FilumoError } from '@filumo/core';
+import { FilumoError, notify } from '@filumo/core';
 interface Entry {
   canvas: HTMLCanvasElement;
   bytes: number;
@@ -12,6 +12,20 @@ export interface PdfCanvasLease {
 export class PdfCanvasCache {
   private entries = new Map<string, Entry>();
   private bytes = 0;
+  private availableListeners = new Set<() => void>();
+  private availableRevision = 0;
+  private notificationPending = false;
+  private closed = false;
+  get revision(): number {
+    return this.availableRevision;
+  }
+  /** 最后一个使用者归还后容量才可重用；通知合并，避免在资源清理栈内重入。 */
+  subscribeAvailable(listener: () => void): () => void {
+    if (!this.closed) this.availableListeners.add(listener);
+    return () => {
+      this.availableListeners.delete(listener);
+    };
+  }
   constructor(
     private document: Document,
     readonly maxBytes = 96 * 1024 * 1024,
@@ -40,6 +54,16 @@ export class PdfCanvasCache {
         if (!released) {
           released = true;
           entry!.users--;
+          if (!entry!.users && !this.closed) {
+            this.availableRevision++;
+            if (!this.notificationPending) {
+              this.notificationPending = true;
+              queueMicrotask(() => {
+                this.notificationPending = false;
+                if (!this.closed) notify(this.availableListeners);
+              });
+            }
+          }
         }
       },
     };
@@ -55,6 +79,8 @@ export class PdfCanvasCache {
   }
   /** 清理结束后所有像素缓冲都显式归零。 */
   dispose(): void {
+    this.closed = true;
+    this.availableListeners.clear();
     for (const entry of this.entries.values())
       entry.canvas.width = entry.canvas.height = 0;
     this.entries.clear();

@@ -84,6 +84,7 @@ export async function mountPdf(context: ViewContext): Promise<ViewHandle> {
           pressed: side?.open && side.mode === 'outline',
           enabled: !!sidebar,
           toolbar: {
+            visible: side?.available === true,
             placement: 'main',
             order: 10,
             priority: 120,
@@ -103,7 +104,7 @@ export async function mountPdf(context: ViewContext): Promise<ViewHandle> {
           id: 'pdf.thumbnails',
           kind: 'toggle',
           label: en ? 'Thumbnails' : '缩略图',
-          toolbar: { visible: false, placement: 'more', order: 30 },
+          toolbar: { placement: 'main', order: 15, priority: 80 },
           pressed: side?.open && side.mode === 'thumbnails',
           enabled: !!sidebar,
           run: () => sidebar?.show('thumbnails'),
@@ -112,8 +113,8 @@ export async function mountPdf(context: ViewContext): Promise<ViewHandle> {
           id: 'pdf.rotate',
           kind: 'action',
           label: en ? 'Rotate' : '旋转',
-          // 旋转是直接视图操作，窄窗口仍留在主栏，沿用外壳换行规则。
-          toolbar: { placement: 'main', order: 50, priority: Infinity },
+          // 辅助视图操作优先展开，空间不足时先于核心导航收纳。
+          toolbar: { placement: 'main', order: 50, priority: 60 },
           enabled: !!viewport,
           run: () => viewport?.rotate(),
         },
@@ -122,7 +123,7 @@ export async function mountPdf(context: ViewContext): Promise<ViewHandle> {
         ? {
             index: state.index,
             count: state.count,
-            toolbar: { order: 30, priority: 120 },
+            toolbar: { order: 30, priority: 130 },
             goTo: async (index) => {
               await viewport?.goTo(index);
             },
@@ -134,7 +135,7 @@ export async function mountPdf(context: ViewContext): Promise<ViewHandle> {
             min: 1,
             max: 500,
             step: 10,
-            toolbar: { order: 40 },
+            toolbar: { order: 40, priority: 120 },
             mode: {
               value: state.mode,
               options: [

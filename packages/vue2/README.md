@@ -146,3 +146,9 @@ The current package is bold. Each package is published independently. Package na
 - [Changelog](https://github.com/gyxing/filumo-viewer/blob/master/CHANGELOG.md)
 - [Report an issue](https://github.com/gyxing/filumo-viewer/issues)
 - [MIT license](https://github.com/gyxing/filumo-viewer/blob/master/packages/vue2/LICENSE)
+
+## Custom toolbar icons
+
+Import ToolbarAction from @filumo/vue2 and use icon: (h, context) => h(MyIcon), or pass a native ToolbarIcon object. Each placement creates an independent VNode in a lightweight child component linked to the viewer parent, retaining host injections and reactive render dependencies. Removal and teardown destroy the child and release its DOM. undefined keeps the default, null suppresses the icon. ToolbarIconRenderer and framework-aware configuration/update types are exported. getCapabilities() exposes normalized DOM capabilities.
+
+See the Chinese README and exported types for full usage examples.

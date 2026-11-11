@@ -34,12 +34,11 @@ export const archive: ArchiveFactory = (options = {}) => {
         if (archiveFormatForName(source.name)) return true;
         if (source.name && /\.[^./\\]+$/.test(source.name)) return false;
         const reader = await source.getRangeReader?.(signal);
-        return (
-          !!reader &&
-          !!archiveFormatForBytes(
-            await reader.read(0, Math.min(512, reader.length), signal),
-          )
-        );
+        // 不支持区间的远程来源仍可有界识别，不能依赖其他插件提前缓存全文。
+        const bytes = reader
+          ? await reader.read(0, Math.min(512, reader.length), signal)
+          : await source.readRange?.(0, 512, signal);
+        return !!bytes && !!archiveFormatForBytes(bytes);
       },
       async load() {
         return {

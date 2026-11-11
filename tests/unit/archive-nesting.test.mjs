@@ -48,3 +48,25 @@ test('显式指定 Archive 也不能启动单文件 XZ 引擎', async () => {
     await session.dispose();
   }
 });
+
+test('无区间的匿名归档打开复用前缀识别，不依赖全文缓存副作用', async () => {
+  const session = new ArchiveSession({});
+  session.worker.scan = async (_info, format) => {
+    assert.equal(format, 'zip');
+    return [];
+  };
+  try {
+    await session.open(
+      {
+        name: 'download',
+        getRangeReader: async () => undefined,
+        readRange: async () => new Uint8Array([0x50, 0x4b, 3, 4]),
+        readAll: () => assert.fail('首部识别不能全文读取'),
+      },
+      new AbortController().signal,
+    );
+    assert.equal(session.current.format, 'zip');
+  } finally {
+    await session.dispose();
+  }
+});

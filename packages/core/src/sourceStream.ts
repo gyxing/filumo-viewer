@@ -1,6 +1,61 @@
 import { abortError, FilumoError, throwIfAborted } from './errors';
 import type { DocumentSource } from './types';
 
+/** 只保留请求前缀；真实 EOF 才能证明结果是全文，正常截断不取消来源租约。 */
+export async function readStreamPrefix(
+  stream: ReadableStream<Uint8Array>,
+  length: number,
+  signal: AbortSignal,
+): Promise<{ bytes: Uint8Array; eof: boolean }> {
+  const reader = stream.getReader();
+  const chunks: Uint8Array[] = [];
+  let written = 0;
+  let eof = false;
+  try {
+    while (written < length) {
+      throwIfAborted(signal);
+      const item = await waitForSourceRead(reader.read(), signal);
+      throwIfAborted(signal);
+      if (item.done) {
+        eof = true;
+        break;
+      }
+      const count = Math.min(item.value.length, length - written);
+      // 请求窗口可能远大于文件，只按已收到的实际字节分配。
+      chunks.push(item.value.slice(0, count));
+      written += count;
+    }
+    const bytes = new Uint8Array(written);
+    let offset = 0;
+    for (const chunk of chunks) {
+      bytes.set(chunk, offset);
+      offset += chunk.length;
+    }
+    return { bytes, eof };
+  } finally {
+    try {
+      if (!eof) await reader.cancel().catch(() => undefined);
+    } finally {
+      reader.releaseLock();
+    }
+  }
+}
+
+/** 取消时停止等待第三方流，迟到的读取结果仍有 Promise 消费者。 */
+function waitForSourceRead<T>(
+  promise: Promise<T>,
+  signal: AbortSignal,
+): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const abort = () => reject(signal.reason ?? abortError());
+    signal.addEventListener('abort', abort, { once: true });
+    if (signal.aborted) abort();
+    promise
+      .then(resolve, reject)
+      .finally(() => signal.removeEventListener('abort', abort));
+  });
+}
+
 /** 流在消费期间持续持有取消监听，不能在交付 reader 时就释放来源租约。 */
 export function guardByteStream(
   stream: ReadableStream<Uint8Array>,

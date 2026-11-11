@@ -1,6 +1,7 @@
+import { closeOptionPopups } from './OptionPopup';
+import { createActionIcon } from './actionIcon';
 import { createShellIcon } from './icons';
 import { measureToolbarMenu, positionToolbarMenu } from './menuPlacement';
-import { closeOptionPopups } from './OptionPopup';
 import type { ToolbarMenuItem } from './toolbarMenuItems';
 
 interface MenuRow {
@@ -9,7 +10,7 @@ interface MenuRow {
   label: HTMLElement;
   value: HTMLElement;
   indicator: HTMLElement;
-  icon?: SVGSVGElement;
+  icon: ReturnType<typeof createActionIcon>;
 }
 interface MenuLevel {
   element: HTMLElement;
@@ -55,12 +56,20 @@ export function createToolbarMenu(
       // 只滚动所属菜单，避免 scrollIntoView 连带移动宿主页面。
       if (button.offsetTop < level.element.scrollTop)
         level.element.scrollTop = button.offsetTop;
-      else if (button.offsetTop + button.offsetHeight > level.element.scrollTop + level.element.clientHeight)
-        level.element.scrollTop = button.offsetTop + button.offsetHeight - level.element.clientHeight;
+      else if (
+        button.offsetTop + button.offsetHeight >
+        level.element.scrollTop + level.element.clientHeight
+      )
+        level.element.scrollTop =
+          button.offsetTop + button.offsetHeight - level.element.clientHeight;
     }
   };
   const dismiss = (element: HTMLElement) => {
-    if (typeof element.hidePopover === 'function' && element.matches(':popover-open')) element.hidePopover();
+    if (
+      typeof element.hidePopover === 'function' &&
+      element.matches(':popover-open')
+    )
+      element.hidePopover();
     element.hidden = true;
   };
   const trim = (from: number) => {
@@ -69,6 +78,7 @@ export function createToolbarMenu(
       if (level.parent?.item.children?.length)
         level.parent.button.setAttribute('aria-expanded', 'false');
       level.parent?.button.removeAttribute('aria-controls');
+      for (const row of level.rows.values()) row.icon.dispose();
       dismiss(level.element);
       level.element.remove();
     }
@@ -109,51 +119,71 @@ export function createToolbarMenu(
   };
   const present = (level: MenuLevel) => {
     level.element.hidden = false;
-    if (typeof level.element.showPopover === 'function' && !level.element.matches(':popover-open'))
+    if (
+      typeof level.element.showPopover === 'function' &&
+      !level.element.matches(':popover-open')
+    )
       level.element.showPopover();
   };
   const activate = (level: MenuLevel, row: MenuRow) => {
-    if (!opened || disposed || !levels.includes(level) || row.item.disabled) return;
+    if (!opened || disposed || !levels.includes(level) || row.item.disabled)
+      return;
     if (row.item.children?.length) {
       expand(level, row, true);
       return;
     }
     trim(levels.indexOf(level) + 1);
     const action = row.item;
-    if (action.closeOnRun ?? (action.kind !== 'checkbox')) close(true);
+    if (action.closeOnRun ?? action.kind !== 'checkbox') close(true);
     void Promise.resolve()
-      .then(() => { if (!disposed) return action.run?.(); })
-      .catch((error) => { if (!disposed) onError(error); });
+      .then(() => {
+        if (!disposed) return action.run?.();
+      })
+      .catch((error) => {
+        if (!disposed) onError(error);
+      });
   };
   // 每一行持有稳定处理器，延迟任务读取最新行状态，不在循环内捕获共享计时器。
-  const pointerMove = (level: MenuLevel, row: MenuRow) => (event: PointerEvent) => {
-    if (event.pointerType === 'touch' || row.item.disabled) return;
-    if (level.active === row.item.id && timer) return;
-    cancelHover();
-    focusRow(level, row.item.id, false);
-    timer = setTimeout(() => {
-      timer = undefined;
-      if (!opened || disposed) return;
-      if (row.item.children?.length) expand(level, row, false);
-      else trim(levels.indexOf(level) + 1);
-    }, row.item.children?.length ? OPEN_DELAY : CLOSE_DELAY);
-  };
+  const pointerMove =
+    (level: MenuLevel, row: MenuRow) => (event: PointerEvent) => {
+      if (event.pointerType === 'touch' || row.item.disabled) return;
+      if (level.active === row.item.id && timer) return;
+      cancelHover();
+      focusRow(level, row.item.id, false);
+      timer = setTimeout(
+        () => {
+          timer = undefined;
+          if (!opened || disposed) return;
+          if (row.item.children?.length) expand(level, row, false);
+          else trim(levels.indexOf(level) + 1);
+        },
+        row.item.children?.length ? OPEN_DELAY : CLOSE_DELAY,
+      );
+    };
   const reconcile = (level: MenuLevel, items: readonly ToolbarMenuItem[]) => {
     // 状态勾选不会改变列宽，只有文字、当前值或图标变化时才重新测量。
-    const sizeKey = JSON.stringify(items.map((item) => [item.label, item.value, item.icon]));
+    const sizeKey = JSON.stringify(
+      items.map((item) => [item.label, item.value, Boolean(item.icon)]),
+    );
     if (sizeKey !== level.sizeKey) {
       level.sizeKey = sizeKey;
       level.width = undefined;
     }
-    level.element.dataset.icons = String(items.some((item) => Boolean(item.icon)));
+    level.element.dataset.icons = String(
+      items.some((item) => Boolean(item.icon)),
+    );
     const focused = document.activeElement;
     const hadFocus = level.element.contains(focused);
     const wanted = new Set(items.map((item) => item.id));
-    for (const [id, row] of level.rows) if (!wanted.has(id)) {
-      row.button.remove();
-      level.rows.delete(id);
-    }
-    level.element.querySelectorAll(':scope > [role="separator"]').forEach((node) => node.remove());
+    for (const [id, row] of level.rows)
+      if (!wanted.has(id)) {
+        row.icon.dispose();
+        row.button.remove();
+        level.rows.delete(id);
+      }
+    level.element
+      .querySelectorAll(':scope > [role="separator"]')
+      .forEach((node) => node.remove());
     let cursor = level.element.firstChild;
     for (let index = 0; index < items.length; index++) {
       const item = items[index];
@@ -171,7 +201,17 @@ export function createToolbarMenu(
         indicator.className = 'filumo-menu-indicator';
         indicator.setAttribute('aria-hidden', 'true');
         button.append(label, value, indicator);
-        row = { item, button, label, value, indicator };
+        row = {
+          item,
+          button,
+          label,
+          value,
+          indicator,
+          icon: createActionIcon(button, 'menu', onError, () => {
+            level.width = undefined;
+            position();
+          }),
+        };
         level.rows.set(item.id, row);
         const owned = row;
         button.onclick = () => activate(level, owned);
@@ -179,9 +219,13 @@ export function createToolbarMenu(
         button.onpointermove = pointerMove(level, owned);
       }
       row.item = item;
-      row.button.dataset.icon = item.icon ?? '';
+      row.button.dataset.icon =
+        typeof item.icon === 'string' ? item.icon : item.icon ? 'custom' : '';
       row.button.dataset.filumoMenuAction = item.id;
-      row.button.setAttribute('role', item.kind ? 'menuitem' + item.kind : 'menuitem');
+      row.button.setAttribute(
+        'role',
+        item.kind ? 'menuitem' + item.kind : 'menuitem',
+      );
       row.button.setAttribute('aria-label', item.label);
       row.button.disabled = Boolean(item.disabled);
       row.label.textContent = item.label;
@@ -189,32 +233,47 @@ export function createToolbarMenu(
       row.value.textContent = item.value ?? '';
       row.value.title = item.value ?? '';
       row.value.hidden = !item.value;
-      if (item.kind) row.button.setAttribute('aria-checked', String(Boolean(item.checked)));
+      if (item.kind)
+        row.button.setAttribute('aria-checked', String(Boolean(item.checked)));
       else row.button.removeAttribute('aria-checked');
       const hasChildren = Boolean(item.children?.length);
       if (hasChildren) {
         row.button.setAttribute('aria-haspopup', 'menu');
-        if (!row.button.hasAttribute('aria-expanded')) row.button.setAttribute('aria-expanded', 'false');
+        if (!row.button.hasAttribute('aria-expanded'))
+          row.button.setAttribute('aria-expanded', 'false');
       } else {
         row.button.removeAttribute('aria-haspopup');
         row.button.removeAttribute('aria-expanded');
         row.button.removeAttribute('aria-controls');
       }
-      const indicator = hasChildren ? 'next' : item.checked ? 'check' : undefined;
+      const indicator = hasChildren
+        ? 'next'
+        : item.checked
+        ? 'check'
+        : undefined;
       if (row.indicator.dataset.icon !== (indicator ?? '')) {
-        row.indicator.replaceChildren(...(indicator ? [createShellIcon(document, indicator)] : []));
+        row.indicator.replaceChildren(
+          ...(indicator ? [createShellIcon(document, indicator)] : []),
+        );
         row.indicator.dataset.icon = indicator ?? '';
       }
-      if (row.icon?.dataset.name !== item.icon) {
-        row.icon?.remove();
-        row.icon = undefined;
-        if (item.icon) {
-          row.icon = createShellIcon(document, item.icon);
-          row.icon.dataset.name = item.icon;
-          row.button.prepend(row.icon);
-        }
-      }
-      if (index && (item.dividerBefore || (item.kind === 'checkbox') !== (items[index - 1].kind === 'checkbox'))) {
+      row.icon.update(
+        item.icon,
+        item.action
+          ? { ...item.action, enabled: !item.disabled }
+          : {
+              id: item.id,
+              label: item.label,
+              enabled: !item.disabled,
+              pressed: item.checked,
+              value: item.value,
+            },
+      );
+      if (
+        index &&
+        (item.dividerBefore ||
+          (item.kind === 'checkbox') !== (items[index - 1].kind === 'checkbox'))
+      ) {
         const separator = document.createElement('div');
         separator.setAttribute('role', 'separator');
         level.element.insertBefore(separator, cursor);
@@ -223,10 +282,13 @@ export function createToolbarMenu(
       else level.element.insertBefore(row.button, cursor);
     }
     level.items = items;
-    const active = items.find((item) => item.id === level.active && !item.disabled)
-      ?? items.find((item) => !item.disabled);
-    const restoreFocus = hadFocus && (document.activeElement !== focused ||
-      Boolean((focused as HTMLButtonElement | null)?.disabled));
+    const active =
+      items.find((item) => item.id === level.active && !item.disabled) ??
+      items.find((item) => !item.disabled);
+    const restoreFocus =
+      hadFocus &&
+      (document.activeElement !== focused ||
+        Boolean((focused as HTMLButtonElement | null)?.disabled));
     focusRow(level, active?.id, restoreFocus);
     if (restoreFocus && !active && opened)
       level.element.focus({ preventScroll: true });
@@ -238,7 +300,8 @@ export function createToolbarMenu(
     element.setAttribute('role', 'menu');
     element.tabIndex = -1;
     element.hidden = true;
-    if (typeof element.showPopover === 'function') element.setAttribute('popover', 'manual');
+    if (typeof element.showPopover === 'function')
+      element.setAttribute('popover', 'manual');
     const level: MenuLevel = { element, rows: new Map(), items: [], parent };
     element.onpointerenter = cancelHover;
     element.onpointerleave = (event) => {
@@ -258,8 +321,13 @@ export function createToolbarMenu(
         event.preventDefault();
         event.stopPropagation();
         trim(levels.indexOf(level) + 1);
-        const next = event.key === 'Home' ? 0 : event.key === 'End' ? entries.length - 1
-          : (index + (event.key === 'ArrowDown' ? 1 : -1) + entries.length) % entries.length;
+        const next =
+          event.key === 'Home'
+            ? 0
+            : event.key === 'End'
+            ? entries.length - 1
+            : (index + (event.key === 'ArrowDown' ? 1 : -1) + entries.length) %
+              entries.length;
         focusRow(level, entries[next]?.id);
       } else if (event.key === 'ArrowRight') {
         event.preventDefault();
@@ -281,12 +349,21 @@ export function createToolbarMenu(
       } else if (event.key === 'Tab') {
         // 先回到触发按钮，再让浏览器完成正常的 Tab 顺序，不困住焦点。
         close(true);
-      } else if (event.key.length === 1 && event.key !== ' ' && !event.ctrlKey && !event.metaKey && !event.altKey) {
+      } else if (
+        event.key.length === 1 &&
+        event.key !== ' ' &&
+        !event.ctrlKey &&
+        !event.metaKey &&
+        !event.altKey
+      ) {
         event.preventDefault();
         const now = Date.now();
-        typed = (now - typedAt < 700 ? typed : '') + event.key.toLocaleLowerCase();
+        typed =
+          (now - typedAt < 700 ? typed : '') + event.key.toLocaleLowerCase();
         typedAt = now;
-        const match = entries.find((item) => item.label.toLocaleLowerCase().startsWith(typed));
+        const match = entries.find((item) =>
+          item.label.toLocaleLowerCase().startsWith(typed),
+        );
         if (match) focusRow(level, match.id);
       }
     };
@@ -309,7 +386,11 @@ export function createToolbarMenu(
       present(child);
     }
     position();
-    if (focus) focusRow(levels[depth], levels[depth].items.find((item) => !item.disabled)?.id);
+    if (focus)
+      focusRow(
+        levels[depth],
+        levels[depth].items.find((item) => !item.disabled)?.id,
+      );
   }
   const root = makeLevel();
   levels.push(root);
@@ -317,7 +398,13 @@ export function createToolbarMenu(
   trigger.setAttribute('aria-controls', root.element.id);
   trigger.setAttribute('aria-expanded', 'false');
   const open = (focus = false, last = false) => {
-    if (disposed || !root.items.length || trigger.disabled || !trigger.isConnected) return;
+    if (
+      disposed ||
+      !root.items.length ||
+      trigger.disabled ||
+      !trigger.isConnected
+    )
+      return;
     closeOptionPopups(owner);
     opened = true;
     owner.dataset.open = 'true';
@@ -330,7 +417,11 @@ export function createToolbarMenu(
     }
   };
   const outside = (event: Event) => {
-    if (!owner.closest('[data-filumo-moving]') && !owner.contains(event.target as Node)) close();
+    if (
+      !owner.closest('[data-filumo-moving]') &&
+      !owner.contains(event.target as Node)
+    )
+      close();
   };
   trigger.onclick = (event) => {
     if (opened) close();
@@ -359,7 +450,9 @@ export function createToolbarMenu(
   return {
     close,
     position,
-    get opened() { return opened; },
+    get opened() {
+      return opened;
+    },
     update(items: readonly ToolbarMenuItem[], label: string) {
       const focused = document.activeElement;
       root.element.setAttribute('aria-label', label);
@@ -368,8 +461,14 @@ export function createToolbarMenu(
         const level = levels[index];
         const parent = level.parent!;
         const current = levels[index - 1].rows.get(parent.item.id);
-        if (current !== parent || current.item.disabled || !current.item.children?.length) {
-          const restore = levels.slice(index).some((entry) => entry.element.contains(focused));
+        if (
+          current !== parent ||
+          current.item.disabled ||
+          !current.item.children?.length
+        ) {
+          const restore = levels
+            .slice(index)
+            .some((entry) => entry.element.contains(focused));
           trim(index);
           if (restore) focusRow(levels[index - 1], levels[index - 1].active);
           break;
@@ -383,6 +482,8 @@ export function createToolbarMenu(
     dispose() {
       close();
       disposed = true;
+      for (const row of root.rows.values()) row.icon.dispose();
+      root.rows.clear();
       root.element.remove();
       trigger.onclick = trigger.onkeydown = null;
       document.removeEventListener('pointerdown', outside);

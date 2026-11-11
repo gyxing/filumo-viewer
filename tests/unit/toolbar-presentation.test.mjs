@@ -82,6 +82,137 @@ function toolbarDocument() {
   return document;
 }
 
+test('宿主图标覆盖语义映射，null 隐藏并保留可识别按钮', () => {
+  const icon = {
+    mount() {
+      return { dispose() {} };
+    },
+  };
+  assert.deepEqual(
+    getActionPresentation({
+      id: 'custom.close',
+      kind: 'action',
+      icon,
+      toolbar: { showLabel: false },
+    }),
+    { icon, showLabel: false },
+  );
+  assert.deepEqual(
+    getActionPresentation({
+      id: 'custom.close',
+      kind: 'action',
+      icon: null,
+      toolbar: { showLabel: false },
+    }),
+    { icon: null, showLabel: true },
+  );
+  assert.equal(
+    actionMenuItem(
+      { id: 'custom.close', label: '关闭', kind: 'action', icon: null },
+      true,
+    ).icon,
+    null,
+  );
+  assert.equal(
+    actionMenuItem(
+      { id: 'custom.close', label: '关闭', kind: 'action', icon },
+      true,
+    ).icon,
+    icon,
+  );
+});
+
+test('宿主图标按操作复用，更新状态，隐藏与移除均释放，重新显示重新挂载', () => {
+  const document = toolbarDocument();
+  const container = document.createElement('div');
+  const errors = [];
+  const binding = bindCapabilities(container, (error) => errors.push(error));
+  let mounted = 0;
+  let disposed = 0;
+  const states = [];
+  const icon = {
+    mount(host, context) {
+      mounted++;
+      assert.equal(context.document, document);
+      assert.equal(context.placement, 'toolbar');
+      host.append(document.createElement('span'));
+      return {
+        update(next) {
+          states.push(next.action);
+        },
+        dispose() {
+          disposed++;
+        },
+      };
+    },
+  };
+  const action = {
+    id: 'host.custom',
+    kind: 'action',
+    label: '刷新',
+    icon,
+    toolbar: { showLabel: false },
+    run() {},
+  };
+  binding.update({ actions: [action] });
+  const button = container.children[0];
+  binding.update({ actions: [{ ...action, enabled: false, label: '忙碌' }] });
+  assert.equal(mounted, 1);
+  assert.equal(states.at(-1).enabled, false);
+  assert.equal(states.at(-1).label, '忙碌');
+  assert.equal(container.children[0], button);
+  assert.equal(button.classList.contains('filumo-icon-button'), true);
+  const updates = states.length;
+  binding.update({ actions: [{ ...action, enabled: false, label: '忙碌' }] });
+  assert.equal(states.length, updates);
+  binding.update({ actions: [{ ...action, toolbar: { visible: false } }] });
+  assert.equal(disposed, 1);
+  binding.update({ actions: [action] });
+  assert.equal(mounted, 2);
+  binding.update({ actions: [] });
+  assert.equal(disposed, 2);
+  binding.dispose();
+  assert.equal(disposed, 2);
+  assert.deepEqual(errors, []);
+});
+
+test('默认图标在连续状态更新后仍存在，自定义替换会清理旧实例', () => {
+  const document = toolbarDocument();
+  const container = document.createElement('div');
+  const binding = bindCapabilities(container, (error) => {
+    throw error;
+  });
+  const action = { id: 'host.close', label: '关闭', kind: 'action', run() {} };
+  binding.update({ actions: [action] });
+  const button = container.children[0];
+  const svg = button.querySelector('svg');
+  assert.ok(svg);
+  binding.update({ actions: [{ ...action, enabled: false }] });
+  assert.equal(button.querySelector('svg'), svg);
+  let disposed = 0;
+  binding.update({
+    actions: [
+      {
+        ...action,
+        icon: {
+          mount() {
+            return {
+              dispose() {
+                disposed++;
+              },
+            };
+          },
+        },
+      },
+    ],
+  });
+  assert.equal(button.querySelector('svg'), undefined);
+  binding.update({ actions: [action] });
+  assert.equal(disposed, 1);
+  assert.ok(button.querySelector('svg'));
+  binding.dispose();
+});
+
 test('标准动作隐藏文字，面板和模式操作保留文字，未知动作避免成为空按钮', () => {
   for (const id of ['image.rotate', 'image.reset', 'custom.download'])
     assert.equal(
@@ -206,4 +337,65 @@ test('菜单仍保留图标和完整名称，不继承主栏的文字隐藏规�
   const menu = actionMenuItem(action, true);
   assert.equal(menu.label, '旋转');
   assert.equal(menu.icon, getActionPresentation(action).icon);
+});
+
+test('选择控件默认展开，显式更多与隐藏设置生效，边界禁用保留入口', () => {
+  const document = toolbarDocument();
+  const container = document.createElement('div');
+  const binding = bindCapabilities(container, (error) => {
+    throw error;
+  });
+  const select = {
+    id: 'custom.sheet',
+    kind: 'select',
+    label: '工作表',
+    value: 'one',
+    options: [{ value: 'one', label: '表一' }],
+    run() {},
+  };
+  try {
+    binding.update({ actions: [select] });
+    assert.equal(container.children.length, 1);
+    binding.update({
+      actions: [{ ...select, toolbar: { placement: 'more' } }],
+    });
+    assert.equal(container.children.length, 0);
+    binding.update({ actions: [{ ...select, enabled: false }] });
+    assert.equal(container.children.length, 1);
+    assert.equal(
+      container.children[0].querySelector('.filumo-select-trigger').disabled,
+      true,
+    );
+    binding.update({ actions: [{ ...select, toolbar: { visible: false } }] });
+    assert.equal(container.children.length, 0);
+  } finally {
+    binding.dispose();
+  }
+});
+
+test('文档未就绪时宿主恢复操作按自身状态可用，格式操作继续禁用', () => {
+  const document = toolbarDocument();
+  const container = document.createElement('div');
+  const binding = bindCapabilities(container, (error) => {
+    throw error;
+  });
+  const actions = [
+    { id: 'pdf.search', kind: 'action', label: '查找', run() {} },
+    { id: 'host.close', kind: 'action', label: '关闭', run() {} },
+  ];
+  try {
+    binding.update({ actions }, 'zh-CN', false, [], new Set(['host.close']));
+    assert.equal(container.children[0].disabled, true);
+    assert.equal(container.children[1].disabled, false);
+    binding.update(
+      { actions: actions.map((action) => ({ ...action, enabled: false })) },
+      'zh-CN',
+      false,
+      [],
+      new Set(['host.close']),
+    );
+    assert.equal(container.children[1].disabled, true);
+  } finally {
+    binding.dispose();
+  }
 });

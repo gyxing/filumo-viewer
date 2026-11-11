@@ -40,6 +40,7 @@ export interface OfficeInteractionState {
   readonly revisionMode: OfficeRevisionMode;
   readonly sheetMode: 'source' | 'reading';
   readonly gridReady?: boolean;
+  readonly gridHasSelection?: boolean;
   readonly columnWidthsChanged?: boolean;
   readonly transitions: boolean;
   readonly transitionIntent?: {
@@ -97,7 +98,10 @@ export interface OfficeInteractionPort {
     copySelection(): Promise<void>;
     resetColumns(): void;
   }): () => void;
-  updateGrid?(info: { columnWidthsChanged: boolean }): void;
+  updateGrid?(info: {
+    columnWidthsChanged?: boolean;
+    gridHasSelection?: boolean;
+  }): void;
   setActive(active: boolean): void;
   dispose(): void;
 }

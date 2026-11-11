@@ -137,7 +137,8 @@ for (const kind of ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx']) {
       assert.equal(action('office.revision').toolbar.visible, false);
       port.updateDocument({ outlineCount: 2, pageCount: 3 });
       assert.equal(action('office.outline').toolbar.visible, true);
-      assert.equal(caps().navigation.toolbar.visible, false);
+      assert.equal(caps().navigation.toolbar.visible, true);
+      assert.equal(caps().navigation.toolbar.layout, 'paging');
       await caps().navigation.goTo(1);
       assert.equal(port.getState().pageIndex, 1);
       port.updateAnnotations(0, {
@@ -158,6 +159,19 @@ for (const kind of ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx']) {
       port.updateAnnotations(0);
       assert.equal(action('office.review').toolbar.visible, false);
       if (kind.startsWith('xls')) {
+        assert.equal(action('office.copy').toolbar.visible, false);
+        assert.equal(action('office.resetColumns').toolbar.visible, false);
+        port.bindGrid({ async copySelection() {}, resetColumns() {} });
+        assert.equal(action('office.copy').toolbar.placement, 'main');
+        assert.equal(action('office.copy').toolbar.visible, false);
+        port.updateGrid({ gridHasSelection: true });
+        assert.equal(action('office.copy').toolbar.visible, true);
+        port.updateGrid({ gridHasSelection: false });
+        assert.equal(action('office.copy').toolbar.visible, false);
+        port.updateGrid({ columnWidthsChanged: true });
+        assert.equal(action('office.resetColumns').toolbar.visible, true);
+        port.updateGrid({ columnWidthsChanged: false });
+        assert.equal(action('office.resetColumns').toolbar.visible, false);
         port.updateDocument({ sheets: [{ id: 'one', name: 'One' }] });
         assert.equal(action('office.sheet').toolbar.visible, false);
         assert.equal(action('office.sheetMode').toolbar.showLabel, false);

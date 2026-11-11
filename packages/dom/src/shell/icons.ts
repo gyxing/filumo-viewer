@@ -80,7 +80,7 @@ export function labelShellButton(
     button.replaceChildren(text);
   }
   text.textContent = label;
-  if (button.dataset.icon !== icon) {
+  if ((button.dataset.icon ?? '') !== (icon ?? '')) {
     button.querySelector('svg')?.remove();
     if (icon) button.prepend(createShellIcon(button.ownerDocument, icon));
     button.dataset.icon = icon ?? '';

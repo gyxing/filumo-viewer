@@ -230,8 +230,10 @@ async function mountWorkbook(
             copySelection: () => grid?.copy() ?? Promise.resolve(),
             resetColumns: () => grid?.resetColumnWidths(),
           });
+          const restoredState = grid.getState();
           port.updateGrid?.({
-            columnWidthsChanged: grid.getState().widths.length > 0,
+            columnWidthsChanged: restoredState.widths.length > 0,
+            gridHasSelection: !!(restoredState.focus || restoredState.range),
           });
           changingGrid = false;
         }

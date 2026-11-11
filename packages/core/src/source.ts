@@ -6,7 +6,7 @@ import {
   type HttpRangeSetup,
 } from './range/HttpRangeReader';
 import type { DocumentRangeReader } from './range/types';
-import { guardByteStream } from './sourceStream';
+import { guardByteStream, readStreamPrefix } from './sourceStream';
 import type { DocumentInput, DocumentSource, ResourcePolicy } from './types';
 
 /** 校验限制值，不设置与文件格式无关的默认硬上限。 */
@@ -38,6 +38,8 @@ export async function normalizeSource(
   let rangeSetup: Promise<HttpRangeSetup> | undefined;
   let fallbackResponse: Response | undefined;
   let finishRange: (() => void) | undefined;
+  let prefix: Uint8Array | undefined;
+  let prefixReading: Promise<Uint8Array> | undefined;
   const localAbort = new AbortController();
   if (typeof Blob !== 'undefined' && input instanceof Blob) {
     blob = input;
@@ -85,17 +87,47 @@ export async function normalizeSource(
         '文件超过宿主配置的大小限制',
       );
   };
+  // 内部初始化不等待全文读取，避免前缀与全文相互等待形成环。
+  const setupRange = (signal: AbortSignal): Promise<HttpRangeSetup> => {
+    if (!rangeSetup)
+      rangeSetup = createHttpRangeReader(
+        url!,
+        request,
+        options.resourcePolicy,
+        localAbort.signal,
+      )
+        .then((setup) => {
+          if (disposed) {
+            void setup.fallbackResponse?.body?.cancel().catch(() => undefined);
+            setup.finish?.();
+            throw abortError();
+          }
+          fallbackResponse = setup.fallbackResponse;
+          finishRange = setup.finish;
+          mimeType ||= setup.mimeType;
+          if (setup.reader) size = setup.reader.length;
+          return setup;
+        })
+        .catch((error) => {
+          rangeSetup = undefined;
+          throw error;
+        });
+    return waitForSource(rangeSetup, signal);
+  };
   const read = async (signal: AbortSignal): Promise<Uint8Array> => {
     if (disposed) throw new FilumoError('SOURCE_DISPOSED', '文件来源已释放');
     throwIfAborted(signal);
     throwIfAborted(localAbort.signal);
     if (size !== undefined) checkSize(size);
     if (bytes) return bytes;
-    if (!reading)
+    if (!reading) {
+      const pendingPrefix = prefixReading;
       reading = (async () => {
         const abort = () => localAbort.abort(signal.reason ?? abortError());
         signal.addEventListener('abort', abort, { once: true });
         try {
+          if (pendingPrefix) await waitForSource(pendingPrefix, signal);
+          if (bytes) return bytes;
           if (blob) {
             bytes = new Uint8Array(await blob.arrayBuffer());
           } else {
@@ -163,7 +195,126 @@ export async function normalizeSource(
         reading = undefined;
         throw error;
       });
+    }
     return reading;
+  };
+  /** 普通 GET 探测共用前缀；特殊请求继续走原全文缓存，避免重放副作用。 */
+  const readPrefix = async (
+    length: number,
+    signal: AbortSignal,
+  ): Promise<Uint8Array> => {
+    if (bytes) return bytes.slice(0, length);
+    if (reading) return (await waitForSource(reading, signal)).slice(0, length);
+    if (prefix && prefix.length >= length) return prefix.slice(0, length);
+    if (prefixReading) {
+      const current = await waitForSource(prefixReading, signal);
+      if (current.length >= length) return current.slice(0, length);
+      return readPrefix(length, signal);
+    }
+    if (size !== undefined && length >= size)
+      return (await read(signal)).slice(0, length);
+    const operation = Promise.resolve().then(async () => {
+      // 主动取消沿用原读取的来源级终止语义；正常截断只 cancel 当前响应流。
+      const cancelSource = () =>
+        localAbort.abort(signal.reason ?? abortError());
+      signal.addEventListener('abort', cancelSource, { once: true });
+      try {
+        throwIfAborted(signal);
+        const { reader } = await setupRange(signal);
+        if (reader)
+          return reader.read(0, Math.min(length, reader.length), signal);
+        const abort = new AbortController();
+        const cancel = () =>
+          abort.abort(
+            signal.reason ?? localAbort.signal.reason ?? abortError(),
+          );
+        signal.addEventListener('abort', cancel, { once: true });
+        localAbort.signal.addEventListener('abort', cancel, { once: true });
+        const rangeFinish = finishRange;
+        finishRange = undefined;
+        let response: Response | undefined;
+        const finish = () => {
+          signal.removeEventListener('abort', cancel);
+          localAbort.signal.removeEventListener('abort', cancel);
+          rangeFinish?.();
+        };
+        try {
+          throwIfAborted(signal);
+          throwIfAborted(localAbort.signal);
+          response =
+            fallbackResponse ??
+            (await fetch(url!, { ...request, signal: abort.signal }));
+          fallbackResponse = undefined;
+          throwIfAborted(signal);
+          throwIfAborted(localAbort.signal);
+          if (!response.ok)
+            throw new FilumoError(
+              'DOWNLOAD_FAILED',
+              '文件下载失败：' + response.status,
+            );
+          mimeType ||= response.headers.get('content-type') ?? undefined;
+          const advertised = response.headers.get('content-length');
+          if (advertised && /^\d+$/.test(advertised)) {
+            // 传输可能解压缩，截断前缀不能凭响应头宣称已知文档大小。
+            checkSize(Number(advertised));
+          }
+          if (!response.body) {
+            const result = new Uint8Array(await response.arrayBuffer());
+            throwIfAborted(signal);
+            throwIfAborted(localAbort.signal);
+            checkSize(result.length);
+            bytes = result;
+            size = result.length;
+            return result;
+          }
+          // 64 KiB 覆盖内置文本探测，多插件小窗口共享一次消费。
+          const window = Math.max(
+            length,
+            Math.min(
+              64 * 1024,
+              size ?? Infinity,
+              options.resourcePolicy?.maxFileBytes ?? Infinity,
+            ),
+          );
+          const result = await readStreamPrefix(
+            guardByteStream(
+              response.body,
+              signal,
+              localAbort.signal,
+              options.resourcePolicy?.maxFileBytes,
+            ),
+            window,
+            signal,
+          );
+          throwIfAborted(signal);
+          throwIfAborted(localAbort.signal);
+          if (result.eof) {
+            bytes = result.bytes;
+            size = bytes.length;
+          } else prefix = result.bytes.slice(0, 64 * 1024);
+          return result.bytes;
+        } catch (error) {
+          if (response?.body && !response.body.locked)
+            await response.body.cancel().catch(() => undefined);
+          throw error;
+        } finally {
+          finish();
+        }
+      } finally {
+        signal.removeEventListener('abort', cancelSource);
+      }
+    });
+    prefixReading = operation;
+    try {
+      return (await waitForSource(operation, signal)).slice(0, length);
+    } finally {
+      // 取消等待者不能提前清空仍在清理的操作，防止后续读取抢占响应。
+      void operation
+        .finally(() => {
+          if (prefixReading === operation) prefixReading = undefined;
+        })
+        .catch(() => undefined);
+    }
   };
   return {
     get name() {
@@ -191,6 +342,21 @@ export async function normalizeSource(
           localAbort.signal,
           options.resourcePolicy?.maxFileBytes,
         );
+      if (bytes) {
+        const current = bytes;
+        return guardByteStream(
+          new ReadableStream({
+            start(c) {
+              c.enqueue(current);
+              c.close();
+            },
+          }),
+          signal,
+          localAbort.signal,
+          options.resourcePolicy?.maxFileBytes,
+        );
+      }
+      if (prefixReading) await waitForSource(prefixReading, signal);
       if (bytes) {
         const current = bytes;
         return guardByteStream(
@@ -282,32 +448,7 @@ export async function normalizeSource(
             return bytes!.slice(offset, offset + length);
           },
         };
-      if (!rangeSetup)
-        rangeSetup = createHttpRangeReader(
-          url!,
-          request,
-          options.resourcePolicy,
-          localAbort.signal,
-        )
-          .then((setup) => {
-            if (disposed) {
-              void setup.fallbackResponse?.body
-                ?.cancel()
-                .catch(() => undefined);
-              setup.finish?.();
-              throw abortError();
-            }
-            fallbackResponse = setup.fallbackResponse;
-            finishRange = setup.finish;
-            mimeType ||= setup.mimeType;
-            if (setup.reader) size = setup.reader.length;
-            return setup;
-          })
-          .catch((error) => {
-            rangeSetup = undefined;
-            throw error;
-          });
-      return (await waitForSource(rangeSetup, signal)).reader;
+      return (await setupRange(signal)).reader;
     },
     async readBlob(signal) {
       if (disposed) throw new FilumoError('SOURCE_DISPOSED', '文件来源已释放');
@@ -327,7 +468,17 @@ export async function normalizeSource(
       )
         throw new FilumoError('INVALID_RANGE', '来源读取范围无效');
       if (size !== undefined) checkSize(size);
-      // 本地前缀探测只读切片；远程仍共享全文缓存，避免另起一次下载。
+      if (!length) return new Uint8Array();
+      if (
+        !blob &&
+        offset === 0 &&
+        url?.startsWith('http') &&
+        (request?.method ?? 'GET').toUpperCase() === 'GET' &&
+        !request?.body &&
+        !new Headers(request?.headers).has('Range')
+      )
+        return readPrefix(length, signal);
+      // 非前缀与特殊请求继续共享原全文缓存，保留请求执行次数。
       if (!blob) return (await read(signal)).slice(offset, offset + length);
       const abort = new AbortController();
       const cancel = () =>
@@ -358,6 +509,8 @@ export async function normalizeSource(
       blob = undefined;
       bytes = undefined;
       reading = undefined;
+      prefix = undefined;
+      prefixReading = undefined;
     },
   };
 }

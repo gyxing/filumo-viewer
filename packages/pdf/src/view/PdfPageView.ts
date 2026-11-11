@@ -4,6 +4,7 @@ import { PDF_DEFAULTS } from '../options';
 import type { PdfBackend, PdfLayerLease } from '../runtime/contracts';
 import { PdfCanvasCache, type PdfCanvasLease } from './PdfCanvasCache';
 let sequence = 0;
+export type PdfRenderResult = 'rendered' | 'budget' | 'failed' | 'cancelled';
 type PageStatus =
   | 'preparing'
   | 'rendering'
@@ -98,11 +99,12 @@ export class PdfPageView {
     rotation: number,
     queueSignal: AbortSignal,
     pixelShare = Infinity,
-  ): Promise<void> {
-    if (this.closed || (this.renderedKey === key && this.lease)) return;
+  ): Promise<PdfRenderResult> {
+    if (this.closed) return 'cancelled';
+    if (this.renderedKey === key && this.lease) return 'rendered';
     this.controller.abort();
     await this.rendering?.catch(() => undefined);
-    if (this.closed || queueSignal.aborted) return;
+    if (this.closed || queueSignal.aborted) return 'cancelled';
     const controller = (this.controller = new AbortController());
     const signal = controller.signal;
     const cancel = () => controller.abort(queueSignal.reason);
@@ -178,9 +180,16 @@ export class PdfPageView {
       if (!signal.aborted && !this.closed) this.ready();
     })();
     this.rendering = task;
+    let result: PdfRenderResult = 'rendered';
     try {
       await task;
     } catch (error) {
+      result =
+        signal.aborted || this.closed
+          ? 'cancelled'
+          : error instanceof FilumoError && error.code === 'PDF_CANVAS_BUDGET'
+          ? 'budget'
+          : 'failed';
       this.releaseBitmap(true);
       if (
         !signal.aborted &&
@@ -202,6 +211,7 @@ export class PdfPageView {
       queueSignal.removeEventListener('abort', cancel);
       if (this.rendering === task) this.rendering = undefined;
     }
+    return result;
   }
   releaseBitmap(force = false): void {
     if (this.rendering && !force) return;

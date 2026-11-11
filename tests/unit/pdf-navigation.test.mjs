@@ -165,7 +165,7 @@ test('切换查询拒绝迟到结果，结果片段长度有界', async () => {
   }
 });
 
-test('无大纲默认进入缩略图，工具栏大纲切换和查找聚焦保持侧栏状态', async () => {
+test('无大纲默认收起，手动打开缩略图和查找后保持侧栏状态', async () => {
   const document = documentFixture(),
     backend = backendFixture(),
     search = new PdfSearch(backend, {}),
@@ -181,7 +181,11 @@ test('无大纲默认进入缩略图，工具栏大纲切换和查找聚焦保�
     await Promise.resolve();
     await Promise.resolve();
     assert.equal(sidebar.getState().mode, 'thumbnails');
-    assert.equal(sidebar.getState().open, true);
+    assert.equal(sidebar.getState().open, false);
+    assert.equal(
+      sidebar.element.querySelector('.fixture-thumbnails').dataset.active,
+      'false',
+    );
     sidebar.select('search', true);
     await search.setQuery('find');
     const revision = search.getSnapshot().navigationRevision;

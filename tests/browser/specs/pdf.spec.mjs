@@ -97,7 +97,8 @@ test('PDF 正文同页和跨页滚动更新大纲，自动展开祖先并滚入�
       tree.evaluate((node) => {
         // 虚拟树会替换行节点，从稳定的树容器读取本帧选中行，避免命中已脱离文档的旧行。
         const selected = node.querySelector('[aria-selected="true"]');
-        if (!selected || selected.getAttribute('aria-label') !== 'Section 15') return false;
+        if (!selected || selected.getAttribute('aria-label') !== 'Section 15')
+          return false;
         const row = selected.getBoundingClientRect(),
           bounds = node.getBoundingClientRect();
         return row.top >= bounds.top && row.bottom <= bounds.bottom + 1;
@@ -453,6 +454,102 @@ test('PDF 反复打开及销毁不留下实际 Worker 或视图样式', async ({
     await expect(page.locator('.filumo-pdf-canvas').first()).toBeVisible();
     await page.evaluate(() => window.filumoImagePdf.dispose());
     expect(await page.evaluate(() => window.filumoLiveWorkers.size)).toBe(0);
-    await expect(page.locator('style[data-filumo-style^="pdf:"]')).toHaveCount(0);
+    await expect(page.locator('style[data-filumo-style^="pdf:"]')).toHaveCount(
+      0,
+    );
   }
 });
+
+test('小画布预算下侧栏切换与连续缩放仍能恢复正文和查找', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.goto(server.url + '/image-pdf.html');
+  await page.getByRole('button', { name: 'budget', exact: true }).click();
+  const first = page.locator('[data-pdf-page="1"] .filumo-pdf-canvas');
+  await expect(first).toBeVisible();
+  const sidebar = page.locator('.filumo-pdf-sidebar');
+  await sidebar.getByRole('tab', { name: '缩略图', exact: true }).click();
+  await expect(
+    page.locator('.filumo-pdf-thumbnail canvas').first(),
+  ).toBeVisible();
+  for (const zoom of [150, 80, 200]) {
+    await page.evaluate(
+      (value) => window.filumoImagePdf.getCapabilities().zoom.set(value),
+      zoom,
+    );
+    await expect(first).toBeVisible();
+  }
+  await sidebar.getByRole('button', { name: '收起导航', exact: true }).click();
+  await expect(first).toBeVisible();
+  const pixels = await page
+    .locator('.filumo-pdf-canvas, .filumo-pdf-thumbnail canvas')
+    .evaluateAll((canvases) =>
+      canvases.reduce((sum, canvas) => sum + canvas.width * canvas.height, 0),
+    );
+  expect(pixels).toBeLessThanOrEqual(1024);
+  await page.evaluate(() =>
+    window.filumoImagePdf.getCapabilities().search.setQuery('FILUMO_TARGET_12'),
+  );
+  await expect(
+    page.locator('[data-pdf-page="12"] .filumo-pdf-canvas'),
+  ).toBeVisible();
+  await page.evaluate(() => window.filumoImagePdf.dispose());
+  await expect(page.locator('.filumo-pdf-viewport')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+for (const kind of [
+  'external',
+  'external-query',
+  'external-prefixed',
+  'worker-src',
+  'worker-factory',
+]) {
+  test(`PDF ${kind} 保留资源基准并完成真实 Worker 握手`, async ({
+    page,
+  }, info) => {
+    const resources = [],
+      errors = [];
+    page.on('response', (response) => {
+      if (response.url().includes('/assets/pdf/'))
+        resources.push({ url: response.url(), status: response.status() });
+    });
+    page.on('pageerror', (error) => errors.push(error.message));
+    await page.goto(server.url + '/image-pdf.html');
+    await page.getByRole('button', { name: kind, exact: true }).click();
+    await expect(page.locator('.filumo-pdf-canvas').first()).toBeVisible();
+    await expect(page.locator('[data-pdf-page="1"] .textLayer')).toContainText(
+      'Filumo PDF page 1',
+    );
+    expect(
+      resources.some((item) =>
+        item.url.includes('legacy/build/pdf.worker.mjs'),
+      ),
+    ).toBe(true);
+    expect(resources.every((item) => item.status === 200)).toBe(true);
+    if (kind.startsWith('external'))
+      expect(
+        resources.some((item) => item.url.includes('legacy/build/pdf.mjs')),
+      ).toBe(true);
+    if (kind === 'external-prefixed')
+      expect(
+        resources.every((item) =>
+          new URL(item.url).pathname.startsWith('/deployment-prefix/'),
+        ),
+      ).toBe(true);
+    if (kind === 'external-query')
+      expect(
+        resources
+          .filter((item) => item.url.includes('legacy/build/'))
+          .every(
+            (item) =>
+              new URL(item.url).searchParams.get('version') === 'fixture',
+          ),
+      ).toBe(true);
+    expect(errors).toEqual([]);
+    await info.attach('pdf-resource-requests', {
+      body: JSON.stringify(resources),
+      contentType: 'application/json',
+    });
+  });
+}

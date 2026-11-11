@@ -1,17 +1,18 @@
-import { throwIfAborted } from '@filumo/core';
+import { abortError, FilumoError, throwIfAborted } from '@filumo/core';
 import type { ViewContext, ViewOptions } from '@filumo/dom';
+import { resolveZoomOptions } from '@filumo/dom';
 import { PDF_DEFAULTS } from '../options';
-import type { PdfSession } from '../runtime/PdfSession';
 import type {
   PdfBackend,
   PdfPageMetrics,
   PdfReadingPosition,
 } from '../runtime/contracts';
+import type { PdfSession } from '../runtime/PdfSession';
+import './pages.less';
 import { PdfCanvasCache } from './PdfCanvasCache';
 import { PdfPageLayout, type PdfAnchor } from './PdfPageLayout';
 import { PdfPageView } from './PdfPageView';
 import { PdfRenderQueue } from './PdfRenderQueue';
-import './pages.less';
 let thumbnailSequence = 0;
 
 const CSS_UNITS = 4 / 3;
@@ -28,6 +29,12 @@ export class PdfViewport {
   private measuring = new Set<number>();
   private paints = new Map<number, Promise<void>>();
   private visible = new Set<number>();
+  private budgetBlocked = new Map<
+    number,
+    { key: string; revision: number; share: number }
+  >();
+  private budgetWaiters = new Set<() => void>();
+  private stopBudget: () => void;
   private controller = new AbortController();
   private resize?: ResizeObserver;
   private frame?: number;
@@ -50,6 +57,11 @@ export class PdfViewport {
     first: PdfPageMetrics,
     private onReadingPosition?: (position: PdfReadingPosition) => void,
   ) {
+    const zoom = resolveZoomOptions(context.options, {
+      mode: 'fit-width',
+      modes: ['percentage', 'fit-width'],
+      minFitZoom: 1,
+    });
     const document = host.ownerDocument;
     this.options = context.options;
     this.element = document.createElement('div');
@@ -69,6 +81,13 @@ export class PdfViewport {
       document,
       session.options.canvasCacheBytes ?? PDF_DEFAULTS.canvasCacheBytes,
     );
+    this.stopBudget = this.cache.subscribeAvailable(() => {
+      // 自动恢复只唤醒可见正文，预取页不能靠互相释放位图形成重绘循环。
+      if (
+        [...this.budgetBlocked.keys()].some((index) => this.visible.has(index))
+      )
+        this.schedule();
+    });
     this.element.addEventListener('scroll', this.schedule, { passive: true });
     this.element.addEventListener('wheel', this.interact, { passive: true });
     this.element.addEventListener('touchstart', this.interact, {
@@ -89,7 +108,7 @@ export class PdfViewport {
     context.session.signal.addEventListener('abort', this.cancel, {
       once: true,
     });
-    if (this.options.zoom !== undefined) this.setZoom(this.options.zoom);
+    if (zoom.mode === 'percentage') this.setZoom(zoom.zoom);
     else this.fitWidth();
   }
   getSnapshot() {
@@ -145,6 +164,51 @@ export class PdfViewport {
       });
     else this.renderWindow();
   };
+  /** 预算在队列外等待，订阅前后都检查版本，避免错过刚发生的归还。 */
+  private waitForBudget(
+    revision: number,
+    signal: AbortSignal,
+    generation: number,
+  ): Promise<void> {
+    if (
+      this.closed ||
+      !this.active ||
+      generation !== this.generation ||
+      signal.aborted
+    )
+      return Promise.reject(signal.reason ?? abortError());
+    if (this.cache.revision !== revision) return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      let stop: () => void;
+      let cancel: () => void;
+      const finish = (error?: unknown) => {
+        stop();
+        signal.removeEventListener('abort', cancel);
+        this.budgetWaiters.delete(cancel);
+        if (error) reject(error);
+        else resolve();
+      };
+      cancel = () => finish(signal.reason ?? abortError());
+      const check = () => {
+        if (
+          this.closed ||
+          !this.active ||
+          generation !== this.generation ||
+          signal.aborted
+        )
+          cancel();
+        else if (this.cache.revision !== revision) finish();
+      };
+      stop = this.cache.subscribeAvailable(check);
+      this.budgetWaiters.add(cancel);
+      signal.addEventListener('abort', cancel, { once: true });
+      check();
+    });
+  }
+  private clearBudgetWaiters(): void {
+    this.budgetBlocked.clear();
+    for (const cancel of [...this.budgetWaiters]) cancel();
+  }
   private position() {
     this.canvas.style.height = this.layout.totalHeight() + 'px';
     this.canvas.style.minWidth =
@@ -205,6 +269,7 @@ export class PdfViewport {
         }
         this.pages.delete(index);
         this.paints.delete(index);
+        this.budgetBlocked.delete(index);
         const cleanup = page.dispose().catch(this.context.onError);
         this.retiring.add(cleanup);
         void cleanup.then(() => this.retiring.delete(cleanup));
@@ -229,6 +294,7 @@ export class PdfViewport {
           },
           (url) => this.external(url),
           () => {
+            this.budgetBlocked.delete(index);
             const target = this.pages.get(index);
             target?.releaseBitmap();
             this.schedule();
@@ -248,6 +314,20 @@ export class PdfViewport {
           ':' +
           this.rotation;
       if (page.isRendered(key)) continue;
+      const share = Math.max(
+        1,
+        Math.floor(
+          ((this.cache.maxBytes / 4) * 7) / 8 / Math.max(3, this.visible.size),
+        ),
+      );
+      const blocked = this.budgetBlocked.get(index);
+      if (
+        blocked?.key === key &&
+        blocked.revision === this.cache.revision &&
+        blocked.share === share
+      )
+        continue;
+      const generation = this.generation;
       const paint = this.queue.enqueue(
         key,
         index,
@@ -258,15 +338,25 @@ export class PdfViewport {
             if (other !== index && !this.visible.has(other))
               value.releaseBitmap();
           // 为当前可见页公平分配预算，并预留一小部分给侧栏缩略图。
-          const share = Math.max(
-            1,
-            Math.floor(
-              ((this.cache.maxBytes / 4) * 7) /
-                8 /
-                Math.max(3, this.visible.size),
-            ),
+          const revision = this.cache.revision;
+          const result = await owned.render(
+            key,
+            this.scale,
+            this.rotation,
+            signal,
+            share,
           );
-          await owned.render(key, this.scale, this.rotation, signal, share);
+          if (
+            this.closed ||
+            generation !== this.generation ||
+            this.pages.get(index) !== owned
+          )
+            return;
+          if (result === 'budget') {
+            this.budgetBlocked.set(index, { key, revision, share });
+            if (revision !== this.cache.revision && this.visible.has(index))
+              this.schedule();
+          } else this.budgetBlocked.delete(index);
         },
       );
       this.paints.set(index, paint);
@@ -302,6 +392,7 @@ export class PdfViewport {
     this.mode = mode;
     this.scale = scale;
     this.generation++;
+    this.clearBudgetWaiters();
     this.queue.cancel();
     for (const page of this.pages.values()) page.releaseBitmap();
     this.layout.setScale(scale);
@@ -317,11 +408,17 @@ export class PdfViewport {
     );
   }
   fitWidth(): void {
+    this.change(this.widthScale(), 'fit-width');
+  }
+  /** 初始、尺寸变化和旋转共用自动上限，手动比例使用独立的setZoom路径。 */
+  private widthScale(): number {
     const size = this.layout.getSize(this.index);
     const naturalWidth = size.width / this.scale;
-    this.change(
+    return Math.min(
       Math.max(1, this.element.clientWidth - 32) / Math.max(1, naturalWidth),
-      'fit-width',
+      this.options.fitMaxZoom === undefined
+        ? Infinity
+        : (this.options.fitMaxZoom / 100) * CSS_UNITS,
     );
   }
   rotate(): void {
@@ -329,12 +426,11 @@ export class PdfViewport {
     this.rotation = (this.rotation + 90) % 360;
     this.layout.setRotation(this.rotation);
     this.generation++;
+    this.clearBudgetWaiters();
     this.queue.cancel();
     for (const page of this.pages.values()) page.releaseBitmap();
     if (this.mode === 'fit-width') {
-      const size = this.layout.getSize(this.index);
-      this.scale =
-        Math.max(1, this.element.clientWidth - 32) / (size.width / this.scale);
+      this.scale = this.widthScale();
       this.layout.setScale(this.scale);
     }
     this.position();
@@ -389,70 +485,85 @@ export class PdfViewport {
     const result: { lease?: ReturnType<PdfCanvasCache['acquire']> } = {};
     const key = 'thumbnail:' + index + ':' + ++thumbnailSequence,
       generation = this.generation;
-    await this.queue.enqueue(
-      key,
-      -1,
-      generation,
-      async (queueSignal) => {
-        throwIfAborted(signal);
-        const abort = new AbortController(),
-          cancel = () => abort.abort(signal.reason ?? queueSignal.reason);
-        signal.addEventListener('abort', cancel, { once: true });
-        queueSignal.addEventListener('abort', cancel, { once: true });
-        try {
-          const metrics = await this.backend.getMetrics(index, abort.signal);
-          throwIfAborted(abort.signal);
-          const slots = Math.max(
-            3,
-            Math.ceil(this.element.clientHeight / 176) + 3,
-          );
-          const pixels = Math.max(
-            1,
-            Math.floor(this.cache.maxBytes / 4 / 8 / slots),
-          );
-          let scale = Math.min(
-            120 / metrics.width,
-            140 / metrics.height,
-            Math.sqrt(pixels / (metrics.width * metrics.height)),
-          );
-          while (
-            Math.ceil(metrics.width * scale) *
-              Math.ceil(metrics.height * scale) >
-            pixels
-          )
-            scale *= 0.999;
-          for (const [page, value] of this.pages)
-            if (!this.visible.has(page)) value.releaseBitmap();
-          const lease = this.cache.acquire(
-            key,
-            Math.max(1, Math.ceil(metrics.width * scale)),
-            Math.max(1, Math.ceil(metrics.height * scale)),
-          );
-          result.lease = lease;
-          const job = this.backend.render(index, lease.canvas, {
-            scale,
-            rotation: 0,
-            signal: abort.signal,
-          });
-          const stop = () => job.cancel();
-          abort.signal.addEventListener('abort', stop, { once: true });
-          try {
-            await job.promise;
-            throwIfAborted(abort.signal);
-          } finally {
-            abort.signal.removeEventListener('abort', stop);
-          }
-        } catch (error) {
-          result.lease?.release();
-          result.lease = undefined;
+    for (;;) {
+      const revision = this.cache.revision;
+      try {
+        await this.queue.enqueue(
+          key,
+          -1,
+          generation,
+          async (queueSignal) => {
+            throwIfAborted(signal);
+            const abort = new AbortController(),
+              cancel = () => abort.abort(signal.reason ?? queueSignal.reason);
+            signal.addEventListener('abort', cancel, { once: true });
+            queueSignal.addEventListener('abort', cancel, { once: true });
+            try {
+              const metrics = await this.backend.getMetrics(
+                index,
+                abort.signal,
+              );
+              throwIfAborted(abort.signal);
+              const slots = Math.max(
+                3,
+                Math.ceil(this.element.clientHeight / 176) + 3,
+              );
+              const pixels = Math.max(
+                1,
+                Math.floor(this.cache.maxBytes / 4 / 8 / slots),
+              );
+              let scale = Math.min(
+                120 / metrics.width,
+                140 / metrics.height,
+                Math.sqrt(pixels / (metrics.width * metrics.height)),
+              );
+              while (
+                Math.ceil(metrics.width * scale) *
+                  Math.ceil(metrics.height * scale) >
+                pixels
+              )
+                scale *= 0.999;
+              for (const [page, value] of this.pages)
+                if (!this.visible.has(page)) value.releaseBitmap();
+              const lease = this.cache.acquire(
+                key,
+                Math.max(1, Math.ceil(metrics.width * scale)),
+                Math.max(1, Math.ceil(metrics.height * scale)),
+              );
+              result.lease = lease;
+              const job = this.backend.render(index, lease.canvas, {
+                scale,
+                rotation: 0,
+                signal: abort.signal,
+              });
+              const stop = () => job.cancel();
+              abort.signal.addEventListener('abort', stop, { once: true });
+              try {
+                await job.promise;
+                throwIfAborted(abort.signal);
+              } finally {
+                abort.signal.removeEventListener('abort', stop);
+              }
+            } catch (error) {
+              result.lease?.release();
+              result.lease = undefined;
+              throw error;
+            } finally {
+              signal.removeEventListener('abort', cancel);
+              queueSignal.removeEventListener('abort', cancel);
+            }
+          },
+          true,
+        );
+        break;
+      } catch (error) {
+        if (
+          !(error instanceof FilumoError && error.code === 'PDF_CANVAS_BUDGET')
+        )
           throw error;
-        } finally {
-          signal.removeEventListener('abort', cancel);
-          queueSignal.removeEventListener('abort', cancel);
-        }
-      },
-      true,
-    );
+        await this.waitForBudget(revision, signal, generation);
+      }
+    }
     if (!result.lease) throw new Error('缩略图没有交付画布');
     const owned = result.lease;
     return {
@@ -465,10 +576,22 @@ export class PdfViewport {
     };
   }
   update(options: ViewOptions): void {
-    const zoomChanged = options.zoom !== this.options.zoom;
-    this.options = options;
-    for (const page of this.pages.values()) page.updateLocale(options.locale);
-    if (zoomChanged && options.zoom !== undefined) this.setZoom(options.zoom);
+    const next = { ...this.options, ...options };
+    const zoom = resolveZoomOptions(next, {
+      mode: 'fit-width',
+      modes: ['percentage', 'fit-width'],
+      minFitZoom: 1,
+    });
+    const zoomChanged =
+      next.zoom !== this.options.zoom ||
+      next.zoomMode !== this.options.zoomMode;
+    const limitChanged = next.fitMaxZoom !== this.options.fitMaxZoom;
+    this.options = next;
+    for (const page of this.pages.values()) page.updateLocale(next.locale);
+    if (zoomChanged) {
+      if (zoom.mode === 'percentage') this.setZoom(zoom.zoom);
+      else this.fitWidth();
+    } else if (limitChanged && this.mode === 'fit-width') this.fitWidth();
     else this.schedule();
   }
   setActive(value: boolean): void {
@@ -478,6 +601,7 @@ export class PdfViewport {
       this.resize?.observe(this.element);
       this.schedule();
     } else {
+      this.clearBudgetWaiters();
       this.resize?.disconnect();
       if (this.frame !== undefined)
         this.element.ownerDocument.defaultView?.cancelAnimationFrame(
@@ -489,6 +613,8 @@ export class PdfViewport {
   async dispose(): Promise<void> {
     if (this.closed) return;
     this.closed = true;
+    this.stopBudget();
+    this.clearBudgetWaiters();
     this.controller.abort();
     this.context.session.signal.removeEventListener('abort', this.cancel);
     this.resize?.disconnect();

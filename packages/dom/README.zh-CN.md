@@ -64,18 +64,28 @@ window.addEventListener(
 
 ## 常用配置
 
-| 配置项                     | 默认值        | 说明                                                                    |
-| -------------------------- | ------------- | ----------------------------------------------------------------------- |
-| `plugins`                  | 必填          | ViewerPlugin 列表；安装外壳不会自动注册格式。                           |
-| `height`                   | 560           | 数字按 px 解释，也可传 CSS 高度字符串；百分比高度需要父容器有明确高度。 |
-| `theme / locale`           | light / zh-CN | 主题与界面语言；语言支持 zh-CN、en-US。                                 |
-| `toolbar`                  | true          | 是否展示工具栏。                                                        |
-| `zoom`                     | 由格式初始化  | 初始缩放百分比，能力边界由当前格式决定。                                |
-| `watermark`                | 未设置        | 只读阅读区水印文字。                                                    |
-| `stylePolicy.mode / nonce` | auto / 未设置 | 自动样式租约或外部 CSS；nonce 用于自动样式。                            |
-| `resourcePolicy`           | 未设置        | 通用 maxFileBytes 与 timeoutMs 限制。                                   |
+| 配置项                     | 默认值        | 说明                                                                            |
+| -------------------------- | ------------- | ------------------------------------------------------------------------------- |
+| `plugins`                  | 必填          | ViewerPlugin 列表；安装外壳不会自动注册格式。                                   |
+| `height`                   | 560           | 数字按 px 解释，也可传 CSS 高度字符串；百分比高度需要父容器有明确高度。         |
+| `theme / locale`           | light / zh-CN | 主题与界面语言；语言支持 zh-CN、en-US。                                         |
+| `toolbar`                  | true          | 是否展示工具栏。                                                                |
+| `zoom`                     | 由格式初始化  | 初始缩放百分比，能力边界由当前格式决定。                                        |
+| `zoomMode`                 | 由格式初始化  | percentage 为固定比例，fit-width 适应宽度，Office 部分格式还支持既有 fit-page。 |
+| `fitMaxZoom`               | 未设置        | 自动适应的百分比上限，手动缩放使用当前格式允许的范围。                          |
+| `watermark`                | 未设置        | 只读阅读区水印文字。                                                            |
+| `stylePolicy.mode / nonce` | auto / 未设置 | 自动样式租约或外部 CSS；nonce 用于自动样式。                                    |
+| `resourcePolicy`           | 未设置        | 通用 maxFileBytes 与 timeoutMs 限制。                                           |
 
 完整类型以公开声明与源码为准；没有列出的功能不能通过猜测选项名开启。
+
+### 声明式缩放
+
+`{ zoomMode: 'percentage', zoom: 100 }`使用固定 100%，`{ zoomMode: 'fit-width' }`适应宽度，`{ zoomMode: 'fit-width', fitMaxZoom: 100 }`在自动适应时最大 100%。单独传入 zoom 使用固定比例，省略新增配置时沿用格式默认值。
+
+用户输入 150%或点击放大后进入固定比例，窗口变化保留该值，再选择适应宽度时重新应用自动上限。宿主修改 zoom 或 zoomMode 的值时应用新配置，普通选项更新保留用户手动选择，仅更新 fitMaxZoom 时重新测量当前自动模式。
+
+fitMaxZoom 必须为有限数值，至少达到当前格式的最小自动比例。PDF 为 1%，Office 为 25%，CSV 为 50%。各格式继续保留自身手动缩放范围，支持的模式以实际能力为准。插件可复用 resolveZoomOptions 统一解析配置。
 
 ## 生命周期与公共 UI
 
@@ -172,3 +182,57 @@ Image CSS 用于 Office 的共享图片弹层。外部样式须匹配各包版�
 - [项目变更记录](https://github.com/gyxing/filumo-viewer/blob/master/CHANGELOG.md)
 - [问题反馈](https://github.com/gyxing/filumo-viewer/issues)
 - [MIT 许可证](https://github.com/gyxing/filumo-viewer/blob/master/packages/dom/LICENSE)
+
+## 工具栏显隐与宿主操作
+
+`toolbarVisibility` 按内置名称或动作 ID 配置显隐，省略项沿用默认呈现。内置名称包括 `open`、`download`、`fullscreen`、`zoom`、`navigation`，格式动作支持完整 ID 或末段语义名称，例如 `pdf.search` 或 `search`。完整 ID 优先。显隐仅影响入口，程序调用能力继续保留。
+
+`toolbarActions` 使用已有 `CapabilityAction` 合同追加宿主操作，重复 ID 由宿主覆盖。操作参与相同的响应式主栏与更多菜单布局，子查看器默认独立配置宿主操作。
+
+工具栏始终单行，默认优先展开适用操作，文件名过长时省略。超出容器宽度时按 `toolbar.priority` 从低到高收进更多，分页和缩放按组处理，外壳的打开、下载和全屏也参与收纳。`Infinity` 表示最后收纳，极窄容器中仍可进入更多。`placement: 'more'` 可明确指定固定菜单项。没有对应内容的动作由插件通过 `visible` 隐藏，导航边界和执行中的暂时禁用保留入口。
+
+```ts
+import type { ViewerConfiguration } from '@filumo/dom';
+
+const options: ViewerConfiguration = {
+  toolbarVisibility: { open: false },
+  toolbarActions: [
+    {
+      id: 'host.retry',
+      label: '重新生成',
+      kind: 'action',
+      run: () => window.location.reload(),
+    },
+  ],
+};
+```
+
+`ViewerHandle.update(options)` 可以更新上述配置。框架适配组件通过 `options` 传入即可。
+
+Excel 和 CSV 共用的只读网格首次打开时保持空选区。点击、拖选、Shift 扩选和查找定位建立选择，表格内按 Esc 或点击阅读区空白可以清除。滚动、缩放和重绘保持清除后的空状态，复制选区入口跟随有效选择。Tab 仅移动焦点，首次方向键主动选择正文首格，Ctrl+A 可以从空状态全选。
+
+## 自定义工具栏图标
+
+`toolbarActions[].icon` 接受 `ToolbarIcon` 对象。`mount(container, context)` 返回含 `dispose()` 和可选 `update(context)` 的实例。上下文提供所属 `document`、`placement`（`toolbar` 或 `menu`）及只读操作状态 `action`。
+
+```ts
+const icon = {
+  mount(container, context) {
+    const image = context.document.createElement('img');
+    image.src = '/assets/retry.svg';
+    image.alt = '';
+    container.appendChild(image);
+    return {
+      dispose() {
+        image.remove();
+      },
+    };
+  },
+};
+const actions = [
+  { id: 'host.retry', label: '重新生成', kind: 'action', icon, run: retry },
+];
+viewer.update({ toolbarActions: actions });
+```
+
+主栏和更多菜单分别创建实例，尺寸观察和节点清理由外壳管理。更新及销毁回调保持同步，每次挂载负责自己的资源。`undefined` 沿用默认语义图标，`null` 显式隐藏图标。没有图标的普通按钮保留名称。原生图标对象可以传入各框架适配器。新增公开类型为 `ToolbarIcon`、`ToolbarIconContext`、`ToolbarIconInstance`、`ToolbarActionState`。

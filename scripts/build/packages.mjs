@@ -136,12 +136,24 @@ for (const name of names) {
     { cwd: ROOT, stdio: 'inherit' },
   );
   await normalizeDeclarations(output);
-  const workerMetafile =
+  let workerMetafile =
     name === 'office'
       ? await buildOfficeWorker(directory, ROOT)
       : definition.workerEntry
       ? await buildFormatWorker(directory, ROOT, definition.workerEntry)
       : undefined;
+  if (name === 'archive') {
+    const zipWorker = await buildFormatWorker(
+      directory,
+      ROOT,
+      'src/worker/zip-entry.ts',
+      'zip-worker',
+    );
+    workerMetafile = {
+      inputs: { ...workerMetafile?.inputs, ...zipWorker.inputs },
+      outputs: { ...workerMetafile?.outputs, ...zipWorker.outputs },
+    };
+  }
   const pdfAssets =
     definition.assetStrategy === 'pdfjs'
       ? await copyPdfAssets(directory, output, metadata.styleScope)

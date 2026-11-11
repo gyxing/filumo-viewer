@@ -20,8 +20,15 @@ export class OfficeViewportService {
   private mutation?: MutationObserver;
   private timers: ReturnType<typeof setTimeout>[] = [];
   private unsubscribe: () => void;
+  private fitMaxZoom?: number;
   getSnapshot = this.state.getSnapshot;
   subscribe = this.state.subscribe;
+  /** 上限只参与自动测量，百分比模式的用户选择由状态端口持有。 */
+  setFitMaxZoom(value?: number): void {
+    if (value === this.fitMaxZoom) return;
+    this.fitMaxZoom = value;
+    this.schedule();
+  }
   constructor(
     private readonly container: HTMLElement,
     private readonly port: OfficeInteractionPort,
@@ -146,7 +153,11 @@ export class OfficeViewportService {
             state.zoomMode === 'fit-page' && state.family !== 'spreadsheet'
               ? Math.min(width / w, height / h) * 100
               : (width / w) * 100;
-          if (Number.isFinite(raw)) zoom = normalizeOfficeZoom(Math.floor(raw));
+          if (Number.isFinite(raw))
+            zoom = Math.min(
+              normalizeOfficeZoom(Math.floor(raw)),
+              this.fitMaxZoom ?? Infinity,
+            );
         }
       }
     } else if (state.zoomMode === 'percentage')

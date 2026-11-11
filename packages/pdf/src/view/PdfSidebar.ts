@@ -31,7 +31,7 @@ export class PdfSidebar {
   private outlineTree: PdfOutline;
   private entries: readonly PdfOutlineEntry[] = [];
   private mode: PdfSidebarMode = 'outline';
-  private open = true;
+  private open = false;
   private active = true;
   private closed = false;
   private interacted = false;
@@ -57,6 +57,8 @@ export class PdfSidebar {
     this.expandButton.className = 'filumo-pdf-sidebar-expand';
     this.expandButton.append(pdfIcon(document, 'expand'));
     this.expandButton.onclick = () => {
+      // 首次手动展开优先提供可用导航，异步大纲返回后保留这次选择。
+      if (!this.interacted && !this.entries.length) this.mode = 'thumbnails';
       this.interacted = true;
       this.open = true;
       this.sync();
@@ -150,8 +152,11 @@ export class PdfSidebar {
         this.loading = false;
         this.entries = entries;
         this.outlineTree.setEntries(entries);
-        // 只在用户尚未操作时选择首次默认页，异步加载不能抢走正在使用的 Tab。
-        if (!entries.length && !this.interacted) this.mode = 'thumbnails';
+        // 默认只展开有效大纲，用户已选择的模式和收起状态优先。
+        if (!this.interacted) {
+          this.mode = entries.length ? 'outline' : 'thumbnails';
+          this.open = entries.length > 0;
+        }
         this.sync();
         this.change();
       })
@@ -159,7 +164,10 @@ export class PdfSidebar {
         if (this.closed) return;
         this.loading = false;
         this.outlineError = String(error);
-        if (!this.interacted) this.mode = 'thumbnails';
+        if (!this.interacted) {
+          this.mode = 'thumbnails';
+          this.open = false;
+        }
         this.sync();
         this.change();
       });

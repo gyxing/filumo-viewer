@@ -1,5 +1,7 @@
 # @filumo/office
 
+ViewOptions 支持 zoomMode 和 fitMaxZoom，Word、Excel 默认 100%，PPT 默认整页适应。Word 和 PPT 支持既有 fit-page，各 Office 格式支持 fit-width。自动上限至少 25%，手动比例仍使用 25%至 300%的范围，普通选项更新保留用户手动缩放。
+
 <p>
 <a href="https://github.com/gyxing/filumo-viewer/blob/master/packages/office/README.md">English</a> | <strong>简体中文</strong> ·
 <a href="https://gyxing.github.io/filumo-viewer/playground" target="_blank" rel="noopener noreferrer">在线示例</a> ·

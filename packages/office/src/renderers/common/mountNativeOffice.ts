@@ -1,6 +1,7 @@
 import type { ViewContext, ViewHandle, ViewOptions } from '@filumo/dom';
 import { useStyles as acquireStyles } from '@filumo/dom';
 import { STYLE_SCOPE } from '../../generated/package';
+import { applyOfficeZoomOptions } from '../../runtime/applyViewZoom';
 import { createOfficeCapabilities } from '../../runtime/capabilities';
 import { createOfficeViewServices } from '../../services/createOfficeViewServices';
 import '../../styles/office.less';
@@ -126,28 +127,28 @@ export async function mountNativeOffice(
         void owned.state.execute({ type: 'search', open: false });
       }
     });
-    // 演示文稿默认完整适配容器，宿主显式传入比例时仍优先使用固定缩放。
-    if (
-      options.zoom === undefined &&
-      owned.state.getState().family === 'presentation'
-    ) {
-      await owned.state.execute({ type: 'zoomMode', mode: 'fit-page' });
-    } else {
-      await owned.state.execute({ type: 'zoom', value: options.zoom ?? 100 });
-    }
+    await applyOfficeZoomOptions(
+      options,
+      undefined,
+      owned.state,
+      owned.viewport,
+    );
     panels.update(options.locale ?? 'zh-CN');
     view = await mount(native);
     refresh();
     const handle: ViewHandle = {
       update(next) {
+        const previous = options;
         options = { ...options, ...next };
         native.options = options;
         native.locale = options.locale;
         panels.update(options.locale ?? 'zh-CN');
-        if (next.zoom !== undefined)
-          void owned.state
-            .execute({ type: 'zoom', value: next.zoom })
-            .catch(context.onError);
+        void applyOfficeZoomOptions(
+          options,
+          previous,
+          owned.state,
+          owned.viewport,
+        ).catch(context.onError);
         view?.update(options);
         refresh();
       },

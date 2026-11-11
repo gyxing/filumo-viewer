@@ -28,24 +28,23 @@
     "文档预览"
   ],
   "homepage": "https://github.com/gyxing/filumo-viewer/tree/master/packages/pdf#readme",
+  "bugs": {
+    "url": "https://github.com/gyxing/filumo-viewer/issues"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/gyxing/filumo-viewer.git",
     "directory": "packages/pdf"
   },
-  "bugs": {
-    "url": "https://github.com/gyxing/filumo-viewer/issues"
-  },
+  "license": "MIT",
   "author": {
     "name": "gyxing",
     "url": "https://github.com/gyxing"
   },
-  "license": "MIT",
-  "publishConfig": {
-    "access": "public"
-  },
   "sideEffects": [
     "**/*.css",
+    "./dist/worker.js",
+    "./dist/assets/pdfjs/legacy/build/pdf.worker.mjs",
     "./dist/chunks/*.js"
   ],
   "type": "module",
@@ -69,7 +68,9 @@
   "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
-      "assets": ["dist/assets.d.ts"]
+      "assets": [
+        "dist/assets.d.ts"
+      ]
     }
   },
   "files": [
@@ -81,5 +82,8 @@
     "@filumo/core": "workspace:^",
     "@filumo/dom": "workspace:^",
     "pdfjs-dist": "6.4.299"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

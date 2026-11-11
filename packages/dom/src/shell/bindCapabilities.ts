@@ -4,8 +4,9 @@ import type {
 } from '../capabilities/types';
 import { createSelectControl } from './SelectControl';
 import { createZoomControl } from './ZoomControl';
+import { createActionIcon } from './actionIcon';
 import { getActionPresentation } from './actionPresentation';
-import { createShellIcon, labelShellButton, type ShellIcon } from './icons';
+import { labelShellButton } from './icons';
 import { createToolbarOverflow, type ToolbarItem } from './overflow';
 import {
   actionMenuItem,
@@ -19,7 +20,7 @@ interface ActionElement {
   control: HTMLButtonElement;
   selection?: ReturnType<typeof createSelectControl>;
   label?: HTMLElement;
-  icon?: ShellIcon;
+  icon: ReturnType<typeof createActionIcon>;
   current: CapabilityAction;
 }
 /** 按能力更新控件，复用节点以保留键盘焦点，不识别具体文档格式。 */
@@ -73,8 +74,12 @@ export function bindCapabilities(
       capabilities: ViewerCapabilities,
       locale: 'zh-CN' | 'en-US' = 'zh-CN',
       available = true,
+      shellItems: readonly ToolbarItem[] = [],
+      hostActionIds?: ReadonlySet<string>,
     ) {
       current = capabilities;
+      const focused = document.activeElement;
+      const hadControlFocus = container.contains(focused);
       const en = locale === 'en-US';
       const ordered: ToolbarItem[] = [];
       const wanted = new Set(
@@ -82,18 +87,24 @@ export function bindCapabilities(
       );
       for (const [id, entry] of actions)
         if (!wanted.has(id)) {
+          entry.icon.dispose();
           entry.selection?.dispose();
           entry.node.remove();
           actions.delete(id);
         }
       for (const action of capabilities.actions ?? []) {
+        // 宿主恢复和关闭操作不依赖文档就绪，只受自身 enabled 状态约束。
+        const actionAvailable =
+          available || hostActionIds?.has(action.id) === true;
         if (action.toolbar?.visible === false) {
+          actions.get(action.id)?.icon.dispose();
           actions.get(action.id)?.selection?.close();
           actions.get(action.id)?.node.remove();
           continue;
         }
         let entry = actions.get(action.id);
         if (entry && entry.kind !== action.kind) {
+          entry.icon.dispose();
           entry.selection?.dispose();
           entry.node.remove();
           actions.delete(action.id);
@@ -122,6 +133,13 @@ export function bindCapabilities(
             control,
             label,
             selection,
+            icon: createActionIcon(
+              control,
+              'toolbar',
+              onError,
+              overflow.requestLayout,
+              selection ? 'filumo-select-icon' : undefined,
+            ),
             current: action,
           };
           actions.set(action.id, entry);
@@ -134,7 +152,7 @@ export function bindCapabilities(
             };
         }
         entry.current = action;
-        entry.control.disabled = !available || action.enabled === false;
+        entry.control.disabled = !actionAvailable || action.enabled === false;
         const presentation = getActionPresentation(action);
         if (entry.label) {
           entry.label.textContent = action.label;
@@ -143,23 +161,9 @@ export function bindCapabilities(
             'filumo-capability-label--visible',
             presentation.showLabel,
           );
-          if (entry.icon !== presentation.icon) {
-            entry.control.querySelector('.filumo-select-icon')?.remove();
-            if (presentation.icon) {
-              const icon = createShellIcon(document, presentation.icon);
-              icon.classList.add('filumo-select-icon');
-              entry.control.prepend(icon);
-            }
-            entry.icon = presentation.icon;
-          }
-          entry.selection?.update(action, available);
+          entry.selection?.update(action, actionAvailable);
         } else {
-          labelShellButton(
-            entry.control,
-            action.label,
-            presentation.icon,
-            !presentation.showLabel,
-          );
+          labelShellButton(entry.control, action.label, undefined);
           if (action.kind === 'toggle') {
             entry.control.setAttribute(
               'aria-pressed',
@@ -167,14 +171,20 @@ export function bindCapabilities(
             );
           } else entry.control.removeAttribute('aria-pressed');
         }
-        const semantic = action.id.split('.').at(-1);
+        const hasIcon = entry.icon.update(presentation.icon, {
+          ...action,
+          enabled: !entry.control.disabled,
+        });
+        if (!entry.label)
+          entry.control.classList.toggle(
+            'filumo-icon-button',
+            !presentation.showLabel && hasIcon,
+          );
         ordered.push({
           node: entry.node,
-          menu: actionMenuItem(action, available),
+          menu: actionMenuItem(action, actionAvailable),
           closeControl: entry.selection?.close,
-          secondary: action.toolbar?.placement
-            ? action.toolbar.placement === 'more'
-            : ['zoomMode', 'sheet', 'transitions'].includes(semantic ?? ''),
+          secondary: action.toolbar?.placement === 'more',
           order: action.toolbar?.order ?? 0,
           priority:
             action.toolbar?.priority ?? (action.kind === 'select' ? 40 : 60),
@@ -210,7 +220,7 @@ export function bindCapabilities(
           node: navGroup,
           menu: navigationMenuItem(nav, en, available),
           order: nav.toolbar?.order ?? 1,
-          priority: nav.toolbar?.priority ?? 80,
+          priority: nav.toolbar?.priority ?? 130,
           secondary: nav.toolbar?.placement === 'more',
         });
       } else navGroup.remove();
@@ -222,19 +232,26 @@ export function bindCapabilities(
           menu: zoomMenuItem(zoom, en, available),
           closeControl: zoomControl.close,
           order: zoom.toolbar?.order ?? 2,
-          priority: zoom.toolbar?.priority ?? 100,
+          priority: zoom.toolbar?.priority ?? 120,
           secondary: zoom.toolbar?.placement === 'more',
         });
       } else {
         zoomControl.close();
         zoomControl.element.remove();
       }
+      ordered.push(...shellItems);
       ordered.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
       overflow.update(ordered, en);
+      // 内容变化隐藏正在操作的控件时，把焦点移到仍可访问的工具栏入口。
+      if (hadControlFocus && focused && !focused.isConnected)
+        overflow.restoreFocus();
     },
     dispose() {
       current = {};
-      for (const entry of actions.values()) entry.selection?.dispose();
+      for (const entry of actions.values()) {
+        entry.icon.dispose();
+        entry.selection?.dispose();
+      }
       actions.clear();
       zoomControl.dispose();
       overflow.dispose();

@@ -136,3 +136,23 @@ auto 样式由 DOM 与格式持有，external 模式加载 @filumo/dom/styles.cs
 - [项目变更记录](https://github.com/gyxing/filumo-viewer/blob/master/CHANGELOG.md)
 - [问题反馈](https://github.com/gyxing/filumo-viewer/issues)
 - [MIT 许可证](https://github.com/gyxing/filumo-viewer/blob/master/packages/react/LICENSE)
+
+## 自定义工具栏图标
+
+从本包导入 `ToolbarAction`，在 `options.toolbarActions` 中使用 `icon: <ReloadOutlined spin={loading} />` 等 ReactNode。也支持原生 `ToolbarIcon` 对象。`undefined` 沿用默认图标，`null` 或布尔值隐藏图标。
+
+```tsx
+import type { ToolbarAction } from '@filumo/react';
+const actions: readonly ToolbarAction[] = [
+  {
+    id: 'host.retry',
+    label: '重新生成',
+    kind: 'action',
+    icon: <ReloadOutlined spin={loading} />,
+    run: retry,
+  },
+];
+<DocumentViewer plugins={plugins} options={{ toolbarActions: actions }} />;
+```
+
+Portal 保留宿主 React Context，并在主栏和更多菜单分别渲染。`ViewerConfiguration`、`ViewOptions`、`ViewerOptions` 和 `ViewerHandle.update()` 接受本包的图标类型，`getCapabilities()` 返回 DOM 层归一化后的能力。React 与 React DOM 均通过 peerDependencies 使用宿主 18 或 19 版本。图标定义更新、操作删除和组件卸载会更新或释放相应 Portal。

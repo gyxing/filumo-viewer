@@ -5,5 +5,6 @@ test('子查看器复用同一注册集合，Archive 无须依赖标准预设', 
   const code = await readFile('packages/dom/src/createViewer.ts', 'utf8');
   assert.match(code, /createChildViewer/);
   assert.match(code, /plugins: options.plugins/);
+  assert.match(code, /toolbarActions: configuration.toolbarActions/);
   assert.match(code, /children/);
 });

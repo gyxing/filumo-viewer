@@ -106,7 +106,7 @@ export async function copyPdfAssets(directory, output, scope, options = {}) {
     join(root, 'legacy/build/pdf.worker.mjs'),
     'utf8',
   );
-  // 兼容整套外部资源部署，同时让默认发布入口具备包内资源路由。
+  // 完整 Worker 保留初始化副作用，包元数据同时保护其转发链不被宿主摇树删除。
   await writeFile(
     join(destination, 'legacy/build/pdf.worker.mjs'),
     adaptPdfWorker(workerSource, assets, '../../'),
@@ -114,7 +114,8 @@ export async function copyPdfAssets(directory, output, scope, options = {}) {
   );
   await writeFile(
     join(output, 'worker.js'),
-    adaptPdfWorker(workerSource, assets),
+    '// 默认入口复用完整外部目录中的同版适配 Worker，保持资源目录可独立复制。\n' +
+      "export { WorkerMessageHandler } from './assets/pdfjs/legacy/build/pdf.worker.mjs';\n",
     'utf8',
   );
   assets.push({

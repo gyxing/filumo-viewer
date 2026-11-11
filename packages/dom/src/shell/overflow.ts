@@ -28,7 +28,7 @@ export function createToolbarOverflow(
   trigger.className = 'filumo-toolbar-more-trigger';
   more.append(trigger);
   container.append(main);
-  // 全局操作已由外壳挂载；更多入口放在最后，Tab 顺序与视觉位置保持一致。
+  // 格式和外壳操作共用主栏；更多入口最后挂载，保持视觉与键盘顺序一致。
   toolbar.append(more);
   const menu = createToolbarMenu(trigger, more, onError);
   let items: ToolbarItem[] = [];
@@ -46,9 +46,6 @@ export function createToolbarOverflow(
     frame = 0;
     if (disposed || !toolbar.clientWidth) return;
     toolbar.dataset.compact = String(toolbar.clientWidth < 900);
-    toolbar.dataset.keepActions = String(
-      items.some((item) => !item.secondary && item.priority === Infinity),
-    );
     const overflow = new Set(items.filter((item) => item.secondary));
     const apply = () => {
       const primary = items.filter((item) => !overflow.has(item));
@@ -71,9 +68,9 @@ export function createToolbarOverflow(
     toolbar.dataset.filumoMoving = 'true';
     try {
       apply();
-      // 缩放比与当前页优先保留，次要能力退入更多面板而非堆叠成多行。
+      // 最高优先级也参与最终收纳，极窄容器仍保持单行并保留更多入口。
       const candidates = items
-        .filter((item) => !item.secondary && item.priority !== Infinity)
+        .filter((item) => !item.secondary)
         .sort((a, b) => (a.priority ?? 50) - (b.priority ?? 50));
       for (const item of candidates) {
         if (toolbar.scrollWidth <= toolbar.clientWidth + 1) break;
@@ -122,14 +119,25 @@ export function createToolbarOverflow(
   const close = () => {
     menu.close(more.contains(document.activeElement));
   };
+  const restoreFocus = () => {
+    const target = !more.hidden
+      ? trigger
+      : main.querySelector<HTMLElement>(
+          'button:not(:disabled), input:not(:disabled)',
+        );
+    target?.focus({ preventScroll: true });
+  };
   return {
     close,
+    requestLayout: schedule,
+    restoreFocus,
     update(next: ToolbarItem[], english: boolean) {
       const wanted = new Set(next.map((item) => item.node));
       for (const item of items) if (!wanted.has(item.node)) item.node.remove();
       items = next;
       en = english;
       labelShellButton(trigger, en ? 'More actions' : '更多操作', 'more', true);
+      if (frame) window?.cancelAnimationFrame(frame);
       layout();
       schedule();
     },

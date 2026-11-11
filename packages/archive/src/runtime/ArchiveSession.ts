@@ -58,6 +58,11 @@ export class ArchiveSession {
           format = archiveFormatForBytes(
             await range.read(0, Math.min(512, range.length), signal),
           );
+        // 与描述符一致，200 来源通过已缓存前缀确定格式，全文留给实际读取器。
+        else if (source.readRange)
+          format = archiveFormatForBytes(
+            await source.readRange(0, 512, signal),
+          );
       }
       if (!format) throw new Error('无法识别压缩包格式');
       const entries = await this.worker.scan(info, format, signal);

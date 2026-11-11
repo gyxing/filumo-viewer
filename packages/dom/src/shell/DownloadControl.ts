@@ -7,12 +7,15 @@ import {
 } from './OriginalDownload';
 import { createToolbarMenu } from './ToolbarMenu';
 import { createShellIcon, labelShellButton } from './icons';
+import type { ToolbarItem } from './overflow';
+import type { ToolbarMenuItem } from './toolbarMenuItems';
 
 interface DownloadState {
   session?: DocumentSession;
   ready: boolean;
   active: boolean;
   locale?: string;
+  showDownload?: boolean;
   capabilities: ViewerCapabilities;
   handler?: (source: DocumentSource, signal: AbortSignal) => Promise<void>;
 }
@@ -41,6 +44,7 @@ export function createDownloadControl(
   let closed = false;
   let targetKey = '';
   let pending: Promise<void> | undefined;
+  let shown = false;
   const availability = () => {
     const state = getState();
     return originalDownloadAvailability(
@@ -111,11 +115,43 @@ export function createDownloadControl(
     changed();
     return pending;
   };
+  const downloadTargets = () => {
+    const state = getState();
+    // 未提供下载实现的目标不占位；执行中的临时禁用仍保留入口。
+    return (state.capabilities.downloadTargets ?? []).filter(
+      (target) =>
+        target.enabled !== false &&
+        (target.kind !== 'original' ||
+          !!state.handler ||
+          state.capabilities.originalDownload?.enabled !== false),
+    );
+  };
+  const targetItems = (): ToolbarMenuItem[] => {
+    const state = getState();
+    const base = availability();
+    return downloadTargets().map((target) => ({
+      id: target.id,
+      label: target.label,
+      icon: target.kind === 'original' ? 'open' : 'document',
+      disabled:
+        !state.ready ||
+        !state.active ||
+        !!pending ||
+        (target.kind === 'original' && !base.enabled),
+      run: () => perform(target.id),
+    }));
+  };
   function update() {
     if (closed) return;
     const state = getState(),
       en = state.locale === 'en-US';
-    const targets = state.capabilities.downloadTargets ?? [];
+    const targets = downloadTargets();
+    if (state.ready)
+      shown = state.capabilities.downloadTargets?.length
+        ? !!targets.length
+        : !!state.handler ||
+          state.capabilities.originalDownload?.enabled !== false;
+    owner.hidden = state.showDownload === false || !shown;
     const key = targets.map((target) => target.id).join('|');
     if (key !== targetKey) {
       if (menu.opened) menu.close(true);
@@ -125,7 +161,11 @@ export function createDownloadControl(
     const available = state.ready && state.active && !pending;
     labelShellButton(
       button,
-      targets.length
+      pending
+        ? en
+          ? 'Downloading'
+          : '下载中'
+        : targets.length
         ? en
           ? 'Download'
           : '下载'
@@ -135,20 +175,9 @@ export function createDownloadControl(
       'download',
       true,
     );
+    button.setAttribute('aria-busy', String(!!pending));
     button.classList.toggle('is-menu', !!targets.length);
-    menu.update(
-      targets.map((target) => ({
-        id: target.id,
-        label: target.label,
-        icon: target.kind === 'original' ? 'open' : 'document',
-        disabled:
-          !available ||
-          target.enabled === false ||
-          (target.kind === 'original' && !base.enabled),
-        run: () => perform(target.id),
-      })),
-      en ? 'Download options' : '下载选项',
-    );
+    menu.update(targetItems(), en ? 'Download options' : '下载选项');
     if (targets.length) {
       button.append(chevron);
       button.setAttribute('aria-haspopup', 'menu');
@@ -176,6 +205,20 @@ export function createDownloadControl(
   }
   return {
     update,
+    toolbarItem: (): ToolbarItem => ({
+      node: owner,
+      order: 1000,
+      priority: 140,
+      closeControl: () => menu.close(),
+      menu: {
+        id: 'toolbar.download',
+        label: button.getAttribute('aria-label') ?? '下载',
+        icon: 'download',
+        disabled: button.disabled,
+        children: downloadTargets().length ? targetItems() : undefined,
+        run: () => perform(),
+      },
+    }),
     capability: (): NonNullable<ViewerCapabilities['download']> => ({
       ...availability(),
       run: () => perform(),

@@ -1,14 +1,11 @@
 import type { DocumentInput, DocumentOpenOptions } from '@filumo/core';
 import { notify } from '@filumo/core';
-import type {
-  ViewOptions,
-  ViewerConfiguration,
-  ViewerHandle,
-  ViewerPlugin,
-} from '@filumo/dom';
+import type { ViewerHandle, ViewerPlugin } from '@filumo/dom';
 import { createViewer } from '@filumo/dom';
 import type { PropType } from 'vue';
 import Vue from 'vue';
+import type { ViewOptions, ViewerConfiguration } from './toolbarIcons';
+import { createToolbarIcons } from './toolbarIcons';
 
 interface InstanceState {
   viewer?: ViewerHandle;
@@ -18,10 +15,11 @@ interface InstanceState {
   configurationKey?: string;
   listeners: Set<() => void>;
   capabilityListeners: Set<() => void>;
+  icons: ReturnType<typeof createToolbarIcons>;
 }
 // 运行时对象不进入 Vue 2 的深度响应式系统，也不在组件实例间共享。
 const states = new WeakMap<object, InstanceState>();
-function getState(instance: object): InstanceState {
+function getState(instance: Vue): InstanceState {
   let state = states.get(instance);
   if (!state) {
     state = {
@@ -30,6 +28,7 @@ function getState(instance: object): InstanceState {
       active: true,
       listeners: new Set(),
       capabilityListeners: new Set(),
+      icons: createToolbarIcons(instance),
     };
     states.set(instance, state);
   }
@@ -67,6 +66,7 @@ export const DocumentViewer = Vue.extend({
   beforeDestroy() {
     const state = getState(this);
     state.closed = true;
+    state.icons.dispose();
     state.listeners.clear();
     state.capabilityListeners.clear();
     state.generation++;
@@ -103,7 +103,7 @@ export const DocumentViewer = Vue.extend({
           );
           return;
         }
-        state.viewer?.update(value);
+        state.viewer?.update(state.icons.convert(value));
       },
     },
   },
@@ -121,7 +121,7 @@ export const DocumentViewer = Vue.extend({
         this.options.stylePolicy,
       ]);
       const viewer = createViewer(this.$el as HTMLElement, {
-        ...this.options,
+        ...state.icons.convert(this.options),
         plugins: this.plugins as ViewerPlugin[],
         onReady: (session) => this.$emit('ready', session),
         onCapabilitiesChange: (capabilities) => {
@@ -150,7 +150,8 @@ export const DocumentViewer = Vue.extend({
       );
     },
     update(options: ViewOptions) {
-      getState(this).viewer?.update(options);
+      const state = getState(this);
+      state.viewer?.update(state.icons.convert(options));
     },
     getSnapshot() {
       return (

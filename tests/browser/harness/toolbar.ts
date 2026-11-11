@@ -1,4 +1,6 @@
+import { createSession } from '../../../packages/core/src';
 import type { ViewerCapabilities } from '../../../packages/dom/src';
+import { createViewer } from '../../../packages/dom/src';
 import '../../../packages/dom/src/shell.less';
 import { bindCapabilities } from '../../../packages/dom/src/shell/bindCapabilities';
 import { labelShellButton } from '../../../packages/dom/src/shell/icons';
@@ -151,3 +153,119 @@ for (const [label, action] of [
 }
 choose('docx');
 document.body.dataset.ready = 'true';
+
+/** 用真实控制器连续发布进度，观察静态外壳是否被重复写入。 */
+Object.assign(window, {
+  async filumoProgressBenchmark() {
+    const container = document.createElement('div');
+    document.body.append(container);
+    let progress: (value: { loaded: number; total: number }) => void = () => {};
+    let publish: (value: ViewerCapabilities) => void = () => {};
+    const received: number[] = [];
+    let callbacks = 0;
+    const viewer = createViewer(container, {
+      plugins: [
+        {
+          document: {
+            id: 'progress-fixture',
+            protocolVersion: 1,
+            extensions: [],
+            mimeTypes: [],
+            detect: async () => true,
+            load: async () => ({
+              open: async (source, context) => {
+                progress = context.reportProgress;
+                return createSession({
+                  ...context,
+                  source,
+                  format: 'fixture',
+                  data: {},
+                });
+              },
+            }),
+          },
+          loadView: async () => ({
+            mount: async (context) => {
+              publish = context.setCapabilities;
+              return { update() {}, setActive() {}, dispose() {} };
+            },
+          }),
+        },
+      ],
+      onStateChange(snapshot) {
+        callbacks++;
+        if (snapshot.progress?.loaded !== undefined)
+          received.push(snapshot.progress.loaded);
+      },
+    });
+    try {
+      await viewer.open(new Uint8Array([1]));
+      const owned: ViewerCapabilities = {
+        actions: [
+          {
+            id: 'stable.action',
+            kind: 'action',
+            label: 'Initial action',
+            run() {},
+          },
+        ],
+      };
+      publish(owned);
+      const open = container.querySelector('.filumo-open-file')!;
+      const controls = container.querySelector('.filumo-controls')!;
+      let staticMutations = 0,
+        controlMutations = 0;
+      const observeStatic = new MutationObserver((records) => {
+        staticMutations += records.length;
+      });
+      const observeControls = new MutationObserver((records) => {
+        controlMutations += records.length;
+      });
+      observeStatic.observe(open, {
+        subtree: true,
+        attributes: true,
+        childList: true,
+        characterData: true,
+      });
+      observeControls.observe(controls, {
+        subtree: true,
+        attributes: true,
+        childList: true,
+        characterData: true,
+      });
+      const before = callbacks,
+        started = performance.now();
+      for (let loaded = 0; loaded < 100; loaded++)
+        progress({ loaded, total: 100 });
+      const elapsedMs = performance.now() - started;
+      await Promise.resolve();
+      staticMutations += observeStatic.takeRecords().length;
+      controlMutations += observeControls.takeRecords().length;
+      observeStatic.disconnect();
+      observeControls.disconnect();
+      const callbackDelta = callbacks - before;
+      owned.actions![0].label = 'Changed action';
+      publish(owned);
+      const actionLabel = container
+        .querySelector('[data-filumo-action="stable.action"]')
+        ?.getAttribute('aria-label');
+      viewer.update({ locale: 'en-US' });
+      const label = open.getAttribute('aria-label');
+      viewer.setActive(false);
+      viewer.setActive(true);
+      return {
+        staticMutations,
+        controlMutations,
+        callbackDelta,
+        elapsedMs,
+        received: received.slice(0, 100),
+        label,
+        lifecycleCallbacks: callbacks - before - callbackDelta,
+        actionLabel,
+      };
+    } finally {
+      await viewer.destroy();
+      container.remove();
+    }
+  },
+});

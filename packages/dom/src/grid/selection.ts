@@ -50,12 +50,14 @@ export class GridSelection {
   }
   clamp(bounds?: GridRange): void {
     if (!validGridRange(bounds)) {
-      this.fullRange = undefined;
-      this.anchor = this.focus = undefined;
+      this.clear();
       return;
     }
+    // 空选区属于有效阅读状态，布局重绘不能替用户建立首格选择。
+    if (!this.anchor && !this.focus && !this.fullRange) return;
     this.anchor = clampGridPoint(
-      this.anchor ?? { row: bounds.startRow, column: bounds.startColumn },
+      this.anchor ??
+        this.focus ?? { row: bounds.startRow, column: bounds.startColumn },
       bounds,
     );
     this.focus = clampGridPoint(this.focus ?? this.anchor, bounds);
@@ -71,8 +73,23 @@ export class GridSelection {
   }
   /** 全选只保存边界，保持当前活动位置，隐藏尾行尾列也能完整复制。 */
   selectAll(bounds: GridRange): void {
+    if (!validGridRange(bounds)) {
+      this.clear();
+      return;
+    }
+    if (!this.anchor && !this.focus)
+      this.select(
+        { row: bounds.startRow, column: bounds.startColumn },
+        false,
+        bounds,
+      );
     this.clamp(bounds);
     this.fullRange = { ...bounds };
+  }
+  /** 清除逻辑选择，保存后的空状态在工作表恢复时继续有效。 */
+  clear(): void {
+    this.fullRange = undefined;
+    this.anchor = this.focus = undefined;
   }
   get range(): GridRange | undefined {
     if (this.fullRange) return { ...this.fullRange };

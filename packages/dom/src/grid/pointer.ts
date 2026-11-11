@@ -4,7 +4,7 @@ import type { GridTextSelection } from './textSelection';
 /** 网格之外的交互控件保留原事件，图片双击和列宽手柄不会启动拖选。 */
 export function gridInteractiveTarget(target: EventTarget | null): boolean {
   return !!(target as Element | null)?.closest?.(
-    'a,button,input,textarea,select,img,[contenteditable="true"],[role="link"],[role="separator"],[data-grid-interactive]',
+    'a,button,input,textarea,select,img,[contenteditable="true"],[role="link"],[role="separator"],[role="columnheader"],[role="rowheader"],[data-grid-interactive]',
   );
 }
 
@@ -26,6 +26,7 @@ export class GridPointer {
       nativeText?: boolean,
     ) => void,
     private text?: GridTextSelection,
+    private clear?: () => void,
   ) {
     host.addEventListener('pointerdown', this.down);
     host.addEventListener('pointermove', this.move);
@@ -42,9 +43,12 @@ export class GridPointer {
     )
       return;
     const point = this.hit(event.clientX, event.clientY, false);
-    if (!point) return;
     if (event.pointerType === 'touch') {
       this.tap = { id: event.pointerId, x: event.clientX, y: event.clientY };
+      return;
+    }
+    if (!point) {
+      this.clear?.();
       return;
     }
     if (!event.shiftKey && this.text?.begin(event)) {
@@ -100,15 +104,18 @@ export class GridPointer {
     if (this.tap?.id !== event.pointerId && this.drag?.id !== event.pointerId)
       return;
     if (this.tap?.id === event.pointerId) {
+      const point = this.hit(event.clientX, event.clientY, false);
+      if (!point) {
+        this.clear?.();
+        this.cancel();
+        return;
+      }
       if (this.text?.active) {
         this.cancel();
         return;
       }
-      const point = this.hit(event.clientX, event.clientY, false);
-      if (point) {
-        this.host.focus({ preventScroll: true });
-        this.select(point, false);
-      }
+      this.host.focus({ preventScroll: true });
+      this.select(point, false);
     }
     this.cancel();
   };

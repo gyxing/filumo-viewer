@@ -140,3 +140,21 @@ peerDependencies 为 vue ^2.6.14 || ^2.7.16。组件 mounted 时创建，beforeD
 - [项目变更记录](https://github.com/gyxing/filumo-viewer/blob/master/CHANGELOG.md)
 - [问题反馈](https://github.com/gyxing/filumo-viewer/issues)
 - [MIT 许可证](https://github.com/gyxing/filumo-viewer/blob/master/packages/vue2/LICENSE)
+
+## 自定义工具栏图标
+
+从本包导入 `ToolbarAction`，`icon` 使用 `(h, context) => VNode | null` 渲染函数，也支持原生 `ToolbarIcon`。每个位置独立创建 VNode。
+
+```ts
+const actions = [
+  {
+    id: 'host.retry',
+    label: '重新生成',
+    kind: 'action',
+    icon: (h) => h('i', { class: 'el-icon-refresh' }),
+    run: retry,
+  },
+];
+```
+
+将数组放入 `options.toolbarActions`。图标由关联查看器父实例的轻量子组件渲染，继承宿主注入，响应式依赖在子组件渲染时收集。移除与销毁执行 `$destroy()` 并清理节点。`undefined` 沿用默认图标，`null` 隐藏。公开 `ToolbarIconRenderer` 及框架侧配置、update 类型，`getCapabilities()` 返回归一化后的 DOM 能力。

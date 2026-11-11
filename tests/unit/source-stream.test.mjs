@@ -8,11 +8,16 @@ const result = await build({
   format: 'esm',
   platform: 'node',
 });
-const { normalizeSource, readSourceBytes } = await import(
+const core = await import(
   'data:text/javascript;base64,' +
     Buffer.from(result.outputFiles[0].text).toString('base64')
 );
+const { normalizeSource, readSourceBytes } = core;
 const signal = () => new AbortController().signal;
+
+test('内部前缀消费辅助不扩大 Core 公开导出', () => {
+  assert.equal('readStreamPrefix' in core, false);
+});
 
 test('来源流不调用 readAll，超限取消上游且可重放', async () => {
   let cancelled = 0,

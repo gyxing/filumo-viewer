@@ -8,6 +8,22 @@ test.beforeAll(
   async () => (server = await startServer('scripts/testing/serve-smoke.mjs')),
 );
 test.afterAll(async () => server?.close());
+
+test('源码开发模式的 PDF 转发 Worker 完成握手和绘制', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.goto(server.url + base + 'dev/smoke-test');
+  await page
+    .getByRole('button', { name: 'basic-pdf (PDF)', exact: true })
+    .click();
+  await expect(page.locator('.filumo-pdf-canvas').first()).toBeVisible({
+    timeout: 30000,
+  });
+  await expect(page.locator('[data-pdf-page="1"] .textLayer')).toContainText(
+    'Filumo PDF page 1',
+  );
+  expect(errors).toEqual([]);
+});
 test('新烟测选择公开文件、配置更新、销毁重开和 DOM 探针', async ({
   page,
   request,
@@ -28,7 +44,9 @@ test('新烟测选择公开文件、配置更新、销毁重开和 DOM 探针', 
 
   // 新增格式可以扩充公开样本，但开发接口必须完整返回公开目录且不混入本机文件。
   const catalogue = await sampleCatalog(process.cwd());
-  expect(data.samples.map((sample) => sample.id).sort()).toEqual(catalogue.map((sample) => sample.id).sort());
+  expect(data.samples.map((sample) => sample.id).sort()).toEqual(
+    catalogue.map((sample) => sample.id).sort(),
+  );
   expect(data.samples.some((s) => s.id === 'basic-docx')).toBe(true);
   expect(JSON.stringify(data).includes('absolute')).toBe(false);
   await page.goto(server.url + base);

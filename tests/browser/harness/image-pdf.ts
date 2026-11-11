@@ -30,12 +30,37 @@ const kinds = [
   'changed',
   'no-length',
   'slow',
+  'budget',
+  'external',
+  'external-query',
+  'external-prefixed',
+  'worker-src',
+  'worker-factory',
 ] as const;
 async function open(kind: (typeof kinds)[number]) {
   await viewer?.destroy();
+  // 外部目录与工厂使用真实 Worker，只改变夹具的公开配置。
+  const pdfOptions = kind.startsWith('external')
+    ? {
+        assetsBaseUrl:
+          (kind === 'external-prefixed' ? '/deployment-prefix' : '') +
+          '/assets/pdf/assets/pdfjs/' +
+          (kind === 'external-query' ? '?version=fixture' : ''),
+      }
+    : kind === 'worker-src'
+    ? { workerSrc: '/assets/pdf/worker.js' }
+    : kind === 'worker-factory'
+    ? {
+        workerSrc: '/must-not-request.js',
+        workerFactory: () =>
+          new Worker('/assets/pdf/worker.js', { type: 'module' }),
+      }
+    : kind === 'budget'
+    ? { canvasCacheBytes: 4096, maxCanvasPixels: 1024, renderConcurrency: 1 }
+    : {};
   viewer = createViewer(host, {
     height: 640,
-    plugins: [image(), pdf()],
+    plugins: [image(), pdf(pdfOptions)],
   });
   let file: DocumentInput;
   if (kind === 'gif')

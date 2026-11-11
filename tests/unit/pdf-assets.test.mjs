@@ -51,7 +51,10 @@ test('PDF 显式资源路径使用页面地址，不受打包器的源码 file U
           }));
           // 自定义命名空间没有文件系统解析基准，显式交还真实源码文件。
           builder.onResolve(
-            { filter: /[\\/]pdf[\\/]src[\\/]assets\.ts$/, namespace: 'fixture' },
+            {
+              filter: /[\\/]pdf[\\/]src[\\/]assets\.ts$/,
+              namespace: 'fixture',
+            },
             () => ({ path: resolve('packages/pdf/src/assets.ts') }),
           );
           builder.onLoad({ filter: /.*/, namespace: 'fixture' }, () => ({
@@ -118,8 +121,11 @@ test('PDF 发行清单含引擎、Worker、辅助资源和许可', async () => {
   assert.equal(manifest.pdfAssets.version, '6.4.299');
   assert.ok(
     manifest.outputs.some((output) =>
-      output.imports.some((entry) =>
-        entry.path === '@filumo/pdf/assets' && entry.kind === 'dynamic-import' && entry.external,
+      output.imports.some(
+        (entry) =>
+          entry.path === '@filumo/pdf/assets' &&
+          entry.kind === 'dynamic-import' &&
+          entry.external,
       ),
     ),
     '类型源码映射不能改变运行时资源入口的独立懒加载边界',
@@ -131,6 +137,46 @@ test('PDF 发行清单含引擎、Worker、辅助资源和许可', async () => {
     );
   for (const asset of manifest.pdfAssets.assets)
     await readFile('packages/pdf/dist/' + asset.file);
+});
+
+test('默认 Worker 复用自包含外部目录实现，不携带第二份完整引擎', async () => {
+  const entry = await readFile('packages/pdf/dist/worker.js');
+  assert.ok(
+    entry.length < 1024,
+    '公开 Worker 入口仅负责转发，不应重复携带完整实现',
+  );
+  const bundle = await build({
+    entryPoints: ['packages/pdf/dist/worker.js'],
+    bundle: true,
+    write: false,
+    metafile: true,
+    format: 'esm',
+    platform: 'browser',
+  });
+  assert.ok(
+    Object.keys(bundle.metafile.inputs).some((file) =>
+      file.endsWith('assets/pdfjs/legacy/build/pdf.worker.mjs'),
+    ),
+    '真实模块图应复用外部目录内的 Worker',
+  );
+  const canonical = await readFile(
+    'packages/pdf/dist/assets/pdfjs/legacy/build/pdf.worker.mjs',
+    'utf8',
+  );
+  const urls = [
+    ...canonical.matchAll(/new URL\(("(?:[^"\\]|\\.)*"), import\.meta\.url\)/g),
+  ].map((match) => JSON.parse(match[1]));
+  assert.ok(urls.length > 0);
+  for (const url of urls) {
+    const target = new URL(
+      url,
+      'https://fixture.example/pdf/assets/pdfjs/legacy/build/pdf.worker.mjs',
+    );
+    assert.ok(
+      target.pathname.startsWith('/pdf/assets/pdfjs/'),
+      '独立复制的资源目录不能反向依赖根 Worker',
+    );
+  }
 });
 
 test('同版 Worker 为同步、异步资源和解码回退生成明确入口', async () => {

@@ -23,21 +23,18 @@
     "react文档预览"
   ],
   "homepage": "https://github.com/gyxing/filumo-viewer/tree/master/packages/react#readme",
+  "bugs": {
+    "url": "https://github.com/gyxing/filumo-viewer/issues"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/gyxing/filumo-viewer.git",
     "directory": "packages/react"
   },
-  "bugs": {
-    "url": "https://github.com/gyxing/filumo-viewer/issues"
-  },
+  "license": "MIT",
   "author": {
     "name": "gyxing",
     "url": "https://github.com/gyxing"
-  },
-  "license": "MIT",
-  "publishConfig": {
-    "access": "public"
   },
   "sideEffects": [
     "**/styles/**",
@@ -64,10 +61,16 @@
     "@filumo/dom": "workspace:^"
   },
   "devDependencies": {
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.3.7",
     "react": "^18.0.0",
-    "@types/react": "^18.0.0"
+    "react-dom": "^18.3.1"
   },
   "peerDependencies": {
-    "react": ">=18 <20"
+    "react": ">=18 <20",
+    "react-dom": ">=18 <20"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

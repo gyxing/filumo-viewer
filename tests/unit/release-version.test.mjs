@@ -153,14 +153,16 @@ test('多个包升版时先检查全部说明，后一个包冲突不会写入�
   assert.equal(await readFile(core, 'utf8'), original);
 });
 
-test('实际 Changesets 对 PDF patch 不联动 Viewer，越过 0.1 范围时联动 Viewer', async () => {
+test('实际 Changesets 根据显式记录分别升级格式包和统一 Viewer 包', async () => {
   const config = JSON.parse(await readFile('.changeset/config.json', 'utf8'));
   const cli = fileURLToPath(
     new URL('../../node_modules/@changesets/cli/bin.js', import.meta.url),
   );
-  for (const [type, pdfVersion, viewerVersion] of [
-    ['patch', '0.1.1', '0.1.0'],
-    ['minor', '0.2.0', '0.1.1'],
+  for (const [type, includeViewer, pdfVersion, viewerVersion] of [
+    ['patch', false, '0.1.1', '0.1.0'],
+    ['minor', false, '0.2.0', '0.1.0'],
+    ['patch', true, '0.1.1', '0.1.1'],
+    ['minor', true, '0.2.0', '0.1.1'],
   ]) {
     const root = await releaseWorkspace();
     // 临时用例只验证版本图，不要求 Git 历史或联网安装依赖。
@@ -172,6 +174,12 @@ test('实际 Changesets 对 PDF patch 不联动 Viewer，越过 0.1 范围时联
       join(root, '.changeset/pdf.md'),
       '---\n"@filumo/pdf": ' + type + '\n---\n更新 PDF。\n',
     );
+    // 统一包内置格式代码，发新版时由独立记录明确选择其版本升级。
+    if (includeViewer)
+      await writeFile(
+        join(root, '.changeset/viewer.md'),
+        '---\n"@filumo/viewer": patch\n---\n同步统一包内置模块。\n',
+      );
     execFileSync(process.execPath, [cli, 'version'], {
       cwd: root,
       stdio: 'pipe',

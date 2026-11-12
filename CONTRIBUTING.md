@@ -59,7 +59,9 @@ pnpm release:plan pdf
 pnpm release:publish pdf
 ```
 
-若 PDF 使用了新 Core API，应明确提高最低依赖版本并为相关包添加 Changeset。`workspace:^` 发布时按本地依赖包版本转为普通范围。工具会报告 npm 无兼容版本的依赖；必要时显式选择 `pnpm release:plan core pdf`，确认后再用相同包清单发布。不会为普通 PDF patch 强制升级 Viewer，但超出已有兼容范围时必须审阅联动结果。
+若 PDF 使用了新 Core API，应明确提高最低依赖版本并为相关包添加 Changeset。`workspace:^` 发布时按本地依赖包版本转为普通范围。工具会报告当前 registry 无兼容版本的依赖，必要时显式选择 `pnpm release:plan core pdf`，确认后再用相同包清单发布。
+
+各格式包独立管理版本。`@filumo/viewer` 将内置模块作为构建期依赖，发布包含这些模块更新的统一包时，需要在 Changeset 中显式选择 `@filumo/viewer` 并设置升级级别。例如同步发布 PDF 和统一包，添加两者的发版记录、应用版本并完成构建验证后，使用 `pnpm release:plan pdf viewer` 预览，再用相同目标执行 `pnpm release:publish pdf viewer`。统一包自身的公开 API 变更按其 Changeset 指定的级别升版。
 
 已有宿主锁文件不会因 npm 发布自动更新；宿主仍需更新依赖解析才能使用新版本。
 

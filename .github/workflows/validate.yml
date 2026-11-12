@@ -53,7 +53,20 @@ jobs:
           HUSKY: '0'
 
       - name: Install browser for public Filumo regression
-        run: pnpm exec playwright install --with-deps chromium
+        shell: bash
+        # 临时 DNS 或下载失败可重试，耗尽次数后保留失败结果。
+        run: |
+          for attempt in 1 2 3; do
+            if pnpm exec playwright install --with-deps chromium; then
+              exit 0
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              echo "浏览器依赖安装失败，10 秒后重试（第 $attempt 次）"
+              sleep 10
+            fi
+          done
+          echo "::error::浏览器依赖安装重试 3 次仍失败"
+          exit 1
 
       - name: Validate public Filumo browser fixtures
         run: pnpm run test:browser

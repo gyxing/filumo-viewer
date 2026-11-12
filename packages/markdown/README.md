@@ -10,7 +10,7 @@ Read-only Markdown viewer for Filumo, with heading outlines, GFM tables and task
 
 A Markdown reading plugin with outlines, search, common GFM layout, controlled HTML nodes and on-demand syntax highlighting, with reading/source view switching.
 
-This documentation covers **0.1.0**. The commands below describe consumption after publication to npm. When using this source workspace, build the packages first as described in the integration guide.
+This documentation covers **0.1.1**. The commands below describe consumption after publication to npm. When using this source workspace, build the packages first as described in the integration guide.
 
 ## Features
 

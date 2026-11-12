@@ -1,6 +1,6 @@
 {
   "name": "@filumo/core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Headless document sessions, file sources and plugin protocols for Filumo, with DOM-free text utilities.",
   "keywords": [
     "filumo",
@@ -20,21 +20,18 @@
     "文件读取"
   ],
   "homepage": "https://github.com/gyxing/filumo-viewer/tree/master/packages/core#readme",
+  "bugs": {
+    "url": "https://github.com/gyxing/filumo-viewer/issues"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/gyxing/filumo-viewer.git",
     "directory": "packages/core"
   },
-  "bugs": {
-    "url": "https://github.com/gyxing/filumo-viewer/issues"
-  },
+  "license": "MIT",
   "author": {
     "name": "gyxing",
     "url": "https://github.com/gyxing"
-  },
-  "license": "MIT",
-  "publishConfig": {
-    "access": "public"
   },
   "sideEffects": [
     "**/styles/**",
@@ -56,16 +53,19 @@
   },
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": [
-    "dist",
-    "README.md",
-    "README.zh-CN.md"
-  ],
   "typesVersions": {
     "*": {
       "text": [
         "dist/text.d.ts"
       ]
     }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "README.zh-CN.md"
+  ],
+  "publishConfig": {
+    "access": "public"
   }
 }

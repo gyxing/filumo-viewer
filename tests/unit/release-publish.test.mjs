@@ -3,18 +3,18 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import test from 'node:test';
 import {
-  validateBuildArtifacts,
   readPackedManifest,
+  validateBuildArtifacts,
 } from '../../scripts/release/artifacts.mjs';
 import {
   checkReleaseGit,
   publishRelease,
 } from '../../scripts/release/publish.mjs';
 import {
-  releasePackages,
-  releaseWorkspace,
   fakePack,
   manifestArchive,
+  releasePackages,
+  releaseWorkspace,
 } from './helpers/release-fixtures.mjs';
 
 test('真实 Git 检查拒绝非 master 或脏工作区，不自动清理文件', () => {
@@ -84,6 +84,19 @@ test('全部 tarball 核验之后才写 npm，发布已核验文件且不开启�
       assert.equal((await readPackedManifest(record.file)).version, '0.1.1');
       assert.ok(args.includes('--config.ignore-scripts=true'));
       assert.ok(args.includes('--publish-branch=master'));
+      assert.deepEqual(
+        args,
+        [
+          'publish',
+          record.file,
+          '--access=public',
+          '--tag=latest',
+          '--publish-branch=master',
+          '--config.ignore-scripts=true',
+          '--config.git-checks=true',
+        ],
+        '上传命令应由当前 pnpm 配置解析目标源',
+      );
       published.push(record.name);
     },
   });

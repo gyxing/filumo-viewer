@@ -1,9 +1,6 @@
 import semver from 'semver';
 import { runPnpm } from '../testing/package-manager.mjs';
 
-// 发布与元数据查询使用同一官方源，不能被宿主 scope 映射改到其他 registry。
-export const NPM_REGISTRY = 'https://registry.npmjs.org/';
-
 /** 读取结构化响应，不把原始诊断或认证上下文带进错误信息。 */
 function parseResponse(value) {
   try {
@@ -24,30 +21,18 @@ function errorCode(error) {
     .match(/(?:^|\n)\s*(ERR_PNPM_[A-Z0-9_]+|E[0-9]{3})\b/)?.[1];
 }
 
-/** 通过 pnpm 沿用用户认证，只有明确的 404 才视为首次发布。 */
+/** 由 pnpm 解析当前源配置和认证，只有明确的 404 才视为首次发布。 */
 export async function readRegistryVersions(name, { root, run = runPnpm }) {
   let value;
   try {
     value = parseResponse(
-      await run(
-        [
-          'view',
-          name,
-          'versions',
-          '--json',
-          '--registry',
-          NPM_REGISTRY,
-          '--config.@filumo:registry=' + NPM_REGISTRY,
-          '--loglevel=error',
-        ],
-        {
-          cwd: root,
-          encoding: 'utf8',
-          stdio: 'pipe',
-          timeout: 60000,
-          maxBuffer: 4 * 1024 * 1024,
-        },
-      ),
+      await run(['view', name, 'versions', '--json', '--loglevel=error'], {
+        cwd: root,
+        encoding: 'utf8',
+        stdio: 'pipe',
+        timeout: 60000,
+        maxBuffer: 4 * 1024 * 1024,
+      }),
     );
   } catch (error) {
     const code = errorCode(error);

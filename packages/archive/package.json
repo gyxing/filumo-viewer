@@ -1,6 +1,6 @@
 {
   "name": "@filumo/archive",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Lazy archive browser for Filumo with ZIP, TAR, GZIP and bounded WASM previews for RAR, 7z and TAR.XZ.",
   "keywords": [
     "filumo",

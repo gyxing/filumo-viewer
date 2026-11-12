@@ -1,6 +1,6 @@
 {
   "name": "@filumo/xml",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Read-only XML viewer for Filumo, with a resizable source/tree layout, namespace-aware colored labels and source-range navigation.",
   "keywords": [
     "filumo",
@@ -27,21 +27,18 @@
     "结构树"
   ],
   "homepage": "https://github.com/gyxing/filumo-viewer/tree/master/packages/xml#readme",
+  "bugs": {
+    "url": "https://github.com/gyxing/filumo-viewer/issues"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/gyxing/filumo-viewer.git",
     "directory": "packages/xml"
   },
-  "bugs": {
-    "url": "https://github.com/gyxing/filumo-viewer/issues"
-  },
+  "license": "MIT",
   "author": {
     "name": "gyxing",
     "url": "https://github.com/gyxing"
-  },
-  "license": "MIT",
-  "publishConfig": {
-    "access": "public"
   },
   "sideEffects": [
     "**/*.css",
@@ -69,5 +66,8 @@
     "@filumo/core": "workspace:^",
     "@filumo/dom": "workspace:^",
     "saxes": "6.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

@@ -1,0 +1,32 @@
+# @filumo/react
+
+## 0.1.1
+
+### Minor Changes
+
+- f77cd60: 宿主工具栏操作支持自定义图标，DOM 图标采用挂载、更新和释放协议。React 接收 ReactNode 并使用 Portal，Vue 3 接收渲染函数并使用 Teleport，Vue 2 使用关联父实例的子组件。主栏和更多菜单共用图标定义，分别管理实例与尺寸观察，保留原有语义图标及显式隐藏能力。React Portal 通过 peerDependencies 使用宿主 react-dom。
+
+### Patch Changes
+
+- f77cd60: 远程格式探测采用共享有界前缀，保留特殊请求的一次读取行为，并补齐无区间归档的文件头识别。
+
+  PDF 预算等待改为资源释放后恢复，正文与缩略图等待不占渲染队列；默认 Worker 复用完整外部资源目录中的同版实现。
+
+  进度更新跳过静态工具栏的重复写入，保持状态回调时机；修正 React 丢弃渲染泄漏回调及 Vue3 重建型配置重复更新。
+
+- f77cd60: React 适配层透传原件下载接管，DOM 增加统一工具栏显隐配置及宿主操作扩展。Archive 新增 ZIP 专用公开入口与 Worker，复用既有归档界面和预算，支持宿主只打包所需压缩格式。
+
+  工具栏采用单行优先展开策略，超出时按组进入更多，外壳与格式操作统一收纳。PDF 缩略图、Office 与 CSV 的适用操作优先展示，空大纲及未修改列宽的恢复入口隐藏。
+
+  Excel 和 CSV 初始保持空选区，支持 Esc 与阅读空白清除，滚动重绘保存空状态，复制能力跟随有效选区。
+
+  PDF 初始侧栏收起，有大纲时自动展开，无大纲和读取失败保持收起，异步结果保留用户手动选择。
+
+  新增声明式 zoomMode 和 fitMaxZoom，PDF、Office 及 CSV 支持自动宽度与固定比例，自动上限独立于手动缩放，CSV 增加整表宽度测量与尺寸观察。
+
+- Updated dependencies [cf2cd37]
+- Updated dependencies [f77cd60]
+- Updated dependencies [f77cd60]
+- Updated dependencies [f77cd60]
+  - @filumo/core@0.1.1
+  - @filumo/dom@0.1.1

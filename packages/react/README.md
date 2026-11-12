@@ -10,7 +10,7 @@ React 18 and 19 document viewer adapter for Filumo, with typed refs, plugin-base
 
 A thin Filumo adapter for React 18/19. React manages only the host node; the shared DOM viewer and plugins provide format capabilities and reading interaction.
 
-This documentation covers **0.1.0**. The commands below describe consumption after publication to npm. When using this source workspace, build the packages first as described in the integration guide.
+This documentation covers **0.1.1**. The commands below describe consumption after publication to npm. When using this source workspace, build the packages first as described in the integration guide.
 
 ## Features
 

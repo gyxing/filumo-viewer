@@ -1,6 +1,6 @@
 {
   "name": "@filumo/markdown",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Read-only Markdown viewer for Filumo, with heading outlines, GFM tables and task lists, controlled HTML rendering and lazy code highlighting.",
   "keywords": [
     "filumo",
@@ -27,21 +27,18 @@
     "目录导航"
   ],
   "homepage": "https://github.com/gyxing/filumo-viewer/tree/master/packages/markdown#readme",
+  "bugs": {
+    "url": "https://github.com/gyxing/filumo-viewer/issues"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/gyxing/filumo-viewer.git",
     "directory": "packages/markdown"
   },
-  "bugs": {
-    "url": "https://github.com/gyxing/filumo-viewer/issues"
-  },
+  "license": "MIT",
   "author": {
     "name": "gyxing",
     "url": "https://github.com/gyxing"
-  },
-  "license": "MIT",
-  "publishConfig": {
-    "access": "public"
   },
   "sideEffects": [
     "./dist/chunks/*.js",
@@ -70,5 +67,8 @@
     "@filumo/dom": "workspace:^",
     "highlight.js": "11.12.0",
     "marked": "18.1.1"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

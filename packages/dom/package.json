@@ -1,6 +1,6 @@
 {
   "name": "@filumo/dom",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Framework-independent DOM file viewer shell for Filumo, with toolbars, shared text surfaces, outlines and style management.",
   "keywords": [
     "filumo",

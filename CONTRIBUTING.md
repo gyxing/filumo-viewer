@@ -18,21 +18,21 @@ pnpm run test:browser
 
 十五个 @filumo/\* 包分别管理版本，正式发布分支为 master。首次发布保持各包 0.1.0，后续只升级变化包及必要联动包。本地统一命令负责版本和发布；当前没有自动 npm 发布工作流。
 
-| 命令 | 职责 |
-| --- | --- |
-| pnpm changeset | 选择修改包、版本升级类型及变更说明 |
-| pnpm release:status | 查看待应用的 Changesets 与版本联动 |
-| pnpm release:version | 更新版本、依赖、各包 CHANGELOG、升版包 README 和锁文件 |
-| pnpm release:plan pdf | 只读查看 PDF 的待发版本与依赖要求 |
-| pnpm release:publish pdf | 真实发布指定包，必须在 master |
-| pnpm release:plan --all | 预览全部正式包中尚未发布的本地版本 |
-| pnpm release:publish --all | 显式发布全部待发版本 |
+| 命令                       | 职责                                                   |
+| -------------------------- | ------------------------------------------------------ |
+| pnpm changeset             | 选择修改包、版本升级类型及变更说明                     |
+| pnpm release:status        | 查看待应用的 Changesets 与版本联动                     |
+| pnpm release:version       | 更新版本、依赖、各包 CHANGELOG、升版包 README 和锁文件 |
+| pnpm release:plan pdf      | 只读查看 PDF 的待发版本与依赖要求                      |
+| pnpm release:publish pdf   | 真实发布指定包，必须在 master                          |
+| pnpm release:plan --all    | 预览全部正式包中尚未发布的本地版本                     |
+| pnpm release:publish --all | 显式发布全部待发版本                                   |
 
 可以使用目录名 `core pdf` 或完整包名 `@filumo/core @filumo/pdf` 指定多个包。包名之外不接受路径或任意通配符；无目标时不发布。预览不打包、不改文件；版本和发布入口均不会自动提交、推送或切换 Git 分支。
 
 ### 首次发布
 
-确认 npm 账号具有 @filumo scope 的发布权限。先完成全部代码，再运行构建、测试和必要的消费方验证，确认每包 dist、声明、Worker、样式与 PDF 资源完整；首次不需要为了发布先把 0.1.0 改成 0.1.1。
+确认当前 registry 的登录账号具有 @filumo scope 的发布权限。先完成全部代码，再运行构建、测试和必要的消费方验证，确认每包 dist、声明、Worker、样式与 PDF 资源完整；首次不需要为了发布先把 0.1.0 改成 0.1.1。
 
 审阅并提交源码、合入并同步 master 后：
 
@@ -65,7 +65,16 @@ pnpm release:publish pdf
 
 ### 发布校验和失败恢复
 
-发布只向 npm 官方 registry 上传，不在仓库保存认证信息；2FA 由 pnpm 提示。保留 pnpm 的干净工作区与远程同步检查；本机材料请自行妥善保管或按项目规则忽略，工具不会清理它们。
+版本查询与上传均由 pnpm 读取当前有效的 registry 配置，包括项目和用户配置文件及环境变量。设置了 `@filumo:registry` 时使用该 scope 的源，否则使用默认 `registry`。
+
+执行前可查看当前配置。
+
+```powershell
+pnpm config get registry
+pnpm config get '@filumo:registry'
+```
+
+私服配置生效后，`release:plan` 查询私服版本，`release:publish` 将产物上传至私服。认证沿用 pnpm 的客户端配置，2FA 由 pnpm 提示。发布命令会检查工作区和远程同步状态。
 
 所有选中包先完成 tarball 身份和依赖核对，再开始按拓扑顺序上传同一份产物，关闭生命周期脚本。dist 的版本检查不能证明源码未改或测试通过，因此发布命令不替代前面的统一验证。
 

@@ -6,22 +6,22 @@
 <a href="https://gyxing.github.io/filumo-viewer/docs" target="_blank" rel="noopener noreferrer">对接文档</a>
 </p>
 
-Filumo 十类格式插件的标准预设与工厂聚合入口。适合需要完整格式支持的宿主，实际查看器仍由 DOM 或框架适配包创建。
+Filumo 统一分发包，提供 DOM、React、Vue 3、Vue 2 和十类格式的独立入口。宿主只安装一个 Filumo 包，按入口选择需要的框架与格式。
 
-本文档对应 **0.1.0**。以下命令展示 npm 发布后的消费方式；从当前源码工作区使用时，请先按接入指南构建各包。
+本文档对应 **0.1.1**。以下命令展示 npm 发布后的消费方式；从当前源码工作区使用时，请先按接入指南构建各包。
 
 ## 主要能力
 
 - standardPlugins 是只读插件数组，不是需要调用的函数。
 - 聚合 Office、Text、JSON、Markdown、Image、PDF、CSV、XML、Code、Archive，格式实现仍在打开对应文件后加载。
-- 安装本包会安装所有格式依赖；只需要部分格式时，分别安装并注册对应的独立包。
+- 本包包含各格式的独立 ESM、Worker、资源及声明文件，运行依赖仅保留第三方库。静态子入口选择格式，打开文件时继续异步加载对应引擎。
 
 ## 安装
 
 ```sh
-pnpm add @filumo/dom @filumo/viewer
+pnpm add @filumo/viewer
 # 或使用 npm
-npm install @filumo/dom @filumo/viewer
+npm install @filumo/viewer
 ```
 
 ## 最小接入
@@ -32,7 +32,7 @@ npm install @filumo/dom @filumo/viewer
 ```
 
 ```ts
-import { createViewer } from '@filumo/dom';
+import { createViewer } from '@filumo/viewer/dom';
 import { standardPlugins } from '@filumo/viewer';
 
 const container = document.getElementById('viewer');
@@ -149,3 +149,26 @@ Worker 需要保留所属包 worker.js 与 worker-chunks 的相对结构；PDF �
 - [项目变更记录](https://github.com/gyxing/filumo-viewer/blob/master/CHANGELOG.md)
 - [问题反馈](https://github.com/gyxing/filumo-viewer/issues)
 - [MIT 许可证](https://github.com/gyxing/filumo-viewer/blob/master/packages/viewer/LICENSE)
+
+## 按框架和格式选择入口
+
+```tsx
+import { DocumentViewer, type ToolbarAction } from '@filumo/viewer/react';
+import { office } from '@filumo/viewer/office';
+import { pdf } from '@filumo/viewer/pdf';
+import { csv } from '@filumo/viewer/csv';
+import { zip } from '@filumo/viewer/archive/zip';
+
+const plugins = [office(), pdf(), csv(), zip()];
+<DocumentViewer plugins={plugins} source={file} />;
+```
+
+原生 JavaScript 从 `@filumo/viewer/dom` 导入 createViewer。Vue 3 从 `@filumo/viewer/vue` 导入 DocumentViewer，Vue 2 从 `@filumo/viewer/vue2` 导入。各适配入口导出自己的 ToolbarAction、ViewOptions、ViewerConfiguration 和 ViewerHandle 类型，宿主工具栏图标沿用对应框架的渲染方式。
+
+React 与 React DOM 要求 18 或 19，Vue 3 要求 3.3 及以上，Vue 2 支持 2.6.14/2.7.16 兼容范围。它们作为可选 peer 依赖，宿主选择对应框架版本。
+
+所有独立包公开子入口按模块名加前缀导出，例如 `@filumo/viewer/pdf/assets`、`@filumo/viewer/pdf/worker.js`、`@filumo/viewer/office/styles.css`、`@filumo/viewer/archive/zip`。需要受控静态样式时按实际格式导入 CSS。
+
+完整格式预设通过根入口的 standardPlugins 使用。需要限定生产格式时，显式导入并注册对应子入口。单个发布包包含全部可选文件，安装体积与宿主生产输出分别评估，资源输出由真实引用决定。Umi/Webpack 使用静态子入口和既有懒加载即可接入，MFSU 的缓存及宿主 React 实例由宿主按自身构建边界配置。
+
+源码构建运行 `node scripts/build/packages.mjs viewer`，自动构建内部模块并生成自包含分发。维护验证可运行 `node scripts/testing/check-unified-viewer.mjs react`，只检查实际打包安装后的 React 与 Office/PDF/CSV/ZIP 组合，其他场景可指定 pdf、vue3、vue2。

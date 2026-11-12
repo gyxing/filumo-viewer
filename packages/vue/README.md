@@ -10,7 +10,7 @@ Vue 3 document viewer adapter for Filumo, with typed component methods, plugin-b
 
 A Filumo adapter for Vue 3 using Composition API and native render functions. The component itself does not require an additional SFC compilation plugin.
 
-This documentation covers **0.1.0**. The commands below describe consumption after publication to npm. When using this source workspace, build the packages first as described in the integration guide.
+This documentation covers **0.1.1**. The commands below describe consumption after publication to npm. When using this source workspace, build the packages first as described in the integration guide.
 
 ## Features
 

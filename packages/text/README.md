@@ -10,7 +10,7 @@ Read-only plain text and log viewer for Filumo, with encoding detection, line nu
 
 A read-only text and log preview plugin with automatic encoding detection, line numbers, wrapping, search and readable-text fallback for unknown formats.
 
-This documentation covers **0.1.0**. The commands below describe consumption after publication to npm. When using this source workspace, build the packages first as described in the integration guide.
+This documentation covers **0.1.1**. The commands below describe consumption after publication to npm. When using this source workspace, build the packages first as described in the integration guide.
 
 ## Features
 

@@ -1,6 +1,6 @@
 {
   "name": "@filumo/office",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Lazy-loaded read-only Word, Excel and PowerPoint previews for Filumo, supporting DOCX, XLSX, PPTX and legacy Office files.",
   "keywords": [
     "filumo",
@@ -37,21 +37,18 @@
     "office预览"
   ],
   "homepage": "https://github.com/gyxing/filumo-viewer/tree/master/packages/office#readme",
+  "bugs": {
+    "url": "https://github.com/gyxing/filumo-viewer/issues"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/gyxing/filumo-viewer.git",
     "directory": "packages/office"
   },
-  "bugs": {
-    "url": "https://github.com/gyxing/filumo-viewer/issues"
-  },
+  "license": "MIT",
   "author": {
     "name": "gyxing",
     "url": "https://github.com/gyxing"
-  },
-  "license": "MIT",
-  "publishConfig": {
-    "access": "public"
   },
   "sideEffects": [
     "./dist/chunks/*.js",
@@ -83,5 +80,8 @@
     "echarts": "^5.6.0",
     "emf-converter": "2.0.2",
     "saxes": "^6.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

@@ -7,13 +7,22 @@ test('新格式依赖闭包复用 Text 而不依赖 Office', () => {
     core: {},
     dom: { dependencies: { '@filumo/core': 'workspace:^' } },
     text: {
-      dependencies: { '@filumo/core': 'workspace:^', '@filumo/dom': 'workspace:^' },
+      dependencies: {
+        '@filumo/core': 'workspace:^',
+        '@filumo/dom': 'workspace:^',
+      },
     },
     json: {
-      dependencies: { '@filumo/text': 'workspace:^', '@filumo/dom': 'workspace:^' },
+      dependencies: {
+        '@filumo/text': 'workspace:^',
+        '@filumo/dom': 'workspace:^',
+      },
     },
     markdown: {
-      dependencies: { '@filumo/text': 'workspace:^', '@filumo/dom': 'workspace:^' },
+      dependencies: {
+        '@filumo/text': 'workspace:^',
+        '@filumo/dom': 'workspace:^',
+      },
     },
   };
   assert.deepEqual(resolveBuildOrder(['json'], manifests), [
@@ -61,4 +70,21 @@ test('构建顺序拒绝未知包和循环依赖', () => {
       }),
     /循环依赖/,
   );
+});
+
+test('统一包通过构建期 workspace 依赖补齐模块，其他包的开发依赖不进入闭包', () => {
+  const manifests = {
+    core: { devDependencies: { '@filumo/dom': 'workspace:^' } },
+    dom: { dependencies: { '@filumo/core': 'workspace:^' } },
+    viewer: {
+      devDependencies: { '@filumo/dom': 'workspace:^' },
+      dependencies: { saxes: '6.0.0' },
+    },
+  };
+  assert.deepEqual(resolveBuildOrder(['viewer'], manifests), [
+    'core',
+    'dom',
+    'viewer',
+  ]);
+  assert.deepEqual(resolveBuildOrder(['core'], manifests), ['core']);
 });

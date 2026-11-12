@@ -10,7 +10,7 @@ Lazy, read-only archive browsing with directory trees, virtual file lists and on
 
 A single top toolbar shows the active child document's search, zoom and navigation capabilities. Parent navigation and file-name search stay above the left tree. During previews, one download menu distinguishes the current file from the original outermost archive; breadcrumbs identify the current path.
 
-This documentation covers **0.1.0**. Repository features may precede npm publication.
+This documentation covers **0.1.1**. Repository features may precede npm publication.
 
 ## Formats and loading
 

@@ -10,7 +10,7 @@ Headless document sessions, file sources and plugin protocols for Filumo, with D
 
 The headless foundation for Filumo: document sources, format detection, plugin contracts, cancellation and session cleanup. Shared text utilities are available on demand from a separate subpath.
 
-This documentation covers **0.1.0**. The commands below describe consumption after publication to npm. When using this source workspace, build the packages first as described in the integration guide.
+This documentation covers **0.1.1**. The commands below describe consumption after publication to npm. When using this source workspace, build the packages first as described in the integration guide.
 
 ## Features
 

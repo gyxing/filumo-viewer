@@ -4,14 +4,14 @@ import { join, resolve } from 'node:path';
 import { packPackages, verifyPackedFile } from '../testing/pack-packages.mjs';
 import { runPnpm } from '../testing/package-manager.mjs';
 import {
-  validateBuildArtifacts,
   readPackedManifest,
+  validateBuildArtifacts,
   validatePackedManifest,
 } from './artifacts.mjs';
 import { createReleasePlan } from './plan.mjs';
-import { NPM_REGISTRY, readRegistryVersions } from './registry.mjs';
-import { loadReleasePackages } from './workspace.mjs';
+import { readRegistryVersions } from './registry.mjs';
 import { hasPendingChangesets } from './version.mjs';
+import { loadReleasePackages } from './workspace.mjs';
 
 /** 真实发布必须在 master 且工作区干净，pnpm 还会保留自身的远程同步检查。 */
 export function checkReleaseGit(root, readGit) {
@@ -91,15 +91,13 @@ export async function publishRelease(root, selected, adapters = {}) {
     try {
       const record = records[name];
       await verifyPackedFile(record);
-      // 发布已经核验的 tarball，避免二次打包或生命周期改变产物。
+      // 发布已核验的 tarball，目标源和认证交给 pnpm 按当前配置解析。
       const args = [
         'publish',
         record.file,
         '--access=public',
         '--tag=latest',
         '--publish-branch=master',
-        '--registry=' + NPM_REGISTRY,
-        '--config.@filumo:registry=' + NPM_REGISTRY,
         '--config.ignore-scripts=true',
         '--config.git-checks=true',
       ];

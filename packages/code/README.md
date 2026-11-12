@@ -10,7 +10,7 @@ Read-only source code viewer for Filumo, with lazy syntax highlighting for commo
 
 A standalone code preview plugin providing read-only source, highlighting, search and line numbers for common languages, scripts, build files, configuration and stylesheets.
 
-This documentation covers **0.1.0**. The commands below describe consumption after publication to npm. When using this source workspace, build the packages first as described in the integration guide.
+This documentation covers **0.1.1**. The commands below describe consumption after publication to npm. When using this source workspace, build the packages first as described in the integration guide.
 
 ## Features
 

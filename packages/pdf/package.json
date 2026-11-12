@@ -1,6 +1,6 @@
 {
   "name": "@filumo/pdf",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Continuous-scroll PDF viewer plugin for Filumo, with virtualized pages, outlines, thumbnails, text search and bounded canvas caches.",
   "keywords": [
     "filumo",

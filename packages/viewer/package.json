@@ -1,7 +1,7 @@
 {
   "name": "@filumo/viewer",
-  "version": "0.1.0",
-  "description": "Standard lazy-loaded Filumo plugin preset for Office, PDF, images, text, Markdown, JSON, CSV, XML, source code and archive previews.",
+  "version": "0.1.1",
+  "description": "Unified Filumo package with independent DOM, React, Vue and format entries, lazy-loaded engines and self-contained resources.",
   "keywords": [
     "filumo",
     "file-viewer",
@@ -54,8 +54,51 @@
     "url": "https://github.com/gyxing"
   },
   "sideEffects": [
-    "**/styles/**",
-    "**/*.css"
+    "./dist/modules/core/**/styles/**",
+    "./dist/modules/core/**/*.css",
+    "./dist/modules/dom/src/outline.ts",
+    "./dist/modules/dom/src/outline/OutlineTree.ts",
+    "./dist/modules/dom/src/text.ts",
+    "./dist/modules/dom/src/text/mountTextSurface.ts",
+    "./dist/modules/dom/src/split.ts",
+    "./dist/modules/dom/src/split/SplitHandle.ts",
+    "./dist/modules/dom/**/*.less",
+    "./dist/modules/dom/index.js",
+    "./dist/modules/dom/outline.js",
+    "./dist/modules/dom/text.js",
+    "./dist/modules/dom/split.js",
+    "./dist/modules/dom/src/grid.ts",
+    "./dist/modules/dom/grid.js",
+    "./dist/modules/dom/chunks/*.js",
+    "./dist/modules/dom/**/*.css",
+    "./dist/modules/image/**/*.css",
+    "./dist/modules/image/chunks/*.js",
+    "./dist/modules/pdf/**/*.css",
+    "./dist/modules/pdf/worker.js",
+    "./dist/modules/pdf/assets/pdfjs/legacy/build/pdf.worker.mjs",
+    "./dist/modules/pdf/chunks/*.js",
+    "./dist/modules/office/chunks/*.js",
+    "./dist/modules/office/**/*.css",
+    "./dist/modules/text/chunks/*.js",
+    "./dist/modules/text/**/*.css",
+    "./dist/modules/json/chunks/*.js",
+    "./dist/modules/json/**/*.css",
+    "./dist/modules/markdown/chunks/*.js",
+    "./dist/modules/markdown/**/*.css",
+    "./dist/modules/csv/**/*.css",
+    "./dist/modules/csv/chunks/*.js",
+    "./dist/modules/xml/**/*.css",
+    "./dist/modules/xml/chunks/*.js",
+    "./dist/modules/code/**/*.css",
+    "./dist/modules/code/chunks/*.js",
+    "./dist/modules/archive/**/*.css",
+    "./dist/modules/archive/chunks/*.js",
+    "./dist/modules/react/**/styles/**",
+    "./dist/modules/react/**/*.css",
+    "./dist/modules/vue/**/styles/**",
+    "./dist/modules/vue/**/*.css",
+    "./dist/modules/vue2/**/styles/**",
+    "./dist/modules/vue2/**/*.css"
   ],
   "type": "module",
   "exports": {
@@ -64,28 +107,316 @@
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./core": {
+      "types": "./dist/modules/core/index.d.ts",
+      "import": "./dist/modules/core/index.js",
+      "default": "./dist/modules/core/index.js"
+    },
+    "./core/text": {
+      "types": "./dist/modules/core/text.d.ts",
+      "import": "./dist/modules/core/text.js",
+      "default": "./dist/modules/core/text.js"
+    },
+    "./dom": {
+      "types": "./dist/modules/dom/index.d.ts",
+      "import": "./dist/modules/dom/index.js",
+      "default": "./dist/modules/dom/index.js"
+    },
+    "./dom/outline": {
+      "types": "./dist/modules/dom/outline.d.ts",
+      "import": "./dist/modules/dom/outline.js",
+      "default": "./dist/modules/dom/outline.js"
+    },
+    "./dom/styles.css": "./dist/modules/dom/styles.css",
+    "./dom/text": {
+      "types": "./dist/modules/dom/text.d.ts",
+      "import": "./dist/modules/dom/text.js",
+      "default": "./dist/modules/dom/text.js"
+    },
+    "./dom/text-messages": {
+      "types": "./dist/modules/dom/text-messages.d.ts",
+      "import": "./dist/modules/dom/text-messages.js",
+      "default": "./dist/modules/dom/text-messages.js"
+    },
+    "./dom/text-highlight": {
+      "types": "./dist/modules/dom/text-highlight.d.ts",
+      "import": "./dist/modules/dom/text-highlight.js",
+      "default": "./dist/modules/dom/text-highlight.js"
+    },
+    "./dom/grid": {
+      "types": "./dist/modules/dom/grid.d.ts",
+      "import": "./dist/modules/dom/grid.js",
+      "default": "./dist/modules/dom/grid.js"
+    },
+    "./dom/split": {
+      "types": "./dist/modules/dom/split.d.ts",
+      "import": "./dist/modules/dom/split.js",
+      "default": "./dist/modules/dom/split.js"
+    },
+    "./dom/html": {
+      "types": "./dist/modules/dom/html.d.ts",
+      "import": "./dist/modules/dom/html.js",
+      "default": "./dist/modules/dom/html.js"
+    },
+    "./image": {
+      "types": "./dist/modules/image/index.d.ts",
+      "import": "./dist/modules/image/index.js",
+      "default": "./dist/modules/image/index.js"
+    },
+    "./image/styles.css": "./dist/modules/image/styles.css",
+    "./image/view": {
+      "types": "./dist/modules/image/view/index.d.ts",
+      "import": "./dist/modules/image/view.js",
+      "default": "./dist/modules/image/view.js"
+    },
+    "./pdf": {
+      "types": "./dist/modules/pdf/index.d.ts",
+      "import": "./dist/modules/pdf/index.js",
+      "default": "./dist/modules/pdf/index.js"
+    },
+    "./pdf/styles.css": "./dist/modules/pdf/styles.css",
+    "./pdf/assets": {
+      "types": "./dist/modules/pdf/assets.d.ts",
+      "import": "./dist/modules/pdf/assets.js",
+      "default": "./dist/modules/pdf/assets.js"
+    },
+    "./pdf/worker.js": "./dist/modules/pdf/worker.js",
+    "./pdf/assets/*": "./dist/modules/pdf/assets/*",
+    "./office": {
+      "types": "./dist/modules/office/types/index.d.ts",
+      "import": "./dist/modules/office/index.js",
+      "default": "./dist/modules/office/index.js"
+    },
+    "./office/styles.css": "./dist/modules/office/styles.css",
+    "./office/worker.js": "./dist/modules/office/worker.js",
+    "./text": {
+      "types": "./dist/modules/text/index.d.ts",
+      "import": "./dist/modules/text/index.js",
+      "default": "./dist/modules/text/index.js"
+    },
+    "./text/reader": {
+      "types": "./dist/modules/text/reader/index.d.ts",
+      "import": "./dist/modules/text/reader.js",
+      "default": "./dist/modules/text/reader.js"
+    },
+    "./text/view": {
+      "types": "./dist/modules/text/view/index.d.ts",
+      "import": "./dist/modules/text/view.js",
+      "default": "./dist/modules/text/view.js"
+    },
+    "./text/styles.css": "./dist/modules/text/styles.css",
+    "./text/worker.js": "./dist/modules/text/worker.js",
+    "./json": {
+      "types": "./dist/modules/json/index.d.ts",
+      "import": "./dist/modules/json/index.js",
+      "default": "./dist/modules/json/index.js"
+    },
+    "./json/styles.css": "./dist/modules/json/styles.css",
+    "./json/worker.js": "./dist/modules/json/worker.js",
+    "./markdown": {
+      "types": "./dist/modules/markdown/index.d.ts",
+      "import": "./dist/modules/markdown/index.js",
+      "default": "./dist/modules/markdown/index.js"
+    },
+    "./markdown/styles.css": "./dist/modules/markdown/styles.css",
+    "./markdown/worker.js": "./dist/modules/markdown/worker.js",
+    "./csv": {
+      "types": "./dist/modules/csv/index.d.ts",
+      "import": "./dist/modules/csv/index.js",
+      "default": "./dist/modules/csv/index.js"
+    },
+    "./csv/styles.css": "./dist/modules/csv/styles.css",
+    "./csv/worker.js": "./dist/modules/csv/worker.js",
+    "./xml": {
+      "types": "./dist/modules/xml/index.d.ts",
+      "import": "./dist/modules/xml/index.js",
+      "default": "./dist/modules/xml/index.js"
+    },
+    "./xml/styles.css": "./dist/modules/xml/styles.css",
+    "./xml/worker.js": "./dist/modules/xml/worker.js",
+    "./code": {
+      "types": "./dist/modules/code/index.d.ts",
+      "import": "./dist/modules/code/index.js",
+      "default": "./dist/modules/code/index.js"
+    },
+    "./code/styles.css": "./dist/modules/code/styles.css",
+    "./code/worker.js": "./dist/modules/code/worker.js",
+    "./archive": {
+      "types": "./dist/modules/archive/index.d.ts",
+      "import": "./dist/modules/archive/index.js",
+      "default": "./dist/modules/archive/index.js"
+    },
+    "./archive/styles.css": "./dist/modules/archive/styles.css",
+    "./archive/worker.js": "./dist/modules/archive/worker.js",
+    "./archive/assets": {
+      "types": "./dist/modules/archive/assets.d.ts",
+      "import": "./dist/modules/archive/assets.js",
+      "default": "./dist/modules/archive/assets.js"
+    },
+    "./archive/zip": {
+      "types": "./dist/modules/archive/zip.d.ts",
+      "import": "./dist/modules/archive/zip.js",
+      "default": "./dist/modules/archive/zip.js"
+    },
+    "./archive/zip-worker.js": "./dist/modules/archive/zip-worker.js",
+    "./react": {
+      "types": "./dist/modules/react/index.d.ts",
+      "import": "./dist/modules/react/index.js",
+      "default": "./dist/modules/react/index.js"
+    },
+    "./vue": {
+      "types": "./dist/modules/vue/index.d.ts",
+      "import": "./dist/modules/vue/index.js",
+      "default": "./dist/modules/vue/index.js"
+    },
+    "./vue2": {
+      "types": "./dist/modules/vue2/index.d.ts",
+      "import": "./dist/modules/vue2/index.js",
+      "default": "./dist/modules/vue2/index.js"
+    }
   },
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "core": [
+        "dist/modules/core/index.d.ts"
+      ],
+      "core/text": [
+        "dist/modules/core/text.d.ts"
+      ],
+      "dom": [
+        "dist/modules/dom/index.d.ts"
+      ],
+      "dom/outline": [
+        "dist/modules/dom/outline.d.ts"
+      ],
+      "dom/text": [
+        "dist/modules/dom/text.d.ts"
+      ],
+      "dom/text-messages": [
+        "dist/modules/dom/text-messages.d.ts"
+      ],
+      "dom/text-highlight": [
+        "dist/modules/dom/text-highlight.d.ts"
+      ],
+      "dom/grid": [
+        "dist/modules/dom/grid.d.ts"
+      ],
+      "dom/split": [
+        "dist/modules/dom/split.d.ts"
+      ],
+      "dom/html": [
+        "dist/modules/dom/html.d.ts"
+      ],
+      "image": [
+        "dist/modules/image/index.d.ts"
+      ],
+      "image/view": [
+        "dist/modules/image/view/index.d.ts"
+      ],
+      "pdf": [
+        "dist/modules/pdf/index.d.ts"
+      ],
+      "pdf/assets": [
+        "dist/modules/pdf/assets.d.ts"
+      ],
+      "office": [
+        "dist/modules/office/types/index.d.ts"
+      ],
+      "text": [
+        "dist/modules/text/index.d.ts"
+      ],
+      "text/reader": [
+        "dist/modules/text/reader/index.d.ts"
+      ],
+      "text/view": [
+        "dist/modules/text/view/index.d.ts"
+      ],
+      "json": [
+        "dist/modules/json/index.d.ts"
+      ],
+      "markdown": [
+        "dist/modules/markdown/index.d.ts"
+      ],
+      "csv": [
+        "dist/modules/csv/index.d.ts"
+      ],
+      "xml": [
+        "dist/modules/xml/index.d.ts"
+      ],
+      "code": [
+        "dist/modules/code/index.d.ts"
+      ],
+      "archive": [
+        "dist/modules/archive/index.d.ts"
+      ],
+      "archive/assets": [
+        "dist/modules/archive/assets.d.ts"
+      ],
+      "archive/zip": [
+        "dist/modules/archive/zip.d.ts"
+      ],
+      "react": [
+        "dist/modules/react/index.d.ts"
+      ],
+      "vue": [
+        "dist/modules/vue/index.d.ts"
+      ],
+      "vue2": [
+        "dist/modules/vue2/index.d.ts"
+      ]
+    }
+  },
   "files": [
     "dist",
     "README.md",
     "README.zh-CN.md"
   ],
   "dependencies": {
+    "@zip.js/zip.js": "2.8.34",
+    "echarts": "^5.6.0",
+    "emf-converter": "2.0.2",
+    "highlight.js": "11.12.0",
+    "libarchive-wasm": "1.2.0",
+    "marked": "18.1.1",
+    "pdfjs-dist": "6.4.299",
+    "saxes": "6.0.0"
+  },
+  "devDependencies": {
     "@filumo/archive": "workspace:^",
     "@filumo/code": "workspace:^",
+    "@filumo/core": "workspace:^",
     "@filumo/csv": "workspace:^",
+    "@filumo/dom": "workspace:^",
     "@filumo/image": "workspace:^",
     "@filumo/json": "workspace:^",
     "@filumo/markdown": "workspace:^",
     "@filumo/office": "workspace:^",
     "@filumo/pdf": "workspace:^",
+    "@filumo/react": "workspace:^",
     "@filumo/text": "workspace:^",
+    "@filumo/vue": "workspace:^",
+    "@filumo/vue2": "workspace:^",
     "@filumo/xml": "workspace:^"
   },
-  "peerDependencies": {},
+  "peerDependencies": {
+    "react": ">=18 <20",
+    "react-dom": ">=18 <20",
+    "vue": "^2.6.14 || ^2.7.16 || >=3.3 <4"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    },
+    "vue": {
+      "optional": true
+    }
+  },
   "publishConfig": {
     "access": "public"
   }

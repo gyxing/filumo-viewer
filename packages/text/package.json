@@ -1,6 +1,6 @@
 {
   "name": "@filumo/text",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Read-only plain text and log viewer for Filumo, with encoding detection, line numbers, search and readable-text fallback.",
   "keywords": [
     "filumo",
@@ -30,21 +30,18 @@
     "编码识别"
   ],
   "homepage": "https://github.com/gyxing/filumo-viewer/tree/master/packages/text#readme",
+  "bugs": {
+    "url": "https://github.com/gyxing/filumo-viewer/issues"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/gyxing/filumo-viewer.git",
     "directory": "packages/text"
   },
-  "bugs": {
-    "url": "https://github.com/gyxing/filumo-viewer/issues"
-  },
+  "license": "MIT",
   "author": {
     "name": "gyxing",
     "url": "https://github.com/gyxing"
-  },
-  "license": "MIT",
-  "publishConfig": {
-    "access": "public"
   },
   "sideEffects": [
     "./dist/chunks/*.js",
@@ -91,5 +88,8 @@
   "dependencies": {
     "@filumo/core": "workspace:^",
     "@filumo/dom": "workspace:^"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

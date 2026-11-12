@@ -10,7 +10,7 @@ Continuous-scroll PDF viewer plugin for Filumo, with virtualized pages, outlines
 
 A read-only continuous-scroll PDF plugin using a pinned PDF.js version. Pages scroll continuously while page DOM, Canvas, text layers and thumbnails are managed within a window.
 
-This documentation covers **0.1.0**. The commands below describe consumption after publication to npm. When using this source workspace, build the packages first as described in the integration guide.
+This documentation covers **0.1.1**. The commands below describe consumption after publication to npm. When using this source workspace, build the packages first as described in the integration guide.
 
 ## Features
 

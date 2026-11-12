@@ -8,26 +8,26 @@
 
 Standard lazy-loaded Filumo plugin preset for Office, PDF, images, text, Markdown, JSON, CSV, XML, source code and archive previews.
 
-The standard preset and factory aggregation entry for Filumo's ten format plugins. Hosts needing complete format support still create the viewer through DOM or a framework adapter.
+A unified distribution with independent DOM, React, Vue 3, Vue 2 and format entries. Hosts install one Filumo package and select their framework and formats through subpath imports.
 
-This documentation covers **0.1.0**. The commands below describe consumption after publication to npm. When using this source workspace, build the packages first as described in the integration guide.
+This documentation covers **0.1.1**. The commands below describe consumption after publication to npm. When using this source workspace, build the packages first as described in the integration guide.
 
 ## Features
 
 - standardPlugins is a read-only plugin array, not a function to call.
 - Aggregates Office, Text, JSON, Markdown, Image, PDF, CSV, XML, Code and Archive. Format implementations still load only when their files are opened.
-- Installing this package installs all format dependencies. If only some formats are needed, install and register their standalone packages instead.
+- Contains independent ESM, Worker, asset and declaration files. Runtime dependencies contain third-party libraries. Static subpath imports select formats and engines load asynchronously when a matching file is opened.
 
 ## Installation
 
 ```sh
-pnpm add @filumo/dom @filumo/viewer
+pnpm add @filumo/viewer
 ```
 
 Or with npm:
 
 ```sh
-npm install @filumo/dom @filumo/viewer
+npm install @filumo/viewer
 ```
 
 ## Minimal integration
@@ -38,7 +38,7 @@ npm install @filumo/dom @filumo/viewer
 ```
 
 ```ts
-import { createViewer } from '@filumo/dom';
+import { createViewer } from '@filumo/viewer/dom';
 import { standardPlugins } from '@filumo/viewer';
 
 const container = document.getElementById('viewer');
@@ -157,3 +157,22 @@ The current package is bold. Each package is published independently. Package na
 - [Changelog](https://github.com/gyxing/filumo-viewer/blob/master/CHANGELOG.md)
 - [Report an issue](https://github.com/gyxing/filumo-viewer/issues)
 - [MIT license](https://github.com/gyxing/filumo-viewer/blob/master/packages/viewer/LICENSE)
+
+## Framework and format subpaths
+
+```ts
+import { DocumentViewer } from '@filumo/viewer/react';
+import { office } from '@filumo/viewer/office';
+import { pdf } from '@filumo/viewer/pdf';
+import { csv } from '@filumo/viewer/csv';
+import { zip } from '@filumo/viewer/archive/zip';
+const plugins = [office(), pdf(), csv(), zip()];
+```
+
+Native JavaScript uses `@filumo/viewer/dom`. Vue 3 uses `@filumo/viewer/vue`, and Vue 2 uses `@filumo/viewer/vue2`. Framework entries export their own toolbar action, configuration and handle types, including host-rendered icons. React/React DOM 18 or 19 and Vue 2.6.14/2.7.16 or Vue 3.3+ are optional host peer dependencies.
+
+Public module subpaths retain their names under the module prefix, including `@filumo/viewer/pdf/assets`, `@filumo/viewer/pdf/worker.js`, `@filumo/viewer/office/styles.css` and `@filumo/viewer/archive/zip`. Import static CSS only for selected formats when using external style mode.
+
+The root standardPlugins export enables the complete preset. Select explicit subpaths for format-limited production builds. The npm package contains optional format files and third-party dependencies, while production output follows actual imports and asset references. Umi/Webpack can consume static subpaths with existing lazy loading. MFSU cache and React identity remain host integration concerns.
+
+Build with `node scripts/build/packages.mjs viewer`. For focused installed-tarball verification run `node scripts/testing/check-unified-viewer.mjs react`. Additional named fixtures are pdf, vue3 and vue2.

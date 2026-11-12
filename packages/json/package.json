@@ -1,6 +1,6 @@
 {
   "name": "@filumo/json",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Read-only JSON, JSONC and JSON Lines viewer for Filumo, with split source/tree views, duplicate-key preservation and source navigation.",
   "keywords": [
     "filumo",
@@ -30,21 +30,18 @@
     "结构化数据"
   ],
   "homepage": "https://github.com/gyxing/filumo-viewer/tree/master/packages/json#readme",
+  "bugs": {
+    "url": "https://github.com/gyxing/filumo-viewer/issues"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/gyxing/filumo-viewer.git",
     "directory": "packages/json"
   },
-  "bugs": {
-    "url": "https://github.com/gyxing/filumo-viewer/issues"
-  },
+  "license": "MIT",
   "author": {
     "name": "gyxing",
     "url": "https://github.com/gyxing"
-  },
-  "license": "MIT",
-  "publishConfig": {
-    "access": "public"
   },
   "sideEffects": [
     "./dist/chunks/*.js",
@@ -71,5 +68,8 @@
   "dependencies": {
     "@filumo/core": "workspace:^",
     "@filumo/dom": "workspace:^"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

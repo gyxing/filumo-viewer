@@ -10,7 +10,7 @@ Read-only XML viewer for Filumo, with a resizable source/tree layout, namespace-
 
 A read-only XML source/tree split view with segmented coloring and source navigation for namespaces, attributes, text, CDATA and comments.
 
-This documentation covers **0.1.0**. The commands below describe consumption after publication to npm. When using this source workspace, build the packages first as described in the integration guide.
+This documentation covers **0.1.1**. The commands below describe consumption after publication to npm. When using this source workspace, build the packages first as described in the integration guide.
 
 ## Features
 

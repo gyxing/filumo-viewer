@@ -1,6 +1,6 @@
 {
   "name": "@filumo/code",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Read-only code viewer for Filumo, with lazy syntax highlighting for common languages, scripts, configuration, stylesheets and controlled HTML reading.",
   "keywords": [
     "filumo",

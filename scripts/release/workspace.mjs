@@ -30,12 +30,16 @@ export async function loadReleasePackages(root) {
       !semver.valid(manifest.version)
     )
       throw Error('无效正式发布包：' + name);
+    // 查询和上传共用客户端配置，包级 registry 覆盖会使两者指向不同目标。
     if (
       manifest.publishConfig?.access !== 'public' ||
       manifest.publishConfig?.directory ||
       manifest.publishConfig?.registry
     )
-      throw Error('发布目标必须使用本包目录和统一 public registry：' + name);
+      throw Error(
+        '发布包必须使用 public 访问级别、本包目录及客户端配置的 registry：' +
+          name,
+      );
     packages.set(manifest.name, { ...manifest, directory: name });
   }
   return packages;

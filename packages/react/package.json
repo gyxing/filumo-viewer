@@ -1,6 +1,6 @@
 {
   "name": "@filumo/react",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "React 18 and 19 document viewer adapter for Filumo, with typed refs, plugin-based formats and managed viewer cleanup.",
   "keywords": [
     "filumo",

@@ -290,15 +290,46 @@ importers:
 
   packages/viewer:
     dependencies:
+      '@zip.js/zip.js':
+        specifier: 2.8.34
+        version: 2.8.34
+      echarts:
+        specifier: ^5.6.0
+        version: 5.6.0
+      emf-converter:
+        specifier: 2.0.2
+        version: 2.0.2
+      highlight.js:
+        specifier: 11.12.0
+        version: 11.12.0
+      libarchive-wasm:
+        specifier: 1.2.0
+        version: 1.2.0
+      marked:
+        specifier: 18.1.1
+        version: 18.1.1
+      pdfjs-dist:
+        specifier: 6.4.299
+        version: 6.4.299
+      saxes:
+        specifier: 6.0.0
+        version: 6.0.0
+    devDependencies:
       '@filumo/archive':
         specifier: workspace:^
         version: link:../archive
       '@filumo/code':
         specifier: workspace:^
         version: link:../code
+      '@filumo/core':
+        specifier: workspace:^
+        version: link:../core
       '@filumo/csv':
         specifier: workspace:^
         version: link:../csv
+      '@filumo/dom':
+        specifier: workspace:^
+        version: link:../dom
       '@filumo/image':
         specifier: workspace:^
         version: link:../image
@@ -314,9 +345,18 @@ importers:
       '@filumo/pdf':
         specifier: workspace:^
         version: link:../pdf
+      '@filumo/react':
+        specifier: workspace:^
+        version: link:../react
       '@filumo/text':
         specifier: workspace:^
         version: link:../text
+      '@filumo/vue':
+        specifier: workspace:^
+        version: link:../vue
+      '@filumo/vue2':
+        specifier: workspace:^
+        version: link:../vue2
       '@filumo/xml':
         specifier: workspace:^
         version: link:../xml
@@ -832,7 +872,7 @@ packages:
 
   '@esbuild-kit/cjs-loader@2.4.4':
     resolution: {integrity: sha512-NfsJX4PdzhwSkfJukczyUiZGc7zNNWZcEAyqeISpDnn0PTfzMJR1aR8xAIPskBejIxBJbIgCCMzbaYa9SXepIg==}
-    deprecated: 'Merged into tsx: https://tsx.hirok.io'
+    deprecated: 'Merged into tsx: https://tsx.is'
 
   '@esbuild-kit/core-utils@3.3.2':
     resolution: {integrity: sha512-sPRAnw9CdSsRmEtnsl2WXWdyquogVpB3yZ3dgwJfe8zrOzTsV7cJvmwrKVa+0ma5BoiGJ+BoqkMvawbayKUsqQ==}
@@ -1668,6 +1708,7 @@ packages:
 
   '@sketch-hq/sketch-file-format-ts@6.5.0':
     resolution: {integrity: sha512-shaGl4ttFDpHjYBoMaZpciOtsi/lKvJ3VfcBYk6+PjjbFs6H5GxPAyhbiSqy3Vmx30aos284pd88QzD3rE6iag==}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
 
   '@stackblitz/sdk@1.11.1':
     resolution: {integrity: sha512-5wl1j3IhtmE7POTl2W9VGQdbQyBQrRsF3jcYBK+0V353AuO8H2GFZkiFNyTRxL+TDY3HIFCHc3G983Osmg76Lg==}
@@ -3828,7 +3869,7 @@ packages:
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
-    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+    deprecated: Glob versions prior to v9 are no longer supported
 
   global-dirs@0.1.1:
     resolution: {integrity: sha512-NknMLn7F2J7aflwFOlGdNIuCDpN3VGoSoB+aap3KABFWbHVn1TCgFC+np23J8W2BiZbjfEw3BFBycSMv1AFblg==}
@@ -5115,6 +5156,7 @@ packages:
 
   node-abort-controller@3.1.1:
     resolution: {integrity: sha512-AGK2yQKIjRuqnc6VkX2Xj5d+QW8xZ87pa1UK6yA6ouUyuxfHuMP6umE5QK7UmTeOAymo+Zx1Fxiuw9rVx8taHQ==}
+    deprecated: This package is no longer needed on supported Node.js versions. Node.js 16+ includes AbortController and AbortSignal as built-in globals. All Node.js versions requiring this polyfill are end-of-life. Use the built-in globals instead.
 
   node-addon-api@7.1.1:
     resolution: {integrity: sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ==}

@@ -22,6 +22,7 @@ import { preparePackageMetadata, readPackageMetadata } from './metadata.mjs';
 import { copyPdfAssets, pdfEntryAssetsPlugin } from './pdf-assets.mjs';
 import { serializeStyles } from './style-order.mjs';
 import { stylePlugin } from './styles.mjs';
+import { buildViewerDistribution } from './viewer-distribution.mjs';
 import { buildFormatWorker, buildOfficeWorker } from './worker.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
@@ -202,6 +203,14 @@ for (const name of names) {
     ) + '\n',
     'utf8',
   );
+  if (name === 'viewer')
+    await buildViewerDistribution(
+      ROOT,
+      output,
+      Object.keys(manifests.viewer.devDependencies ?? {})
+        .filter((dependency) => dependency.startsWith('@filumo/'))
+        .map((dependency) => dependency.slice('@filumo/'.length)),
+    );
   console.log(
     '已构建 ' + metadata.name + '（自动样式 ' + styles.size + ' 组）',
   );

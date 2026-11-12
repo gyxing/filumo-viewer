@@ -1,6 +1,11 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { execFile } from 'node:child_process';
+import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { createServer } from 'node:http';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import test from 'node:test';
+import { promisify } from 'node:util';
 import { createReleasePlan } from '../../scripts/release/plan.mjs';
 import { readRegistryVersions } from '../../scripts/release/registry.mjs';
 import {
@@ -141,6 +146,112 @@ test('registry 仅明确结构化 404 表示不存在，保留其他失败', asy
     /registry/,
   );
 });
+
+test('版本查询继承当前 pnpm 源配置与仓库工作目录', async () => {
+  const calls = [];
+  const root = process.cwd();
+  const versions = await readRegistryVersions('@filumo/pdf', {
+    root,
+    run: (args, options) => {
+      calls.push({ args, options });
+      return JSON.stringify(['0.1.0', '0.2.0']);
+    },
+  });
+  assert.deepEqual(versions, ['0.2.0', '0.1.0']);
+  assert.equal(calls.length, 1);
+  assert.deepEqual(calls[0].args, [
+    'view',
+    '@filumo/pdf',
+    'versions',
+    '--json',
+    '--loglevel=error',
+  ]);
+  assert.equal(calls[0].options.cwd, root);
+  assert.equal(calls[0].options.env, undefined);
+});
+
+test(
+  '真实 pnpm 查询使用默认源，scope 配置生效后使用对应源',
+  { timeout: 30000 },
+  async () => {
+    const root = await mkdtemp(join(tmpdir(), 'filumo-registry-config-'));
+    const requests = [];
+    const server = createServer((request, response) => {
+      requests.push({ method: request.method, url: request.url });
+      response.writeHead(200, {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store',
+      });
+      response.end(
+        JSON.stringify({
+          name: '@filumo/pdf',
+          'dist-tags': { latest: '0.2.0' },
+          versions: {
+            '0.1.0': { name: '@filumo/pdf', version: '0.1.0' },
+            '0.2.0': { name: '@filumo/pdf', version: '0.2.0' },
+          },
+        }),
+      );
+    });
+    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+    try {
+      const origin = 'http://127.0.0.1:' + server.address().port;
+      const userConfig = join(root, 'user.npmrc');
+      const globalConfig = join(root, 'global.npmrc');
+      await writeFile(userConfig, '');
+      await writeFile(globalConfig, '');
+      await writeFile(
+        join(root, 'package.json'),
+        JSON.stringify({ name: 'registry-config-fixture', private: true }),
+      );
+      // 子进程隔离宿主源配置，测试只请求自己启动的本机服务。
+      const env = Object.fromEntries(
+        Object.entries(process.env).filter(
+          ([key]) =>
+            !/^(npm|pnpm)_config_(registry|.*:registry|userconfig|globalconfig)$/i.test(
+              key,
+            ),
+        ),
+      );
+      env.NPM_CONFIG_USERCONFIG = userConfig;
+      env.NPM_CONFIG_GLOBALCONFIG = globalConfig;
+      const execute = promisify(execFile);
+      const run = async (args, options) => {
+        const result = await execute(
+          process.platform === 'win32' ? 'pnpm.exe' : 'pnpm',
+          args,
+          { ...options, env },
+        );
+        return result.stdout;
+      };
+      for (const scoped of [false, true]) {
+        await writeFile(
+          join(root, '.npmrc'),
+          'registry=' +
+            origin +
+            '/default/\n' +
+            (scoped ? '@filumo:registry=' + origin + '/scoped/\n' : ''),
+        );
+        const before = requests.length;
+        assert.deepEqual(
+          await readRegistryVersions('@filumo/pdf', { root, run }),
+          ['0.2.0', '0.1.0'],
+        );
+        const observed = requests.slice(before);
+        assert.equal(observed.length, 1);
+        assert.equal(observed[0].method, 'GET');
+        assert.equal(
+          decodeURIComponent(observed[0].url),
+          (scoped ? '/scoped/' : '/default/') + '@filumo/pdf',
+        );
+      }
+    } finally {
+      await new Promise((resolve, reject) =>
+        server.close((error) => (error ? reject(error) : resolve())),
+      );
+    }
+  },
+);
 
 test('Changesets 独立版本配置不自动提交或绑定全部包', async () => {
   const config = JSON.parse(await readFile('.changeset/config.json', 'utf8'));

@@ -10,7 +10,7 @@ Vue 2 document viewer adapter for Filumo, with Options API integration, plugin-b
 
 A Filumo adapter for Vue 2.6/2.7 using Options API and native render functions, with the same format plugins as Vue 3 and React.
 
-This documentation covers **0.1.0**. The commands below describe consumption after publication to npm. When using this source workspace, build the packages first as described in the integration guide.
+This documentation covers **0.1.1**. The commands below describe consumption after publication to npm. When using this source workspace, build the packages first as described in the integration guide.
 
 ## Features
 

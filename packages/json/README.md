@@ -10,7 +10,7 @@ Read-only JSON, JSONC and JSON Lines viewer for Filumo, with split source/tree v
 
 A read-only structured preview plugin for JSON, JSONC, JSONL and NDJSON, with colored source, structure trees, node navigation and record-based reading.
 
-This documentation covers **0.1.0**. The commands below describe consumption after publication to npm. When using this source workspace, build the packages first as described in the integration guide.
+This documentation covers **0.1.1**. The commands below describe consumption after publication to npm. When using this source workspace, build the packages first as described in the integration guide.
 
 ## Features
 

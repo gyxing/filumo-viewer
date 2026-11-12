@@ -10,7 +10,7 @@ ViewOptions 支持 zoomMode 和 fitMaxZoom，Word、Excel 默认 100%，PPT 默�
 
 以原生 DOM 提供 Word、Excel、PowerPoint 只读预览，不要求宿主安装 React/Vue，也不依赖服务端格式转换。
 
-本文档对应 **0.1.0**。以下命令展示 npm 发布后的消费方式；从当前源码工作区使用时，请先按接入指南构建各包。
+本文档对应 **0.1.1**。以下命令展示 npm 发布后的消费方式；从当前源码工作区使用时，请先按接入指南构建各包。
 
 ## 主要能力
 

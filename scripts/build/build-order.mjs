@@ -19,7 +19,11 @@ export function resolveBuildOrder(names, manifests) {
     if (current === 'visiting')
       throw Error('包存在循环依赖：' + [...chain, name].join(' -> '));
     state.set(name, 'visiting');
-    const dependencies = manifests[name].dependencies ?? {};
+    const dependencies = {
+      ...manifests[name].dependencies,
+      // 统一分发包将内部模块作为构建期依赖，生产 manifest 只保留第三方包。
+      ...(name === 'viewer' ? manifests[name].devDependencies : {}),
+    };
     for (const [dependency, range] of Object.entries(dependencies)) {
       if (!/^workspace:/.test(String(range))) continue;
       if (!dependency.startsWith('@filumo/')) continue;

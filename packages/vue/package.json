@@ -1,6 +1,6 @@
 {
   "name": "@filumo/vue",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Vue 3 document viewer adapter for Filumo, with typed component methods, plugin-based formats and KeepAlive lifecycle support.",
   "keywords": [
     "filumo",
@@ -23,21 +23,18 @@
     "vue文档预览"
   ],
   "homepage": "https://github.com/gyxing/filumo-viewer/tree/master/packages/vue#readme",
+  "bugs": {
+    "url": "https://github.com/gyxing/filumo-viewer/issues"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/gyxing/filumo-viewer.git",
     "directory": "packages/vue"
   },
-  "bugs": {
-    "url": "https://github.com/gyxing/filumo-viewer/issues"
-  },
+  "license": "MIT",
   "author": {
     "name": "gyxing",
     "url": "https://github.com/gyxing"
-  },
-  "license": "MIT",
-  "publishConfig": {
-    "access": "public"
   },
   "sideEffects": [
     "**/styles/**",
@@ -68,5 +65,8 @@
   },
   "peerDependencies": {
     "vue": ">=3.3 <4"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
